@@ -18,8 +18,7 @@ dotenv.config()
 export type Propiedades = {
   icono?: string
   descripcion?: string
-  color_light?: string
-  color_dark?: string
+  orden: number
 }
 
 export const ModuloEstado = {
@@ -33,13 +32,13 @@ export class Modulo extends AuditoriaEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })
   id: string
 
-  @Column({ length: 50, type: 'varchar', unique: true })
+  @Column({ length: 50, type: 'varchar' })
   label: string
 
   @Column({ length: 50, type: 'varchar', unique: true })
   url: string
 
-  @Column({ length: 50, type: 'varchar', unique: true })
+  @Column({ length: 50, type: 'varchar' })
   nombre: string
 
   @Column({ type: 'jsonb' })

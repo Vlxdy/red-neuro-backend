@@ -61,7 +61,6 @@ export class ModuloRepository {
           estado: Status.ACTIVE,
         }
       )
-      .orderBy('subModulo.id', 'ASC')
       .select([
         'modulo.id',
         'modulo.label',
@@ -80,17 +79,16 @@ export class ModuloRepository {
       .andWhere('modulo.estado = :estado', {
         estado: Status.ACTIVE,
       })
-      .orderBy('modulo.id', 'ASC')
-      .orderBy('subModulo.id', 'ASC')
+      .orderBy(`"modulo"."propiedades"->'orden'`, 'ASC')
+      .addOrderBy(`"subModulo"."propiedades"->'orden'`, 'ASC')
       .getMany()
   }
 
   async crear(moduloDto: CrearModuloDto, usuarioAuditoria: string) {
     const propiedades: Propiedades = {
       icono: moduloDto.propiedades.icono,
-      color_dark: moduloDto.propiedades.color_dark,
-      color_light: moduloDto.propiedades.color_light,
       descripcion: moduloDto.propiedades.descripcion,
+      orden: moduloDto.propiedades.orden,
     }
 
     const modulo = new Modulo()

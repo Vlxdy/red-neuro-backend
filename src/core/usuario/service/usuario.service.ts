@@ -121,7 +121,7 @@ export class UsuarioService extends BaseService {
     )
 
     if (usuario) {
-      throw new PreconditionFailedException(Messages.EXISTING_USER)
+      throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
     }
 
     // verificar si el correo no esta registrado

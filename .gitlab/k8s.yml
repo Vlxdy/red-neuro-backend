@@ -1,0 +1,401 @@
+Obtener versión:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/alpine/git:v2.36.3
+  stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: always
+    - if: $CI_COMMIT_BRANCH =~ /sandbox.*/
+      when: always
+    - if: $CI_COMMIT_BRANCH =~ /main.*/
+      when: always
+  tags:
+    - kubernetes-runner
+  script:
+    - GIT_DESCRIBE=$(git describe --tags --always)
+    - APP_VERSION=${GIT_DESCRIBE%%_*}
+    - echo $APP_VERSION > version.txt
+  artifacts:
+    paths:
+      - version.txt
+    expire_in: 20min
+
+Build:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: always
+    - if: $TIPO_EJECUCION == 'construir'
+      when: always  
+  tags:
+    - kubernetes-runner
+  script:
+    - npm set registry https://registry.agcs.agetic.gob.bo
+    - npm set strict-ssl false
+    - npm ci
+    - cp src/common/params/index.ts.sample src/common/params/index.ts
+    - npm run build
+    - cp src/core/config/authorization/model.conf dist/src/core/config/authorization/model.conf
+  extends: .dependencies_cache
+  cache:
+    policy: pull-push
+  artifacts:
+    paths:
+      - dist/
+      - node_modules/
+    expire_in: 20min
+
+Verificar paquetes:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/opensecurity/nodejsscan:latest
+  stage: test
+  rules:
+  - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
+    when: always  
+  - if: $CI_COMMIT_BRANCH =~ /test.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: manual
+  - if: $CI_COMMIT_BRANCH =~ /sandbox.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $CI_COMMIT_BRANCH =~ /main.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  tags:
+    - kubernetes-runner
+  script:
+    - njsscan .
+  allow_failure: true
+  when: manual
+
+Ejecutar tests de integración:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  stage: test
+  rules:
+  - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
+    when: always  
+  - if: $CI_COMMIT_BRANCH =~ /test.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: manual
+  - if: $CI_COMMIT_BRANCH =~ /sandbox.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $CI_COMMIT_BRANCH =~ /main.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  tags:
+    - kubernetes-runner
+  script:
+    - npm test
+  allow_failure: true
+  when: manual
+
+Ejecutar tests de covertura:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  stage: test
+  rules:
+  - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
+    when: always  
+  - if: $CI_COMMIT_BRANCH =~ /test.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: manual
+  - if: $CI_COMMIT_BRANCH =~ /sandbox.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $CI_COMMIT_BRANCH =~ /main.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  tags:
+    - kubernetes-runner
+  script:
+    - npm run test:cov
+  allow_failure: true
+  when: manual
+
+Generando reporte de calidad sonarqube:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/sonarsource/sonar-scanner-cli:4.5
+  stage: test
+  rules:
+  - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
+    when: always  
+  - if: $CI_COMMIT_BRANCH =~ /test.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: manual
+  - if: $CI_COMMIT_BRANCH =~ /sandbox.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $CI_COMMIT_BRANCH =~ /main.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  tags:
+    - kubernetes-runner
+  before_script:
+    - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/$CI_COMMIT_REF_NAME/$CI_PROJECT_NAME/qa --header "X-Vault-Token:$VAULT_TOKEN" -O qa.json
+    - export SONARQUBE_REPO_TOKEN=$(grep -o '"SONARQUBE_REPO_TOKEN":*"[^"]*"' qa.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export SONARQUBE_REPO_URL=$(grep -o '"SONARQUBE_REPO_URL":*"[^"]*"' qa.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/$CI_COMMIT_REF_NAME/$CI_PROJECT_NAME/app --header "X-Vault-Token:$VAULT_TOKEN" -O app.json
+    - export REFRESH_TOKEN_NAME=$(grep -o '"REFRESH_TOKEN_NAME":*"[^"]*"' app.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export REFRESH_TOKEN_SECURE=$(grep -o '"REFRESH_TOKEN_SECURE":*"[^"]*"' app.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export REFRESH_TOKEN_PATH=$(grep -o '"REFRESH_TOKEN_PATH":*"[^"]*"' app.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export APP_VERSION=$(cat version.txt)
+  script:
+    - npm run test:cov
+    - cat test-report.xml
+    - sonar-scanner -Dsonar.projectKey=$CI_PROJECT_NAME -Dsonar.host.url=$SONARQUBE_REPO_URL -Dsonar.login=$SONARQUBE_REPO_TOKEN -Dsonar.projectVersion=$APP_VERSION
+  allow_failure: true
+  when: manual
+
+RetireJS:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  stage: sast
+  rules:
+  - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
+    when: always  
+  - if: $CI_COMMIT_BRANCH =~ /test.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: manual
+  - if: $CI_COMMIT_BRANCH =~ /sandbox.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $CI_COMMIT_BRANCH =~ /main.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  tags:
+    - kubernetes-runner
+  variables:
+    ELK_URL_RETIREJS: http://192.168.21.70:5001 
+    SCAN_RETIRE: scan_retire_$CI_COMMIT_SHORT_SHA.json
+  before_script:
+    - npm set registry https://registry.agcs.agetic.gob.bo
+    - npm set strict-ssl false
+    - npm i -g retire
+    - retire -V
+  script:
+    - retire --colors -v --outputformat json --outputpath $SCAN_RETIRE
+    - curl --data-binary @$SCAN_RETIRE -H "app_name:retire_$CI_PROJECT_NAME" -H "version_app:$CI_COMMIT_SHORT_SHA" -H "Content-Type:application/json" $ELK_URL_RETIREJS
+    - retire --colors -v --severity critical --outputformat json
+  artifacts:
+    paths:
+      - $SCAN_RETIRE
+    expire_in: 1 month
+  allow_failure: true
+  when: manual
+
+Snyk:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  stage: sast
+  rules:
+  - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
+    when: always  
+  - if: $CI_COMMIT_BRANCH =~ /test.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: manual
+  - if: $CI_COMMIT_BRANCH =~ /sandbox.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $CI_COMMIT_BRANCH =~ /main.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  tags:
+    - kubernetes-runner
+  variables:
+    SCAN_SNYK: scan_snyk_$CI_COMMIT_SHORT_SHA.json
+    ELK_URL_SNYK: http://192.168.21.70:5002 
+  before_script:
+    - npm set registry https://registry.agcs.agetic.gob.bo
+    - npm set strict-ssl false
+    - npm i -g snyk
+    - snyk -v
+    - snyk auth $SAST_SNYK_KEY
+  script:
+    - snyk test --quiet --json-file-output=$SCAN_SNYK || true
+    - curl --data-binary @$SCAN_SNYK -H "app_name:snyk_$CI_PROJECT_NAME" -H "version_app:$CI_COMMIT_SHORT_SHA" -H "Content-Type:application/json" $ELK_URL_SNYK
+  artifacts:
+    paths:
+      - $SCAN_SNYK
+    expire_in: 1 month
+  allow_failure: true
+  when: manual
+
+Trivy:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/docker:19.03.12
+  stage: sast
+  rules:
+  - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
+    when: always  
+  - if: $CI_COMMIT_BRANCH =~ /test.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: manual
+  - if: $CI_COMMIT_BRANCH =~ /sandbox.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $CI_COMMIT_BRANCH =~ /main.*/ && $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
+    when: never
+  tags:
+    - kubernetes-runner
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ''
+    IMAGE_NAME: '$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
+    TRIVY_URL_VERSION: https://api.github.com/repos/aquasecurity/trivy/releases/latest
+    SCAN_TRIVY: trivy-report_$CI_COMMIT_SHORT_SHA.json
+    URL_ELK: http://192.168.21.70:5000 
+  services:
+    - name: docker:19.03.12-dind
+  before_script:
+    - export TRIVY_VERSION=$(wget -qO - "$TRIVY_URL_VERSION"|grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+    - echo $TRIVY_VERSION
+    - export TRIVY_URL=https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_linux-64bit.tar.gz
+    - echo $TRIVY_URL
+    - wget --no-verbose $TRIVY_URL -O - |tar -zxvf -
+    - apk add curl
+  script:
+    - docker build -t $IMAGE_NAME .
+    - docker images
+    - ./trivy --version
+    - ./trivy --exit-code 0 --cache-dir .trivycache/ --no-progress --format template --template "@contrib/gitlab.tpl" -o $SCAN_TRIVY $IMAGE_NAME
+    - curl --data-binary @$SCAN_TRIVY -H "app_name:trivy_$CI_PROJECT_NAME" -H "version_app:$CI_COMMIT_SHORT_SHA" -H "Content-Type:application/json" $URL_ELK
+    - ./trivy --exit-code 0 --cache-dir .trivycache/ --no-progress --severity HIGH $IMAGE_NAME
+    - ./trivy --exit-code 1 --cache-dir .trivycache/ --no-progress --severity CRITICAL $IMAGE_NAME
+  artifacts:
+    paths:
+      - $SCAN_TRIVY
+  allow_failure: true
+  when: manual
+
+Generar imagen de la aplicación:
+  image: hub.upat.agetic.gob.bo/googlehub-proxy/kaniko-project/executor:v1.9.1-debug
+  stage: release
+  needs:
+    - job: Build
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: always
+    - if: $TIPO_EJECUCION == 'construir'
+      when: always  
+  tags:
+    - kubernetes-runner
+  script:
+    - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/infraestructura/$CLUSTER_NAME/$PATH_FOLDER/harbor --header "X-Vault-Token:$VAULT_TOKEN" -O harbor.json
+    - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_PASS=$(grep -o '"IR_PASS":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_USER=$(grep -o '"IR_USER":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - echo $CONFIGURE_IMAGE | base64 -d > ./configure-image-generation.sh
+    - chmod +x ./configure-image-generation.sh
+    - . ./configure-image-generation.sh
+    - env
+    - rm harbor.json
+    - rm .dockerignore
+    - /kaniko/executor --context . --target=$NAMESPACE --dockerfile ./dockerfile.k8s --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA --build-arg CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME --build-arg CI_COMMIT_MESSAGE="$CI_COMMIT_MESSAGE" --destination $IR_REPO_URL:$NAMESPACE --destination $IR_REPO_URL:$CI_COMMIT_SHORT_SHA
+
+Cambio de ambiente docker:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/alpine:3.17
+  rules:
+    - if: $TIPO_EJECUCION == 'construir'
+      when: never  
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: never
+    - if: $CI_COMMIT_BRANCH =~ /sandbox.*/
+      when: always
+    - if: $CI_COMMIT_BRANCH =~ /main.*/
+      when: always
+  stage: release
+  tags:
+    - kubernetes-runner
+  script:
+    - apk update && apk add curl
+    - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/infraestructura/$CLUSTER_NAME/$PATH_FOLDER/harbor --header "X-Vault-Token:$VAULT_TOKEN" -O harbor.json
+    - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_PASS=$(grep -o '"IR_PASS":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_USER=$(grep -o '"IR_USER":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export AUTH=$(echo -n "robot\$$IR_USER:${IR_PASS}" |base64)
+    - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
+    - chmod +x ./configure-namespaces.sh
+    - . ./configure-namespaces.sh
+    - echo IyEvYmluL3NoCgpjYXNlICIkQ0lfQ09NTUlUX1JFRl9OQU1FIiBpbgogICIkVkFMSURBVElPTl9CUkFOQ0giKikgZXhwb3J0IE5BTUVTUEFDRV9VUD0kREVWRUxPUE1FTlRfRU5WSVJPTk1FTlQgOzsKICAiJFNUQUdJTkdfQlJBTkNIIiopIGV4cG9ydCBOQU1FU1BBQ0VfVVA9JFZBTElEQVRJT05fRU5WSVJPTk1FTlQgOzsKICAiJFBST0RVQ1RJT05fQlJBTkNIIiopIGV4cG9ydCBOQU1FU1BBQ0VfVVA9JFNUQUdJTkdfRU5WSVJPTk1FTlQgOzsKZXNhYw== | base64 -d > ./configure-namespaces.sh
+    - chmod +x ./configure-namespaces.sh
+    - . ./configure-namespaces.sh
+    - 'curl --location --request POST "https://hub.upat.agetic.gob.bo/c/login"  --header "X-Harbor-CSRF-Token: iY2L12LXgaEXAYURl7wDvttqxtmry0axAzSNmtNQgA1PI24iIibF8uWHa+ZzvvyeYfm+kWIbCvTOGVDcxKGRhA==" --header  "Authorization: Basic ${AUTH}" -I --http1.1 > data'
+    - export HARBOR_TOKEN=$(cat data | grep Token | awk '{split($0, array); print array[2]}')
+    - export HARBOR_COOKIE=$(cat data | grep Cookie | awk '{split($0, array); print array[2]}')
+    - export DATA="{\"name\":\"${NAMESPACE}\"}"
+    - 'curl --location --request POST "https://${IR_DOMAIN}/api/v2.0/projects/${IR_IOP_REPO}/repositories/${CI_PROJECT_NAME}/artifacts/${NAMESPACE_UP}/tags" --header "Content-Type: application/json" --header "X-Harbor-CSRF-Token: ${HARBOR_TOKEN}" --header "Cookie: ${HARBOR_COOKIE}" --header  "Authorization: Basic ${AUTH}" --data-raw ${DATA} --http1.1 '
+
+Desplegar la aplicación:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/alpine/helm:3.10.2
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: always
+    - if: $CI_COMMIT_BRANCH =~ /sandbox.*/
+      when: always
+    - if: $CI_COMMIT_BRANCH =~ /main.*/
+      variables:
+        VAULT_ROOT_PATH: "$VAULT_ROOT_PATH_MAIN"
+        CLUSTER_NAME: "$CLUSTER_NAME_MAIN"
+      when: always
+  tags:
+    - kubernetes-runner
+  script:
+    - if [[ $CI_COMMIT_BRANCH == *main* ]]; then export VAULT_ROOT_PATH="$VAULT_ROOT_PATH_MAIN"; fi
+    - if [[ $CI_COMMIT_BRANCH == *main* ]]; then export CLUSTER_NAME="$CLUSTER_NAME_MAIN"; fi
+    - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/infraestructura/$CLUSTER_NAME/$PATH_FOLDER/harbor --header "X-Vault-Token:$VAULT_TOKEN" -O harbor.json
+    - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_PASS=$(grep -o '"IR_PASS":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_USER=$(grep -o '"IR_USER":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/infraestructura/$CLUSTER_NAME/$PATH_FOLDER/kubernetes --header "X-Vault-Token:$VAULT_TOKEN" -O kubernetes.json
+    - export K8S_CA_DATA=$(grep -o '"K8S_CA_DATA":*"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export K8S_SERVER_URL=$(grep -o '"K8S_SERVER_URL":*"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export K8S_USER_TOKEN=$(grep -o '"K8S_USER_TOKEN":*"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - echo $DEPLOY_CONTAINER | base64 -d > ./configure-container-deployment.sh
+    - chmod +x ./configure-container-deployment.sh
+    - . ./configure-container-deployment.sh
+    - helm repo add --username "robot$"$IR_USER --password $IR_PASS repository $IR_CHART_REPO_URL
+    - echo $IR_USER
+    - echo $IR_PASS
+    - echo $IR_CHART_REPO_URL
+    - helm repo update
+    - echo $CI_COMMIT_SHORT_SHA
+    - echo $IR_CHART_NAME
+    - cat values.yml
+    - cat ./config.yml
+    - env
+    - helm upgrade -i --debug $CI_PROJECT_NAME repository/$IR_CHART_NAME --kubeconfig ./config.yml -f values.yml -n $NAMESPACE --debug --force --set gitlabCommit=$CI_COMMIT_SHORT_SHA
+
+Ejecutar setup de la base de datos:
+  extends: .configure_setup
+  script:
+    - npm ci
+    - npm run setup
+
+.configure_setup:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  stage: setup
+  rules:
+    - if: $TIPO_EJECUCION == 'setup'
+      when: always 
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: manual
+    - if: $CI_COMMIT_BRANCH =~ /sandbox.*/
+      when: manual
+    - if: $CI_COMMIT_BRANCH =~ /main.*/
+      when: manual
+  tags:
+    - kubernetes-runner
+  extends: .dependencies_cache
+  cache:
+    policy: pull-push
+  before_script:
+    - cp src/common/params/index.ts.sample src/common/params/index.ts
+    - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
+    - chmod +x ./configure-namespaces.sh
+    - . ./configure-namespaces.sh
+    - npm set registry https://registry.agcs.agetic.gob.bo
+    - npm set strict-ssl false
+    - apk update
+    - apk add curl jq
+    - npm install -g convert-json-env
+    - 'curl $(echo $VAULT_DOMAIN)/v1/$VAULT_ROOT_PATH/$(echo $NAMESPACE)/$PATH_FOLDER/$(echo $CI_PROJECT_NAME)/k8s --header "X-Vault-Token: $(echo $VAULT_TOKEN)" > secrets.json'
+    - echo $(jq ".data" secrets.json) > values.json
+    - convert-json-env values.json --out=.env
+  when: manual

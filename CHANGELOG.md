@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.6](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.6.5...v1.6.6) (2023-02-26)
+
+
+### Features
+
+* :sparkles: agregando tipos al seeder del casbin ([d5cdd7d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/d5cdd7d75c34f41351b2bf4a051e03dfd6a4c8f3))
+
+
+### Bug Fixes
+
+* :bug: resolviendo problemas de instancias por contexto en LoggerService ([3e9d12c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/3e9d12cca316fc2672e08acb729f0c62bf8a36c3))
+* ajuste en el query para filtros en rol.repository ([b8b61fc](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b8b61fcc7a94e54be25965c63fc224c776e507b3))
+* añadido filtro de nro. de documento para repositorio de usuarios, cambiando a filtro de consultas con Brackets ([85c1d35](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/85c1d35751d329c8b2f3c0ecd53725f08b392604))
+* corregido mensaje de validación de correo como usuario existenten ([d00a5f6](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/d00a5f6e4eec351e5a85237713f59ad799f86fff))
+* corregido ordén de lista de módulos y submódulos ([1c668bd](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/1c668bd39b33af082b9273c9b87b998e672f7267))
+* corregido permiso de cambio de contraseña en seeder de casbin ([ba63c23](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/ba63c230c1b994edd671f6eebe84d176076a36ce))
+* refactorización casbin rules ([e96f78b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e96f78b3abe4ee12019ce8018d9f5779e879972e))
+* se corrigieron las validaciones de la propiedad de orden de los módulos y las descripciones en los seeders ([7576559](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/757655931546561752243265631776279fb8ddea))
+
 ### [1.6.5](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.6.4...v1.6.5) (2023-01-24)
 
 

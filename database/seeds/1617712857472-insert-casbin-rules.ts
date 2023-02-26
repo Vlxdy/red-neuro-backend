@@ -136,7 +136,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
 
       '/api/usuarios/cuenta/contrasena': {
-        [RolEnum.TODOS]: 'GET',
+        [RolEnum.TODOS]: 'PATCH',
       },
     }
 

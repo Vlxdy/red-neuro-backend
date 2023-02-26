@@ -1,8 +1,8 @@
 import { HttpService } from '@nestjs/axios'
 import { Test, TestingModule } from '@nestjs/testing'
-import { AxiosResponse } from 'axios'
 import { MensajeriaService } from './mensajeria.service'
 import { of } from 'rxjs'
+import { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 
 const resSendEmail: AxiosResponse = {
   data: {
@@ -14,7 +14,7 @@ const resSendEmail: AxiosResponse = {
   headers: {},
   status: 201,
   statusText: '',
-  config: {},
+  config: {} as InternalAxiosRequestConfig,
 }
 
 const resGetReportEmail: AxiosResponse = {
@@ -27,7 +27,7 @@ const resGetReportEmail: AxiosResponse = {
   headers: {},
   status: 200,
   statusText: '',
-  config: {},
+  config: {} as InternalAxiosRequestConfig,
 }
 
 describe('MensajeriaService', () => {

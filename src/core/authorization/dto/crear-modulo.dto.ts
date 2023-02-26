@@ -1,24 +1,23 @@
 import {
   IsNotEmpty,
   IsNumberString,
-  IsObject,
   IsString,
+  ValidateNested,
 } from '../../../common/validation'
 import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
-import { IsOptional } from 'class-validator'
+import { IsNumber, IsOptional } from 'class-validator'
+import { Type } from 'class-transformer'
 
 export class PropiedadesDto {
+  @IsOptional()
   @IsString()
   icono?: string
 
   @IsString()
   descripcion?: string
 
-  @IsString()
-  color_light?: string
-
-  @IsString()
-  color_dark?: string
+  @IsNumber()
+  orden: number
 }
 
 export class CrearModuloDto {
@@ -35,7 +34,8 @@ export class CrearModuloDto {
   @IsString()
   nombre: string
 
-  @IsObject()
+  @ValidateNested()
+  @Type(() => PropiedadesDto)
   propiedades: PropiedadesDto
 
   @IsOptional()

@@ -1,16 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { of } from 'rxjs'
-import { AxiosResponse } from 'axios'
+
 import { PersonaDto } from '../../../usuario/dto/persona.dto'
 import { SegipService } from './segip.service'
 import { plainToClass } from 'class-transformer'
 import { HttpModule, HttpService } from '@nestjs/axios'
+import {
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+  RawAxiosResponseHeaders,
+} from 'axios'
 
 const dataDefaultAxios = {
-  headers: {},
+  headers: {} as RawAxiosResponseHeaders,
   status: 200,
   statusText: '',
-  config: {},
+  config: {} as InternalAxiosRequestConfig,
 }
 
 const makeSuccessResponse = (datosRespuesta: string): AxiosResponse => {
@@ -30,7 +35,7 @@ const makeSuccessResponse = (datosRespuesta: string): AxiosResponse => {
   }
 }
 
-const makeFailedResponse = (): AxiosResponse => {
+const makeFailedResponse = (): AxiosResponse<any, any> => {
   return {
     data: {
       ConsultaDatoPersonaContrastacionResult: {
@@ -109,7 +114,7 @@ describe('SegipService', () => {
   })
 
   it('[contrastar] Debería retornar finalizado = false, si segip retorna algun codigo distinto de 2 = ENCONTRADO ', async () => {
-    const response: AxiosResponse = makeFailedResponse()
+    const response = makeFailedResponse()
     jest.spyOn(httpService, 'get').mockImplementation(() => of<any>(response))
 
     const persona = plainToClass(PersonaDto, datosPersona)
