@@ -18,7 +18,7 @@ import { FiltrosPoliticasDto } from '../dto/filtros-politicas.dto'
 @Controller('autorizacion')
 export class AuthorizationController extends BaseController {
   constructor(private authorizationService: AuthorizationService) {
-    super(AuthorizationController.name)
+    super()
   }
 
   @Post('/politicas')

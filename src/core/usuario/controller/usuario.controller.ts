@@ -33,7 +33,7 @@ import { ParamIdDto } from '../../../common/dto/params-id.dto'
 @Controller('usuarios')
 export class UsuarioController extends BaseController {
   constructor(private usuarioService: UsuarioService) {
-    super(UsuarioController.name)
+    super()
   }
 
   // GET users

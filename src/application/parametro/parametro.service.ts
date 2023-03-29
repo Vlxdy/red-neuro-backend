@@ -18,7 +18,7 @@ export class ParametroService extends BaseService {
     @Inject(ParametroRepository)
     private parametroRepositorio: ParametroRepository
   ) {
-    super(ParametroService.name)
+    super()
   }
 
   async crear(parametroDto: CrearParametroDto, usuarioAuditoria: string) {

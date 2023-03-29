@@ -3,7 +3,6 @@ import { GenReqId, Options, ReqId } from 'pino-http'
 import { createWriteStream } from 'pino-http-send'
 import pino, { Level, multistream } from 'pino'
 import { IncomingMessage, ServerResponse } from 'http'
-import pretty from 'pino-pretty'
 import { createStream, Options as RotateOptions } from 'rotating-file-stream'
 import { Request, Response } from 'express'
 import packageJson from '../../../package.json'
@@ -17,12 +16,16 @@ export class LoggerConfig {
   static appName = packageJson.name || 'APP'
   static logLevelSelected: Level[] = []
 
-  static getStream(): pino.MultiStreamRes {
+  static getStream(subFolderName = ''): pino.MultiStreamRes {
     const streamDisk: pino.StreamEntry[] = []
     if (process.env.LOG_PATH && process.env.LOG_PATH.length > 0) {
       const options: RotateOptions = {
         size: process.env.LOG_SIZE || '5M',
-        path: path.resolve(process.env.LOG_PATH, LoggerConfig.appName),
+        path: path.resolve(
+          process.env.LOG_PATH,
+          subFolderName,
+          LoggerConfig.appName
+        ),
         interval: process.env.LOG_INTERVAL || '1d',
       }
 
@@ -43,17 +46,6 @@ export class LoggerConfig {
         }
       }
     }
-
-    const streamStandar: pretty.PrettyStream[] = []
-    if (process.env.LOG_STD_OUT && process.env.LOG_STD_OUT === 'true') {
-      /*streamStandar.push(
-        pretty({
-          colorize: true,
-          sync: false,
-        })
-      )*/
-    }
-
     const streamHttp: any[] = []
     if (
       process.env.LOG_URL &&
@@ -71,7 +63,7 @@ export class LoggerConfig {
       )
     }
 
-    return multistream([...streamDisk, ...streamStandar, ...streamHttp])
+    return multistream([...streamDisk, ...streamHttp])
   }
 
   static getLoggerConfig() {
@@ -108,10 +100,7 @@ export class LoggerConfig {
   }
 
   static genReqId: GenReqId = (req: Request) => {
-    const user: { id?: string } | undefined = req.user
-    const uid = user && user.id ? user.id : '-'
-    const rid = (req.id || rTracer.id()) as ReqId
-    return `${rid} usuario:${uid}`
+    return (req.id || rTracer.id()) as ReqId
   }
 
   static getPinoHttpConfig(): Options {

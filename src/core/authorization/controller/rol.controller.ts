@@ -22,7 +22,7 @@ import { ActualizarRolDto } from '../dto/actualizar-rol.dto'
 @Controller('autorizacion/roles')
 export class RolController extends BaseController {
   constructor(private rolService: RolService) {
-    super(RolController.name)
+    super()
   }
 
   @Get()

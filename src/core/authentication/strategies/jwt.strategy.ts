@@ -6,7 +6,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  protected logger = LoggerService.getInstance(JwtStrategy.name)
+  protected logger = LoggerService.getInstance()
 
   constructor(private configService: ConfigService) {
     super({

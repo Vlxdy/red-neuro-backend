@@ -13,7 +13,7 @@ export class ModuloService extends BaseService {
     @Inject(ModuloRepository)
     private moduloRepositorio: ModuloRepository
   ) {
-    super(ModuloService.name)
+    super()
   }
 
   async listar(paginacionQueryDto: FiltroModuloDto) {

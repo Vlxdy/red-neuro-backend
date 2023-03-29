@@ -9,11 +9,10 @@ import { Request } from 'express'
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  protected logger = LoggerService.getInstance(JwtAuthGuard.name)
+  protected logger = LoggerService.getInstance()
 
   async canActivate(context: ExecutionContext) {
     const {
-      user,
       originalUrl,
       query,
       route,
@@ -31,17 +30,20 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         : String(headers.authorization)
 
       if (!headers.authorization) {
-        const errMsg = `${action} ${resource} -> false - Usuario: ${user?.id} (Se requiere: req.headers.authorization)`
+        const errMsg = `${action} ${resource} -> false - Token inválido (req.headers.authorization)`
         this.logger.warn(errMsg)
         throw err
       }
 
-      const errMsg = `${action} ${resource} -> false - Usuario: ${user?.id} (Token inválido: ${token})`
+      const errMsg = `${action} ${resource} -> false - Token inválido (${token})`
       this.logger.warn(errMsg, err)
       throw err
     }
 
-    // this.logger.info(`${action} ${resource} -> true - Usuario: ${user?.id}`)
+    const { user } = context.switchToHttp().getRequest()
+    this.logger.info(
+      `${action} ${resource} -> true - JWT (usuario: ${user?.id})`
+    )
     return true
   }
 }

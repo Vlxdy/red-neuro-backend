@@ -30,7 +30,7 @@ export class RefreshTokensService extends BaseService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService
   ) {
-    super(RefreshTokensService.name)
+    super()
   }
 
   async findById(id: string) {

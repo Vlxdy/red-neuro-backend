@@ -8,7 +8,7 @@ import { AuthGuard } from '@nestjs/passport'
 
 @Injectable()
 export class OidcAuthGuard extends AuthGuard('oidc') {
-  protected logger = LoggerService.getInstance(OidcAuthGuard.name)
+  protected logger = LoggerService.getInstance()
 
   async canActivate(context: ExecutionContext) {
     const {
@@ -30,7 +30,11 @@ export class OidcAuthGuard extends AuthGuard('oidc') {
     }
 
     await super.logIn(request)
-    this.logger.info(`${action} ${resource} -> true - LOGIN CON CIUDADANÍA`)
+
+    const { user } = context.switchToHttp().getRequest()
+    this.logger.info(
+      `${action} ${resource} -> true - LOGIN CON CIUDADANÍA (usuario: ${user?.id})`
+    )
     return true
   }
 }

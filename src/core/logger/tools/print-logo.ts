@@ -1,7 +1,8 @@
 import { COLOR } from '../constants'
 import { LoggerService } from '../logger.service'
+import { stdoutWrite } from './util'
 
-const logger = LoggerService.getInstance('logger')
+const logger = LoggerService.getInstance()
 
 export const printLogo = async () => {
   logger.trace('')
@@ -38,5 +39,5 @@ $@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P   g@@@@@@@p
   `
 
   const toPrint = logo.replace(/\n/g, `\n${COLOR.LIGHT_GREY}`)
-  process.stdout.write(`${COLOR.LIGHT_GREY}${toPrint}${COLOR.RESET}\n`)
+  stdoutWrite(`${COLOR.LIGHT_GREY}${toPrint}${COLOR.RESET}\n`)
 }

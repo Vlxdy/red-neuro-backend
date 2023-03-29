@@ -4,8 +4,8 @@ import { AbstractController } from '../dto/abstract-controller.dto'
 export class BaseController extends AbstractController {
   protected logger: LoggerService
 
-  constructor(context: string) {
+  constructor() {
     super()
-    this.logger = LoggerService.getInstance(context)
+    this.logger = LoggerService.getInstance()
   }
 }

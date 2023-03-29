@@ -23,7 +23,7 @@ import { ParamIdDto } from '../../common/dto/params-id.dto'
 @UseGuards(JwtAuthGuard, CasbinGuard)
 export class ParametroController extends BaseController {
   constructor(private parametroServicio: ParametroService) {
-    super(ParametroController.name)
+    super()
   }
 
   @Get()

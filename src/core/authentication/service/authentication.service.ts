@@ -36,7 +36,7 @@ export class AuthenticationService extends BaseService {
     private rolRepositorio: RolRepository,
     @Inject(ConfigService) private readonly configService: ConfigService
   ) {
-    super(AuthenticationService.name)
+    super()
   }
 
   private async verificarBloqueo(usuario) {

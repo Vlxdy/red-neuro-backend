@@ -17,7 +17,7 @@ export class AuthorizationService extends BaseService {
     private readonly authZManagerService: AuthZManagementService,
     private readonly moduloService: ModuloService
   ) {
-    super(AuthorizationService.name)
+    super()
   }
 
   async listarPoliticas(@Query() paginacionQueryDto: FiltrosPoliticasDto) {

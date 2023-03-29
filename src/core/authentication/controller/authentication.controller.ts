@@ -27,7 +27,7 @@ export class AuthenticationController extends BaseController {
     private refreshTokensService: RefreshTokensService,
     @Inject(ConfigService) private configService: ConfigService
   ) {
-    super(AuthenticationController.name)
+    super()
   }
 
   @UseGuards(LocalAuthGuard)

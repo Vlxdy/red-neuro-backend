@@ -6,7 +6,7 @@ import { AuthenticationService } from '../service/authentication.service'
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  protected logger = LoggerService.getInstance(LocalStrategy.name)
+  protected logger = LoggerService.getInstance()
 
   constructor(private readonly autenticacionService: AuthenticationService) {
     super({

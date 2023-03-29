@@ -9,7 +9,7 @@ export class PersonaService extends BaseService {
     @Inject(PersonaRepository)
     private personaRepositorio: PersonaRepository
   ) {
-    super(PersonaService.name)
+    super()
   }
 
   async buscarPersonaPorCI(persona: PersonaDto) {

@@ -198,10 +198,8 @@ npm run seeds:run
 
 | Variable        | Valor por defecto                        | Descripción                                                                    |
 |-----------------|------------------------------------------|--------------------------------------------------------------------------------|
-| `LOG_LEVEL`     | `info`                                   | Indica el nivel de logs de los ficheros. error, warn, info, debug o trace      |
 | `LOG_PATH`      |                                          | Ruta absoluta de la carpeta logs. Si esta vacio no se crearán los archvos.     |
-| `LOG_STD_OUT`   | `false`                                  | Para la consola muestra los logs tal y como se guardan en los archivos.        |
-| `LOG_SQL`       | `false`                                  | Para la consola muestra las consultas SQL.                                     |
+| `LOG_SQL`       | `false`                                  | Para la consola (solo para el modo desarrollo) muestra las consultas SQL.      |
 | `LOG_SIZE`      | `5M`                                     | Para los ficheros de logs es el tamaño máximo que estos pueden llegar a pesar. |
 | `LOG_INTERVAL`  | `1d`                                     | Para los ficheros de logs es el intervalo de tiempo para rotar los ficheros.   |
 | `LOG_COMPRESS`  | `false`                                  | Para indicar si se comprimirá o no los ficheros de logs.                       |
@@ -214,16 +212,7 @@ npm run seeds:run
 - Para deshabilitar la generación de logs en ficheros `LOG_PATH` debe ser una cadena vacía.
 
 - `LOG_PATH` dentro de esta carpeta automáticamente se creará otra carpeta con el nombre del proyecto (propiedad `name`
-  del archivo `package.json`) y dentro de esta última se crearán los archivos de logs según el parámetro definido
-  en `LOG_LEVEL`.
-
-  Por ejemplo:
-
-    - Si `LOG_LEVEL=error` se creará el archivo `error.log`
-    - Si `LOG_LEVEL=warn` se crearán los archivos `error.log` y `warn.log`
-    - Si `LOG_LEVEL=info` se crearán los archivos `error.log`, `warn.log` e `info.log`
-
-  Y asi sucesivamente en el siguiente orden: `error > warn > info > debug > trace`
+  del archivo `package.json`) y dentro de esta última se crearán los archivos de logs `error.log`, `warn.log` e `info.log`.
 
 - `LOG_SIZE` acepta los siguientes valores:
 

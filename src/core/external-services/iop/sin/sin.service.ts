@@ -10,7 +10,7 @@ export class SinService extends BaseExternalService {
   protected name = 'SIN'
 
   constructor(protected http: HttpService) {
-    super(SinService.name, http)
+    super(http)
   }
 
   /**

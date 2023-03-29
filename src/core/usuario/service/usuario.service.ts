@@ -50,7 +50,7 @@ export class UsuarioService extends BaseService {
     private readonly segipServices: SegipService,
     private configService: ConfigService
   ) {
-    super(UsuarioService.name)
+    super()
   }
 
   async listar(@Query() paginacionQueryDto: FiltrosUsuarioDto) {

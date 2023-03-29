@@ -8,7 +8,7 @@ import dayjs from 'dayjs'
 @Controller()
 export class AppController extends BaseController {
   constructor(@Inject(ConfigService) private configService: ConfigService) {
-    super(AppController.name)
+    super()
   }
 
   @Get('/estado')

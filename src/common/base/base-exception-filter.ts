@@ -4,8 +4,8 @@ import { LoggerService } from '../../core/logger/logger.service'
 export class BaseExceptionFilter implements ExceptionFilter {
   protected logger: LoggerService
 
-  constructor(context: string) {
-    this.logger = LoggerService.getInstance(context)
+  constructor() {
+    this.logger = LoggerService.getInstance()
   }
 
   catch(exception: unknown, host: ArgumentsHost) {

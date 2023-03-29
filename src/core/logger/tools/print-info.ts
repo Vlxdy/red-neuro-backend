@@ -4,8 +4,9 @@ import packageJson from '../../../../package.json'
 import ip from 'ip'
 import { ConfigService } from '@nestjs/config'
 import { LoggerService } from '../logger.service'
+import { stdoutWrite } from './util'
 
-const logger = LoggerService.getInstance('logger')
+const logger = LoggerService.getInstance()
 
 export async function printInfo(app: INestApplication) {
   const configService = app.get(ConfigService)
@@ -25,6 +26,6 @@ export async function printInfo(app: INestApplication) {
  ${COLOR.LIGHT_GREY}-${COLOR.RESET} URL (local) : ${COLOR.GREEN}${appLocalUrl}
  ${COLOR.LIGHT_GREY}-${COLOR.RESET} URL (red)   : ${COLOR.GREEN}${appNetworkUrl}
   `
-  process.stdout.write(serviceInfo)
-  process.stdout.write(`${COLOR.RESET}\n`)
+  stdoutWrite(serviceInfo)
+  stdoutWrite(`${COLOR.RESET}\n`)
 }

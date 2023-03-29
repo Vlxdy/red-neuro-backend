@@ -16,7 +16,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 dayjs.extend(customParseFormat)
 
 export const buildOpenIdClient = async (): Promise<Client | undefined> => {
-  const logger = LoggerService.getInstance(buildOpenIdClient.name)
+  const logger = LoggerService.getInstance()
   try {
     const issuer = await Issuer.discover(process.env.OIDC_ISSUER || '')
     return new issuer.Client({
@@ -34,7 +34,7 @@ export const buildOpenIdClient = async (): Promise<Client | undefined> => {
 }
 
 export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
-  protected logger = LoggerService.getInstance(OidcStrategy.name)
+  protected logger = LoggerService.getInstance()
   client: Client
 
   constructor(

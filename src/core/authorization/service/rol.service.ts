@@ -12,7 +12,7 @@ export class RolService extends BaseService {
     @Inject(RolRepository)
     private rolRepositorio: RolRepository
   ) {
-    super(RolService.name)
+    super()
   }
 
   async listar() {

@@ -22,7 +22,7 @@ export class RefreshTokensController extends BaseController {
     private refreshTokensService: RefreshTokensService,
     @Inject(ConfigService) private configService: ConfigService
   ) {
-    super(RefreshTokensController.name)
+    super()
   }
 
   @Post('token')

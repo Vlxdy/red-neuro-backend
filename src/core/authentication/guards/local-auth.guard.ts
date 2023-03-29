@@ -8,7 +8,7 @@ import { AuthGuard } from '@nestjs/passport'
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {
-  protected logger = LoggerService.getInstance(LocalAuthGuard.name)
+  protected logger = LoggerService.getInstance()
 
   async canActivate(context: ExecutionContext) {
     const {
@@ -28,7 +28,10 @@ export class LocalAuthGuard extends AuthGuard('local') {
       throw err
     }
 
-    this.logger.info(`${action} ${resource} -> true - LOGIN BÁSICO`)
+    const { user } = context.switchToHttp().getRequest()
+    this.logger.info(
+      `${action} ${resource} -> true - LOGIN BÁSICO (usuario: ${user?.id})`
+    )
     return true
   }
 }

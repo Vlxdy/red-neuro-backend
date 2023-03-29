@@ -26,7 +26,7 @@ enum EstadosDatosEnum {
 @Injectable()
 export class SegipService extends BaseExternalService {
   constructor(private readonly httpService: HttpService) {
-    super(SegipService.name, httpService)
+    super(httpService)
   }
 
   /**

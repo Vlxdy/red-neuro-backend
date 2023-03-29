@@ -17,8 +17,8 @@ export type RequestResult = {
 export class BaseExternalService extends BaseService {
   protected name = 'BASE'
 
-  constructor(protected context: string, protected http: HttpService) {
-    super(context)
+  constructor(protected http: HttpService) {
+    super()
   }
 
   async request(

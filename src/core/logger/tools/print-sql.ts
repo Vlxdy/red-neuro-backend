@@ -3,18 +3,33 @@ import { format } from 'sql-formatter'
 import { COLOR } from '../constants'
 import { PlatformTools } from 'typeorm/platform/PlatformTools'
 import dotenv from 'dotenv'
+import { LoggerService } from '../logger.service'
+import { stdoutWrite } from './util'
 
 dotenv.config()
 
 export class PrintSQL extends AdvancedConsoleLogger {
   private readonly loggerOptions?: LoggerOptions
+  private logger: LoggerService = LoggerService.getInstance()
 
-  constructor(options?: LoggerOptions) {
+  constructor(options: LoggerOptions = true) {
     super(options)
     this.loggerOptions = options
   }
 
   logQuery(query: string, parameters?: any[]) {
+    if (process.env.NODE_ENV === 'production') {
+      return
+    }
+
+    if (process.env.LOG_SQL !== 'true') {
+      if (process.env.FORCE_SQL_LOG === 'true') {
+        // continue
+      } else {
+        return
+      }
+    }
+
     const opt = this.loggerOptions
     if (
       !(opt === 'all') &&
@@ -24,8 +39,8 @@ export class PrintSQL extends AdvancedConsoleLogger {
       return
     }
 
-    const sql = this.buildSql(query, parameters, false)
-    process.stdout.write(`\n${COLOR.LIGHT_GREY}\n${sql}\n${COLOR.RESET}\n`)
+    const sql = this.buildSql(query, parameters, false, true)
+    stdoutWrite(`\n${COLOR.LIGHT_GREY}\n${sql}\n${COLOR.RESET}\n`)
   }
 
   logQueryError(error: string, query: string, parameters?: any[]): void {
@@ -38,16 +53,9 @@ export class PrintSQL extends AdvancedConsoleLogger {
       return
     }
 
-    const sql = this.buildSql(query, parameters, true)
-    process.stdout.write(
-      `${COLOR.LIGHT_RED}//////////////////// QUERY FAILED ////////////////////${COLOR.RESET}`
-    )
-    process.stdout.write(`${COLOR.LIGHT_GREY}\n${sql}\n${COLOR.RESET}\n`)
-    process.stdout.write(
-      `${COLOR.LIGHT_RED}//////////////////// QUERY ERROR ////////////////////\n${COLOR.RESET}`
-    )
-    console.log(error)
-    process.stdout.write('\n')
+    const sql = this.buildSql(query, parameters, true, false)
+    this.logger.error('/////////////// QUERY FAILED ///////////////', sql)
+    this.logger.error('/////////////// QUERY ERROR ///////////////', error)
   }
 
   private getValueToPrintSql(val: unknown): string {
@@ -68,7 +76,12 @@ export class PrintSQL extends AdvancedConsoleLogger {
     return String(val)
   }
 
-  private buildSql(query: string, parameters?: Array<any>, pretty?: boolean) {
+  private buildSql(
+    query: string,
+    parameters?: Array<any>,
+    pretty?: boolean,
+    colorize = true
+  ) {
     let queryParsed =
       parameters && parameters.length > 0
         ? `${query} -- PARAMETERS: ${this.stringifyParams(parameters)}`
@@ -93,7 +106,9 @@ export class PrintSQL extends AdvancedConsoleLogger {
         })
       }
 
-      queryParsed = PlatformTools.highlightSql(queryParsed)
+      if (colorize) {
+        queryParsed = PlatformTools.highlightSql(queryParsed)
+      }
 
       if (!pretty) {
         queryParsed = queryParsed

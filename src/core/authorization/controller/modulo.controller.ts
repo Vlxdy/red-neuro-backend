@@ -22,7 +22,7 @@ import { ActualizarModuloDto } from '../dto/actualizar-modulo.dto'
 @Controller('autorizacion/modulos')
 export class ModuloController extends BaseController {
   constructor(private moduloService: ModuloService) {
-    super(ModuloController.name)
+    super()
   }
 
   @Get()
