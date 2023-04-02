@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.6.6...v1.7.0) (2023-04-02)
+
+
+### Features
+
+* :sparkles: ajuste en los comandos de ejecución de scripts ([cffa063](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/cffa063c73f1ec398cacde3c04fa1d2204bf032e))
+* :sparkles: ajustes para mostrar logs junto con jest ([075b1e9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/075b1e90e71e9e7914295c0a7a51de48188802b4))
+* :sparkles: controlando posibles errores al imprimir mensajes con logger ([e49748d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e49748d7060509968ebc0a7e5563e8dd3bb09eb5))
+* :sparkles: mejoras en los mensajes y registro de logs ([b7a1cea](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b7a1cea04ce131a1f00c18d59ecefd2e047f8474))
+* :sparkles: parámetro para guardar logs en una subcarpeta ([65a4147](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/65a4147ed2db76880e706be3fa35f034dcc7438d))
+* :sparkles: registro de errores de las consultas SQL sobre los ficheros de logs ([425055c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/425055ce2c989213d67d90fd21b2b893257a26fb))
+
+
+### Bug Fixes
+
+* :bug: correciones para cuando se utiliza el rotado de logs ([070704d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/070704d5880568d549dc15d9b2529d2c1ab0853c))
+* :bug: correciones para cuando se utiliza el rotado de logs ([8849782](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/88497824c30f6640f6616e83a32964e792613aec))
+
 ### [1.6.6](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.6.5...v1.6.6) (2023-02-26)
 
 
