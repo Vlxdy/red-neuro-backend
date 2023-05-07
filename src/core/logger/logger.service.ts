@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios'
-import { Injectable, INestApplication } from '@nestjs/common'
+import { INestApplication, Injectable } from '@nestjs/common'
 import dayjs from 'dayjs'
 import { Params, PinoLogger } from 'nestjs-pino'
 import { inspect } from 'util'
@@ -30,11 +30,9 @@ export class LoggerService {
   }
 
   static getInstance() {
-    if (LoggerService.instance) {
-      return LoggerService.instance
+    if (!LoggerService.instance) {
+      LoggerService.instance = new LoggerService()
     }
-    const logger = new LoggerService()
-    LoggerService.instance = logger
     return LoggerService.instance
   }
 

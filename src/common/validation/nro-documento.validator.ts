@@ -8,7 +8,7 @@ const doc = /[0-9]{4,10}/
 export const NRO_DOC = 'nroDocumento'
 
 /**
- * Verifica si una cadena es un número de documento válido
+ * Verífica si una cadena es un número de documento válido
  * @param value cadena a validar
  * @param param1 Objeto con propiedades de validacion
  *  - complemento (true defecto)
