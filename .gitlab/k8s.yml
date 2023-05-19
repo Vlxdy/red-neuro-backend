@@ -337,6 +337,7 @@ Desplegar la aplicación ArgoCD:
   script:
     - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/infraestructura/$CLUSTER_NAME/$PATH_FOLDER/harbor --header "X-Vault-Token:$VAULT_TOKEN" -O harbor.json
     - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_CHART_REPO=$(grep -o '"IR_CHART_REPO":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export IR_CHART_VERSION=$(grep -o '"IR_CHART_VERSION":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
@@ -359,6 +360,7 @@ Desplegar la aplicación ArgoCD:
     - echo $IR_PASS
     - echo $IR_CHART_REPO_URL
     - echo $CI_COMMIT_SHORT_SHA
+    - echo $IR_CHART_REPO
     - echo $IR_CHART_NAME
     - echo $IR_CHART_VERSION
     - cat values.yml
