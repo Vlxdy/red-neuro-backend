@@ -29,7 +29,12 @@ Build:
       when: always  
   tags:
     - kubernetes-runner
+  before_script:
+    - echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf
+    - echo "fs.inotify.max_user_instances=512" >> /etc/sysctl.conf
+    - sysctl -p
   script:
+    - ulimit -a
     - npm set registry https://registry.agcs.agetic.gob.bo
     - npm set strict-ssl false
     - npm ci
