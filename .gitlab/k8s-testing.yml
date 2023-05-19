@@ -1,7 +1,6 @@
 Obtener versión:
   image: hub.upat.agetic.gob.bo/dockerhub-proxy/alpine/git:v2.36.3
   stage: build
-  allow_failure: false
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: always  
@@ -19,6 +18,7 @@ Obtener versión:
     paths:
       - version.txt
     expire_in: 20min
+  allow_failure: true
   when: manual
 
 Build:
