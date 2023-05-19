@@ -265,6 +265,8 @@ Desplegar la aplicación ArgoCD:
   stage: deploy
   allow_failure: false
   needs:
+    - job: Build
+      artifacts: false
     - job: Generar imagen de la aplicación
       artifacts: false
   rules:
@@ -318,6 +320,9 @@ Ejecutar setup de la base de datos:
 .configure_setup:
   image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
   stage: setup
+  needs:
+    - job: Build
+      artifacts: false
   rules:
     - if: $CI_COMMIT_BRANCH =~ /test.*/
       when: manual
