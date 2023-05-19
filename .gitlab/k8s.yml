@@ -319,26 +319,20 @@ Cambio de ambiente docker:
     - export DATA="{\"name\":\"${NAMESPACE}\"}"
     - 'curl --location --request POST "https://${IR_DOMAIN}/api/v2.0/projects/${IR_IOP_REPO}/repositories/${CI_PROJECT_NAME}/artifacts/${NAMESPACE_UP}/tags" --header "Content-Type: application/json" --header "X-Harbor-CSRF-Token: ${HARBOR_TOKEN}" --header "Cookie: ${HARBOR_COOKIE}" --header  "Authorization: Basic ${AUTH}" --data-raw ${DATA} --http1.1 '
 
-Desplegar la aplicación:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/alpine/helm:3.10.2
+Desplegar la aplicación ArgoCD:
+  image: alpine:latest
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH =~ /test.*/
       when: always
-    - if: $CI_COMMIT_BRANCH =~ /sandbox.*/
-      when: always
-    - if: $CI_COMMIT_BRANCH =~ /main.*/
-      variables:
-        VAULT_ROOT_PATH: "$VAULT_ROOT_PATH_MAIN"
-        CLUSTER_NAME: "$CLUSTER_NAME_MAIN"
-      when: always
   tags:
     - kubernetes-runner
+  before_script:
+    - apk add --no-cache curl jq yq bash
   script:
-    - if [[ $CI_COMMIT_BRANCH == *main* ]]; then export VAULT_ROOT_PATH="$VAULT_ROOT_PATH_MAIN"; fi
-    - if [[ $CI_COMMIT_BRANCH == *main* ]]; then export CLUSTER_NAME="$CLUSTER_NAME_MAIN"; fi
     - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/infraestructura/$CLUSTER_NAME/$PATH_FOLDER/harbor --header "X-Vault-Token:$VAULT_TOKEN" -O harbor.json
     - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_CHART_VERSION=$(grep -o '"IR_CHART_VERSION":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export IR_PASS=$(grep -o '"IR_PASS":*"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
@@ -347,20 +341,26 @@ Desplegar la aplicación:
     - export K8S_CA_DATA=$(grep -o '"K8S_CA_DATA":*"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export K8S_SERVER_URL=$(grep -o '"K8S_SERVER_URL":*"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export K8S_USER_TOKEN=$(grep -o '"K8S_USER_TOKEN":*"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - wget $VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/infraestructura/$CLUSTER_NAME/$PATH_FOLDER/argocd --header "X-Vault-Token:$VAULT_TOKEN" -O argocd.json
+    - export ARGO_TOKEN=$(grep -o '"ARGO_TOKEN":*"[^"]*"' argocd.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export ARGO_SERVER=$(grep -o '"ARGO_SERVER":*"[^"]*"' argocd.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - echo $DEPLOY_CONTAINER | base64 -d > ./configure-container-deployment.sh
     - chmod +x ./configure-container-deployment.sh
     - . ./configure-container-deployment.sh
-    - helm repo add --username "robot$"$IR_USER --password $IR_PASS repository $IR_CHART_REPO_URL
+    - cp .gitlab/utils/payload.*  ./
+    - chmod +x payload.sh
+    - bash ./payload.sh
     - echo $IR_USER
     - echo $IR_PASS
     - echo $IR_CHART_REPO_URL
-    - helm repo update
     - echo $CI_COMMIT_SHORT_SHA
     - echo $IR_CHART_NAME
+    - echo $IR_CHART_VERSION
     - cat values.yml
     - cat ./config.yml
+    - cat final_payload.json
     - env
-    - helm upgrade -i --debug $CI_PROJECT_NAME repository/$IR_CHART_NAME --kubeconfig ./config.yml -f values.yml -n $NAMESPACE --debug --force --set gitlabCommit=$CI_COMMIT_SHORT_SHA
+    - 'curl -X POST -H "Authorization: Bearer $ARGO_TOKEN" -H "Content-Type: application/json" -d @final_payload.json $ARGO_SERVER/api/v1/applications?upsert=true'
 
 Ejecutar setup de la base de datos:
   extends: .configure_setup
