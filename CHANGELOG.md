@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.7.0...v1.7.1) (2023-05-22)
+
+
+### Features
+
+* añadida ordenación para módulo de módulos ([ff599e5](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/ff599e54da0e1266dc615beecf13f51678ea2f8b))
+* añadida ordenación para módulo de políticas ([a24e0b8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a24e0b851c31b8424e9430d8e21cf35ee6578366))
+* añadida ordenación para módulo de roles ([b7bfb2a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b7bfb2af787218257b3f9a0cdc16280bc6daeaa8))
+* añadida ordenación para repositorio de parámetros ([77a8c1a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/77a8c1a3944c26ac88930345d6ad8bb566a39762))
+* añadida utilidad que determina el valor del campo y sentido para criterios de orden en repositorios ([9469697](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/9469697d9b9be620cc368708012fc4c744605229))
+* añadido filtro de estado activo para lista de grupo de parámetros ([0b60503](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/0b60503141e0115a574bd4f363fb07f5cb7b7170))
+* añadido parámetro de ordenación para repositorio de usuarios ([dcff7b4](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/dcff7b4e5b71796febb0aa342f4edd82c7ed0e5c))
+* añadidos varios criterios de ordenación para lista de usuarios ([7ed7dec](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/7ed7dec6ceeb8096f16224a80e91a4b9d1ba6c33))
+
+
+### Bug Fixes
+
+* :bug: cambiando el método de impresión de logs por consola ([8439a0a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/8439a0af2ce246fa700268c70263c1da7a1e4044))
+* corregido tipo de dato de rol para DTO de usuarios ([62981c4](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/62981c4684cb715171eceeb6ffc21ec848c1384b))
+
 ## [1.7.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.6.6...v1.7.0) (2023-04-02)
 
 

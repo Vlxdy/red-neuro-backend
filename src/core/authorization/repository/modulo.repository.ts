@@ -19,7 +19,8 @@ export class ModuloRepository {
   }
 
   async listar(paginacionQueryDto: FiltroModuloDto) {
-    const { limite, saltar, filtro, seccion } = paginacionQueryDto
+    const { limite, saltar, filtro, seccion, orden, sentido } =
+      paginacionQueryDto
     const query = this.dataSource
       .getRepository(Modulo)
       .createQueryBuilder('modulo')
@@ -35,7 +36,23 @@ export class ModuloRepository {
       ])
       .take(limite)
       .skip(saltar)
-      .orderBy('modulo.id', 'ASC')
+
+    switch (orden) {
+      case 'nombre':
+        query.addOrderBy('modulo.nombre', sentido)
+        break
+      case 'label':
+        query.addOrderBy('modulo.label', sentido)
+        break
+      case 'url':
+        query.addOrderBy('modulo.url', sentido)
+        break
+      case 'estado':
+        query.addOrderBy('modulo.estado', sentido)
+        break
+      default:
+        query.addOrderBy('modulo.id', 'ASC')
+    }
 
     if (filtro) {
       query.andWhere(

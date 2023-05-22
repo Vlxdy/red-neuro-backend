@@ -4,6 +4,7 @@ import { AuthZManagementService } from 'nest-authz'
 import { CasbinGuard } from '../guards/casbin.guard'
 import { AuthorizationController } from './authorization.controller'
 import { AuthorizationService } from './authorization.service'
+import { Order } from '../../../common/constants'
 
 const resPolitica = {
   sujeto: 'ADMINISTRADOR',
@@ -54,6 +55,15 @@ describe('AuthorizationController', () => {
         return 0
       },
       filtro: 'q',
+      get sentido() {
+        return Order.DESC
+      },
+      get orden() {
+        return undefined
+      },
+      get descendente() {
+        return false
+      },
     })
     expect(result).toBeDefined()
     expect(result).toHaveProperty('finalizado')

@@ -18,7 +18,8 @@ export class UsuarioRepository {
   constructor(private dataSource: DataSource) {}
 
   async listar(paginacionQueryDto: FiltrosUsuarioDto) {
-    const { limite, saltar, filtro, rol } = paginacionQueryDto
+    const { limite, saltar, filtro, rol, orden, sentido } = paginacionQueryDto
+
     const query = this.dataSource
       .getRepository(Usuario)
       .createQueryBuilder('usuario')
@@ -44,7 +45,26 @@ export class UsuarioRepository {
       .where('usuarioRol.estado = :estado', { estado: Status.ACTIVE })
       .take(limite)
       .skip(saltar)
-      .orderBy('usuario.id', 'ASC')
+
+    switch (orden) {
+      case 'nroDocumento':
+        query.addOrderBy('persona.nroDocumento', sentido)
+        break
+      case 'nombres':
+        query.addOrderBy('persona.nombres', sentido)
+        break
+      case 'usuario':
+        query.addOrderBy('usuario.usuario', sentido)
+        break
+      case 'rol':
+        query.addOrderBy('rol.rol', sentido)
+        break
+      case 'estado':
+        query.addOrderBy('usuario.estado', sentido)
+        break
+      default:
+        query.addOrderBy('usuario.id', 'ASC')
+    }
 
     if (rol) {
       query.andWhere('rol.id IN(:...roles)', {

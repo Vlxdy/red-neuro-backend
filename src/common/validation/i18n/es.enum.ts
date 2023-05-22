@@ -13,7 +13,7 @@ export enum ValidationMessageEnum {
   IS_NUMBER = '$property debe ser un número conforme a las restricciones especificadas.',
   IS_INT = '$property debe ser un número entero.',
   IS_ARRAY = '$property debe ser un arreglo.',
-  IS_ENUM = '$property debe ser un valod de enum válido.',
+  IS_ENUM = '$property debe ser un valor de enum válido.',
   IS_DIVISIBLE_BY = '$property debe ser divisible por $constraint1.',
   IS_POSITIVE = '$property debe ser un número positivo.',
   IS_NEGATIVE = '$property debe ser un número negativo.',

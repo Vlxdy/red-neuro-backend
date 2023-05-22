@@ -20,14 +20,27 @@ export class RolRepository {
   }
 
   async listarTodos(paginacionQueryDto: PaginacionQueryDto) {
-    const { limite, saltar, filtro } = paginacionQueryDto
+    const { limite, saltar, filtro, orden, sentido } = paginacionQueryDto
     const query = await this.dataSource
       .getRepository(Rol)
       .createQueryBuilder('rol')
       .select(['rol.id', 'rol.rol', 'rol.nombre', 'rol.estado'])
-      .orderBy('rol.id', 'ASC')
       .take(limite)
       .skip(saltar)
+
+    switch (orden) {
+      case 'rol':
+        query.addOrderBy('rol.rol', sentido)
+        break
+      case 'nombre':
+        query.addOrderBy('rol.nombre', sentido)
+        break
+      case 'estado':
+        query.addOrderBy('rol.estado', sentido)
+        break
+      default:
+        query.addOrderBy('rol.id', 'ASC')
+    }
 
     if (filtro) {
       query.andWhere('(rol.nombre ilike :filtro or rol.rol ilike :filtro)', {

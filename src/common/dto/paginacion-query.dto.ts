@@ -1,7 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Expose, Type } from 'class-transformer'
 import {
-  IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -9,7 +8,6 @@ import {
   Max,
   Min,
 } from '../validation'
-
 import { Order } from '../constants'
 
 const LIMITE_MIN = 10
@@ -51,13 +49,26 @@ export class PaginacionQueryDto {
   @IsString()
   readonly filtro?: string
 
-  @ApiPropertyOptional({
-    enum: Order,
-    default: Order.ASC,
-  })
-  @IsEnum(Order)
+  @ApiPropertyOptional()
+  @Expose({ name: 'orden' })
   @IsOptional()
-  readonly orden?: Order = Order.ASC
+  @IsString()
+  readonly ordenRaw?: string
+
+  get descendente() {
+    return this.ordenRaw?.startsWith('-')
+  }
+  get orden() {
+    return !this.ordenRaw
+      ? undefined
+      : this.descendente
+      ? this.ordenRaw.substring(1)
+      : this.ordenRaw
+  }
+
+  get sentido() {
+    return this.descendente ? Order.DESC : Order.ASC
+  }
 
   get saltar(): number {
     return (this.pagina - 1) * this.limite
