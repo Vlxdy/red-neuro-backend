@@ -5,6 +5,7 @@ import { CrearParametroDto } from './dto/crear-parametro.dto'
 import { Parametro } from './parametro.entity'
 import { Injectable } from '@nestjs/common'
 import { ActualizarParametroDto } from './dto/actualizar-parametro.dto'
+import { Status } from '../../common/constants'
 
 @Injectable()
 export class ParametroRepository {
@@ -47,6 +48,7 @@ export class ParametroRepository {
       ])
       .take(limite)
       .skip(saltar)
+      .orderBy('parametro.id', 'ASC')
 
     if (filtro) {
       query.andWhere(
@@ -64,6 +66,9 @@ export class ParametroRepository {
       .select(['parametro.id', 'parametro.codigo', 'parametro.nombre'])
       .where('parametro.grupo = :grupo', {
         grupo,
+      })
+      .andWhere('parametro.estado = :estado', {
+        estado: Status.ACTIVE,
       })
       .getMany()
   }

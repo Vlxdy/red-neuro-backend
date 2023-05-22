@@ -1,6 +1,6 @@
 include:
-  - /.gitlab/k8s.yml
-  
+  - /.gitlab/k8s-testing.yml
+
 stages:
   - prebuild
   - build
