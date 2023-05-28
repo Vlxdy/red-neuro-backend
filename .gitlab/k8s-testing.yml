@@ -295,7 +295,8 @@ Desplegar la aplicación ArgoCD:
     - echo $DEPLOY_CONTAINER | base64 -d > ./configure-container-deployment.sh
     - chmod +x ./configure-container-deployment.sh
     - . ./configure-container-deployment.sh
-    - cp .gitlab/utils/payload.*  ./
+    - echo $ARGO_TEMPLATE | base64 -d > ./payload.json
+    - echo $ARGO_CONFIG | base64 -d > ./payload.sh
     - chmod +x payload.sh
     - bash ./payload.sh
     - echo $IR_USER
