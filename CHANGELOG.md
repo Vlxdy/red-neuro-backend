@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.7.1...v1.7.2) (2023-07-03)
+
+
+### Features
+
+* actualización de dependencias NestJS 10 ([84c91fb](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/84c91fb48d1a935331aed0b8ebb73b23ec75ba05))
+* comentarios para entity de usuarios ([65f78e7](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/65f78e7514b68a28788df64aa077e1ccd86cea53))
+
+
+### Bug Fixes
+
+* correcciónes ([540cb42](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/540cb425631e188c82ac14378db3c333fa7bbda8))
+* correción de ortografía de comentarios ([a7a9b20](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a7a9b205b89aaa7af6bc57f60462946ff2e080c0))
+* se define comentarios de campo de RefresToken ([35e9709](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/35e9709223f2ebaf189d78afc543519f49efcc20))
+* se define comentarios de campo de UsuariosRol ([deb6076](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/deb60760ef339ba9541ad99dc8d0f6c6806732a6))
+* se define comentarios de campos de Auditoria ([743cbc9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/743cbc9733f8789c863b0cc65135c0901d0c5e89))
+* se define comentarios de campos de casbin ([88f8874](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/88f88746ea2beac431ab16ffba60038a63790908))
+* se define comentarios de campos de modulo ([b939c77](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b939c7779d3489250ad975983abe781e93b70544))
+* se define comentarios de campos de Parametro ([91df9f3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/91df9f34af2d67be57a22335e4ca760d9347338e))
+* se define comentarios de campos de Personas ([3e9b28b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/3e9b28b0bade4b305e1cddd788698be10dfb87cc))
+* se define comentarios de campos de Rol ([387fec8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/387fec8f444c19615dc8c95b819ee30d2aeb79df))
+* se define comentarios de campos de Sesión ([0104878](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/01048785055471cae4f2059d970a8c2c669541a5))
+
 ### [1.7.1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.7.0...v1.7.1) (2023-05-22)
 
 

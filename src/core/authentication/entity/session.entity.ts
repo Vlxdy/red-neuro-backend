@@ -7,15 +7,20 @@ dotenv.config()
 @Entity()
 export class Session implements ISession {
   @Index()
-  @Column('bigint')
+  @Column('bigint', { comment: 'Fecha de expiración de sesión' })
   public expiredAt = Date.now()
 
-  @PrimaryColumn('varchar', { length: 255 })
+  @PrimaryColumn('varchar', {
+    length: 255,
+    comment: 'Id generado de la sesión',
+  })
   public id = ''
 
-  @Column('text')
+  @Column('text', {
+    comment: 'Información de la sesión en formato json',
+  })
   public json = ''
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ comment: 'Fecha de eliminación o cierre de sesión' })
   public destroyedAt?: Date
 }

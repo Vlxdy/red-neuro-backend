@@ -24,13 +24,18 @@ export const UsuarioRolEstado = {
 @Check(UtilService.buildStatusCheck(UsuarioRolEstado))
 @Entity({ name: 'usuarios_roles', schema: process.env.DB_SCHEMA_USUARIOS })
 export class UsuarioRol extends AuditoriaEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+    name: 'id',
+    comment: 'Clave primaria de la tabla de UsuariosRoles',
+  })
   id: string
 
   @Column({
     name: 'id_rol',
     type: 'bigint',
     nullable: false,
+    comment: 'Clave foranea que referencia la tabla de roles',
   })
   idRol: string
 
@@ -38,6 +43,7 @@ export class UsuarioRol extends AuditoriaEntity {
     name: 'id_usuario',
     type: 'bigint',
     nullable: false,
+    comment: 'Clave foránea que referencia la tabla usuarios',
   })
   idUsuario: string
 
