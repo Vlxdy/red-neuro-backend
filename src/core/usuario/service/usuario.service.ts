@@ -37,7 +37,6 @@ import {
 
 @Injectable()
 export class UsuarioService extends BaseService {
-  // eslint-disable-next-line max-params
   constructor(
     @Inject(UsuarioRepository)
     private usuarioRepositorio: UsuarioRepository,

@@ -49,7 +49,9 @@ const bootstrap = async () => {
   const configService = app.get(ConfigService)
 
   // swagger
-  createSwagger(app)
+  if (configService.get('NODE_ENV') !== 'production') {
+    createSwagger(app)
+  }
 
   await SessionAppDataSource.initialize()
 
@@ -88,7 +90,7 @@ const bootstrap = async () => {
   app.setGlobalPrefix(configService.get('PATH_SUBDOMAIN') || 'api')
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (configService.get('NODE_ENV') !== 'production') {
     app.use((req: Request, res: Response, next: NextFunction) => {
       if (req.method.toLowerCase() === 'options') return next()
       logger.trace(`${req.method} ${req.originalUrl.split('?')[0]}`)

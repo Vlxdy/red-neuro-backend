@@ -10,9 +10,9 @@ export const NRO_DOC = 'nroDocumento'
 /**
  * Verífica si una cadena es un número de documento válido
  * @param value cadena a validar
- * @param param1 Objeto con propiedades de validacion
+ * @param param1 Objeto con propiedades de validación
  *  - complemento (true defecto)
- *  - extranjero (true defecto)
+ *  - extranjero (true por defecto)
  * @returns Si el valor dado no es una cadena, devuelve falso.
  */
 export function nroDocumento(

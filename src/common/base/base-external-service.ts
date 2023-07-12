@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios'
-import { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios'
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { firstValueFrom } from 'rxjs'
 import { BaseService } from './base-service'
 
@@ -106,7 +106,7 @@ export class BaseExternalService extends BaseService {
         error.response &&
         error.response.data === 'The upstream server is timing out'
       ) {
-        requestInfo.errorMessage = `El servicio no esta disponible. Intente otra vez.`
+        requestInfo.errorMessage = `El servicio no está disponible. Intente otra vez.`
         this.logger.error(requestInfo)
         return requestInfo
       }

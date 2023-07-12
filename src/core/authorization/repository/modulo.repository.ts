@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm'
+import { Brackets, DataSource } from 'typeorm'
 import { Modulo, Propiedades } from '../entity/modulo.entity'
 import { CrearModuloDto, FiltroModuloDto } from '../dto/crear-modulo.dto'
 import { Injectable } from '@nestjs/common'
@@ -56,8 +56,10 @@ export class ModuloRepository {
 
     if (filtro) {
       query.andWhere(
-        '(modulo.label ilike :filtro or modulo.nombre ilike :filtro)',
-        { filtro: `%${filtro?.toLowerCase()}%` }
+        new Brackets((qb) => {
+          qb.orWhere('modulo.label ilike :filtro', { filtro: `%${filtro}%` })
+          qb.orWhere('modulo.nombre ilike :filtro', { filtro: `%${filtro}%` })
+        })
       )
     }
     if (seccion) {

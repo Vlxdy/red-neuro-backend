@@ -64,7 +64,7 @@ export class Modulo extends AuditoriaEntity {
     name: 'id_modulo',
     type: 'bigint',
     nullable: true,
-    comment: 'Clave foránea que indica que pertenece a otro módulo',
+    comment: 'Clave foránea que índica que pertenece a otro módulo',
   })
   idModulo?: string | null
 

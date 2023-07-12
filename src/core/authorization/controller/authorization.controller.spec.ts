@@ -47,7 +47,7 @@ describe('AuthorizationController', () => {
     controller = module.get<AuthorizationController>(AuthorizationController)
   })
 
-  it('[listar] Debería listar politicas en formato filas y total', async () => {
+  it('[listar] Debería listar políticas en formato filas y total', async () => {
     const result = await controller.listarPoliticas({
       limite: 0,
       pagina: 0,
@@ -81,7 +81,7 @@ describe('AuthorizationController', () => {
     expect(result.datos).toBeInstanceOf(Array)
   })
 
-  it('[crearPolitica] Debería crear una politica', async () => {
+  it('[crearPolitica] Debería crear una política', async () => {
     const politica = { ...resPolitica }
     const result = await controller.crearPolitica(politica)
 
@@ -90,7 +90,7 @@ describe('AuthorizationController', () => {
     expect(result.finalizado).toEqual(true)
   })
 
-  it('[eliminarPolitica] Debería eliminar una politica', async () => {
+  it('[eliminarPolitica] Debería eliminar una política', async () => {
     const politica = { ...resPolitica }
     const result = await controller.eliminarPolitica(politica)
 

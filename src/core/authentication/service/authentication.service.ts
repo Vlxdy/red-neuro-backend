@@ -134,7 +134,7 @@ export class AuthenticationService extends BaseService {
   async autenticar(user: PassportUser) {
     const usuario = await this.usuarioService.buscarUsuarioId(user.id)
 
-    const payload = { id: user.id, roles: user.roles }
+    const payload: PayloadType = { id: user.id, roles: user.roles }
     // crear refresh_token
     const refreshToken = await this.refreshTokensService.create(user.id)
     // construir respuesta
@@ -282,7 +282,7 @@ export class AuthenticationService extends BaseService {
   }
 
   async autenticarOidc(user: PassportUser) {
-    const payload = { id: user.id, roles: user.roles }
+    const payload: PayloadType = { id: user.id, roles: user.roles }
     // crear refresh_token
     const refreshToken = await this.refreshTokensService.create(user.id)
     // construir respuesta

@@ -54,7 +54,7 @@ export class Usuario extends AuditoriaEntity {
     name: 'ciudadania_digital',
     type: 'boolean',
     default: false,
-    comment: 'indica si el usuario tiene habilitada la ciudadanía digital',
+    comment: 'índica si el usuario tiene habilitada la ciudadanía digital',
   })
   ciudadaniaDigital: boolean
 

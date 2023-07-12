@@ -1,5 +1,5 @@
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
-import { DataSource } from 'typeorm'
+import { Brackets, DataSource } from 'typeorm'
 import { Status } from '../../../common/constants'
 import { Injectable } from '@nestjs/common'
 import { Rol } from '../entity/rol.entity'
@@ -43,9 +43,12 @@ export class RolRepository {
     }
 
     if (filtro) {
-      query.andWhere('(rol.nombre ilike :filtro or rol.rol ilike :filtro)', {
-        filtro: `%${filtro}%`,
-      })
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.orWhere('rol.nombre ilike :filtro', { filtro: `%${filtro}%` })
+          qb.orWhere('rol.rol ilike :filtro', { filtro: `%${filtro}%` })
+        })
+      )
     }
     return await query.getManyAndCount()
   }

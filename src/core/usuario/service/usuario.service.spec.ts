@@ -241,7 +241,7 @@ describe('UsuarioService', () => {
     expect(usuarios.length).toEqual(2)
   })
 
-  it('[buscarUsuarioId] Debería obtener la informacion relacionada al usuario', async () => {
+  it('[buscarUsuarioId] Debería obtener la información relacionada con el usuario', async () => {
     const { id } = resUsuarioPerfil
     const usuarios = await service.buscarUsuarioId(id)
 
@@ -260,7 +260,7 @@ describe('UsuarioService', () => {
     }
   })
 
-  it('[crear] Debería lanzar una excepcion si ya existe un usuario con el mismo nro de documento', async () => {
+  it('[crear] Debería lanzar una excepcion si ya existe un usuario con el mismo nro. de documento', async () => {
     const datosUsuario = {
       usuario: 'usuario122',
       contrasena: '123',
@@ -383,7 +383,7 @@ describe('UsuarioService', () => {
     }
   })
 
-  it('[activar] Debería lanzar una excepcion si el usuario no tiene un estado valido para activación', async () => {
+  it('[activar] Debería lanzar una excepcion si el usuario no tiene un estado válido para activación', async () => {
     try {
       const idUsuario = TextService.generateUuid()
       const usuarioAuditoria = TextService.generateUuid()
@@ -501,7 +501,7 @@ describe('UsuarioService', () => {
     }
   })
 
-  it('[actualizarDatos] Debería retornar el id si logra actualizar los registros', async () => {
+  it('[actualizarDatos] Debería retornar el ID si logra actualizar los registros', async () => {
     const usuarioDto = new ActualizarUsuarioRolDto()
     usuarioDto.correoElectronico = 'fake@gmail.com'
     usuarioDto.roles = ['12323333']

@@ -1,13 +1,13 @@
-# Proyecto Base Backend - Manual de instalación para entornos de desarrollo
+# Manual de instalación
 
 ## 1. Requerimientos
 
 | Nombre       | Versión | Descripción                                            | Instalación                                      |
 |--------------|---------|--------------------------------------------------------|--------------------------------------------------|
 | `PostgreSQL` | ^14     | Gestor de base de datos.                               | https://www.postgresql.org/download/linux/debian |
-| `NodeJS`     | ^16     | Entorno de programación de JavaScript.                 | `nvm install 16` https://github.com/nvm-sh/nvm   |
-| `NPM`        | ^8      | Gestor de paquetes de NodeJS.                          | `npm install -g npm@8.5.5`                       |
-| `PM2`        | ^5.2    | Gestor avanzado de procesos de producción para NodeJS. | `npm install -g pm2@5.2`                         |
+| `NodeJS`     | ^18     | Entorno de programación de JavaScript.                 | `nvm install 18` https://github.com/nvm-sh/nvm   |
+| `NPM`        | ^9      | Gestor de paquetes de NodeJS.                          | `npm install -g npm@9.7.1`                       |
+| `PM2`        | ^5.3    | Gestor avanzado de procesos de producción para NodeJS. | `npm install -g pm2@5.3`                         |
 
 ## 2. Instalación
 
@@ -29,7 +29,7 @@ npm install
 
 ### Archivos de configuración.
 
-Crear los archivos de configuración con base en los archivos `sample` y modificar los valores que sean necesarios.
+Copiar archivos `.sample` y modificar los valores que sean necesarios.
 
 ```bash
 # Variables de entorno globales
@@ -211,7 +211,7 @@ npm run seeds:run
 
 - Para deshabilitar la generación de logs en ficheros `LOG_PATH` debe ser una cadena vacía.
 
-- `LOG_PATH` dentro de esta carpeta automáticamente se creará otra carpeta con el nombre del proyecto (propiedad `name`
+- `LOG_PATH` dentro de esta carpeta automáticamente se creará otro directorio con el nombre del proyecto (propiedad `name`
   del archivo `package.json`) y dentro de esta última se crearán los archivos de logs `error.log`, `warn.log` e `info.log`.
 
 - `LOG_SIZE` acepta los siguientes valores:

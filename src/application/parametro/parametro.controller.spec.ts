@@ -54,7 +54,7 @@ describe('ParametroController', () => {
     controller = module.get<ParametroController>(ParametroController)
   })
 
-  it('[listar] Debería listar parametros', async () => {
+  it('[listar] Debería listar parámetros', async () => {
     const pagination = new PaginacionQueryDto()
     const result = await controller.listar(pagination)
     expect(result).toBeDefined()
@@ -77,7 +77,7 @@ describe('ParametroController', () => {
     expect(result.datos).toBeInstanceOf(Array)
   })
 
-  it('[crear] Debería crear un nuevo parametro', async () => {
+  it('[crear] Debería crear un nuevo parámetro', async () => {
     const parametro = {
       codigo: 'TD-2',
       nombre: 'Pasaporte',

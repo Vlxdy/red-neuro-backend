@@ -21,7 +21,6 @@ import { ConfigService } from '@nestjs/config'
 
 @Controller()
 export class AuthenticationController extends BaseController {
-  // eslint-disable-next-line max-params
   constructor(
     private autenticacionService: AuthenticationService,
     private refreshTokensService: RefreshTokensService,
@@ -35,7 +34,7 @@ export class AuthenticationController extends BaseController {
   async login(@Req() req: Request, @Res() res: Response) {
     if (!req.user) {
       throw new BadRequestException(
-        `Es necesario que este autenticado para consumir este recurso.`
+        `Es necesario que esté autenticado para consumir este recurso.`
       )
     }
     const result = await this.autenticacionService.autenticar(req.user)

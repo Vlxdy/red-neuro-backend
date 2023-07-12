@@ -28,7 +28,7 @@ describe('TextService', () => {
     expect(uuid).toBe(false)
   })
 
-  it('[generateNanoId] Debería retornar un id corto', async () => {
+  it('[generateNanoId] Debería retornar un ID corto', async () => {
     const uuid = TextService.generateNanoId()
     const uuidRegex = /[A-Za-z0-9_-]{21}$/i
 

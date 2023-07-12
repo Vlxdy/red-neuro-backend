@@ -47,7 +47,7 @@ describe('ParametroService', () => {
     expect(parametros).toBeInstanceOf(Array)
   })
 
-  it('[crear] Debería crear un nuevo parametro', async () => {
+  it('[crear] Debería crear un nuevo parámetro', async () => {
     const parametro = new CrearParametroDto()
     parametro.codigo = resParametro.codigo
     parametro.nombre = resParametro.nombre

@@ -1,4 +1,5 @@
 import { nombreApellido } from './nombre-apellido.validator'
+
 describe('NombreApellido validator', () => {
   it('Debería retornar false para entradas undefined o null', () => {
     expect(nombreApellido(undefined)).toBe(false)

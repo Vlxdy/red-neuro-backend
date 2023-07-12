@@ -9,12 +9,13 @@ import {
 } from '@nestjs/common'
 import { AUTHZ_ENFORCER } from 'nest-authz'
 import { Request } from 'express'
+import { Enforcer } from 'casbin/lib/cjs/enforcer'
 
 @Injectable()
 export class CasbinGuard implements CanActivate {
   protected logger = LoggerService.getInstance()
 
-  constructor(@Inject(AUTHZ_ENFORCER) private enforcer: any) {}
+  constructor(@Inject(AUTHZ_ENFORCER) private enforcer: Enforcer) {}
 
   async canActivate(context: ExecutionContext) {
     const {

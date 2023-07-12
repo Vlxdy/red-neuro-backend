@@ -12,7 +12,7 @@ export class Session implements ISession {
 
   @PrimaryColumn('varchar', {
     length: 255,
-    comment: 'Id generado de la sesión',
+    comment: 'Id de la sesión',
   })
   public id = ''
 

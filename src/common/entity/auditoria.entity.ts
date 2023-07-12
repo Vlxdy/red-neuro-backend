@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm'
-import { Transacccion } from '../constants'
+import { Transaccion } from '../constants'
 
 export abstract class AuditoriaEntity extends BaseEntity {
   @Column({
@@ -53,18 +53,18 @@ export abstract class AuditoriaEntity extends BaseEntity {
     name: '_fecha_modificacion',
     type: 'timestamp without time zone',
     nullable: true,
-    comment: 'Fecha en que se realizo una modificación',
+    comment: 'Fecha en que se realizó una modificación',
   })
   fechaModificacion?: Date | null
 
   @BeforeInsert()
   insertarTransaccion() {
-    this.transaccion = this.transaccion || Transacccion.CREAR
+    this.transaccion = this.transaccion || Transaccion.CREAR
   }
 
   @BeforeUpdate()
   actualizarTransaccion() {
-    this.transaccion = this.transaccion || Transacccion.ACTUALIZAR
+    this.transaccion = this.transaccion || Transaccion.ACTUALIZAR
   }
 
   protected constructor(data?: Partial<AuditoriaEntity>) {

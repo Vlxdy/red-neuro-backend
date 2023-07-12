@@ -1,6 +1,6 @@
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { PaginacionQueryDto } from '../../common/dto/paginacion-query.dto'
-import { DataSource } from 'typeorm'
+import { Brackets, DataSource } from 'typeorm'
 import { CrearParametroDto } from './dto/crear-parametro.dto'
 import { Parametro } from './parametro.entity'
 import { Injectable } from '@nestjs/common'
@@ -71,8 +71,18 @@ export class ParametroRepository {
 
     if (filtro) {
       query.andWhere(
-        '(parametro.codigo like :filtro or parametro.nombre ilike :filtro or parametro.descripcion ilike :filtro or parametro.grupo ilike :filtro)',
-        { filtro: `%${filtro}%` }
+        new Brackets((qb) => {
+          qb.orWhere('parametro.codigo like :filtro', { filtro: `%${filtro}%` })
+          qb.orWhere('parametro.nombre ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+          qb.orWhere('parametro.descripcion ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+          qb.orWhere('parametro.grupo ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+        })
       )
     }
     return await query.getManyAndCount()

@@ -167,7 +167,7 @@ describe('AuthenticationService', () => {
     }
   })
 
-  it('[validarUsuario] Debería lanzar una excepcion si excedio el limite de intentos erroneos de inicio de sesion.', async () => {
+  it('[validarUsuario] Debería lanzar una excepcion si excedio el límite de intentos erroneos de inicio de sesion.', async () => {
     try {
       await service.validarUsuario('user', TextService.btoa(encodeURI('123')))
     } catch (error) {
@@ -176,13 +176,13 @@ describe('AuthenticationService', () => {
     }
   })
 
-  it('[validarUsuario] Debería restablecer el limite de intentos si inicio sesion correctamente.', async () => {
+  it('[validarUsuario] Debería restablecer el límite de intentos si inicio sesion correctamente.', async () => {
     await service.validarUsuario('user', TextService.btoa(encodeURI('123')))
 
     expect(usuarioService.actualizarContadorBloqueos).toBeCalled()
   })
 
-  it('[validarUsuario] Debería permitir iniciar sesion si la fecha limite bloqueo ya expiro.', async () => {
+  it('[validarUsuario] Debería permitir iniciar sesion si la fecha límite bloqueo ya expiro.', async () => {
     try {
       await service.validarUsuario('user', TextService.btoa(encodeURI('1234')))
     } catch (error) {
@@ -199,7 +199,7 @@ describe('AuthenticationService', () => {
     expect(result).toBeFalsy()
   })
 
-  it('[validarUsuarioOidc] Debería retornar excepcion si el usuario esta INACTIVO.', async () => {
+  it('[validarUsuarioOidc] Debería retornar excepcion si el usuario está INACTIVO.', async () => {
     try {
       const persona = plainToClass(Persona, resPersona) as PersonaDto
       await service.validarUsuarioOidc(persona)
@@ -208,7 +208,7 @@ describe('AuthenticationService', () => {
     }
   })
 
-  it('[validarUsuarioOidc] Debería retornar el id si el usuario esta ACTIVO.', async () => {
+  it('[validarUsuarioOidc] Debería retornar el ID si el usuario está ACTIVO.', async () => {
     const persona = plainToClass(Persona, resPersona) as PersonaDto
     const result = await service.validarUsuarioOidc(persona)
     expect(result).toBeDefined()
