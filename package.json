@@ -1,6 +1,6 @@
 {
   "name": "agetic-nestjs-base-backend",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Backend base con Nest.js, TypeORM y TypeScript",
   "author": "agetic@agetic.gob.bo",
   "private": true,

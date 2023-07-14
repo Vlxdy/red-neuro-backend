@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.7.2...v1.7.3) (2023-07-14)
+
+
+### Features
+
+* agregado tipo 'PayloadType' para controlar el tipo de Payload que se va a firmar ([ed584a4](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/ed584a4b31ad8fc82b9cff4ed4236f7db74c8564))
+
+
+### Bug Fixes
+
+* corrección de codeSmell en filtro de roles para payload en función de refreshToken ([3d1e274](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/3d1e2746a04eb11eb830030320af3a2713d79aab))
+* corrección de error que ocasionaba que se despliegue API-DOC en producción 🤦‍♂️ ([3ff5fc0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/3ff5fc02d249085a2d6a43179d2bba21e4fbac16))
+* corrección de tipado en instancia de Enforcer de Casbin ([149a30b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/149a30ba14184c2ffc48dc332ec2c7cd810a9ad2))
+* corrección de valor duplicado en es.enum.ts ([10cecc8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/10cecc8d53ef8a7af095bdbd19f290a23a43175a))
+* se corrigieron sentencias where anidadas de los repositorios de TypeORM usando brackets ([d6af383](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/d6af383250f460dc42747afbeccf2c1f7ed57f8f))
+
 ### [1.7.2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.7.1...v1.7.2) (2023-07-03)
 
 
