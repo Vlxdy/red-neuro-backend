@@ -19,7 +19,7 @@ export class MensajeriaService {
         para: [cellphone],
         contenido: content,
       }
-      const response = await this.httpService
+      const response = this.httpService
         .post('/sms', smsBody)
         .pipe(map((res) => res.data))
 
@@ -42,7 +42,7 @@ export class MensajeriaService {
         asunto: subject,
         contenido: content,
       }
-      const response = await this.httpService
+      const response = this.httpService
         .post('/correo', emailBody)
         .pipe(map((res) => res.data))
 

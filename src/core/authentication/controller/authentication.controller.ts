@@ -1,8 +1,10 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   Inject,
+  Patch,
   Post,
   Req,
   Res,
@@ -18,6 +20,7 @@ import { AuthenticationService } from '../service/authentication.service'
 import { RefreshTokensService } from '../service/refreshTokens.service'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
 import { ConfigService } from '@nestjs/config'
+import { CambioRolDto } from '../dto/index.dto'
 
 @Controller()
 export class AuthenticationController extends BaseController {
@@ -41,6 +44,31 @@ export class AuthenticationController extends BaseController {
 
     this.logger.info(`Usuario: ${result.data.id} ingresó al sistema`)
     /* sendRefreshToken(res, result.refresh_token.id); */
+    const refreshToken = result.refresh_token.id
+    return res
+      .cookie(
+        this.configService.get('REFRESH_TOKEN_NAME') || '',
+        refreshToken,
+        CookieService.makeConfig(this.configService)
+      )
+      .status(200)
+      .send({ finalizado: true, mensaje: 'ok', datos: result.data })
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('cambiarRol')
+  async changeRol(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: CambioRolDto
+  ) {
+    if (!req.user) {
+      throw new BadRequestException(
+        `Es necesario que este autenticado para consumir este recurso.`
+      )
+    }
+    const result = await this.autenticacionService.cambiarRol(req.user, body)
+
     const refreshToken = result.refresh_token.id
     return res
       .cookie(

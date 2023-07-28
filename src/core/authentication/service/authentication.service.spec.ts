@@ -16,6 +16,7 @@ import { UsuarioRolRepository } from '../../authorization/repository/usuario-rol
 import { RolRepository } from '../../authorization/repository/rol.repository'
 import { PersonaDto } from '../../usuario/dto/persona.dto'
 import { UnauthorizedException } from '@nestjs/common'
+import { Status } from '../../../common/constants'
 
 const resSign = 'aaa.bbb.ccc'
 const resBuscarUsuario = {
@@ -42,6 +43,14 @@ const resPersona = {
 }
 
 const refreshToken = { resfresh_token: '1' }
+
+const resPerfil = {
+  id: TextService.generateUuid(),
+  usuario: '7171717',
+  estado: Status.ACTIVE,
+  roles: {},
+  persona: {},
+}
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService
@@ -95,6 +104,8 @@ describe('AuthenticationService', () => {
                 estado: 'ACTIVO',
                 persona: resPersona,
               }),
+            buscarUsuarioId: jest.fn(() => resPerfil),
+            obtenerRolActual: jest.fn().mockReturnValueOnce({ idRol: 1 }),
           },
         },
         {

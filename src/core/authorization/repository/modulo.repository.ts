@@ -4,7 +4,6 @@ import { CrearModuloDto, FiltroModuloDto } from '../dto/crear-modulo.dto'
 import { Injectable } from '@nestjs/common'
 import { Status } from '../../../common/constants'
 import { ActualizarModuloDto } from '../dto/actualizar-modulo.dto'
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
 @Injectable()
 export class ModuloRepository {
@@ -131,7 +130,7 @@ export class ModuloRepository {
     moduloDto: ActualizarModuloDto,
     usuarioAuditoria: string
   ) {
-    const datosActualizar: QueryDeepPartialEntity<Modulo> = new Modulo({
+    const datosActualizar = new Modulo({
       ...moduloDto,
       usuarioModificacion: usuarioAuditoria,
     })

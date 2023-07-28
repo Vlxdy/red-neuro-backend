@@ -1,4 +1,6 @@
+import { TokenDto } from './../dto/index.dto'
 import {
+  Body,
   Controller,
   Delete,
   Inject,
@@ -26,9 +28,13 @@ export class RefreshTokensController extends BaseController {
   }
 
   @Post('token')
-  async getAccessToken(@Req() req: Request, @Res() res: Response) {
+  async getAccessToken(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: TokenDto
+  ) {
     const jid = req.cookies['jid']
-    const result = await this.refreshTokensService.createAccessToken(jid)
+    const result = await this.refreshTokensService.createAccessToken(jid, body)
 
     if (result.refresh_token) {
       // sendRefreshToken(res, result.refresh_token.id);

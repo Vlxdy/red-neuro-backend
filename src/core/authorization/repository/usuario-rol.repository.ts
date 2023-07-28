@@ -18,35 +18,47 @@ export class UsuarioRolRepository {
       .getMany()
   }
 
-  async activar(idUsuario, roles, usuarioActualizacion) {
+  async activar(
+    idUsuario: string,
+    roles: Array<string>,
+    usuarioAuditoria: string
+  ) {
     return await this.dataSource
       .getRepository(UsuarioRol)
       .createQueryBuilder()
       .update(UsuarioRol)
       .set({
         estado: Status.ACTIVE,
-        usuarioModificacion: usuarioActualizacion,
+        usuarioModificacion: usuarioAuditoria,
       })
       .where('id_usuario = :idUsuario', { idUsuario })
       .andWhere('id_rol IN(:...ids)', { ids: roles })
       .execute()
   }
 
-  async inactivar(idUsuario, roles, usuarioActualizacion) {
+  async inactivar(
+    idUsuario: string,
+    roles: Array<string>,
+    usuarioAuditoria: string
+  ) {
     return await this.dataSource
       .getRepository(UsuarioRol)
       .createQueryBuilder()
       .update(UsuarioRol)
       .set({
         estado: Status.INACTIVE,
-        usuarioModificacion: usuarioActualizacion,
+        usuarioModificacion: usuarioAuditoria,
       })
       .where('id_usuario = :idUsuario', { idUsuario })
       .andWhere('id_rol IN(:...ids)', { ids: roles })
       .execute()
   }
 
-  async crear(idUsuario, roles, usuarioAuditoria) {
+  async crear(
+    idUsuario: string,
+    roles: Array<string>,
+    usuarioAuditoria: string
+  ) {
     const usuarioRoles: UsuarioRol[] = roles.map((idRol) => {
       const usuario = new Usuario()
       usuario.id = idUsuario

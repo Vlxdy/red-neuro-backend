@@ -15,7 +15,10 @@ export class TextService {
     return await hash(password, Configurations.SALT_ROUNDS)
   }
 
-  static async compare(passwordInPlainText, hashedPassword) {
+  static async compare(
+    passwordInPlainText: string | Buffer,
+    hashedPassword: string
+  ) {
     return await compare(passwordInPlainText, hashedPassword)
   }
 
@@ -60,12 +63,12 @@ export class TextService {
     return result.score >= Configurations.SCORE_PASSWORD
   }
 
-  static decodeBase64 = (base64) => {
+  static decodeBase64 = (base64: string) => {
     const text = TextService.atob(base64)
     return decodeURI(text)
   }
 
-  static atob = (a) => Buffer.from(a, 'base64').toString('ascii')
+  static atob = (a: string) => Buffer.from(a, 'base64').toString('ascii')
 
-  static btoa = (b) => Buffer.from(b).toString('base64')
+  static btoa = (b: string) => Buffer.from(b).toString('base64')
 }

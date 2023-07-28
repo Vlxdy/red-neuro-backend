@@ -30,7 +30,7 @@ export class RolService extends BaseService {
   async actualizar(id: string, rolDto: CrearRolDto, usuarioAuditoria: string) {
     const rol = await this.rolRepositorio.buscarPorId(id)
     if (!rol) {
-      throw new NotFoundException(Messages.EXCEPTION_DEFAULT)
+      throw new NotFoundException(Messages.NO_PERMISSION_FOUND)
     }
 
     await this.rolRepositorio.actualizar(id, rolDto, usuarioAuditoria)
@@ -40,7 +40,7 @@ export class RolService extends BaseService {
   async activar(idRol: string, usuarioAuditoria: string) {
     const rol = await this.rolRepositorio.buscarPorId(idRol)
     if (!rol) {
-      throw new NotFoundException(Messages.EXCEPTION_DEFAULT)
+      throw new NotFoundException(Messages.NO_PERMISSION_FOUND)
     }
 
     const rolDto = new CrearRolDto()
@@ -52,7 +52,7 @@ export class RolService extends BaseService {
   async inactivar(idRol: string, usuarioAuditoria: string) {
     const rol = await this.rolRepositorio.buscarPorId(idRol)
     if (!rol) {
-      throw new NotFoundException(Messages.EXCEPTION_DEFAULT)
+      throw new NotFoundException(Messages.NO_PERMISSION_FOUND)
     }
 
     const rolDto = new CrearRolDto()

@@ -2,8 +2,10 @@ import { BadRequestException } from '@nestjs/common'
 import { Messages } from '../constants/response-messages'
 import { SuccessResponseDto } from './success-response.dto'
 
+type ListaCantidadType<T> = [Array<T>, number]
+
 export abstract class AbstractController {
-  makeResponse(data, message: string): SuccessResponseDto {
+  makeResponse<T>(data: T, message: string): SuccessResponseDto<T> {
     return {
       finalizado: true,
       mensaje: message,
@@ -11,27 +13,45 @@ export abstract class AbstractController {
     }
   }
 
-  success(data, message = Messages.SUCCESS_DEFAULT): SuccessResponseDto {
+  success<T>(
+    data: T,
+    message = Messages.SUCCESS_DEFAULT
+  ): SuccessResponseDto<T> {
     return this.makeResponse(data, message)
   }
 
-  successList(data, message = Messages.SUCCESS_LIST): SuccessResponseDto {
+  successList<T>(
+    data: T,
+    message = Messages.SUCCESS_LIST
+  ): SuccessResponseDto<T> {
     return this.makeResponse(data, message)
   }
 
-  successUpdate(data, message = Messages.SUCCESS_UPDATE): SuccessResponseDto {
+  successUpdate<T>(
+    data: T,
+    message = Messages.SUCCESS_UPDATE
+  ): SuccessResponseDto<T> {
     return this.makeResponse(data, message)
   }
 
-  successDelete(data, message = Messages.SUCCESS_DELETE): SuccessResponseDto {
+  successDelete<T>(
+    data: T,
+    message = Messages.SUCCESS_DELETE
+  ): SuccessResponseDto<T> {
     return this.makeResponse(data, message)
   }
 
-  successCreate(data, message = Messages.SUCCESS_CREATE): SuccessResponseDto {
+  successCreate<T>(
+    data: T,
+    message = Messages.SUCCESS_CREATE
+  ): SuccessResponseDto<T> {
     return this.makeResponse(data, message)
   }
 
-  successListRows(data, message = Messages.SUCCESS_LIST): SuccessResponseDto {
+  successListRows<T>(
+    data: ListaCantidadType<T>,
+    message = Messages.SUCCESS_LIST
+  ): SuccessResponseDto<{ total: number; filas: Array<T> }> {
     const [filas, total] = data
     return this.makeResponse({ total, filas }, message)
   }

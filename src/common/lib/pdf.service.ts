@@ -13,7 +13,7 @@ const { window } = new JSDOM('')
 
 @Injectable()
 export class PdfService {
-  static generate(template) {
+  static generate(template: string) {
     const html = htmlToPdfmake(template, { window })
     const docDefinition = {
       content: [html],
@@ -35,7 +35,7 @@ export class PdfService {
    * @param template string plantilla html
    * @returns Promise
    */
-  static generateBase64(template) {
+  static generateBase64(template: string) {
     const pdfDoc = this.generate(template)
     return new Promise((resolve, reject) => {
       pdfDoc.getBase64((data) => {
@@ -50,7 +50,7 @@ export class PdfService {
    * @param template string plantilla html
    * @returns Promise
    */
-  static generateBuffer(template) {
+  static generateBuffer(template: string) {
     const pdfDoc = this.generate(template)
     return new Promise((resolve, reject) => {
       pdfDoc.getBuffer((buffer) => {
@@ -60,7 +60,7 @@ export class PdfService {
     })
   }
 
-  static generateStream(template) {
+  static generateStream(template: string) {
     const pdfDoc = this.generate(template)
     return pdfDoc.getStream()
   }

@@ -1,3 +1,4 @@
+import { TokenDto } from '../dto/index.dto'
 import { BaseService } from '../../../common/base/base-service'
 import {
   Inject,
@@ -32,10 +33,6 @@ export class RefreshTokensService extends BaseService {
     super()
   }
 
-  async findById(id: string) {
-    return await this.refreshTokensRepository.findById(id)
-  }
-
   async create(grantId: string) {
     const ttl = parseInt(
       this.configService.get('REFRESH_TOKEN_EXPIRES_IN') || '3600000',
@@ -52,7 +49,7 @@ export class RefreshTokensService extends BaseService {
     })
   }
 
-  async createAccessToken(refreshTokenId: string) {
+  async createAccessToken(refreshTokenId: string, datos: TokenDto) {
     const refreshToken = await this.refreshTokensRepository.findById(
       refreshTokenId
     )
@@ -72,10 +69,40 @@ export class RefreshTokensService extends BaseService {
 
     const roles = usuario.roles.map((rol) => rol.rol)
 
-    const payload: PayloadType = { id: usuario.id, roles }
+    try {
+      this.jwtService.verify(datos.token, {
+        secret: this.configService.get('JWT_SECRET'),
+      })
+    } catch (err) {
+      if (err.name === 'JsonWebTokenError') {
+        this.logger.error(err)
+        // handle expired token
+        throw new UnauthorizedException(Messages.EXCEPTION_UNAUTHORIZED)
+      }
+    }
+
+    const decode = this.jwtService.decode(datos.token)
+
+    if (!decode) {
+      throw new NotFoundException(Messages.EXCEPTION_NOT_FOUND)
+    }
+
+    const rol = this.usuarioService.obtenerRolActual(
+      usuario.roles,
+      decode['idRol']
+    )
+
+    const payload: PayloadType = {
+      id: usuario.id,
+      roles,
+      idRol: rol.idRol,
+      rol: rol.rol,
+    }
     const data = {
       access_token: this.jwtService.sign(payload),
       ...usuario,
+      idRol: rol.idRol,
+      rol: rol.rol,
     }
 
     const rft = parseInt(
@@ -85,6 +112,7 @@ export class RefreshTokensService extends BaseService {
 
     // crear rotacion de refresh token
     const sigueVigente = dayjs(refreshToken.expiresAt).diff(dayjs()) < rft
+
     if (!sigueVigente) {
       return {
         data,

@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.7.3...v1.8.0) (2023-07-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* El ID de rol activo se incorpora en el token
+
+### Features
+
+* actualización de dependencias NestJS 10 ([23b620d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/23b620ddf1aa4b02b855d53fdef3d7b650744b29))
+* añadida función de validación de token JWT al hacer el cambio con refreshToken ignorando la expiración ([19c342c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/19c342cb4f3af38cc3d45c008547d33493f95b50))
+* añadido tipo genérico que servira para inferir el tipo de respuesta en controladores ([a8ca1ce](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a8ca1ce132984565cad4b8e2fabefde5edcc7041))
+* cambio de rol ([4554e4f](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/4554e4f5f0c1dd690e5361ea2d35f0fdc8af409e))
+* cambio en API de perfil para retornar rol activo ([b67b49c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b67b49c0a378563f84502cb2a933125a7cbabdff))
+* comentarios para entity de usuarios ([6bc2328](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/6bc232853b98504547363dcbd1fe3d57e8a551c0))
+* refresh token ([b003702](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b0037023efec8704eb94bd28b2e9e33d4f645a6c))
+* se adiciona idRol en token ([958e8c9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/958e8c91a67d43597fc0564ea170aa2039d80143))
+
+
+### Bug Fixes
+
+* correcciónes ([612591a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/612591a995a63370e4a979afd566e9996a9d70dd))
+* correción de ortografía de comentarios ([eea8da8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/eea8da85ca48cac8c20532eb5d46191a81df6a03))
+* corregida asignación de rol inicial a proveedor de identidad ([5f73fa1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/5f73fa13b2c63c908dceb76b0d4f32cae0c3fd62))
+* corregido log de error, solo en caso de JsonWebTokenError ([fea3fd7](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/fea3fd7810400d699edcbdee6cb46694f1077c88))
+* mejorada gramática de mensajes de respuesta ([c50fd65](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c50fd657a2f2bd520ad1f7e3297e32375b204982))
+* modificados test unitarios para nuevos métodos de obtenerRolActual y buscarUsuarioPerfil ([7da5d78](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/7da5d785e49d8b601299e64a31d9722be5f21b61))
+* se agrega 'rol' en token para validar únicamente ese rol en Casbin 🛡️ ([e41b7ff](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e41b7ffa8007b2d96d5c7389c89608aaf3bed11b))
+* se añade tipado faltante en variables y funciones de repositorios y servicios ([fba4a12](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/fba4a122a823a392bf337b49a6b1a7cd21e51539))
+* se define comentarios de campo de RefresToken ([c75b09b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c75b09b74084e4cd7722eaec15105cebb635ce93))
+* se define comentarios de campo de UsuariosRol ([b20ab7e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b20ab7e4ddf814ab0354437864f3029a2ca601ba))
+* se define comentarios de campos de Auditoria ([a7f1939](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a7f1939c5cd546e4ac1847050dc7e5915b3606ea))
+* se define comentarios de campos de casbin ([04b69b0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/04b69b0c7f1f2954ccf15dc8189daa75cc6a622c))
+* se define comentarios de campos de modulo ([c4579d9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c4579d9794ab7ab56e0421de9db91d3c5f19e8ae))
+* se define comentarios de campos de Parametro ([106779b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/106779b64b6cddadf3e16e8e2665e884541c425b))
+* se define comentarios de campos de Personas ([bec8f7d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/bec8f7d24646fb500ca40e3ab6f4901c6705579b))
+* se define comentarios de campos de Rol ([587a535](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/587a535cea967922fc825a541c008b482b7005f5))
+* se define comentarios de campos de Sesión ([d8b0a24](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/d8b0a2436c6656924c56dfafa9045de12f5c6a1f))
+* se eliminan tipos QueryDeepPartialEntity ya que TypeScript infiere los tipos ([c365cf9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c365cf995075ccf42130deb4c2d211148a1c199a))
+
 ### [1.7.3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.7.2...v1.7.3) (2023-07-14)
 
 

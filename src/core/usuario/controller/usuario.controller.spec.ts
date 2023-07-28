@@ -54,6 +54,7 @@ describe('UsuarioController', () => {
             inactivar: jest.fn(() => resUsuario),
             actualizarContrasena: jest.fn(() => resUsuario),
             restaurarContrasena: jest.fn(() => resUsuario),
+            buscarUsuarioPerfil: jest.fn(() => resUsuario),
           },
         },
         ConfigService,

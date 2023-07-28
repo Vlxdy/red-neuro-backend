@@ -40,7 +40,7 @@ export class SegipService extends BaseExternalService {
       const urlContrastacion = encodeURI(`/v2/personas/contrastacion`)
 
       const respuesta = await firstValueFrom(
-        await this.httpService
+        this.httpService
           .get(urlContrastacion, {
             params: {
               tipo_persona: 1,

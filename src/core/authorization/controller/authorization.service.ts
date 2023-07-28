@@ -4,12 +4,14 @@ import { AuthZManagementService } from 'nest-authz'
 import { FiltrosPoliticasDto } from '../dto/filtros-politicas.dto'
 import { ModuloService } from '../service/modulo.service'
 
-interface politicaType {
+export interface politicaType {
   sujeto: string
   objeto: string
   accion: string
   app: string
 }
+
+type politicasResultType = [Array<politicaType>, number]
 
 @Injectable()
 export class AuthorizationService extends BaseService {
@@ -20,7 +22,9 @@ export class AuthorizationService extends BaseService {
     super()
   }
 
-  async listarPoliticas(@Query() paginacionQueryDto: FiltrosPoliticasDto) {
+  async listarPoliticas(
+    @Query() paginacionQueryDto: FiltrosPoliticasDto
+  ): Promise<politicasResultType> {
     const { limite, pagina, filtro, aplicacion, orden, descendente } =
       paginacionQueryDto
 
@@ -85,7 +89,7 @@ export class AuthorizationService extends BaseService {
     return [subset, result.length]
   }
 
-  async crearPolitica(politica) {
+  async crearPolitica(politica: politicaType) {
     const { sujeto, objeto, accion, app } = politica
     await this.authZManagerService.addPolicy(sujeto, objeto, accion, app)
     return politica

@@ -1,6 +1,6 @@
 import { IsOptional } from '../validation'
 
-export class SuccessResponseDto {
+export class SuccessResponseDto<T> {
   @IsOptional()
   finalizado: boolean
 
@@ -8,5 +8,5 @@ export class SuccessResponseDto {
   mensaje: string
 
   @IsOptional()
-  datos: any
+  datos: T
 }
