@@ -16,7 +16,7 @@ export class AppController extends BaseController {
     return res.status(HttpStatus.OK).json({
       servicio: packageJson.name,
       version: packageJson.version,
-      entorno: process.env.NODE_ENV,
+      entorno: this.configService.get('NODE_ENV'),
       estado: 'Servicio funcionando correctamente',
       commit_sha: this.configService.get('CI_COMMIT_SHORT_SHA'),
       mensaje: this.configService.get('CI_COMMIT_MESSAGE'),

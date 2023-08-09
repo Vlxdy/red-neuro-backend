@@ -3,15 +3,9 @@ import { Injectable, Query } from '@nestjs/common'
 import { AuthZManagementService } from 'nest-authz'
 import { FiltrosPoliticasDto } from '../dto/filtros-politicas.dto'
 import { ModuloService } from '../service/modulo.service'
+import { PoliticaDto } from '../dto/politica.dto'
 
-export interface politicaType {
-  sujeto: string
-  objeto: string
-  accion: string
-  app: string
-}
-
-type politicasResultType = [Array<politicaType>, number]
+type politicasResultType = [Array<PoliticaDto>, number]
 
 @Injectable()
 export class AuthorizationService extends BaseService {
@@ -89,22 +83,19 @@ export class AuthorizationService extends BaseService {
     return [subset, result.length]
   }
 
-  async crearPolitica(politica: politicaType) {
+  async crearPolitica(politica: PoliticaDto) {
     const { sujeto, objeto, accion, app } = politica
     await this.authZManagerService.addPolicy(sujeto, objeto, accion, app)
     return politica
   }
 
-  async actualizarPolitica(
-    politica: politicaType,
-    politicaNueva: politicaType
-  ) {
+  async actualizarPolitica(politica: PoliticaDto, politicaNueva: PoliticaDto) {
     const { sujeto, objeto, accion, app } = politicaNueva
     await this.eliminarPolitica(politica)
     await this.authZManagerService.addPolicy(sujeto, objeto, accion, app)
   }
 
-  async eliminarPolitica(politica: politicaType) {
+  async eliminarPolitica(politica: PoliticaDto) {
     const { sujeto, objeto, accion, app } = politica
     await this.authZManagerService.removePolicy(sujeto, objeto, accion, app)
     return politica

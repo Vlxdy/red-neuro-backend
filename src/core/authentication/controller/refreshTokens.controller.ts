@@ -1,4 +1,4 @@
-import { TokenDto } from './../dto/index.dto'
+import { TokenDto } from '../dto/index.dto'
 import {
   Body,
   Controller,

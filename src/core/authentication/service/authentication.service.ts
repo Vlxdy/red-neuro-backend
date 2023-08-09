@@ -17,7 +17,7 @@ import { PersonaDto } from '../../usuario/dto/persona.dto'
 import { ConfigService } from '@nestjs/config'
 import { PersonaService } from '../../usuario/service/persona.service'
 import { TemplateEmailService } from '../../../common/templates/templates-email.service'
-import { Usuario } from 'src/core/usuario/entity/usuario.entity'
+import { Usuario } from '../../usuario/entity/usuario.entity'
 import { CambioRolDto } from '../dto/index.dto'
 
 @Injectable()

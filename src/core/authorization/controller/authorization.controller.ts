@@ -13,6 +13,7 @@ import { BaseController } from '../../../common/base/base-controller'
 import { AuthorizationService } from './authorization.service'
 import { CasbinGuard } from '../guards/casbin.guard'
 import { FiltrosPoliticasDto } from '../dto/filtros-politicas.dto'
+import { PoliticaDto } from '../dto/politica.dto'
 
 @UseGuards(JwtAuthGuard, CasbinGuard)
 @Controller('autorizacion')
@@ -22,13 +23,16 @@ export class AuthorizationController extends BaseController {
   }
 
   @Post('/politicas')
-  async crearPolitica(@Body() politica) {
+  async crearPolitica(@Body() politica: PoliticaDto) {
     const result = await this.authorizationService.crearPolitica(politica)
     return this.successCreate(result)
   }
 
   @Patch('/politicas')
-  async actualizarPolitica(@Body() politica, @Query() query) {
+  async actualizarPolitica(
+    @Body() politica: PoliticaDto,
+    @Query() query: PoliticaDto
+  ) {
     const result = await this.authorizationService.actualizarPolitica(
       query,
       politica
@@ -45,7 +49,7 @@ export class AuthorizationController extends BaseController {
   }
 
   @Delete('/politicas')
-  async eliminarPolitica(@Query() query) {
+  async eliminarPolitica(@Query() query: PoliticaDto) {
     const result = await this.authorizationService.eliminarPolitica(query)
     return this.successDelete(result)
   }

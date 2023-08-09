@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.8.0...v1.8.1) (2023-08-09)
+
+
+### Bug Fixes
+
+* se añade PoliticaDTO para controlador y servicios de autorización ([b5a14d9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b5a14d911df12de4bcba0fd9087e194789a4a582))
+
 ## [1.8.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.7.3...v1.8.0) (2023-07-28)
 
 

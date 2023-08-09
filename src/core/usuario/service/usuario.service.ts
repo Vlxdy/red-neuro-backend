@@ -35,7 +35,6 @@ import {
   RecuperarCuentaDto,
   ValidarRecuperarCuentaDto,
 } from '../dto/recuperar-cuenta.dto'
-import { UsuarioRol } from '../../authorization/entity/usuario-rol.entity'
 
 @Injectable()
 export class UsuarioService extends BaseService {
@@ -746,7 +745,13 @@ export class UsuarioService extends BaseService {
     }
   }
 
-  verificarUsuarioRoles(usuarioRoles: Array<UsuarioRol>, roles: Array<string>) {
+  verificarUsuarioRoles(
+    usuarioRoles: Array<{
+      rol: { id: string }
+      estado: string
+    }>,
+    roles: Array<string>
+  ) {
     const inactivos = roles.filter((rol) =>
       usuarioRoles.some(
         (usuarioRol) =>
@@ -904,5 +909,8 @@ export class UsuarioService extends BaseService {
       throw new UnauthorizedException(`Rol no permitido.`)
     }
     return rol
+  }
+  async obtenerCodigoTest(idUser: string) {
+    return await this.usuarioRepositorio.obtenerCodigoTest(idUser)
   }
 }

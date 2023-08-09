@@ -146,7 +146,7 @@ describe('UsuarioService', () => {
               .mockReturnValueOnce(resUsuarioPerfil)
               .mockReturnValueOnce(undefined)
               .mockReturnValueOnce(resUsuarioPerfil),
-            actualizarUsuario: jest.fn().mockReturnValueOnce(resUsuarioPerfil),
+            actualizar: jest.fn().mockReturnValueOnce(resUsuarioPerfil),
             buscarUsuarioRolPorId: jest
               .fn()
               .mockReturnValueOnce(resUsuarioPerfil)
