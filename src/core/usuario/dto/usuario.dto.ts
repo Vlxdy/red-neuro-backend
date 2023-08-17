@@ -1,26 +1,18 @@
-import { IsNotEmpty } from '../../../common/validation'
-import { PersonaDto } from './persona.dto'
-export class UsuarioDto {
-  @IsNotEmpty()
-  usuario: string
+import { CorreoLista, IsEmail, IsNotEmpty } from '../../../common/validation'
 
-  @IsNotEmpty()
-  contrasena: string
+export class UsuarioDto {
+  usuario?: string
 
   estado?: string
 
-  persona: PersonaDto
+  contrasena?: string
+
+  @IsNotEmpty()
+  @IsEmail()
+  @CorreoLista()
+  correoElectronico: string
+
+  ciudadaniaDigital?: boolean
 
   usuarioCreacion?: string
-  /*   @ApiProperty()
-  email: string;
-
-  @ApiProperty()
-  code_activacion: string;
-
-  @ApiProperty()
-  last_login: string;
-
-  @ApiProperty()
-  end_last_login: string; */
 }

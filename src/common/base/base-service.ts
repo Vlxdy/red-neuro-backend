@@ -1,4 +1,4 @@
-import { LoggerService } from '../../core/logger/logger.service'
+import { LoggerService } from '../../core/logger'
 
 export class BaseService {
   protected logger: LoggerService

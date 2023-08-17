@@ -1,16 +1,16 @@
-import { BaseExternalService } from '../../../../common/base/base-external-service'
+import { ExternalServiceException } from '../../../../common/exceptions'
+import { BaseService } from '../../../../common/base'
 import { Injectable } from '@nestjs/common'
 import { SINCredencialesDTO } from './credenciales.dto'
 import { HttpService } from '@nestjs/axios'
 import { AxiosRequestConfig } from 'axios'
 import { LoginResponse, LoginResult } from './types'
+import { firstValueFrom } from 'rxjs'
 
 @Injectable()
-export class SinService extends BaseExternalService {
-  protected name = 'SIN'
-
+export class SinService extends BaseService {
   constructor(protected http: HttpService) {
-    super(http)
+    super()
   }
 
   /**
@@ -18,6 +18,8 @@ export class SinService extends BaseExternalService {
    * @description Metodo para verificar si la información de la empresa existe en el servicio del SIN
    */
   async login(datosSIN: SINCredencialesDTO): Promise<LoginResult> {
+    let mensaje: string | undefined = undefined
+
     try {
       const config: AxiosRequestConfig = {
         url: '/login',
@@ -29,29 +31,18 @@ export class SinService extends BaseExternalService {
         },
       }
 
-      const requestResult = await this.request(config)
-      if (requestResult.error && requestResult.errorMessage) {
-        this.logger.error(requestResult)
-        return {
-          finalizado: false,
-          mensaje: requestResult.errorMessage,
-        }
-      }
-
-      const response = requestResult.response
+      const response = await firstValueFrom(this.http.request(config))
       const body = response?.data as LoginResponse
+      const metadata = { datosSIN, response }
 
       if (
         !body.Estado &&
         body.Mensaje &&
         body.Mensaje.includes('You cannot consume this service')
       ) {
-        requestResult.errorMessage = `No tiene permisos para usar este servicio.`
-        this.logger.error(requestResult)
-        return {
-          finalizado: false,
-          mensaje: requestResult.errorMessage,
-        }
+        const error = body.Mensaje
+        mensaje = `No tiene permisos para usar este servicio.`
+        throw new ExternalServiceException('SIN', error, mensaje, metadata)
       }
 
       if (
@@ -59,22 +50,15 @@ export class SinService extends BaseExternalService {
         body.Mensaje &&
         body.Mensaje.includes('no API found with those values')
       ) {
-        requestResult.errorMessage = `No se encontró el servicio solicitado.`
-        this.logger.error(requestResult)
-        return {
-          finalizado: false,
-          mensaje: requestResult.errorMessage,
-        }
+        const error = body.Mensaje
+        mensaje = `No se encontró el servicio solicitado.`
+        throw new ExternalServiceException('SIN', error, mensaje, metadata)
       }
 
       if (!body.Autenticado) {
-        requestResult.errorMessage =
-          body.Mensaje || requestResult.errorMessage || 'Error desconocido'
-        this.logger.error(requestResult)
-        return {
-          finalizado: false,
-          mensaje: requestResult.errorMessage,
-        }
+        const error = null
+        mensaje = body.Mensaje || 'Error desconocido'
+        throw new ExternalServiceException('SIN', error, mensaje, metadata)
       }
 
       return {
@@ -82,11 +66,14 @@ export class SinService extends BaseExternalService {
         mensaje: body.Estado,
       }
     } catch (error) {
-      const errMsg = `${this.name}: Error interno`
-      this.logger.error(errMsg, error)
+      const mensajePorDefecto = `Ocurrió un error de autenticación con el Servicio de Impuestos Nacionales`
+      mensaje = mensaje || mensajePorDefecto
+
+      const metadata = { datosSIN }
+      this.logger.error(error, mensaje, metadata, 'SIN')
       return {
         finalizado: false,
-        mensaje: errMsg,
+        mensaje,
       }
     }
   }

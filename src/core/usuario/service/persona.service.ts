@@ -1,4 +1,4 @@
-import { BaseService } from '../../../common/base/base-service'
+import { BaseService } from '../../../common/base'
 import { Inject, Injectable } from '@nestjs/common'
 import { PersonaRepository } from '../repository/persona.repository'
 import { PersonaDto } from '../dto/persona.dto'

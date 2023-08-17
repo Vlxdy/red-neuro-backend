@@ -1,61 +1,38 @@
-import { AdvancedConsoleLogger, LoggerOptions } from 'typeorm'
+import { AdvancedConsoleLogger } from 'typeorm'
 import { format } from 'sql-formatter'
-import { COLOR } from '../constants'
 import { PlatformTools } from 'typeorm/platform/PlatformTools'
-import dotenv from 'dotenv'
-import { LoggerService } from '../logger.service'
-import { stdoutWrite } from './util'
+import { stdoutWrite } from '../tools'
+import { COLOR, DEFAULT_SQL_LOGGER_PARAMS, ERROR_CODE } from '../constants'
+import { SQLLoggerOptions, SQLLoggerParams } from '../types'
+import { BaseException } from '../classes'
 
-dotenv.config()
+export class SQLLogger extends AdvancedConsoleLogger {
+  private params: SQLLoggerParams = DEFAULT_SQL_LOGGER_PARAMS
 
-export class PrintSQL extends AdvancedConsoleLogger {
-  private readonly loggerOptions?: LoggerOptions
-  private logger: LoggerService = LoggerService.getInstance()
-
-  constructor(options: LoggerOptions = true) {
-    super(options)
-    this.loggerOptions = options
+  constructor(opt: SQLLoggerOptions = {}) {
+    super(true)
+    this.params = Object.assign({}, DEFAULT_SQL_LOGGER_PARAMS, opt)
   }
 
-  logQuery(query: string, parameters?: any[]) {
-    if (process.env.NODE_ENV === 'production') {
+  logQuery(query: string, parameters?: unknown[]) {
+    if (!this.params.level.query) {
       return
     }
-
-    if (process.env.LOG_SQL !== 'true') {
-      if (process.env.FORCE_SQL_LOG === 'true') {
-        // continue
-      } else {
-        return
-      }
-    }
-
-    const opt = this.loggerOptions
-    if (
-      !(opt === 'all') &&
-      !(opt === true) &&
-      !(Array.isArray(opt) && opt.includes('query'))
-    ) {
-      return
-    }
-
     const sql = this.buildSql(query, parameters, false, true)
     stdoutWrite(`\n${COLOR.LIGHT_GREY}\n${sql}\n${COLOR.RESET}\n`)
   }
 
-  logQueryError(error: string, query: string, parameters?: any[]): void {
-    const opt = this.loggerOptions
-    if (
-      !(opt === 'all') &&
-      !(opt === true) &&
-      !(Array.isArray(opt) && opt.includes('error'))
-    ) {
+  logQueryError(error: string, query: string, parameters?: unknown[]): void {
+    if (!this.params.level.error) {
       return
     }
-
     const sql = this.buildSql(query, parameters, true, false)
-    this.logger.error('/////////////// QUERY FAILED ///////////////', sql)
-    this.logger.error('/////////////// QUERY ERROR ///////////////', error)
+
+    throw new BaseException(error, {
+      mensaje: `Ocurrió un error interno (${ERROR_CODE.SQL_ERROR})`,
+      accion: 'Verificar la consulta SQL',
+      metadata: { sql },
+    })
   }
 
   private getValueToPrintSql(val: unknown): string {
@@ -78,7 +55,7 @@ export class PrintSQL extends AdvancedConsoleLogger {
 
   private buildSql(
     query: string,
-    parameters?: Array<any>,
+    parameters?: Array<unknown>,
     pretty?: boolean,
     colorize = true
   ) {
@@ -118,7 +95,7 @@ export class PrintSQL extends AdvancedConsoleLogger {
       }
 
       return queryParsed
-    } catch (err: any) {
+    } catch (err) {
       return parameters && parameters.length > 0
         ? `${query} -- PARAMETERS: ${this.stringifyParams(parameters)}`
         : query

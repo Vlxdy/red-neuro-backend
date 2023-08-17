@@ -1,5 +1,5 @@
 import { TokenDto } from '../dto/index.dto'
-import { BaseService } from '../../../common/base/base-service'
+import { BaseService } from '../../../common/base'
 import {
   Inject,
   Injectable,

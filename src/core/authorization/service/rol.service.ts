@@ -1,4 +1,4 @@
-import { BaseService } from '../../../common/base/base-service'
+import { BaseService } from '../../../common/base'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { RolRepository } from '../repository/rol.repository'
 import { CrearRolDto } from '../dto/crear-rol.dto'

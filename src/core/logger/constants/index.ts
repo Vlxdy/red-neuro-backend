@@ -17,12 +17,21 @@ export enum COLOR {
   RESET = '\x1b[0m',
 }
 
+//Más info:  https://betterstack.com/community/guides/logging/log-levels-explained/
 export enum LOG_LEVEL {
-  ERROR = 'error',
-  WARN = 'warn',
-  INFO = 'info',
-  DEBUG = 'debug',
-  TRACE = 'trace',
+  ERROR = 'error', // 50 Mensajes de error (Ej.: errores del lado del servidor HTTP 500)
+  WARN = 'warn', // 40 Mensajes de advertencia (Ej.: errores del lado del cliente HTTP 400)
+  INFO = 'info', // 30 Mensajes informativos (Ej.: cuando un servicio ha sido iniciado o detenido, cuando un componente ha sido activado)
+  DEBUG = 'debug', // 20 Mensajes para el desarrollador (Ej.: Información detallada que puede ayudar al desarrollador a resolver un problema - puede activarse en prod temporalmente)
+  TRACE = 'trace', // 10 Mensajes para el desarrollador (Ej.: Para rastrear la ruta de ejecución del código en un programa - solo para test y desarrollo)
+}
+
+export const LOG_NUMBER = {
+  [LOG_LEVEL.ERROR]: 50,
+  [LOG_LEVEL.WARN]: 40,
+  [LOG_LEVEL.INFO]: 30,
+  [LOG_LEVEL.DEBUG]: 20,
+  [LOG_LEVEL.TRACE]: 10,
 }
 
 export const LOG_COLOR = {
@@ -32,3 +41,14 @@ export const LOG_COLOR = {
   [LOG_LEVEL.DEBUG]: COLOR.LIGHT_MAGENTA,
   [LOG_LEVEL.TRACE]: COLOR.LIGHT_GREY,
 }
+
+export const LOG_AUDIT_COLOR = {
+  ['error']: COLOR.LIGHT_RED,
+  ['warning']: COLOR.YELLOW,
+  ['info']: COLOR.CYAN,
+  ['success']: COLOR.GREEN,
+  ['none']: COLOR.LIGHT_GREY,
+}
+
+export * from './initial-values'
+export * from './errorcode'

@@ -1,25 +1,30 @@
-import { INestApplication } from '@nestjs/common'
 import listEndpoints from 'express-list-endpoints'
+import { Express } from 'express'
 import { COLOR } from '../constants'
-import { LoggerService } from '../logger.service'
-import { stdoutWrite } from './util'
+import { LoggerService } from '../classes'
+import { stdoutWrite } from '../tools'
 
-const logger = LoggerService.getInstance()
+export async function _printRoutes(mainRouter: Express) {
+  const logger = LoggerService.getInstance()
+  logger.auditInfo('application', 'Cargando...')
 
-export async function printRoutes(app: INestApplication) {
-  logger.info('Cargando aplicación...')
+  if (!mainRouter) {
+    stdoutWrite(
+      `\n[printRoutes] ${COLOR.YELLOW}warn:${COLOR.RESET} no se encontraron rutas\n`
+    )
+    return
+  }
+
   stdoutWrite('\n')
-  listEndpoints(app.getHttpServer()._events.request._router).forEach(
-    (route) => {
-      route.methods.map((method) => {
-        if (['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-          const cMethod = `${getColor(method)}${method.padEnd(7, ' ')}`
-          const msg = `${COLOR.LIGHT_GREY} - ${cMethod}${COLOR.CYAN} ${route.path}`
-          stdoutWrite(`${msg}\n`)
-        }
-      })
-    }
-  )
+  listEndpoints(mainRouter).forEach((route) => {
+    route.methods.map((method) => {
+      if (['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+        const cMethod = `${getColor(method)}${method.padEnd(7, ' ')}`
+        const msg = `${COLOR.LIGHT_GREY} - ${cMethod}${COLOR.CYAN} ${route.path}`
+        stdoutWrite(`${msg}\n`)
+      }
+    })
+  })
   stdoutWrite(COLOR.RESET)
   stdoutWrite('\n')
 }

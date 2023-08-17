@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -8,10 +9,9 @@ import {
   Post,
   Query,
   Req,
-  Request,
   UseGuards,
 } from '@nestjs/common'
-import { BaseController } from '../../../common/base/base-controller'
+import { BaseController } from '../../../common/base'
 import { JwtAuthGuard } from '../../authentication/guards/jwt-auth.guard'
 import { CrearUsuarioDto } from '../dto/crear-usuario.dto'
 import { UsuarioService } from '../service/usuario.service'
@@ -31,6 +31,7 @@ import {
 } from '../dto/recuperar-cuenta.dto'
 import { ParamIdDto } from '../../../common/dto/params-id.dto'
 import { ConfigService } from '@nestjs/config'
+import { Request } from 'express'
 
 @Controller('usuarios')
 export class UsuarioController extends BaseController {
@@ -51,11 +52,16 @@ export class UsuarioController extends BaseController {
 
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Get('/cuenta/perfil')
-  async obtenerPerfil(@Request() req) {
+  async obtenerPerfil(@Req() req: Request) {
     const user = req.user
+    if (!user) {
+      throw new BadRequestException(
+        `Es necesario que esté autenticado para consumir este recurso.`
+      )
+    }
     const result = await this.usuarioService.buscarUsuarioPerfil(
       user.id,
-      user.idRol
+      user.idRol!
     )
     return this.success(result)
   }
@@ -63,7 +69,7 @@ export class UsuarioController extends BaseController {
   //create user
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Post()
-  async crear(@Req() req, @Body() usuarioDto: CrearUsuarioDto) {
+  async crear(@Req() req: Request, @Body() usuarioDto: CrearUsuarioDto) {
     const usuarioAuditoria = this.getUser(req)
     const result = await this.usuarioService.crear(usuarioDto, usuarioAuditoria)
     return this.successCreate(result)
@@ -71,17 +77,14 @@ export class UsuarioController extends BaseController {
 
   //create user account
   @Post('crear-cuenta')
-  async crearUsuario(@Req() req, @Body() usuarioDto: CrearUsuarioCuentaDto) {
+  async crearUsuario(@Body() usuarioDto: CrearUsuarioCuentaDto) {
     const result = await this.usuarioService.crearCuenta(usuarioDto)
     return this.successCreate(result, Messages.NEW_USER_ACCOUNT)
   }
 
   //restore user account
   @Post('recuperar')
-  async recuperarCuenta(
-    @Req() req,
-    @Body() recuperarCuentaDto: RecuperarCuentaDto
-  ) {
+  async recuperarCuenta(@Body() recuperarCuentaDto: RecuperarCuentaDto) {
     const result = await this.usuarioService.recuperarCuenta(recuperarCuentaDto)
     return this.success(result, Messages.SUBJECT_EMAIL_ACCOUNT_RECOVERY)
   }
@@ -89,7 +92,6 @@ export class UsuarioController extends BaseController {
   // validate restore user account
   @Post('validar-recuperar')
   async validarRecuperarCuenta(
-    @Req() req,
     @Body() validarRecuperarCuentaDto: ValidarRecuperarCuentaDto
   ) {
     const result = await this.usuarioService.validarRecuperar(
@@ -100,7 +102,7 @@ export class UsuarioController extends BaseController {
 
   // activar usuario
   @Patch('/cuenta/activacion')
-  async activarCuenta(@Req() req, @Body() activarCuentaDto: ActivarCuentaDto) {
+  async activarCuenta(@Body() activarCuentaDto: ActivarCuentaDto) {
     const result = await this.usuarioService.activarCuenta(
       activarCuentaDto.codigo
     )
@@ -109,10 +111,7 @@ export class UsuarioController extends BaseController {
 
   // validate restore user account
   @Patch('/cuenta/nueva-contrasena')
-  async nuevaContrasena(
-    @Req() req,
-    @Body() nuevaContrasenaDto: NuevaContrasenaDto
-  ) {
+  async nuevaContrasena(@Body() nuevaContrasenaDto: NuevaContrasenaDto) {
     const result = await this.usuarioService.nuevaContrasenaTransaccion(
       nuevaContrasenaDto
     )
@@ -122,7 +121,7 @@ export class UsuarioController extends BaseController {
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Post('/cuenta/ciudadania')
   async crearConCiudadania(
-    @Req() req,
+    @Req() req: Request,
     @Body() usuarioDto: CrearUsuarioCiudadaniaDto
   ) {
     const usuarioAuditoria = this.getUser(req)
@@ -136,7 +135,7 @@ export class UsuarioController extends BaseController {
   // activar usuario
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/activacion')
-  async activar(@Req() req, @Param() params: ParamIdDto) {
+  async activar(@Req() req: Request, @Param() params: ParamIdDto) {
     const { id: idUsuario } = params
     const usuarioAuditoria = this.getUser(req)
     const result = await this.usuarioService.activar(
@@ -149,7 +148,7 @@ export class UsuarioController extends BaseController {
   // inactivar usuario
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/inactivacion')
-  async inactivar(@Req() req, @Param() params: ParamIdDto) {
+  async inactivar(@Req() req: Request, @Param() params: ParamIdDto) {
     const { id: idUsuario } = params
     const usuarioAuditoria = this.getUser(req)
     const result = await this.usuarioService.inactivar(
@@ -162,7 +161,7 @@ export class UsuarioController extends BaseController {
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/cuenta/contrasena')
   async actualizarContrasena(
-    @Req() req,
+    @Req() req: Request,
     @Body() body: ActualizarContrasenaDto
   ) {
     const idUsuario = this.getUser(req)
@@ -177,7 +176,7 @@ export class UsuarioController extends BaseController {
 
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/restauracion')
-  async restaurarContrasena(@Req() req, @Param() params: ParamIdDto) {
+  async restaurarContrasena(@Req() req: Request, @Param() params: ParamIdDto) {
     const usuarioAuditoria = this.getUser(req)
     const { id: idUsuario } = params
     const result = await this.usuarioService.restaurarContrasena(
@@ -189,7 +188,10 @@ export class UsuarioController extends BaseController {
 
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/reenviar')
-  async reenviarCorreoActivacion(@Req() req, @Param() params: ParamIdDto) {
+  async reenviarCorreoActivacion(
+    @Req() req: Request,
+    @Param() params: ParamIdDto
+  ) {
     const usuarioAuditoria = this.getUser(req)
     const { id: idUsuario } = params
     const result = await this.usuarioService.reenviarCorreoActivacion(
@@ -203,7 +205,7 @@ export class UsuarioController extends BaseController {
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch(':id')
   async actualizarDatos(
-    @Req() req,
+    @Req() req: Request,
     @Param() params: ParamIdDto,
     @Body() usuarioDto: ActualizarUsuarioRolDto
   ) {

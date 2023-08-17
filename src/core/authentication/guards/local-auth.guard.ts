@@ -1,4 +1,4 @@
-import { LoggerService } from '../../logger/logger.service'
+import { BaseException, LoggerService } from '../../logger'
 import {
   ExecutionContext,
   Injectable,
@@ -23,15 +23,24 @@ export class LocalAuthGuard extends AuthGuard('local') {
       const isPermitted = (await super.canActivate(context)) as boolean
       if (!isPermitted) throw new UnauthorizedException()
     } catch (err) {
-      const errMsg = `${action} ${resource} -> false - LOGIN BÁSICO (Error con usuario y contraseña)`
-      this.logger.warn(errMsg, err)
-      throw err
+      throw new BaseException(err, {
+        accion: 'Verifique que las credenciales de acceso sean las correctas',
+        metadata: {
+          msg: `${action} ${resource} -> false - LOGIN BÁSICO (Error con usuario y contraseña)`,
+        },
+      })
     }
 
     const { user } = context.switchToHttp().getRequest()
-    this.logger.info(
-      `${action} ${resource} -> true - LOGIN BÁSICO (usuario: ${user?.id})`
-    )
+
+    this.logger.audit('authentication', {
+      mensaje: 'Ingresó al sistema',
+      metadata: {
+        tipo: 'LOGIN BÁSICO',
+        usuario: user.id,
+      },
+    })
+
     return true
   }
 }

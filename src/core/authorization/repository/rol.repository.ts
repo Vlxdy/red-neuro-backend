@@ -1,4 +1,4 @@
-import { Brackets, DataSource } from 'typeorm'
+import { Brackets, DataSource, EntityManager } from 'typeorm'
 import { Status } from '../../../common/constants'
 import { Injectable } from '@nestjs/common'
 import { Rol } from '../entity/rol.entity'
@@ -52,12 +52,11 @@ export class RolRepository {
     return await query.getManyAndCount()
   }
 
-  async buscarPorNombreRol(rol: string) {
-    return await this.dataSource
-      .getRepository(Rol)
-      .createQueryBuilder('rol')
-      .where({ rol: rol })
-      .getOne()
+  async buscarPorNombreRol(rol: string, transaction?: EntityManager) {
+    const repo = transaction
+      ? transaction.getRepository(Rol)
+      : this.dataSource.getRepository(Rol)
+    return await repo.createQueryBuilder('rol').where({ rol: rol }).getOne()
   }
 
   async listarRolesPorUsuario(idUsuario: number) {

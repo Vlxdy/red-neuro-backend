@@ -1,4 +1,4 @@
-import { BaseService } from '../../common/base/base-service'
+import { BaseService } from '../../common/base'
 import {
   ConflictException,
   Inject,

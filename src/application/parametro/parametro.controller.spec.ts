@@ -8,6 +8,7 @@ import { TextService } from '../../common/lib/text.service'
 import { CrearParametroDto } from './dto/crear-parametro.dto'
 import { ParametroController } from './parametro.controller'
 import { ParametroService } from './parametro.service'
+import { Request } from 'express'
 
 const resParametro = {
   id: TextService.generateUuid(),
@@ -20,7 +21,7 @@ const mockRequest = {
   user: {
     id: TextService.generateUuid(),
   },
-}
+} as Request
 
 const resListar = [1, resParametro]
 

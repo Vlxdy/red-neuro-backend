@@ -1,8 +1,8 @@
+import { BaseException } from '../../core/logger'
 import { ArgumentsHost, Catch } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { BaseExceptionFilter } from '../base/base-exception-filter'
-import { ExceptionError } from './exception.error'
-import path from 'path'
+import { BaseExceptionFilter } from '../base'
+import { ErrorResponseDto } from '../dto/error-response.dto'
 
 @Catch()
 export class HttpExceptionFilter extends BaseExceptionFilter {
@@ -25,66 +25,44 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
       user: request.user,
     }
 
-    const exceptionError = new ExceptionError(exception)
-
-    const errorResponse = {
-      finalizado: false,
-      codigo: exceptionError.codigo,
-      timestamp: Math.floor(Date.now() / 1000),
-      mensaje: exceptionError.mensaje,
-      datos: {
-        errores: exceptionError.errores,
+    const except = new BaseException(exception, {
+      metadata: {
+        req: errorRequest,
       },
+    })
+
+    this.logger.error(except)
+
+    const errorResult: ErrorResponseDto = {
+      finalizado: false,
+      codigo: except.getHttpStatus(),
+      timestamp: Math.floor(Date.now() / 1000),
+      mensaje: except.obtenerMensajeCliente(),
     }
 
-    if (errorResponse.codigo < 500) {
-      this.logger.warn({ errorResponse })
-      if (exceptionError.stack) {
-        const customErrorStack = this.stackMsg(exceptionError.stack)
-        if (customErrorStack) this.logger.warn(customErrorStack)
-      }
-      this.logger.warn({ errorRequest })
-      if (exceptionError.stack) {
-        this.logger.warn(exceptionError.stack)
-      }
-    }
-
-    if (errorResponse.codigo >= 500) {
-      this.logger.error({ errorResponse })
-      if (exceptionError.stack) {
-        const customErrorStack = this.stackMsg(exceptionError.stack)
-        if (customErrorStack) this.logger.error(customErrorStack)
-      }
-      this.logger.error({ errorRequest })
-      if (exceptionError.stack) {
-        this.logger.error(exceptionError.stack)
+    if (process.env.NODE_ENV !== 'production') {
+      errorResult.datos = {
+        causa: except.getCausa(),
+        accion: except.getAccion(),
       }
     }
 
-    if (process.env.NODE_ENV === 'production') {
-      errorResponse.datos.errores = []
+    if (errorResult.codigo >= 500) {
+      this.logger.auditError('http-exception', {
+        metadata: {
+          codigo: errorResult.codigo,
+          mensaje: errorResult.mensaje,
+        },
+      })
+    } else {
+      this.logger.auditWarning('http-exception', {
+        metadata: {
+          codigo: errorResult.codigo,
+          mensaje: errorResult.mensaje,
+        },
+      })
     }
 
-    response.status(errorResponse.codigo).json(errorResponse)
-  }
-
-  private stackMsg(originalErrorStack: string) {
-    try {
-      const projectPath = path.resolve(__dirname, '../../../../')
-      const customErrorStack = originalErrorStack
-        .split('\n')
-        .map((x) => x.replace(new RegExp(projectPath, 'g'), '...'))
-        .filter((x) => x.includes('.../src'))
-        .map((x) =>
-          x.trim().startsWith('at')
-            ? x.trim().split(' ').slice(2).join(' -> ')
-            : x.trim()
-        )
-        .join('\n')
-        .trim()
-      return customErrorStack ? `Error stack:\n${customErrorStack}` : ''
-    } catch (err) {
-      return originalErrorStack
-    }
+    response.status(errorResult.codigo).json(errorResult)
   }
 }

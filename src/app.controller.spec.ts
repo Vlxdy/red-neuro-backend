@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AppController } from './app.controller'
-import { Response } from 'express'
 import { ConfigModule } from '@nestjs/config'
 
 describe('App controller', () => {
@@ -16,16 +15,7 @@ describe('App controller', () => {
   })
 
   it('[listar] Debería devolver el status', async () => {
-    const res = {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      status: function (_responseStatus) {
-        return this
-      },
-      json: function (valor) {
-        return valor
-      },
-    } as Response
-    const result = await controller.verificarEstado(res)
+    const result = await controller.verificarEstado()
     expect(result).toBeDefined()
     expect(result).toHaveProperty('estado')
     expect(result).toHaveProperty('hora')

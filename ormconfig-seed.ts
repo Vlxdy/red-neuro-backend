@@ -1,9 +1,8 @@
 import { DataSource } from 'typeorm'
 import dotenv from 'dotenv'
-import { PrintSQL } from './src/core/logger/tools'
+import { LoggerService, SQLLogger } from './src/core/logger'
 
 dotenv.config()
-process.env.FORCE_SQL_LOG = 'true'
 
 const SeedDataSource = new DataSource({
   type: 'postgres',
@@ -14,7 +13,13 @@ const SeedDataSource = new DataSource({
   database: process.env.DB_DATABASE,
   schema: process.env.DB_SCHEMA,
   synchronize: false,
-  logger: new PrintSQL(),
+  logger: new SQLLogger({
+    logger: LoggerService.getInstance(),
+    level: {
+      query: true,
+      error: true,
+    },
+  }),
   logging: true,
   entities: ['src/**/*.entity.ts'],
   migrations: ['database/seeds/*.ts'],

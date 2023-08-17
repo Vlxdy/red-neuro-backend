@@ -10,6 +10,7 @@ import { UsuarioService } from '../service/usuario.service'
 import { FiltrosUsuarioDto } from '../dto/filtros-usuario.dto'
 import { CanActivate } from '@nestjs/common'
 import { CasbinGuard } from '../../authorization/guards/casbin.guard'
+import { Request } from 'express'
 
 const resUsuario = {
   id: TextService.generateUuid(),
@@ -32,7 +33,7 @@ const mockRequest = {
   user: {
     id: TextService.generateUuid(),
   },
-}
+} as Request
 
 describe('UsuarioController', () => {
   let controller: UsuarioController

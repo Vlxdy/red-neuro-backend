@@ -1,37 +1,13 @@
-import { LoggerService } from '../../logger/logger.service'
+import { LoggerService } from '../../logger'
 import { UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
-import {
-  Client,
-  Issuer,
-  Strategy,
-  TokenSet,
-  UserinfoResponse,
-} from 'openid-client'
+import { Client, Strategy, TokenSet, UserinfoResponse } from 'openid-client'
 import { PersonaDto } from '../../usuario/dto/persona.dto'
 import { AuthenticationService } from '../service/authentication.service'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 dayjs.extend(customParseFormat)
-
-export const buildOpenIdClient = async (): Promise<Client | undefined> => {
-  const logger = LoggerService.getInstance()
-  try {
-    const issuer = await Issuer.discover(process.env.OIDC_ISSUER || '')
-    return new issuer.Client({
-      client_id: process.env.OIDC_CLIENT_ID || '',
-      client_secret: process.env.OIDC_CLIENT_SECRET,
-    })
-  } catch (error) {
-    const t = 0
-    logger.error('////// ERROR DE CONEXIÓN CON CIUDADANÍA //////', error)
-    logger.error(
-      `El servicio se levantará sin esta característica dentro de ${t} segundos`
-    )
-    await new Promise((resolve) => setTimeout(() => resolve(1), t * 1000))
-  }
-}
 
 export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
   protected logger = LoggerService.getInstance()
@@ -60,6 +36,23 @@ export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
         await this.client.userinfo(tokenset)
 
       const ci = <DocumentoIdentidadType>userinfo?.profile?.documento_identidad
+      if (!ci) {
+        throw new Error(
+          'El cliente de ciudadanía (client.userinfo(tokenset)) no devolvió el campo "profile.documento_identidad"'
+        )
+      }
+
+      if (!userinfo.fecha_nacimiento) {
+        throw new Error(
+          'El cliente de ciudadanía (client.userinfo(tokenset)) no devolvió el campo "fecha_nacimiento"'
+        )
+      }
+
+      if (!userinfo.email) {
+        throw new Error(
+          'El cliente de ciudadanía (client.userinfo(tokenset)) no devolvió el campo "email"'
+        )
+      }
 
       /*if (/[a-z]/i.test(ci.numero_documento)) {
         ci.complemento = ci.numero_documento.slice(-2);

@@ -1,4 +1,4 @@
-import { LoggerService } from '../../logger/logger.service'
+import { BaseException, LoggerService } from '../../logger'
 import {
   ExecutionContext,
   Injectable,
@@ -24,17 +24,26 @@ export class OidcAuthGuard extends AuthGuard('oidc') {
       const isPermitted = (await super.canActivate(context)) as boolean
       if (!isPermitted) throw new UnauthorizedException()
     } catch (err) {
-      const errMsg = `${action} ${resource} -> false - LOGIN CON CIUDADANÍA (Error con ciudadania)`
-      this.logger.error(errMsg, err)
-      throw err
+      throw new BaseException(err, {
+        accion: `Asegúrese de que el usuario se encuentre registrado en ciudadanía`,
+        metadata: {
+          msg: `${action} ${resource} -> false - LOGIN CON CIUDADANÍA (Error con ciudadania)`,
+        },
+      })
     }
 
     await super.logIn(request)
 
     const { user } = context.switchToHttp().getRequest()
-    this.logger.info(
-      `${action} ${resource} -> true - LOGIN CON CIUDADANÍA (usuario: ${user?.id})`
-    )
+
+    this.logger.audit('authentication', {
+      mensaje: 'Ingresó al sistema',
+      metadata: {
+        tipo: 'CIUDADANÍA',
+        usuario: user.id,
+      },
+    })
+
     return true
   }
 }

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { map } from 'rxjs/operators'
-import { ExternalServiceException } from '../../../../common/exceptions/external-service.exception'
 import dayjs from 'dayjs'
 import { PersonaDto } from '../../../usuario/dto/persona.dto'
 import { HttpService } from '@nestjs/axios'
 import { firstValueFrom } from 'rxjs'
-import { BaseExternalService } from '../../../../common/base/base-external-service'
+import { BaseService } from '../../../../common/base'
+import { ExternalServiceException } from '../../../../common/exceptions'
 
 // Respuestas códigos SEGIP
 enum CodigoResSegipEnum {
@@ -24,9 +24,9 @@ enum EstadosDatosEnum {
 }
 
 @Injectable()
-export class SegipService extends BaseExternalService {
+export class SegipService extends BaseService {
   constructor(private readonly httpService: HttpService) {
-    super(httpService)
+    super()
   }
 
   /**
@@ -83,7 +83,14 @@ export class SegipService extends BaseExternalService {
 
       return this.armarRespuesta(exito, mensaje)
     } catch (error) {
-      throw new ExternalServiceException('SEGIP:CONTRASTACION', error)
+      const mensaje = `Ocurrió un problema al contrastar los datos de la persona`
+      const metadata = { datosPersona, retornarPrimerError }
+      throw new ExternalServiceException(
+        'SEGIP:CONTRASTACION',
+        error,
+        mensaje,
+        metadata
+      )
     }
   }
 

@@ -21,4 +21,7 @@ export class ActualizarUsuarioDto {
 
   @IsOptional()
   codigoRecuperacion?: string | null
+
+  @IsOptional()
+  ciudadaniaDigital?: boolean | null
 }

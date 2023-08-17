@@ -1,4 +1,4 @@
-import { LoggerService } from '../../logger/logger.service'
+import { BaseException, LoggerService } from '../../logger'
 import {
   ExecutionContext,
   ForbiddenException,
@@ -22,6 +22,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const resource = Object.keys(query).length ? route.path : originalUrl
 
     try {
+      if (!headers.authorization) {
+        throw new ForbiddenException()
+      }
+
       const isPermitted = (await super.canActivate(context)) as boolean
       if (!isPermitted) throw new ForbiddenException()
     } catch (err) {
@@ -29,21 +33,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         ? `${headers.authorization.substring(0, 20)}...`
         : String(headers.authorization)
 
-      if (!headers.authorization) {
-        const errMsg = `${action} ${resource} -> false - Token inválido (req.headers.authorization)`
-        this.logger.warn(errMsg)
-        throw err
-      }
-
-      const errMsg = `${action} ${resource} -> false - Token inválido (${token})`
-      this.logger.warn(errMsg, err)
-      throw err
+      throw new BaseException(err, {
+        accion: 'Verificar que el token sea el correcto',
+        metadata: {
+          msg: `JWT ${action} ${resource} -> false - Token inválido (${token})`,
+        },
+      })
     }
 
-    const { user } = context.switchToHttp().getRequest()
-    this.logger.info(
-      `${action} ${resource} -> true - JWT (usuario: ${user?.id})`
-    )
     return true
   }
 }

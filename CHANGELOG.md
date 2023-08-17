@@ -2,6 +2,69 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.9.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.8.1...v1.9.0) (2023-08-17)
+
+
+### Features
+
+* :construction: actualizando los códigos de error TG-11 ([db54f62](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/db54f626c74b2d20824221b472cc67a37cbb8277))
+* :construction: actualizando mensajes de error para los guards TG-11 ([198bda3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/198bda330e72a05f557cb6c132b53fd62125b642))
+* :construction: ajustando formato para el registro de logs TG-11 ([711e68e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/711e68ed4f8c83614fbd97895d2d2ad99ef9e699))
+* :construction: ajustando logs con el nuevo formato TG-11 ([4fc9534](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/4fc95347e28c00685cc20e45afb34636d2d1be6a))
+* :construction: ajuste en el campo detalle de ErrorInfo TG-11 ([1e89ce3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/1e89ce3494cd1917ea4eb218d403735bd2cb1817))
+* :construction: mejoras y correcciones en el módulo de logs TG-11 ([bffcfa9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/bffcfa9ad3af28e0da73de0ce9574269a6dd2fe6))
+* :construction: módulo de logs versión 2 TG-11 ([4c1e14d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/4c1e14df1aa56a90733565dcdaa91eed7b96de61))
+* :sparkles: actualizando logs de auditoría para el casbin ([8c998d6](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/8c998d65d295a7321abfd3dcec02d9aa6f5e8f7e))
+* :sparkles: agregando config para levantar grafana en local TG-11 ([a2e1647](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a2e1647270fc62a7bdb1aa71c5d58f5d904b8264))
+* :sparkles: agregando config para mostrar logs por consola ([be4c249](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/be4c2493678a2c07b623b3dd19871acc8b1e954b))
+* :sparkles: agregando custom exceptions ([4520443](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/45204435abc0e6dddfdd1cc4b7eab98021113a98))
+* :sparkles: agregando el campo código de error TG-11 ([d9e60ec](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/d9e60ec3b208ec180dad313636decb0ea6fab905))
+* :sparkles: agregando el campo código de error TG-11 ([646a46c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/646a46c19603b6da996175ae5612a35c47edb7c6))
+* :sparkles: agregando el campo fecha formateado TG-11 ([4cbda69](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/4cbda695d02794da05e54ea56955342d61967890))
+* :sparkles: agregando la funcionalidad logger.audit() TG-11 ([d44e0aa](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/d44e0aadb8e6a811ad0a7bc56c4ee87db9179113))
+* :sparkles: agregando pid en los logs de auditoría: ([8db8452](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/8db845284d7eec375455ed9bbe874f89c31591b0))
+* :sparkles: agregando reqId a los logs de auditoría ([fa1852d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/fa1852d5611a1153a353cdb7f9701801243845f5))
+* :sparkles: agregando tests para el registro de logs TG-11 ([2a3a189](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/2a3a189278190dd0d106377e976800fb75e82561))
+* :sparkles: ajustando config para el TimeoutInterceptor ([92b8494](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/92b849447806c65caca0c95a3a6bd53759d8390b))
+* :sparkles: ajustando config por defecto para el registro de logs ([eaf0e4e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/eaf0e4ee8cf3423b5bdc31ce8248b5c448cf8f57))
+* :sparkles: ajustando nombre de variables para los logs de auditoría ([5ab2652](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/5ab265201211a7067a7430d88dfaee61ddb55f47))
+* :sparkles: ajuste de formato para errorStack TG-11 ([75e1c47](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/75e1c47a45648f15a0de2da4286e84ffe3179885))
+* :sparkles: ajuste en el formato del error de conexión TG-11 ([11fd5aa](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/11fd5aafb2a23d30d55dc56522713a994d0b2fb3))
+* :sparkles: ajuste en el nombre de los ficheros de logs ([d6cd52d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/d6cd52d22659e619238f14a62ba73ec84c6734af))
+* :sparkles: ajuste en el origen para casos del tipo logger.error(msg) ([9214dc2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/9214dc2d684cf4b6b735d50e61fcef427dae8e07))
+* :sparkles: ajuste en error stack para que las rutas se vuelvan enlaces ([83b6db8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/83b6db8a2b019dc2e4f9a1302fcf6049ee544e2f))
+* :sparkles: ajuste para compatibilidad con versiones anteriores ([cffd9bc](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/cffd9bcfd93af78f3fb69e014c7ff39c1ddd6cae))
+* :sparkles: ajuste para evitar duplicidad de registro de logs ([8dcd7d4](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/8dcd7d44fbf4e0841009522e04cea97e1160c8c3))
+* :sparkles: ajustes en los campos error, codigo y causa TG-11 ([5fc1f45](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/5fc1f4513f7e7bee035954e89113158a3d8c15a4))
+* :sparkles: ajustes para la función logger.error() TG-11 ([99502af](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/99502af481889ef1cdbfbe13bba2e3d1138a2ddf))
+* :sparkles: ajustes para mantener la compatibilidad con veriones anteriores ([0e9158f](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/0e9158f4d31e97012469eb331a6183b8a829bdce))
+* :sparkles: baseLog agregado para el registro de metadatos TG-11 ([a208ced](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a208cede6bd7f922cd22727d98dede324b55cb08))
+* :sparkles: cambiando detalle por metadata TG-11 ([d9e8718](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/d9e87188b9cb73d72d0d0b69feb10bc2f2825a17))
+* :sparkles: cambiando sistema por appName TG-11 ([45ec3a9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/45ec3a963360c2e374f6a73904f179ad5ee472f9))
+* :sparkles: exponiendo funciones getIPAddress y getReqID ([817df2b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/817df2b2cceb5504eec469fbd0fc1cb4f05af7cb))
+* :sparkles: función para habilitar logs en tiempo de ejecución ([bf15239](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/bf15239d48c389f3b77999964bd009534204776d))
+* :sparkles: funcionalidad para imprimir logs por consola ([eb30f2a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/eb30f2a6e4258522e17bc92fc018a1afab194213))
+* :sparkles: logs de auditoría para el servicio de mensajería ([562653e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/562653e4a761bad2aca45a2cbb67d96fd54d6895))
+* :sparkles: mejora en la definición de rutas con diferente tiemout ([9cd3cb1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/9cd3cb14fccd514d36a2f49ae02187dd6194cc3a))
+* :sparkles: mejoras en el valor del origen del error ([6f0494e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/6f0494eabe65661bfa374432f0dbdd39c3801f48))
+* :sparkles: removiendo campos redundantes de mensajes de tipo info ([a2ca3c6](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a2ca3c62adc89c80a2f954275a8d924504fd9376))
+* :sparkles: removiendo config de grafana ([a530ff7](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a530ff760340d4e8f6c4986cbb9233e299c538c9))
+* :sparkles: se agregaron tipos de logs de auditoría ([daaad83](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/daaad8323c4d1ea6790d587e968a0a6826ed44f8))
+* :sparkles: se agregó la función audit ([639d646](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/639d6466579dcda4599f8c692c9cb5e2babeee18))
+* :sparkles: separando ExceptionManager del módulo de logs ([e8b6f4e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e8b6f4e1a32ed15b34eeb2816fc0ca92144375f7))
+* agregando ejemplo del campo origen en ErrorInfo ([78029c5](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/78029c5a848be45b6eed98461f282f0181e277d4))
+* funcinoalidad para imprimir mesajes de error desde ErrorInfo ([1ab89db](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/1ab89db3f42b42fba8ed3920f714d251ad5c1fbd))
+
+
+### Bug Fixes
+
+* :bug: cambiando a rutas absolutas en el stack del error ([893788a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/893788ae70b9f925f4d5e66beaa479120c355cec))
+* :bug: corrección en LoggerMiddleware forRoot ([af7fa91](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/af7fa91550e8f81d1066979a3f50134bd671fc5e))
+* :sparkles: ajuste para evitar conflictos con palabras reservadas ([888a43c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/888a43c117227633ae34c5a8d9bb0d43f4512a41))
+* corrección en actualización de datos de usuario, en caso de no usar validación de Segip ([ab9d23e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/ab9d23e9ecd6d4b1c47ca036f4f9c84edc1bd713))
+* corrección en el constructor de excepciones de logger ([232ad6f](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/232ad6fbc74e2dd18ab1fc6ebfa233904d2b0d55))
+* correcciones de tipado en peticiones y separación de lógica de negocio desde respositorio de usuarios ([ff12d28](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/ff12d28764f427e3ae441880d5ee356ef25b3bd2))
+
 ### [1.8.1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.8.0...v1.8.1) (2023-08-09)
 
 

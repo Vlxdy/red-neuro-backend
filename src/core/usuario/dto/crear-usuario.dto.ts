@@ -1,7 +1,7 @@
 import {
+  CorreoLista,
   IsEmail,
   IsNotEmpty,
-  CorreoLista,
   ValidateNested,
 } from '../../../common/validation'
 import { PersonaDto } from './persona.dto'
@@ -23,7 +23,7 @@ export class CrearUsuarioDto {
   @Type(() => PersonaDto)
   persona: PersonaDto
 
-  ciudadaniaDigital?: boolean = false
+  ciudadaniaDigital?: boolean
 
   @IsNotEmpty()
   roles: Array<string>

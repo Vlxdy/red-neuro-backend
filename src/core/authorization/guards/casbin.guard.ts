@@ -1,4 +1,4 @@
-import { LoggerService } from '../../logger/logger.service'
+import { LoggerService } from '../../logger'
 import {
   CanActivate,
   ExecutionContext,
@@ -28,23 +28,35 @@ export class CasbinGuard implements CanActivate {
     const resource = Object.keys(query).length ? route.path : originalUrl
 
     if (!user) {
-      this.logger.warn(
-        `${action} ${resource} -> false - El usuario no se encuentra autenticado`
-      )
       throw new UnauthorizedException()
     }
 
     const isPermitted = await this.enforcer.enforce(user.rol, resource, action)
     if (isPermitted) {
-      this.logger.info(
-        `${action} ${resource} -> true - CASBIN (rol: ${user.rol} usuario: ${user.id})`
-      )
+      this.logger.audit('casbin', {
+        mensaje: 'Acceso permitido',
+        metadata: {
+          v0: user.rol,
+          v1: action,
+          v2: resource,
+          usuario: user.id,
+        },
+      })
       return true
     }
 
-    this.logger.warn(
-      `${action} ${resource} -> false - Permisos insuficientes (CASBIN)`
-    )
-    throw new ForbiddenException()
+    this.logger.audit('casbin', {
+      mensaje: 'Acceso no autorizado',
+      metadata: {
+        v0: user.rol,
+        v1: action,
+        v2: resource,
+        usuario: user.id,
+      },
+    })
+
+    throw new ForbiddenException('Permisos insuficientes (CASBIN)', {
+      cause: `CASBIN ${action} ${resource} -> false`,
+    })
   }
 }

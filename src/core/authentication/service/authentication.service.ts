@@ -1,4 +1,4 @@
-import { BaseService } from '../../../common/base/base-service'
+import { BaseService } from '../../../common/base'
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { UsuarioService } from '../../usuario/service/usuario.service'
 import { JwtService } from '@nestjs/jwt'
@@ -113,7 +113,7 @@ export class AuthenticationService extends BaseService {
       await this.generarIntentoBloqueo(respuesta)
       throw new UnauthorizedException(Messages.INVALID_USER_CREDENTIALS)
     }
-    // si se logra autenticar con exito => reiniciar contador de intentos a 0
+    // si se logra autenticar con éxito => reiniciar contador de intentos a 0
     if (respuesta.intentos > 0) {
       await this.usuarioService.actualizarContadorBloqueos(respuesta.id, 0)
     }
@@ -180,9 +180,9 @@ export class AuthenticationService extends BaseService {
 
     // actualizar datos persona
     if (
-      datosPersona.nombres !== persona.nombres &&
-      datosPersona.primerApellido !== persona.primerApellido &&
-      datosPersona.segundoApellido !== persona.segundoApellido &&
+      datosPersona.nombres !== persona.nombres ||
+      datosPersona.primerApellido !== persona.primerApellido ||
+      datosPersona.segundoApellido !== persona.segundoApellido ||
       datosPersona.fechaNacimiento !== persona.fechaNacimiento
     ) {
       await this.usuarioService.actualizarDatosPersona(persona)
@@ -196,7 +196,9 @@ export class AuthenticationService extends BaseService {
 
   async validarOCrearUsuarioOidc(
     persona: PersonaDto,
-    datosUsuario: { correoElectronico: string }
+    datosUsuario: {
+      correoElectronico: string
+    }
   ) {
     const respuesta = await this.usuarioService.buscarUsuarioPorCI(persona)
 
@@ -226,10 +228,11 @@ export class AuthenticationService extends BaseService {
         }
       }
 
-      // Persona existe en base de datos, sólo crear usuario
+      // Persona existe en base de datos, solo crear usuario
       if (respPersona.estado === Status.INACTIVE) {
         throw new UnauthorizedException(Messages.INACTIVE_PERSON)
       }
+
       // Actualizar datos persona
       if (
         respPersona.nombres !== persona.nombres ||
@@ -241,12 +244,8 @@ export class AuthenticationService extends BaseService {
       }
       // Crear usuario y rol
       await this.usuarioService.crearConPersonaExistente(
-        {
-          ...respPersona,
-          nombres: respPersona.nombres ?? '',
-          primerApellido: respPersona.primerApellido ?? '',
-          segundoApellido: respPersona.segundoApellido ?? '',
-        },
+        respPersona.id,
+        respPersona.nroDocumento,
         datosUsuario,
         USUARIO_NORMAL
       )
@@ -272,9 +271,9 @@ export class AuthenticationService extends BaseService {
     }
 
     if (
-      datosPersona.nombres !== persona.nombres &&
-      datosPersona.primerApellido !== persona.primerApellido &&
-      datosPersona.segundoApellido !== persona.segundoApellido &&
+      datosPersona.nombres !== persona.nombres ||
+      datosPersona.primerApellido !== persona.primerApellido ||
+      datosPersona.segundoApellido !== persona.segundoApellido ||
       datosPersona.fechaNacimiento !== persona.fechaNacimiento
     ) {
       // Actualizar datos de persona
@@ -288,6 +287,17 @@ export class AuthenticationService extends BaseService {
         {
           correoElectronico: datosUsuario.correoElectronico,
           roles: respuesta.usuarioRol.map((value) => value.rol.id),
+        },
+        USUARIO_SISTEMA
+      )
+    }
+    /// En caso de que el usuario haya sido registrado localmente, pero luego haya iniciado sesión con Ciudadanía
+    if (!respuesta.ciudadaniaDigital) {
+      await this.usuarioService.actualizarDatos(
+        respuesta.id,
+        {
+          roles: respuesta.usuarioRol.map((value) => value.rol.id),
+          ciudadaniaDigital: true,
         },
         USUARIO_SISTEMA
       )

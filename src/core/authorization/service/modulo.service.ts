@@ -1,4 +1,4 @@
-import { BaseService } from '../../../common/base/base-service'
+import { BaseService } from '../../../common/base'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ModuloRepository } from '../repository/modulo.repository'
 import { CrearModuloDto, FiltroModuloDto } from '../dto/crear-modulo.dto'
