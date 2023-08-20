@@ -238,9 +238,8 @@ export class UsuarioService extends BaseService {
   }
 
   async activarCuenta(codigo: string) {
-    const usuario = await this.usuarioRepositorio.buscarPorCodigoActivacion(
-      codigo
-    )
+    const usuario =
+      await this.usuarioRepositorio.buscarPorCodigoActivacion(codigo)
 
     if (!usuario) {
       throw new PreconditionFailedException(Messages.INVALID_USER)
@@ -637,9 +636,8 @@ export class UsuarioService extends BaseService {
     contrasenaNueva: string
   ) {
     const hash = TextService.decodeBase64(contrasenaActual)
-    const usuario = await this.usuarioRepositorio.buscarUsuarioRolPorId(
-      idUsuario
-    )
+    const usuario =
+      await this.usuarioRepositorio.buscarUsuarioRolPorId(idUsuario)
 
     if (!(usuario && (await TextService.compare(hash, usuario.contrasena)))) {
       throw new PreconditionFailedException(Messages.INVALID_CREDENTIALS)
@@ -1038,9 +1036,8 @@ export class UsuarioService extends BaseService {
   }
 
   async desbloquearCuenta(codigo: string) {
-    const usuario = await this.usuarioRepositorio.buscarPorCodigoDesbloqueo(
-      codigo
-    )
+    const usuario =
+      await this.usuarioRepositorio.buscarPorCodigoDesbloqueo(codigo)
     if (usuario?.fechaBloqueo) {
       await this.usuarioRepositorio.actualizar(
         usuario.id,

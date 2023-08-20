@@ -112,9 +112,8 @@ export class UsuarioController extends BaseController {
   // validate restore user account
   @Patch('/cuenta/nueva-contrasena')
   async nuevaContrasena(@Body() nuevaContrasenaDto: NuevaContrasenaDto) {
-    const result = await this.usuarioService.nuevaContrasenaTransaccion(
-      nuevaContrasenaDto
-    )
+    const result =
+      await this.usuarioService.nuevaContrasenaTransaccion(nuevaContrasenaDto)
     return this.success(result, Messages.SUCCESS_DEFAULT)
   }
 

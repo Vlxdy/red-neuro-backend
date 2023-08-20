@@ -151,9 +151,9 @@ Algunos errores que pueden presentarse de manera imprevista son los siguientes:
 async function recuperar() {
   return await this.dataSource
     .getRepository(Usuario)
-    .createQueryBuilder("usuario")
-    .leftJoinAndSelect("usuario.relacioninexistente", "relacioninexistente")
-    .getMany();
+    .createQueryBuilder('usuario')
+    .leftJoinAndSelect('usuario.relacioninexistente', 'relacioninexistente')
+    .getMany()
 }
 ```
 

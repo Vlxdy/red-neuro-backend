@@ -42,9 +42,8 @@ export class AuthorizationController extends BaseController {
 
   @Get('/politicas')
   async listarPoliticas(@Query() paginacionQueryDto: FiltrosPoliticasDto) {
-    const result = await this.authorizationService.listarPoliticas(
-      paginacionQueryDto
-    )
+    const result =
+      await this.authorizationService.listarPoliticas(paginacionQueryDto)
     return this.successListRows(result)
   }
 

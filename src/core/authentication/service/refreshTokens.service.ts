@@ -50,9 +50,8 @@ export class RefreshTokensService extends BaseService {
   }
 
   async createAccessToken(refreshTokenId: string, datos: TokenDto) {
-    const refreshToken = await this.refreshTokensRepository.findById(
-      refreshTokenId
-    )
+    const refreshToken =
+      await this.refreshTokensRepository.findById(refreshTokenId)
 
     if (!refreshToken) {
       throw new NotFoundException(Messages.EXCEPTION_REFRESH_TOKEN_NOT_FOUND)
