@@ -104,6 +104,8 @@ function createSwagger(app: INestApplication) {
     .setTitle(SWAGGER_API_NAME)
     .setDescription(SWAGGER_API_DESCRIPTION)
     .setVersion(SWAGGER_API_CURRENT_VERSION)
+    .addServer(`http://localhost:${process.env.PORT}/api/`)
+    .addBearerAuth()
     .build()
 
   const document = SwaggerModule.createDocument(app, options)

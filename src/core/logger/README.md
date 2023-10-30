@@ -4,7 +4,7 @@ Librería para registrar eventos o capturar errores del sistema.
 
 ## Modo de uso
 
-**Ejemplo 1** Para registrar un error controlado manualmente
+**Ejemplo 1** Para registrar un ERROR CONOCIDO manualmente
 
 ```ts
 import { LoggerService } from '../src/core/logger'
@@ -23,51 +23,11 @@ function tarea(datos) {
 Ejemplos de implementación:
 
 ```ts
-logger.error(error)
-logger.error(error, mensaje)
-logger.error(error, mensaje, metadata)
-logger.error(error, mensaje, metadata, modulo)
-logger.error(error, {
-  mensaje,
-  metadata,
-  modulo,
-})
-
-logger.warn(mensaje)
-logger.warn(mensaje, metadata)
-logger.warn(mensaje, metadata, modulo)
-logger.warn({
-  mensaje,
-  metadata,
-  modulo,
-})
-
-logger.info(mensaje)
-logger.info(mensaje, metadata)
-logger.info(mensaje, metadata, modulo)
-logger.info({
-  mensaje,
-  metadata,
-  modulo,
-})
-
-logger.debug(mensaje)
-logger.debug(mensaje, metadata)
-logger.debug(mensaje, metadata, modulo)
-logger.debug({
-  mensaje,
-  metadata,
-  modulo,
-})
-
-logger.trace(mensaje)
-logger.trace(mensaje, metadata)
-logger.trace(mensaje, metadata, modulo)
-logger.trace({
-  mensaje,
-  metadata,
-  modulo,
-})
+logger.error(error, ...params)
+logger.warn(...params)
+logger.info(...params)
+logger.debug(...params)
+logger.trace(...params)
 ```
 
 **Ejemplo 2** Para lanzar una excepción controlada de un error desconocido
@@ -79,7 +39,13 @@ function tarea(datos) {
   try {
     // código inseguro
   } catch (error) {
-    throw new BaseException(error)
+    throw new BaseException(error, {
+      codigo,
+      mensaje,
+      accion,
+      metadata,
+      modulo,
+    })
   }
 }
 ```
@@ -89,19 +55,18 @@ Ejemplos de implementación:
 ```ts
 throw new BaseException(error)
 throw new BaseException(error, {
+  codigo,
   mensaje,
   metadata,
   modulo,
   httpStatus,
   causa,
   accion,
+  clientInfo, // Para enviar información adicional al cliente
 })
 ```
 
 ## Casos de uso
-
-- Para registrar errores. Ej.: errores en tiempo de ejecución. Registro manual (errores controlados) y registro automático (errores no controlados)
-- Para registrar eventos. Ej.: cuando un servicio ha sido iniciado o detenido, cuando un componente ha sido activado. Registro manual
 
 ## 1. Para capturar errores en tiempo de ejecución
 
@@ -161,7 +126,7 @@ async function recuperar() {
 
 ## 3. Logs para servicios externos
 
-Ejemplo:
+Ejemplo: Utilizando la clase `ExternalServiceException`
 
 ```ts
 function tarea(datos) {
@@ -169,6 +134,20 @@ function tarea(datos) {
     // código inseguro
   } catch (error) {
     throw new ExternalServiceException('SEGIP:CONTRASTACION', error)
+  }
+}
+```
+
+Ejemplo: Utilizando la clase `BaseException`
+
+```ts
+function tarea(datos) {
+  try {
+    // código inseguro
+  } catch (error) {
+    throw new BaseException(error, {
+      modulo: 'SEGIP:CONTRASTACION',
+    })
   }
 }
 ```
@@ -212,11 +191,11 @@ logger.audit('application', {
 })
 ```
 
-Además se incluyen tipos de auditoría para diferenciarlos cuando se imprimen por la consola, no tiene ningún efecto en los ficheros de logs.
+Además se incluyen tipos de auditoría para diferenciarlos cuando se imprimen por la consola, el formato no tiene ningún efecto en los ficheros de logs.
 
 ```ts
 logger.auditError('application', mensaje)
-logger.auditWarning('application', mensaje)
+logger.auditWarn('application', mensaje)
 logger.auditSuccess('application', mensaje)
 logger.auditInfo('application', mensaje)
 ```

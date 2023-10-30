@@ -30,10 +30,19 @@ import {
   ValidarRecuperarCuentaDto,
 } from '../dto/recuperar-cuenta.dto'
 import { ParamIdDto } from '../../../common/dto/params-id.dto'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiProperty,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger'
 import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
 
 @Controller('usuarios')
+@ApiTags('Usuarios')
 export class UsuarioController extends BaseController {
   constructor(
     private usuarioService: UsuarioService,
@@ -43,6 +52,8 @@ export class UsuarioController extends BaseController {
   }
 
   // GET users
+  @ApiOperation({ summary: 'API para obtener el listado de usuarios' })
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Get()
   async listar(@Query() paginacionQueryDto: FiltrosUsuarioDto) {
@@ -50,6 +61,8 @@ export class UsuarioController extends BaseController {
     return this.successListRows(result)
   }
 
+  @ApiOperation({ summary: 'Obtiene la información del perfil del usuario' })
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Get('/cuenta/perfil')
   async obtenerPerfil(@Req() req: Request) {
@@ -67,6 +80,13 @@ export class UsuarioController extends BaseController {
   }
 
   //create user
+  @ApiOperation({ summary: 'API para crear un nuevo usuario' })
+  @ApiBearerAuth()
+  @ApiBody({
+    type: CrearUsuarioDto,
+    description: 'new Usuario',
+    required: true,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Post()
   async crear(@Req() req: Request, @Body() usuarioDto: CrearUsuarioDto) {
@@ -76,6 +96,12 @@ export class UsuarioController extends BaseController {
   }
 
   //create user account
+  @ApiOperation({ summary: 'API para crear una nueva Cuenta' })
+  @ApiBody({
+    type: CrearUsuarioDto,
+    description: 'Nueva cuenta de usuario',
+    required: true,
+  })
   @Post('crear-cuenta')
   async crearUsuario(@Body() usuarioDto: CrearUsuarioCuentaDto) {
     const result = await this.usuarioService.crearCuenta(usuarioDto)
@@ -83,6 +109,12 @@ export class UsuarioController extends BaseController {
   }
 
   //restore user account
+  @ApiOperation({ summary: 'API para recuperar una Cuenta' })
+  @ApiBody({
+    type: RecuperarCuentaDto,
+    description: 'Cuenta',
+    required: true,
+  })
   @Post('recuperar')
   async recuperarCuenta(@Body() recuperarCuentaDto: RecuperarCuentaDto) {
     const result = await this.usuarioService.recuperarCuenta(recuperarCuentaDto)
@@ -90,6 +122,12 @@ export class UsuarioController extends BaseController {
   }
 
   // validate restore user account
+  @ApiOperation({ summary: 'API para validar recuperación una Cuenta' })
+  @ApiBody({
+    type: ValidarRecuperarCuentaDto,
+    description: 'Cuenta',
+    required: true,
+  })
   @Post('validar-recuperar')
   async validarRecuperarCuenta(
     @Body() validarRecuperarCuentaDto: ValidarRecuperarCuentaDto
@@ -101,6 +139,12 @@ export class UsuarioController extends BaseController {
   }
 
   // activar usuario
+  @ApiOperation({ summary: 'API para activar una Cuenta' })
+  @ApiBody({
+    type: ActivarCuentaDto,
+    description: 'Cuenta',
+    required: true,
+  })
   @Patch('/cuenta/activacion')
   async activarCuenta(@Body() activarCuentaDto: ActivarCuentaDto) {
     const result = await this.usuarioService.activarCuenta(
@@ -110,6 +154,12 @@ export class UsuarioController extends BaseController {
   }
 
   // validate restore user account
+  @ApiOperation({ summary: 'API para nueva Contraseña' })
+  @ApiBody({
+    type: NuevaContrasenaDto,
+    description: 'Cuenta',
+    required: true,
+  })
   @Patch('/cuenta/nueva-contrasena')
   async nuevaContrasena(@Body() nuevaContrasenaDto: NuevaContrasenaDto) {
     const result =
@@ -117,6 +167,15 @@ export class UsuarioController extends BaseController {
     return this.success(result, Messages.SUCCESS_DEFAULT)
   }
 
+  @ApiOperation({
+    summary:
+      'API para crear un nuevo usuario relacionado con Ciudadanía Digital',
+  })
+  @ApiBearerAuth()
+  @ApiBody({
+    type: CrearUsuarioCiudadaniaDto,
+    required: true,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Post('/cuenta/ciudadania')
   async crearConCiudadania(
@@ -132,6 +191,11 @@ export class UsuarioController extends BaseController {
   }
 
   // activar usuario
+  @ApiOperation({ summary: 'Activa un usuario' })
+  @ApiBearerAuth()
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/activacion')
   async activar(@Req() req: Request, @Param() params: ParamIdDto) {
@@ -145,6 +209,11 @@ export class UsuarioController extends BaseController {
   }
 
   // inactivar usuario
+  @ApiOperation({ summary: 'Inactiva un usuario' })
+  @ApiBearerAuth()
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/inactivacion')
   async inactivar(@Req() req: Request, @Param() params: ParamIdDto) {
@@ -157,6 +226,15 @@ export class UsuarioController extends BaseController {
     return this.successUpdate(result)
   }
 
+  @ApiOperation({
+    summary: 'Actualiza la contrasena de un usuario authenticado',
+  })
+  @ApiBearerAuth()
+  @ApiBody({
+    type: ActualizarContrasenaDto,
+    description: 'new Rol',
+    required: true,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/cuenta/contrasena')
   async actualizarContrasena(
@@ -173,6 +251,11 @@ export class UsuarioController extends BaseController {
     return this.successUpdate(result)
   }
 
+  @ApiOperation({ summary: 'API para restaurar la contraseña de un usuario' })
+  @ApiBearerAuth()
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/restauracion')
   async restaurarContrasena(@Req() req: Request, @Param() params: ParamIdDto) {
@@ -185,6 +268,11 @@ export class UsuarioController extends BaseController {
     return this.successUpdate(result, Messages.SUCCESS_RESTART_PASSWORD)
   }
 
+  @ApiOperation({ summary: 'API para reenviar Correo Activación' })
+  @ApiBearerAuth()
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/reenviar')
   async reenviarCorreoActivacion(
@@ -201,6 +289,16 @@ export class UsuarioController extends BaseController {
   }
 
   //update user
+  @ApiOperation({ summary: 'Actualiza datos de un usuario' })
+  @ApiBearerAuth()
+  @ApiProperty({
+    type: ParamIdDto,
+  })
+  @ApiBody({
+    type: ActualizarUsuarioRolDto,
+    description: 'Usuario',
+    required: true,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch(':id')
   async actualizarDatos(
@@ -218,6 +316,13 @@ export class UsuarioController extends BaseController {
     return this.successUpdate(result)
   }
 
+  @ApiOperation({
+    summary: 'Desbloquea una cuenta bloqueada por muchos intentos fallidos',
+  })
+  @ApiQuery({
+    name: 'id',
+    type: ParamUuidDto,
+  })
   @Get('cuenta/desbloqueo')
   async desbloquearCuenta(@Query() query: ParamUuidDto) {
     const { id: idDesbloqueo } = query

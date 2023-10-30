@@ -2,7 +2,7 @@
 
 <p>
   <a href="./">
-    <img src="https://img.shields.io/badge/version-v1.6.1-blue" alt="Versión">
+    <img src="https://img.shields.io/badge/version-v1.9.1-blue" alt="Versión">
   </a>
   <a href="./LICENSE">
       <img src="https://img.shields.io/static/v1?label=license&message=LPG%20-%20Bolivia&color=green" alt="Licencia: LPG - Bolivia" />
@@ -28,15 +28,17 @@ git pull origin2 master --allow-unrelated-histories
 
 ## Tecnologías
 
-- [NestJS](https://nestjs.com/)
-- [Jest](https://jestjs.io/)
-- [Passport.js](http://www.passportjs.org/)
-- [OpenApi](https://www.openapis.org/)
-- [TypeORM](https://typeorm.io/)
-- [PinoJs](https://getpino.io/#/)
-- [Casbin](https://casbin.org/)
-- [Postgresql](https://www.postgresql.org/)
-- [Docker](https://www.docker.com/)
+| Nombre      | Descripción                                                       | Sitio Web                  |
+| ----------- | ----------------------------------------------------------------- | -------------------------- |
+| NestJS      | Framework de Node.js con TypeScript para aplicaciones escalables. | https://nestjs.com         |
+| Jest        | Framework de prueba de JavaScript de fácil uso.                   | https://jestjs.io          |
+| Passport.js | Middleware de autenticación para Node.js.                         | http://www.passportjs.org  |
+| OpenAPI     | Estándar de descripción de API para documentación.                | https://www.openapis.org   |
+| TypeORM     | ORM para TypeScript y JavaScript para bases de datos.             | https://typeorm.io         |
+| PinoJs      | Registro eficiente para aplicaciones Node.js.                     | https://getpino.io         |
+| Casbin      | Biblioteca de control de acceso flexible.                         | https://casbin.org         |
+| PostgreSQL  | Sistema de gestión de bases de datos relacional.                  | https://www.postgresql.org |
+| Docker      | Plataforma de contenedorización para empaquetar aplicaciones.     | https://www.docker.com     |
 
 ## Funcionalidades
 
@@ -58,19 +60,15 @@ Documentación relacionada con el proyecto:
 
 1. [Instalación y Configuración](INSTALL.md)
 2. [Arquitectura](/docs/arquitectura.md)
-3. [Documentacion de APIS](/docs/openapi.yaml)
-4. [Documentacion de Permisos](/docs/permisos.md)
+3. [Documentación de APIS](/docs/openapi.yaml)
+4. [Documentación de Permisos](/docs/permisos.md)
 
 ## Comandos útiles
 
-1. Ejecución de contenedor con instancia postgres
-   Para ejecutar este comando se debe tener instalado docker y configurar en el archivo `scripts/database.sh` los datos
-   de conexión a la base de datos de la cual se quiere generar el diagrama:
-
-   > Para instalar docker: [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)
+1. Crea la base de datos desde cero (con docker)
 
    ```bash
-   $ npm run start:database
+   $ npm run db:create
    ```
 
 2. Generación del diagrama ERD (deshabilitado hasta tener soporte para TypeOrm 0.3)
@@ -89,20 +87,16 @@ Documentación relacionada con el proyecto:
 
 ## Changelog
 
-1. Generar tag de la versión
-
-   > Cambiar el número de versión en archivo `package.json`
-
-2. Generar tag y archivo CHANGELOG
+1. Generar tag y archivo CHANGELOG. `patch (0.0.x) | minor (0.x.0) | major (x.0.0)`
 
    ```bash
-   npm run release
+   $ npm run release -- --release-as patch
    ```
 
-3. Guardar los tags generados
+2. Guardar los tags generados
 
    ```bash
-   git push --follow-tags origin master
+   $ git push --follow-tags origin master
    ```
 
 ## Colaboradores

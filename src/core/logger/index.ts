@@ -13,6 +13,5 @@ export type {
   BaseAuditOptions,
   Metadata,
   LogEntry,
-  AuditType,
 } from './types'
-export { ERROR_CODE, LOG_LEVEL } from './constants'
+export { ERROR_CODE, LOG_LEVEL, AUDIT_LEVEL } from './constants'

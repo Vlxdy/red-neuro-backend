@@ -1,9 +1,11 @@
 import pino, { Level, multistream } from 'pino'
-import { createStream, Options as RotateOptions } from 'rotating-file-stream'
+import { getStream } from 'file-stream-rotator'
 import path from 'path'
 import { FileParams, LoggerParams } from '../types'
 import { LokiOptions } from 'pino-loki'
 import { DEFAULT_SENSITIVE_PARAMS, LOG_LEVEL } from '../constants'
+import fs from 'fs'
+import zlib from 'zlib'
 
 export class LoggerConfig {
   static getMainStream(loggerParams: LoggerParams): pino.MultiStreamRes {
@@ -51,28 +53,55 @@ export class LoggerConfig {
   ): pino.StreamEntry[] {
     const streamDisk: pino.StreamEntry[] = []
 
-    const options: RotateOptions = {
-      size: fileParams.size,
-      path: path.resolve(fileParams.path, appName),
-      interval: fileParams.rotateInterval,
-    }
+    const auditFile = path.resolve(fileParams.path, appName, 'audit.json')
 
-    if (fileParams.compress && fileParams.compress === 'true') {
-      options.compress = true
+    const buildStream = (filename: string) => {
+      const stream = getStream({
+        filename,
+        frequency: 'date',
+        date_format: fileParams.rotateInterval,
+        size: fileParams.size,
+        audit_file: auditFile,
+        extension: '.log',
+        max_logs: '365d',
+        create_symlink: true,
+        symlink_name: filename + '.current.log',
+      })
+      stream.on('error', (e) => {
+        if (!e.message.includes('no such file or directory, rename')) {
+          console.error('Error con el rotado de logs', e)
+        }
+      })
+
+      // stream.on('rotate', (oldFile: string, newFile: string) // en caso de necesitar alguna operación con el nuevo archivo
+
+      stream.on('rotate', (oldFile: string) => {
+        const gzip = zlib.createGzip()
+        const input = fs.createReadStream(oldFile)
+        const output = fs.createWriteStream(oldFile + '.gz')
+        input.pipe(gzip).pipe(output)
+        output.on('error', (e) => {
+          console.error('Error al comprimir el archivo:', e)
+        })
+        output.on('finish', () => {
+          setTimeout(() => fs.unlink(oldFile, () => ({})), 60000)
+        })
+      })
+      return stream
     }
 
     // FOR BASIC LOG
     for (const level of basicLevels) {
       const basicLevel: Level = LOG_LEVEL[level.toUpperCase()]
       if (!basicLevel) continue
-      const stream = createStream(`${basicLevel}.log`, options)
-      stream.on('error', (e) => {
-        if (!e.message.includes('no such file or directory, rename')) {
-          console.error('Error con el rotado de logs', e)
-        }
-      })
+
+      const filename = path.resolve(
+        fileParams.path,
+        appName,
+        `${basicLevel}.log`
+      )
       streamDisk.push({
-        stream,
+        stream: buildStream(filename),
         level: basicLevel,
       })
     }
@@ -81,14 +110,14 @@ export class LoggerConfig {
     for (const level of Object.keys(auditLevels)) {
       const levelNumber = auditLevels[level]
       if (!levelNumber) continue
-      const stream = createStream(`audit_${level}.log`, options)
-      stream.on('error', (e) => {
-        if (!e.message.includes('no such file or directory, rename')) {
-          console.error('Error con el rotado de logs', e)
-        }
-      })
+
+      const filename = path.resolve(
+        fileParams.path,
+        appName,
+        `audit_${level}.log`
+      )
       streamDisk.push({
-        stream,
+        stream: buildStream(filename),
         level: auditLevels[level] as any,
       })
     }

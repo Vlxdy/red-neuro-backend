@@ -1,13 +1,9 @@
 import listEndpoints from 'express-list-endpoints'
 import { Express } from 'express'
 import { COLOR } from '../constants'
-import { LoggerService } from '../classes'
 import { stdoutWrite } from '../tools'
 
 export async function _printRoutes(mainRouter: Express) {
-  const logger = LoggerService.getInstance()
-  logger.auditInfo('application', 'Cargando...')
-
   if (!mainRouter) {
     stdoutWrite(
       `\n[printRoutes] ${COLOR.YELLOW}warn:${COLOR.RESET} no se encontraron rutas\n`

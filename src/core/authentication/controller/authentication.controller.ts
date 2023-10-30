@@ -20,9 +20,11 @@ import { AuthenticationService } from '../service/authentication.service'
 import { RefreshTokensService } from '../service/refreshTokens.service'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
 import { ConfigService } from '@nestjs/config'
-import { CambioRolDto } from '../dto/index.dto'
+import { AuthDto, CambioRolDto } from '../dto/index.dto'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 
 @Controller()
+@ApiTags('Autenticación')
 export class AuthenticationController extends BaseController {
   constructor(
     private autenticacionService: AuthenticationService,
@@ -32,6 +34,8 @@ export class AuthenticationController extends BaseController {
     super()
   }
 
+  @ApiOperation({ summary: 'API para autenticación con usuario y contraseña' })
+  @ApiBody({ description: 'Autenticación de usuarios', type: AuthDto })
   @UseGuards(LocalAuthGuard)
   @Post('auth')
   async login(@Req() req: Request, @Res() res: Response) {
@@ -54,6 +58,7 @@ export class AuthenticationController extends BaseController {
       .send({ finalizado: true, mensaje: 'ok', datos: result.data })
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Patch('cambiarRol')
   async changeRol(
@@ -63,7 +68,7 @@ export class AuthenticationController extends BaseController {
   ) {
     if (!req.user) {
       throw new BadRequestException(
-        `Es necesario que este autenticado para consumir este recurso.`
+        `Es necesario que esté autenticado para consumir este recurso.`
       )
     }
     const result = await this.autenticacionService.cambiarRol(req.user, body)
@@ -79,12 +84,14 @@ export class AuthenticationController extends BaseController {
       .send({ finalizado: true, mensaje: 'ok', datos: result.data })
   }
 
+  @ApiOperation({ summary: 'API para autenticación con ciudadania digital' })
   @UseGuards(OidcAuthGuard)
   @Get('ciudadania-auth')
   async loginCiudadania() {
     //
   }
 
+  @ApiOperation({ summary: 'API para autorización con ciudadania digital' })
   @UseGuards(OidcAuthGuard)
   @Get('ciudadania-autorizar')
   async loginCiudadaniaCallback(@Req() req: Request, @Res() res: Response) {
@@ -108,6 +115,8 @@ export class AuthenticationController extends BaseController {
       })
   }
 
+  @ApiOperation({ summary: 'API para logout digital' })
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('logout')
   async logoutCiudadania(@Req() req: Request, @Res() res: Response) {

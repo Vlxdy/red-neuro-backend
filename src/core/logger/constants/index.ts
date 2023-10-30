@@ -26,14 +26,6 @@ export enum LOG_LEVEL {
   TRACE = 'trace', // 10 Mensajes para el desarrollador (Ej.: Para rastrear la ruta de ejecución del código en un programa - solo para test y desarrollo)
 }
 
-export const LOG_NUMBER = {
-  [LOG_LEVEL.ERROR]: 50,
-  [LOG_LEVEL.WARN]: 40,
-  [LOG_LEVEL.INFO]: 30,
-  [LOG_LEVEL.DEBUG]: 20,
-  [LOG_LEVEL.TRACE]: 10,
-}
-
 export const LOG_COLOR = {
   [LOG_LEVEL.ERROR]: COLOR.LIGHT_RED,
   [LOG_LEVEL.WARN]: COLOR.YELLOW,
@@ -42,12 +34,20 @@ export const LOG_COLOR = {
   [LOG_LEVEL.TRACE]: COLOR.LIGHT_GREY,
 }
 
+export enum AUDIT_LEVEL {
+  DEFAULT = 'default',
+  ERROR = 'error',
+  WARN = 'warn',
+  INFO = 'info',
+  SUCCESS = 'success',
+}
+
 export const LOG_AUDIT_COLOR = {
-  ['error']: COLOR.LIGHT_RED,
-  ['warning']: COLOR.YELLOW,
-  ['info']: COLOR.CYAN,
-  ['success']: COLOR.GREEN,
-  ['none']: COLOR.LIGHT_GREY,
+  [AUDIT_LEVEL.ERROR]: COLOR.LIGHT_RED,
+  [AUDIT_LEVEL.WARN]: COLOR.YELLOW,
+  [AUDIT_LEVEL.INFO]: COLOR.CYAN,
+  [AUDIT_LEVEL.SUCCESS]: COLOR.GREEN,
+  [AUDIT_LEVEL.DEFAULT]: COLOR.LIGHT_GREY,
 }
 
 export * from './initial-values'

@@ -25,38 +25,31 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
       user: request.user,
     }
 
-    const except = new BaseException(exception, {
-      metadata: {
-        req: errorRequest,
-      },
-    })
-
-    this.logger.error(except)
+    const errorInfo = new BaseException(exception)
 
     const errorResult: ErrorResponseDto = {
       finalizado: false,
-      codigo: except.getHttpStatus(),
+      codigo: errorInfo.getHttpStatus(),
       timestamp: Math.floor(Date.now() / 1000),
-      mensaje: except.obtenerMensajeCliente(),
+      mensaje: errorInfo.obtenerMensajeCliente(),
+    }
+    if (errorInfo.clientInfo) {
+      errorResult.datos = errorInfo.clientInfo
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      errorResult.datos = {
-        causa: except.getCausa(),
-        accion: except.getAccion(),
-      }
-    }
-
+    this.logger.error(errorInfo, errorRequest, errorResult)
     if (errorResult.codigo >= 500) {
       this.logger.auditError('http-exception', {
         metadata: {
+          usuario: errorRequest.user?.id,
           codigo: errorResult.codigo,
           mensaje: errorResult.mensaje,
         },
       })
     } else {
-      this.logger.auditWarning('http-exception', {
+      this.logger.auditWarn('http-exception', {
         metadata: {
+          usuario: errorRequest.user?.id,
           codigo: errorResult.codigo,
           mensaje: errorResult.mensaje,
         },

@@ -1,16 +1,16 @@
-import { BaseService } from '../../common/base'
+import { BaseService } from '../../../common/base/base-service'
 import {
   ConflictException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { ParametroRepository } from './parametro.repository'
-import { CrearParametroDto } from './dto/crear-parametro.dto'
-import { PaginacionQueryDto } from '../../common/dto/paginacion-query.dto'
-import { Messages } from '../../common/constants/response-messages'
-import { ActualizarParametroDto } from './dto/actualizar-parametro.dto'
-import { Status } from '../../common/constants'
+import { ParametroRepository } from '../repository'
+import { CrearParametroDto } from '../dto'
+import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
+import { Messages } from '../../../common/constants/response-messages'
+import { ActualizarParametroDto } from '../dto'
+import { ParametroEstado } from '../constant'
 
 @Injectable()
 export class ParametroService extends BaseService {
@@ -64,7 +64,7 @@ export class ParametroService extends BaseService {
       throw new NotFoundException(Messages.EXCEPTION_DEFAULT)
     }
     const parametroDto = new ActualizarParametroDto()
-    parametroDto.estado = Status.ACTIVE
+    parametroDto.estado = ParametroEstado.ACTIVO
     await this.parametroRepositorio.actualizar(
       idParametro,
       parametroDto,
@@ -82,7 +82,7 @@ export class ParametroService extends BaseService {
       throw new NotFoundException(Messages.EXCEPTION_DEFAULT)
     }
     const parametroDto = new ActualizarParametroDto()
-    parametroDto.estado = Status.INACTIVE
+    parametroDto.estado = ParametroEstado.INACTIVO
     await this.parametroRepositorio.actualizar(
       idParametro,
       parametroDto,

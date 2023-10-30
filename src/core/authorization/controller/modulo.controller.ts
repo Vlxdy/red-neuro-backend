@@ -17,8 +17,17 @@ import { JwtAuthGuard } from '../../authentication/guards/jwt-auth.guard'
 import { CasbinGuard } from '../guards/casbin.guard'
 import { ParamIdDto } from '../../../common/dto/params-id.dto'
 import { ActualizarModuloDto } from '../dto/actualizar-modulo.dto'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger'
 import { Request } from 'express'
 
+@ApiBearerAuth()
+@ApiTags('Módulos')
 @UseGuards(JwtAuthGuard, CasbinGuard)
 @Controller('autorizacion/modulos')
 export class ModuloController extends BaseController {
@@ -26,12 +35,19 @@ export class ModuloController extends BaseController {
     super()
   }
 
+  @ApiOperation({ summary: 'API para obtener el listado de Módulos' })
   @Get()
   async listar(@Query() paginacionQueryDto: FiltroModuloDto) {
     const result = await this.moduloService.listar(paginacionQueryDto)
     return this.successListRows(result)
   }
 
+  @ApiOperation({ summary: 'API para crear un Módulo' })
+  @ApiBody({
+    type: CrearModuloDto,
+    description: 'new Modulo',
+    required: true,
+  })
   @Post()
   async crear(@Req() req: Request, @Body() moduloDto: CrearModuloDto) {
     const usuarioAuditoria = this.getUser(req)
@@ -39,6 +55,15 @@ export class ModuloController extends BaseController {
     return this.successCreate(result)
   }
 
+  @ApiOperation({ summary: 'API para actualizar un Módulo' })
+  @ApiProperty({
+    type: ParamIdDto,
+  })
+  @ApiBody({
+    type: ActualizarModuloDto,
+    description: 'Modulo',
+    required: true,
+  })
   @Patch(':id')
   async actualizar(
     @Param() params: ParamIdDto,
@@ -55,6 +80,10 @@ export class ModuloController extends BaseController {
     return this.successUpdate(result)
   }
 
+  @ApiOperation({ summary: 'API para eliminar un Módulo' })
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @Delete()
   async eliminar(@Param('id') id: string) {
     const result = await this.moduloService.eliminar(id)
@@ -62,6 +91,10 @@ export class ModuloController extends BaseController {
   }
 
   // activar modulo
+  @ApiOperation({ summary: 'API para activar un Módulo' })
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/activacion')
   async activar(@Req() req: Request, @Param() params: ParamIdDto) {
@@ -72,6 +105,10 @@ export class ModuloController extends BaseController {
   }
 
   // inactivar modulo
+  @ApiOperation({ summary: 'API para inactivar un Módulo' })
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @UseGuards(JwtAuthGuard, CasbinGuard)
   @Patch('/:id/inactivacion')
   async inactivar(@Req() req: Request, @Param() params: ParamIdDto) {

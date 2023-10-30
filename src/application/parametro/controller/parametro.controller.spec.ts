@@ -2,12 +2,12 @@ import { CanActivate } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { plainToClass } from 'class-transformer'
 import { AuthZManagementService } from 'nest-authz'
-import { CasbinGuard } from '../../core/authorization/guards/casbin.guard'
-import { PaginacionQueryDto } from '../../common/dto/paginacion-query.dto'
-import { TextService } from '../../common/lib/text.service'
-import { CrearParametroDto } from './dto/crear-parametro.dto'
-import { ParametroController } from './parametro.controller'
-import { ParametroService } from './parametro.service'
+import { CasbinGuard } from '../../../core/authorization/guards/casbin.guard'
+import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
+import { TextService } from '../../../common/lib/text.service'
+import { CrearParametroDto } from '../dto'
+import { ParametroController } from '../controller'
+import { ParametroService } from '../service'
 import { Request } from 'express'
 
 const resParametro = {
@@ -66,7 +66,7 @@ describe('ParametroController', () => {
     expect(result.datos).toHaveProperty('filas')
   })
 
-  it('[listarPorGrupo] Debería listar parametros por grupo', async () => {
+  it('[listarPorGrupo] Debería listar parámetros por grupo', async () => {
     const mockRequest = {
       grupo: 'TD',
     }

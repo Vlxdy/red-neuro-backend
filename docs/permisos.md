@@ -10,27 +10,27 @@ El proyecto base actualmente cuenta con roles y permisos de ejemplo
 
 #### RUTAS sin autenticación
 
-| verbo | ruta                        | descripcion                                 |
+| verbo | ruta                        | descripción                                 |
 |-------|-----------------------------|---------------------------------------------|
 | GET   | /estado                     | Verificar el estado de la aplicación        |
-| POST  | /auth                       | Autenticacion usuario y contraseña          |
-| GET   | /ciudadania-auth            | Autenticación con ciudadania digital        |
-| GET   | /ciudadania-callback        | Ruta para redirección de ciudadania digital |
+| POST  | /auth                       | Autenticación usuario y contraseña          |
+| GET   | /ciudadania-auth            | Autenticación con Ciudadanía Digital        |
+| GET   | /ciudadania-callback        | Ruta para redirección de Ciudadanía Digital |
 | GET   | /usuarios/cuenta/desbloqueo | Ruta para desbloqueo de cuenta              |
 
 #### RUTAS con autenticación (acciones sobre la misma cuenta)
 
 | VERBO | ruta                        | descripción                                     |
 |-------|-----------------------------|-------------------------------------------------|
-| GET   | /usuarios/cuenta/perfil     | Obtener informacion del perfil autenticado      |
+| GET   | /usuarios/cuenta/perfil     | Obtener información del perfil autenticado      |
 | PATCH | /usuarios/cuenta/contrasena | Actualizar la contraseña del perfil autenticado |
 
 #### Rutas con autenticación (configuraciones y paramétricas)
 
-| verbo  | ruta                               | descripcion                               |
+| verbo  | ruta                               | descripción                               |
 |--------|------------------------------------|-------------------------------------------|
-| GET    | /parametros/:grupo/listado         | Obtener parametricas por grupo            |
-| GET    | /autorizacion/permisos             | Lista politicas de permisos para frontend |
+| GET    | /parametros/:grupo/listado         | Obtener paramétricas por grupo            |
+| GET    | /autorizacion/permisos             | Lista políticas de permisos para frontend |
 | POST   | /autenticacion/token\*             | Obtener un nuevo access token             |
 | GET    | /autenticacion/logout\*            | Cierre de sesión                          |
 | DELETE | /autenticacion/:id/refresh-token\* | Eliminar un refresh token                 |
@@ -55,7 +55,7 @@ El proyecto base actualmente cuenta con roles y permisos de ejemplo
 | GET /parametros                  | x             | x       |         |
 | POST /parametros                 | x             | x       |         |
 
-#### Permisos - Formato casbin
+#### Permisos - Formato Casbin
 
 ```
 ADMINISTRADOR, /api/autorizacion/politicas, GET|POST|DELETE

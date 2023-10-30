@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
-import { Parametro } from '../../src/application/parametro/parametro.entity'
+import { Parametro } from '../../src/application/parametro/entity'
 import { USUARIO_SISTEMA } from '../../src/common/constants'
 
 export class insertsParametros1617820337609 implements MigrationInterface {

@@ -10,8 +10,7 @@ export const DEFAULT_PARAMS: LoggerParams = {
   fileParams: {
     path: '',
     size: '50M',
-    rotateInterval: '7d',
-    compress: 'true',
+    rotateInterval: 'YM',
   },
   lokiParams: {
     url: '',
@@ -23,6 +22,20 @@ export const DEFAULT_PARAMS: LoggerParams = {
   auditParams: {
     context: 'application',
   },
+  excludeOrigen: [
+    // node
+    'node:internal',
+    'node_modules',
+
+    // typeorm
+    'src/driver',
+    'src/query-builder',
+    'src/entity-manager',
+
+    // custom
+    'src/core/logger',
+    'src/common/exceptions',
+  ],
   _levels: [],
   _audit: [],
 }

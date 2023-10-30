@@ -17,8 +17,16 @@ import { LocalAuthGuard } from '../guards/local-auth.guard'
 import { OidcAuthGuard } from '../guards/oidc-auth.guard'
 import { RefreshTokensService } from '../service/refreshTokens.service'
 import { BaseController } from '../../../common/base'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger'
 
 @Controller()
+@ApiTags('Refresh Token')
 export class RefreshTokensController extends BaseController {
   constructor(
     private refreshTokensService: RefreshTokensService,
@@ -27,6 +35,12 @@ export class RefreshTokensController extends BaseController {
     super()
   }
 
+  @ApiOperation({
+    summary: 'API que actualiza el token de acceso usando un refresh token',
+  })
+  @ApiBody({
+    type: TokenDto,
+  })
   @Post('token')
   async getAccessToken(
     @Req() req: Request,
@@ -50,6 +64,14 @@ export class RefreshTokensController extends BaseController {
       .json({ finalizado: true, mensaje: 'ok', datos: result.data })
   }
 
+  @ApiOperation({
+    summary: 'API que elimina el refresh token',
+  })
+  @ApiProperty({
+    name: 'id',
+    example: 255,
+  })
+  @ApiBearerAuth()
   @UseGuards(LocalAuthGuard)
   @UseGuards(OidcAuthGuard)
   @Delete(':id')

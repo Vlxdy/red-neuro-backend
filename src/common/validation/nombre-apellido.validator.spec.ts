@@ -8,15 +8,15 @@ describe('NombreApellido validator', () => {
 
   it('Debería retornar false para entradas con longitud < 3 y > 30', () => {
     expect(nombreApellido('AN')).toBe(false)
-    expect(nombreApellido('JUAN PEREZ DE LA SANTISIMA TRINIDAD')).toBe(false)
+    expect(nombreApellido('JUAN PEREZ DE LA SANTÍSIMA TRINIDAD')).toBe(false)
   })
 
-  it('Debería retornar false para entradas con caracteres invalidos', () => {
+  it('Debería retornar false para entradas con caracteres inválidos', () => {
     expect(nombreApellido('AN?!A.=)(')).toBe(false)
     expect(nombreApellido('_&%$/')).toBe(false)
   })
 
-  it('Debería retornar true para entradas con acentos, ñ, apostrofes y dierecis', () => {
+  it('Debería retornar true para entradas con acentos, ñ, apóstrofes y dierecis', () => {
     expect(nombreApellido('José')).toBe(true)
     expect(nombreApellido('Pauliño')).toBe(true)
     expect(nombreApellido(`O'connor`)).toBe(true)

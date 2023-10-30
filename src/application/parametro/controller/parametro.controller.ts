@@ -9,17 +9,28 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common'
-import { ParametroService } from './parametro.service'
-import { CrearParametroDto } from './dto/crear-parametro.dto'
-import { JwtAuthGuard } from '../../core/authentication/guards/jwt-auth.guard'
-import { CasbinGuard } from '../../core/authorization/guards/casbin.guard'
-import { PaginacionQueryDto } from '../../common/dto/paginacion-query.dto'
-import { BaseController } from '../../common/base'
-import { ParamGrupoDto } from './dto/grupo.dto'
-import { ActualizarParametroDto } from './dto/actualizar-parametro.dto'
-import { ParamIdDto } from '../../common/dto/params-id.dto'
+import { ParametroService } from '../service'
+import { JwtAuthGuard } from '../../../core/authentication/guards/jwt-auth.guard'
+import { CasbinGuard } from '../../../core/authorization/guards/casbin.guard'
+import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
+import { BaseController } from '../../../common/base'
+import { ParamIdDto } from '../../../common/dto/params-id.dto'
 import { Request } from 'express'
+import {
+  ActualizarParametroDto,
+  CrearParametroDto,
+  ParamGrupoDto,
+} from '../dto'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger'
 
+@ApiTags('Parámetros')
+@ApiBearerAuth()
 @Controller('parametros')
 @UseGuards(JwtAuthGuard, CasbinGuard)
 export class ParametroController extends BaseController {
@@ -27,12 +38,19 @@ export class ParametroController extends BaseController {
     super()
   }
 
+  @ApiOperation({ summary: 'API para obtener el listado de parámetros' })
   @Get()
   async listar(@Query() paginacionQueryDto: PaginacionQueryDto) {
     const result = await this.parametroServicio.listar(paginacionQueryDto)
     return this.successListRows(result)
   }
 
+  @ApiOperation({
+    summary: 'API para obtener el listado de parámetros por grupo',
+  })
+  @ApiProperty({
+    type: ParamGrupoDto,
+  })
   @Get('/:grupo/listado')
   async listarPorGrupo(@Param() params: ParamGrupoDto) {
     const { grupo } = params
@@ -40,6 +58,12 @@ export class ParametroController extends BaseController {
     return this.successList(result)
   }
 
+  @ApiOperation({ summary: 'API para crear un nuevo parámetro' })
+  @ApiBody({
+    type: CrearParametroDto,
+    description: 'new Parametro',
+    required: true,
+  })
   @Post()
   async crear(@Req() req: Request, @Body() parametroDto: CrearParametroDto) {
     const usuarioAuditoria = this.getUser(req)
@@ -50,6 +74,15 @@ export class ParametroController extends BaseController {
     return this.successCreate(result)
   }
 
+  @ApiOperation({ summary: 'API para actualizar un parámetro' })
+  @ApiProperty({
+    type: ParamIdDto,
+  })
+  @ApiBody({
+    type: ActualizarParametroDto,
+    description: 'new Rol',
+    required: true,
+  })
   @Patch(':id')
   async actualizar(
     @Param() params: ParamIdDto,
@@ -66,6 +99,10 @@ export class ParametroController extends BaseController {
     return this.successUpdate(result)
   }
 
+  @ApiOperation({ summary: 'API para activar un parámetro' })
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @Patch('/:id/activacion')
   async activar(@Req() req: Request, @Param() params: ParamIdDto) {
     const { id: idParametro } = params
@@ -77,6 +114,10 @@ export class ParametroController extends BaseController {
     return this.successUpdate(result)
   }
 
+  @ApiOperation({ summary: 'API para inactivar un parámetro' })
+  @ApiProperty({
+    type: ParamIdDto,
+  })
   @Patch('/:id/inactivacion')
   async inactivar(@Req() req: Request, @Param() params: ParamIdDto) {
     const { id: idParametro } = params

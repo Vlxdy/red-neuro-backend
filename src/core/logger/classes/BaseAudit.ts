@@ -1,7 +1,13 @@
-import { AuditEntry, AuditType, BaseAuditOptions, Metadata } from '../types'
+import { AUDIT_LEVEL } from '../constants'
+import { AuditEntry, BaseAuditOptions, Metadata } from '../types'
 import { getReqID } from '../utilities'
 
 export class BaseAudit {
+  /**
+   * Índica el nivel de la importancia para el resaltado del mensaje por consola
+   */
+  level: AUDIT_LEVEL
+
   /**
    * Contexto para el que se creará el log de auditoría
    */
@@ -22,23 +28,16 @@ export class BaseAudit {
    */
   formato?: string
 
-  /**
-   * Indica el tipo de resaltado del mensaje por consola
-   */
-  tipo: AuditType
-
   constructor(opt: BaseAuditOptions) {
     this.contexto = opt.contexto
     this.mensaje = opt.mensaje
     this.metadata = opt.metadata
     this.formato = opt.formato
-    this.tipo = opt.tipo || 'none'
+    this.level = opt.level || AUDIT_LEVEL.DEFAULT
   }
 
   getLogEntry(): AuditEntry {
     const args: AuditEntry = {
-      // level: 10,
-      // time: Date.now(),
       context: this.contexto,
       reqId: getReqID() || undefined,
       pid: process.pid,

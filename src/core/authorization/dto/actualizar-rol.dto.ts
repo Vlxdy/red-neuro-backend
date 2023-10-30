@@ -3,12 +3,13 @@ import { IsNotEmpty } from 'class-validator'
 
 export class ActualizarRolDto {
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ example: 'ADMINISTRADOR' })
   rol: string
 
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ example: 'Administrador' })
   nombre: string
 
+  @ApiProperty({ example: 'ACTIVO' })
   estado?: string
 }

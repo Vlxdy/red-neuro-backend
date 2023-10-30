@@ -8,8 +8,8 @@ import { Configurations } from '../params'
 @Injectable()
 export class TextService {
   /**
-   * Metodo para encriptar un password
-   * @param password contraeña
+   * Método para encriptar un password
+   * @param password contraseña
    */
   static async encrypt(password: string) {
     return await hash(password, Configurations.SALT_ROUNDS)
@@ -23,7 +23,7 @@ export class TextService {
   }
 
   /**
-   * Metodo para convertir un texto a formato uuid
+   * Método para convertir un texto a formato uuid
    * @param text Texto
    * @param namespace Uuid base
    */
@@ -39,7 +39,7 @@ export class TextService {
   }
 
   /**
-   * Metodo para generar un texto aleatorio corto de acuerdo a un alfabeto
+   * Método para generar un texto aleatorio corto de acuerdo a un alfabeto
    * @returns string
    */
   static generateShortRandomText(length = 8): string {
@@ -51,7 +51,7 @@ export class TextService {
   }
 
   /**
-   * Metodo para generar un texto aleatorio corto
+   * Método para generar un texto aleatorio corto
    * @returns string
    */
   static generateNanoId(): string {

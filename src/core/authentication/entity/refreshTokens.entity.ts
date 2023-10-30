@@ -6,7 +6,7 @@ dotenv.config()
 @Entity({ schema: process.env.DB_SCHEMA_USUARIOS })
 export class RefreshTokens {
   @PrimaryColumn({
-    comment: 'Clave primaria de la tabla RefresToken',
+    comment: 'Clave primaria de la tabla RefreshToken',
   })
   id: string
 

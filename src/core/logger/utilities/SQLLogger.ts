@@ -29,6 +29,7 @@ export class SQLLogger extends AdvancedConsoleLogger {
     const sql = this.buildSql(query, parameters, true, false)
 
     throw new BaseException(error, {
+      codigo: ERROR_CODE.SQL_ERROR,
       mensaje: `Ocurrió un error interno (${ERROR_CODE.SQL_ERROR})`,
       accion: 'Verificar la consulta SQL',
       metadata: { sql },

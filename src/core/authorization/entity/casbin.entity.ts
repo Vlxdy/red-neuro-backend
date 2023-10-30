@@ -35,7 +35,7 @@ export class CasbinRule extends BaseEntity {
     nullable: true,
     type: 'varchar',
     comment:
-      'Regla de acceso (GET, POST, PATCH, DELETE para backend y read, update, create, delete para frontend)',
+      'Regla de acceso (GET, POST, PATCH, DELETE para backend y read, update, create y delete para frontend)',
   })
   public v2: string | null
 

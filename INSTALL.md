@@ -4,9 +4,9 @@
 
 | Nombre       | Versión | Descripción                                            | Instalación                                      |
 |--------------|---------|--------------------------------------------------------|--------------------------------------------------|
-| `PostgreSQL` | ^14     | Gestor de base de datos.                               | https://www.postgresql.org/download/linux/debian |
-| `NodeJS`     | ^18     | Entorno de programación de JavaScript.                 | `nvm install 18` https://github.com/nvm-sh/nvm   |
-| `NPM`        | ^9      | Gestor de paquetes de NodeJS.                          | `npm install -g npm@9.7.1`                       |
+| `PostgreSQL` | ^16     | Gestor de base de datos.                               | https://www.postgresql.org/download/linux/debian |
+| `NodeJS`     | ^20     | Entorno de programación de JavaScript.                 | `nvm install 20` https://github.com/nvm-sh/nvm   |
+| `NPM`        | ^10     | Gestor de paquetes de NodeJS.                          | `npm install -g npm@10`                          |
 | `PM2`        | ^5.3    | Gestor avanzado de procesos de producción para NodeJS. | `npm install -g pm2@5.3`                         |
 
 ## 2. Instalación
@@ -45,14 +45,9 @@ cp ecosystem.config.js.sample ecosystem.config.js
 
 ### Creación y configuración de la Base de Datos
 
-```bash
-# Crear los siguientes esquemas de base de datos:
-create schema proyecto;
-create schema usuarios;
-create schema parametricas;
-```
+Ver el archivo [database/scripts/README.md](./database/scripts/README.md)
 
-Para más detalles ver el archivo [database/scripts/CREATE_DATABASE.md](./database/scripts/CREATE_DATABASE.md)
+Una vez se tenga creada la base de datos y sus respectivos esquemas ejecutar el siguiente comando para crear las tablas:
 
 ```bash
 # Configura la base de datos.
@@ -69,7 +64,7 @@ npm run start
 npm run start:dev
 
 # Ejecución en modo desarrollo (muestra logs de las consultas SQL)
-npm run start:dev:sql
+npm run dev
 
 # Ejecución en modo PRODUCCIÓN
 npm run build
@@ -106,9 +101,6 @@ npm run seeds:create database/seeds/addColumnCategoria
 npm run seeds:run
 ```
 
-**Nota.—** También puede habilitar de manera fija el log de las consultas SQL cambiando el valor de la variable de
-entorno `LOG_SQL=true` o temporalmente levantando la aplicación con el comando `npm run dev`
-
 ### Variables de entorno
 
 **Datos de despliegue**
@@ -122,16 +114,16 @@ entorno `LOG_SQL=true` o temporalmente levantando la aplicación con el comando 
 
 **Configuración de la base de datos**
 
-| Variable                 | Valor por defecto | Descripción                                                                                       |
-|--------------------------|-------------------|---------------------------------------------------------------------------------------------------|
-| `DB_HOST`                | `localhost`       | Host de la base de datos.                                                                         |
-| `DB_USERNAME`            | `postgres`        | nombre de usuario de la base de datos.                                                            |
-| `DB_PASSWORD`            | `postgres`        | contraseña de la base de datos.                                                                   |
-| `DB_DATABASE`            | `database_db`     | nombre de la base de datos.                                                                       |
-| `DB_PORT`                | `5432`            | puerto de despliegue de la base de datos.                                                         |
-| `DB_SCHEMA`              | `proyecto`        | Utilizado para almacenar las tablas del proyecto, y todo lo relacionado con la lógica de negocio. |
-| `DB_SCHEMA_USUARIOS`     | `usuarios`        | Utilizado para almacenar la tabla usuarios, roles y todo lo relacionado con la autenticación.     |
-| `DB_SCHEMA_PARAMETRICAS` | `parametricas`    | Utilizado para almanecar tablas de tipo paramétricas.                                             |
+| Variable                 | Valor por defecto | Descripción                                                                             |
+|--------------------------|-------------------|-----------------------------------------------------------------------------------------|
+| `DB_HOST`                | `localhost`       | Host de la base de datos.                                                               |
+| `DB_USERNAME`            | `postgres`        | nombre de usuario de la base de datos.                                                  |
+| `DB_PASSWORD`            | `postgres`        | contraseña de la base de datos.                                                         |
+| `DB_DATABASE`            | `database_db`     | nombre de la base de datos.                                                             |
+| `DB_PORT`                | `5432`            | puerto de despliegue de la base de datos.                                               |
+| `DB_SCHEMA`              | `proyecto`        | Para almacenar las tablas del proyecto, y todo lo relacionado con la lógica de negocio. |
+| `DB_SCHEMA_USUARIOS`     | `usuarios`        | Para almacenar la tabla usuarios, roles y todo lo relacionado con la autenticación.     |
+| `DB_SCHEMA_PARAMETRICAS` | `parametricas`    | Para almacenar tablas de tipo paramétricas.                                             |
 
 **Configuración general de la aplicación**
 
@@ -201,64 +193,24 @@ entorno `LOG_SQL=true` o temporalmente levantando la aplicación con el comando 
 
 **Configuración de Logs**
 
-| Variable                  | Valor por defecto | Descripción                                                                              |
-|---------------------------|-------------------|------------------------------------------------------------------------------------------|
-| `LOG_LEVEL`               | `info`            | Nivel de logs (en PRODUCCIÓN utilizar el valor `info`)                                   |
-| `LOG_AUDIT`               | `application ...` | Habilita los logs de auditoria.                                                          |
-| `LOG_CONSOLE`             | `false`           | Indica si se mostrarán los logs en la terminal (en PRODUCCIÓN utilizar el valor `false`) |
-| `LOG_SQL`                 | `false`           | Habilita los logs SQL (en PRODUCCIÓN utilizar el valor `false`)                          |
-| `LOG_PATH`                |                   | Ruta absoluta de la carpeta logs. Si esta vacio no se crearán los archvos.               |
-| `LOG_SIZE`                | `50M`             | Para los ficheros de logs es el tamaño máximo que estos pueden llegar a pesar.           |
-| `LOG_INTERVAL`            | `7d`              | Para los ficheros de logs es el intervalo de tiempo para rotar los ficheros.             |
-| `LOG_LOKI_URL`            |                   | Indica la URL del servicio de loki para el registro de logs.                             |
-| `LOG_LOKI_USERNAME`       |                   | Indica el nombre de usuario para autenticarse con el servicio de loki.                   |
-| `LOG_LOKI_PASSWORD`       |                   | Indica la contraseña de usuario para autenticarse con el servicio de loki.               |
-| `LOG_LOKI_BATCHING`       | `true`            | Habilitado el envío de logs por lote cuando se utiliza loki.                             |
-| `LOG_LOKI_BATCH_INTERVAL` | `5`               | Tiempo en segundos para el envío de logs con loki si `LOG_BATCHING=true`.                |
+| Variable                  | Valor por defecto | Descripción                                                                                |
+| ------------------------- | ----------------- | ------------------------------------------------------------------------------------------ |
+| `LOG_LEVEL`               | `info`            | Nivel de logs (en PRODUCCIÓN utilizar el valor `info`)                                     |
+| `LOG_AUDIT`               | `application ...` | Habilita los logs de auditoria.                                                            |
+| `LOG_CONSOLE`             | `true`            | Indica si se mostrarán los logs en la terminal (en PRODUCCIÓN utilizar el valor `false`)   |
+| `LOG_SQL`                 | `true`            | Habilita los logs SQL (en PRODUCCIÓN utilizar el valor `false`)                            |
+| `LOG_PATH`                | `/tmp/logs/`      | Ruta absoluta de la carpeta logs. Si esta vacio no se crearán los archvos.                 |
+| `LOG_SIZE`                | `50M`             | Para el rotado de logs por tamaño (`K` = kilobytes, `M` = megabytes, `G` = gigabytes).     |
+| `LOG_INTERVAL`            | `YM`              | Para el rotado de logs por tiempo (`Y` = cada año, `YM` = cada mes, `YMD` = cada día, ...) |
+| `LOG_LOKI_URL`            |                   | Indica la URL del servicio de loki para el registro de logs.                               |
+| `LOG_LOKI_USERNAME`       |                   | Indica el nombre de usuario para autenticarse con el servicio de loki.                     |
+| `LOG_LOKI_PASSWORD`       |                   | Indica la contraseña de usuario para autenticarse con el servicio de loki.                 |
+| `LOG_LOKI_BATCHING`       | `true`            | Habilitado el envío de logs por lote cuando se utiliza loki.                               |
+| `LOG_LOKI_BATCH_INTERVAL` | `5`               | Tiempo en segundos para el envío de logs con loki si `LOG_BATCHING=true`.                  |
 
-**Nota.-**
+### Monitoreo de logs
 
-- `LOG_LEVEL` acepta los valores `error`, `warn`, `info`, `debug` y `trace`. (en PROD se recomienda el valor de `info`)
+Esta configuración es opcional y se utiliza para visualizar logs en tiempo real. Puede encontrar más información
+respecto al despliegue de estos servicios en el siguiente enlace:
 
-- `LOG_AUDIT` acepta valores separados por espacios en blanco.
-
-  Por Ejemplo:
-
-    - Si `LOG_AUDIT=application request response`, en los archivos `audit_application.log`, `audit_request.log`
-      y `audit_response.log` se registrarán logs de tipo `application`, `request` y `response` respectivamente.
-
-Para el registro de logs tenemos las siguientes opciones:
-
-**1ra Forma - Con ficheros**
-
-Para habilitar esta opción, `LOG_PATH` debe tener un valor asignado
-
-`LOG_PATH` dentro de esta carpeta (Se recomienda el valor `/tmp/logs/`) automáticamente se creará otro directorio con el
-nombre del proyecto (propiedad `name`
-del archivo `package.json`) y dentro de esta última se crearán los archivos de logs `error.log`, `warn.log`
-e `info.log`.
-
-`LOG_SIZE` acepta los siguientes valores:
-
-- `G`: Tamaño en GigaBytes. Ej.: `1G`
-- `M`: Tamaño en MegaBytes. Ej.: `1M`
-- `K`: Tamaño en KiloBytes. Ej.: `1K`
-- `B`: Tamaño en Bytes. Ej.: `1B`
-
-`LOG_INTERVAL` acepta los siguientes valores:
-
-- `M`: Se genera un nuevo fichero de logs cada mes. Ej.: `1M`
-- `d`: Se genera un nuevo fichero de logs cada día. Ej.: `1d`
-- `h`: Se genera un nuevo fichero de logs cada hora. Ej.: `1h`
-- `m`: Se genera un nuevo fichero de logs cada minuto. Ej.: `1m`
-- `s`: Se genera un nuevo fichero de logs cada segundo. Ej.: `1s`
-
-**2da Forma - Con el servicio de loki**
-
-Se recomienda esta opción solamente si no se va a utilizar el servicio de Promtail.
-
-Para habilitar esta opción, `LOG_LOKI_URL` debe tener un valor asignado
-
-Puede encontrar más información respecto al despliegue de estos servicios en el siguiente repo:
-
-- [https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/utilidades/gestion-logs](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/utilidades/gestion-logs)
+- [Proyectos Base / Utilidades / Gestión Logs](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/utilidades/gestion-logs)

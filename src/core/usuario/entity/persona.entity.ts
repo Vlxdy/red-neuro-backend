@@ -19,7 +19,21 @@ export const PersonaEstado = {
   INACTIVE: Status.INACTIVE,
 }
 
+export const TiposDocumento = {
+  CI: TipoDocumento.CI,
+  PASAPORTE: TipoDocumento.PASAPORTE,
+  OTRO: TipoDocumento.OTRO,
+}
+
+export const TiposGenero = {
+  MASCULINO: Genero.MASCULINO,
+  FEMENINO: Genero.FEMENINO,
+  OTRO: Genero.OTRO,
+}
+
 @Check(UtilService.buildStatusCheck(PersonaEstado))
+@Check(UtilService.buildCheck('tipo_documento', TiposDocumento))
+@Check(UtilService.buildCheck('genero', TiposGenero))
 @Entity({ name: 'personas', schema: process.env.DB_SCHEMA_USUARIOS })
 export class Persona extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
@@ -55,9 +69,6 @@ export class Persona extends AuditoriaEntity {
   })
   segundoApellido?: string | null
 
-  @Check(
-    `tipo_documento in ('${TipoDocumento.CI}', '${TipoDocumento.PASAPORTE}', '${TipoDocumento.OTRO}')`
-  )
   @Column({
     name: 'tipo_documento',
     length: 15,
@@ -99,9 +110,6 @@ export class Persona extends AuditoriaEntity {
   })
   telefono?: string | null
 
-  @Check(
-    `genero in ('${Genero.MASCULINO}', '${Genero.FEMENINO}', '${Genero.OTRO}')`
-  )
   @Column({
     length: 15,
     type: 'varchar',

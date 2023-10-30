@@ -2,30 +2,20 @@ import { LoggerService } from './LoggerService'
 import { BaseExceptionOptions, LogEntry, Metadata } from '../types'
 import {
   cleanParamValue,
-  getContext,
   getErrorStack,
   getFullErrorStack,
   getHostname,
+  getOrigen,
   getReqID,
   isAxiosError,
   isCertExpiredError,
   isConexionError,
+  timeToPrint,
 } from '../utilities'
 import { HttpException, HttpStatus } from '@nestjs/common'
 import { extractMessage } from '../utils'
-import { ERROR_CODE, LOG_LEVEL, LOG_NUMBER } from '../constants'
-import dayjs from 'dayjs'
+import { ERROR_CODE, ERROR_NAME, LOG_LEVEL } from '../constants'
 import { inspect } from 'util'
-
-const ignoreStackPaths = [
-  'node:internal',
-  'node_modules',
-  'src/driver',
-  'src/query-builder',
-  'src/entity-manager',
-  'src/core/logger',
-  'src/common/exceptions',
-]
 
 export class BaseException extends Error {
   level: LOG_LEVEL.ERROR | LOG_LEVEL.WARN
@@ -100,6 +90,11 @@ export class BaseException extends Error {
    */
   accion: string
 
+  /**
+   * Información adicional que será visible para el cliente incluso en modo producción
+   */
+  clientInfo: unknown
+
   constructor(error: unknown, opt?: BaseExceptionOptions) {
     super(BaseException.name)
 
@@ -122,41 +117,18 @@ export class BaseException extends Error {
 
     let metadata: Metadata = {}
     const loggerParams = LoggerService.getLoggerParams()
-    const projectPath = loggerParams?.projectPath || ''
 
     let appName = loggerParams?.appName || ''
     let modulo = ''
-    let origen = errorStack
-      ? (
-          errorStack
-            .split('\n')
-            .filter(
-              (x) =>
-                x.includes(projectPath) &&
-                !ignoreStackPaths.some((y) => x.includes(y))
-            )
-            .shift() || ''
-        ).trim()
-      : ''
 
     const traceStack =
       error instanceof BaseException
         ? error.traceStack
         : getErrorStack(new Error())
 
+    let origen = errorStack ? getOrigen(errorStack) : ''
     if (!origen) {
-      origen = traceStack
-        ? (
-            traceStack
-              .split('\n')
-              .filter(
-                (x) =>
-                  x.includes(projectPath) &&
-                  !ignoreStackPaths.some((y) => x.includes(y))
-              )
-              .shift() || ''
-          ).trim()
-        : ''
+      origen = traceStack ? getOrigen(traceStack) : ''
     }
 
     let errorParsed: unknown = error
@@ -167,20 +139,25 @@ export class BaseException extends Error {
 
     let httpStatus: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
     let mensaje = `Error Interno (${ERROR_CODE.UNKNOWN_ERROR})`
-    let causa = error instanceof Error ? error.toString() : ''
+    let causa: string
     let accion = ''
-    let fecha = dayjs().format('YYYY-MM-DD HH:mm:ss.SSS')
+    let clientInfo: unknown
+    let fecha = timeToPrint()
+
+    try {
+      causa =
+        error instanceof Error
+          ? `${error.name}: ${error.message}`
+          : typeof error === 'object'
+          ? JSON.stringify(error)
+          : String(error)
+    } catch (err) {
+      causa = ''
+    }
 
     // EMPTY_ERROR
     if (!error) {
-      codigo = ERROR_CODE.EMPTY_ERROR
-      mensaje = `Error Interno (${ERROR_CODE.EMPTY_ERROR})`
-    }
-
-    // STRING_ERROR
-    else if (typeof error === 'string') {
-      codigo = ERROR_CODE.STRING_ERROR
-      mensaje = `${error} (${ERROR_CODE.STRING_ERROR})`
+      causa = ''
     }
 
     // BASE_EXCEPTION
@@ -196,6 +173,7 @@ export class BaseException extends Error {
       metadata = error.metadata
       fecha = error.fecha
       errorParsed = error.error
+      clientInfo = error.clientInfo
     }
 
     // SERVER_CONEXION
@@ -328,8 +306,12 @@ export class BaseException extends Error {
 
     // GUARDANDO VALORES
     this.error = errorParsed
-    this.codigo = codigo
     this.fecha = fecha
+
+    this.codigo =
+      opt && 'codigo' in opt && typeof opt.codigo !== 'undefined'
+        ? opt.codigo
+        : codigo
 
     this.httpStatus =
       opt && 'httpStatus' in opt && typeof opt.httpStatus !== 'undefined'
@@ -385,14 +367,11 @@ export class BaseException extends Error {
       opt && 'accion' in opt && typeof opt.accion !== 'undefined'
         ? opt.accion
         : accion
-  }
 
-  getAccion() {
-    return this.accion
-  }
-
-  getCausa() {
-    return this.causa
+    this.clientInfo =
+      opt && 'clientInfo' in opt && typeof opt.clientInfo !== 'undefined'
+        ? opt.clientInfo
+        : clientInfo
   }
 
   getHttpStatus() {
@@ -407,10 +386,6 @@ export class BaseException extends Error {
     return this.level
   }
 
-  getNumericLevel() {
-    return LOG_NUMBER[this.level]
-  }
-
   private levelByStatus(status: number) {
     if (status < HttpStatus.INTERNAL_SERVER_ERROR) {
       return LOG_LEVEL.WARN
@@ -420,13 +395,10 @@ export class BaseException extends Error {
 
   getLogEntry(): LogEntry {
     const args: LogEntry = {
-      // level: this.getNumericLevel(),
-      // time: Date.now(),
       hostname: getHostname(),
       pid: process.pid,
 
       reqId: getReqID(),
-      caller: getContext(),
       fecha: this.fecha,
       levelText: this.level,
       appName: this.appName,
@@ -434,7 +406,7 @@ export class BaseException extends Error {
       mensaje: this.obtenerMensajeCliente(),
 
       httpStatus: this.httpStatus,
-      codigo: this.codigo,
+      codigo: this.getErrorCodeName(),
       causa: this.causa,
       origen: this.origen,
       accion: this.accion,
@@ -444,6 +416,13 @@ export class BaseException extends Error {
       traceStack: this.traceStack,
     }
 
+    // Para evitar guardar información vacía
+    if (!args.mensaje) args.mensaje = undefined
+    if (!args.reqId) args.reqId = undefined
+
+    // Para evitar guardar informacion redundante
+    if (args.error === args.errorStack && args.error) args.error = undefined
+
     if (this.metadata && Object.keys(this.metadata).length > 0) {
       Object.assign(args, { metadata: this.metadata })
     }
@@ -451,9 +430,13 @@ export class BaseException extends Error {
     return args
   }
 
+  getErrorCodeName() {
+    return `${ERROR_NAME[this.codigo]} (${this.codigo})`
+  }
+
   toString(): string {
     const args: string[] = []
-    args.push('\n───────────────────────')
+    args.push(`${this.getErrorCodeName()}\n───────────────────────`)
     args.push(`─ Mensaje : ${this.obtenerMensajeCliente()}`)
 
     if (this.causa) {
@@ -472,7 +455,6 @@ export class BaseException extends Error {
       args.push('\n───── Metadata ────────')
       Object.keys(this.metadata).map((key) => {
         const item = this.metadata[key]
-        args.push(`- ${key}:`)
         args.push(
           typeof item === 'string' ? item : inspect(item, false, null, false)
         )

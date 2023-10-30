@@ -1,7 +1,7 @@
 // swagger config
 export const SWAGGER_API_ROOT = 'api/docs'
-export const SWAGGER_API_NAME = 'Proyecto base'
-export const SWAGGER_API_DESCRIPTION = 'Documentación de proyecto Backend Base'
+export const SWAGGER_API_NAME = 'Backend Base'
+export const SWAGGER_API_DESCRIPTION = 'Documentación del Proyecto base BACKEND'
 export const SWAGGER_API_CURRENT_VERSION = '1.0'
 
 export enum Status {
@@ -19,6 +19,7 @@ export enum Order {
 export enum TipoDocumento {
   CI = 'CI',
   PASAPORTE = 'PASAPORTE',
+  CIE = 'CIE',
   OTRO = 'OTRO',
 }
 

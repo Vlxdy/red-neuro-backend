@@ -37,8 +37,8 @@ export class CasbinGuard implements CanActivate {
         mensaje: 'Acceso permitido',
         metadata: {
           v0: user.rol,
-          v1: action,
-          v2: resource,
+          v1: resource,
+          v2: action,
           usuario: user.id,
         },
       })
@@ -49,8 +49,8 @@ export class CasbinGuard implements CanActivate {
       mensaje: 'Acceso no autorizado',
       metadata: {
         v0: user.rol,
-        v1: action,
-        v2: resource,
+        v1: resource,
+        v2: action,
         usuario: user.id,
       },
     })

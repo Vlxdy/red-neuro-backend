@@ -1,19 +1,37 @@
-import { LogEntry, LoggerService } from '../../../../logger'
+import { BaseException, LogEntry, LoggerService } from '../../..'
 import { delay, readLogFile } from '../../utils'
 
 const logger = LoggerService.getInstance()
 
 export async function printError() {
   const err = new Error('<<< BOOM >>>')
-  logger.error(err)
-  logger.error(err, 'Mensaje para el cliente')
-  logger.error(err, 'Mensaje para el cliente', { algun: 'metadato' })
-  logger.error(err, 'Mensaje para el cliente', { algun: 'metadato' }, 'MÓDULO')
-  logger.error(err, {
-    mensaje: 'Mensaje para el cliente',
-    metadata: { algun: 'metadato', adicional: 'clave:valor' },
-    modulo: 'OTRO MÓDULO',
-  })
+
+  logger.error(new BaseException(err))
+  logger.error(
+    new BaseException(err, {
+      mensaje: 'Mensaje para el cliente',
+    })
+  )
+  logger.error(
+    new BaseException(err, {
+      mensaje: 'Mensaje para el cliente',
+      metadata: { algun: 'metadato' },
+    })
+  )
+  logger.error(
+    new BaseException(err, {
+      mensaje: 'Mensaje para el cliente',
+      metadata: { algun: 'metadato' },
+      modulo: 'MÓDULO',
+    })
+  )
+  logger.error(
+    new BaseException(err, {
+      mensaje: 'Mensaje para el cliente',
+      metadata: { algun: 'metadato', adicional: 'clave:valor' },
+      modulo: 'OTRO MÓDULO',
+    })
+  )
   await delay()
 
   const zeroLine = 0
@@ -23,17 +41,13 @@ export async function printError() {
   const firstEntry = logFile.getEntry(zeroLine + 1)
   expect(firstEntry).toMatchObject({
     level: 50,
-    reqId: '',
-    caller: 'printError.ts:8:10',
     levelText: 'error',
-    appName: 'agetic-nestjs-base-backend',
     modulo: '',
-    mensaje: 'Error Interno (E0)',
+    mensaje: 'Error Interno (E01)',
     httpStatus: 500,
-    codigo: 'E0',
+    codigo: 'ERROR DESCONOCIDO (E01)',
     causa: 'Error: <<< BOOM >>>',
     accion: '',
-    error: {},
   })
   expect(firstEntry).toHaveProperty('time')
   expect(firstEntry).toHaveProperty('pid')

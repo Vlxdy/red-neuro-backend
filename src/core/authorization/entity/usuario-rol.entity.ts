@@ -35,7 +35,7 @@ export class UsuarioRol extends AuditoriaEntity {
     name: 'id_rol',
     type: 'bigint',
     nullable: false,
-    comment: 'Clave foranea que referencia la tabla de roles',
+    comment: 'Clave foránea que referencia la tabla de roles',
   })
   idRol: string
 

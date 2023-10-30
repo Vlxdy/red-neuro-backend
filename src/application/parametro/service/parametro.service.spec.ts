@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { PaginacionQueryDto } from '../../common/dto/paginacion-query.dto'
-import { CrearParametroDto } from './dto/crear-parametro.dto'
-import { ParametroRepository } from './parametro.repository'
+import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
+import { CrearParametroDto } from '../dto'
+import { ParametroRepository } from '../repository'
 import { ParametroService } from './parametro.service'
-import { TextService } from '../../common/lib/text.service'
+import { TextService } from '../../../common/lib/text.service'
 
 const resParametro = {
   id: '1e9215f2-47cd-45e4-a593-4289413503e0',

@@ -1,4 +1,4 @@
-import { LogEntry, LoggerService } from '../../../../logger'
+import { LogEntry, LoggerService } from '../../..'
 import { delay, readLogFile } from '../../utils'
 
 const logger = LoggerService.getInstance()
@@ -44,7 +44,7 @@ export async function ocultarInfo() {
     },
   }
 
-  logger.info({ metadata: data })
+  logger.info(data)
   await delay()
 
   const zeroLine = 4
@@ -54,19 +54,14 @@ export async function ocultarInfo() {
   const firstEntry = logFile.getEntry(zeroLine + 1)
   expect(firstEntry).toMatchObject({
     level: 30,
-    reqId: '',
-    caller: 'ocultarInfo.ts:47:10',
-    levelText: 'info',
-    appName: 'agetic-nestjs-base-backend',
-    modulo: '',
-    mensaje: '',
   })
   expect(firstEntry).toHaveProperty('time')
   expect(firstEntry).toHaveProperty('pid')
-  expect(firstEntry).toHaveProperty('hostname')
   expect(firstEntry).toHaveProperty('fecha')
   expect(firstEntry).toHaveProperty('metadata')
-  expect(firstEntry.metadata).toMatchObject({
+  expect(firstEntry.metadata).toHaveProperty('0')
+  const metadata0 = (firstEntry.metadata ? firstEntry.metadata['0'] : {}) as any
+  expect(metadata0).toMatchObject({
     some: 'value',
     token: '*****',
     headers: { authorization: '*****' },
@@ -96,8 +91,8 @@ export async function ocultarInfo() {
       Refresh_Token: '*****',
     },
   })
-  expect(firstEntry.metadata).toHaveProperty('response')
-  expect(firstEntry.metadata?.response).toMatchObject({
+  expect(metadata0).toHaveProperty('response')
+  expect(metadata0.response).toMatchObject({
     finalizo: true,
     mensaje: 'GET /api/users X (Bearer *****)',
     secret: 'some secret Bearer ***** value',

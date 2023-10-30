@@ -1,17 +1,12 @@
 import { BaseLogOptions, LogEntry, Metadata } from '../types'
-import {
-  cleanParamValue,
-  getContext,
-  getHostname,
-  getReqID,
-} from '../utilities'
-import { LOG_LEVEL, LOG_NUMBER } from '../constants'
+import { cleanParamValue, getReqID } from '../utilities'
+import { LOG_LEVEL } from '../constants'
 import dayjs from 'dayjs'
 import { LoggerService } from './LoggerService'
 import { inspect } from 'util'
 
 export class BaseLog {
-  level: LOG_LEVEL.WARN | LOG_LEVEL.INFO | LOG_LEVEL.DEBUG | LOG_LEVEL.TRACE
+  level: LOG_LEVEL
 
   /**
    * Mensaje para el cliente
@@ -82,25 +77,17 @@ export class BaseLog {
     return this.level
   }
 
-  getNumericLevel() {
-    return LOG_NUMBER[this.level]
-  }
-
   getLogEntry(): LogEntry {
     const args: LogEntry = {
-      // level: this.getNumericLevel(),
-      // time: Date.now(),
-      hostname: getHostname(),
-      pid: process.pid,
-
       reqId: getReqID(),
-      caller: getContext(),
+      pid: process.pid,
       fecha: this.fecha,
-      levelText: this.level,
-      appName: this.appName,
-      modulo: this.modulo,
       mensaje: this.obtenerMensajeCliente(),
     }
+
+    // Para evitar guardar información vacía
+    if (!args.mensaje) args.mensaje = undefined
+    if (!args.reqId) args.reqId = undefined
 
     if (this.metadata && Object.keys(this.metadata).length > 0) {
       Object.assign(args, { metadata: this.metadata })
@@ -111,12 +98,10 @@ export class BaseLog {
 
   toString(): string {
     const args: string[] = []
-    args.push(this.obtenerMensajeCliente())
 
     if (this.metadata && Object.keys(this.metadata).length > 0) {
       Object.keys(this.metadata).map((key) => {
         const item = this.metadata[key]
-        args.push(`- ${key}:`)
         args.push(
           typeof item === 'string' ? item : inspect(item, false, null, false)
         )

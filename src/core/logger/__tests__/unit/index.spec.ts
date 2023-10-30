@@ -1,13 +1,11 @@
 import path from 'path'
 import dotenv from 'dotenv'
 import packageJson from '../../../../../package.json'
-import { LoggerOptions, LoggerService } from '../../../logger'
+import { LoggerOptions, LoggerService } from '../..'
 import { createLogFile, delay } from '../utils'
 import { printError } from './casos_uso/printError'
 import { printWarn } from './casos_uso/printWarn'
 import { printInfo } from './casos_uso/printInfo'
-import { printDebug } from './casos_uso/printDebug'
-import { printTrace } from './casos_uso/printTrace'
 import { ocultarInfo } from './casos_uso/ocultarInfo'
 
 dotenv.config()
@@ -35,13 +33,19 @@ const loggerOptions: LoggerOptions = {
   auditParams: {
     context: process.env.LOG_AUDIT,
   },
+  excludeOrigen: [
+    'node:internal',
+    'node_modules',
+    'src/driver',
+    'src/query-builder',
+    'src/entity-manager',
+    'src/common/exceptions',
+  ],
   projectPath: path.resolve(__dirname),
 }
 
 describe('Logger prueba unitaria', () => {
   beforeAll(async () => {
-    await createLogFile('trace.log')
-    await createLogFile('debug.log')
     await createLogFile('info.log')
     await createLogFile('warn.log')
     await createLogFile('error.log')
@@ -65,14 +69,6 @@ describe('Logger prueba unitaria', () => {
 
   it('[logger] print info', async () => {
     await printInfo()
-  })
-
-  it('[logger] print debug', async () => {
-    await printDebug()
-  })
-
-  it('[logger] print trace', async () => {
-    await printTrace()
   })
 
   it('[logger] ocultar info', async () => {

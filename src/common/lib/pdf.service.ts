@@ -31,7 +31,7 @@ export class PdfService {
   }
 
   /**
-   * Metodo que retorna un documento pdf en base64 a partir de html
+   * Método que retorna un documento pdf en base64 a partir de html
    * @param template string plantilla html
    * @returns Promise
    */
@@ -46,7 +46,7 @@ export class PdfService {
   }
 
   /**
-   * Metodo que retorna un documento pdf como buffer a partir de html
+   * Método que retorna un documento pdf como buffer a partir de html
    * @param template string plantilla html
    * @returns Promise
    */

@@ -5,15 +5,15 @@ Ejemplo si la base de datos es `database_db`.
 ## Creando backup (de forma automática con docker)
 
 ```bash
-# Ejemplo: bash create-backup.sh <dockerContainer> <dbname> <dbfile>
-bash create-backup.sh pg14 database_db database_db.gz
+# Ejemplo: bash dbbackup_docker.sh <dockerContainer>
+bash dbbackup_docker.sh pg16
 ```
 
 ## Restaurando backup (de forma automática con docker)
 
 ```bash
-# Ejemplo: bash restore-backup.sh <dockerContainer> <dbname> <dbfile>
-bash restore-backup.sh pg14 database_db database_db.gz
+# Ejemplo: bash dbrestore_docker.sh <dockerContainer>
+bash dbrestore_docker.sh pg16
 ```
 
 ## Creando backup (manualmente)

@@ -1,10 +1,10 @@
-import { PaginacionQueryDto } from '../../common/dto/paginacion-query.dto'
 import { Brackets, DataSource } from 'typeorm'
-import { CrearParametroDto } from './dto/crear-parametro.dto'
-import { Parametro } from './parametro.entity'
 import { Injectable } from '@nestjs/common'
-import { ActualizarParametroDto } from './dto/actualizar-parametro.dto'
-import { Status } from '../../common/constants'
+import { ActualizarParametroDto, CrearParametroDto } from '../dto'
+import { Parametro } from '../entity'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
+import { ParametroEstado } from '../constant'
 
 @Injectable()
 export class ParametroRepository {
@@ -23,13 +23,13 @@ export class ParametroRepository {
     parametroDto: ActualizarParametroDto,
     usuarioAuditoria: string
   ) {
-    return await this.dataSource.getRepository(Parametro).update(
-      id,
-      new Parametro({
-        ...parametroDto,
-        usuarioModificacion: usuarioAuditoria,
-      })
-    )
+    const datosActualizar: QueryDeepPartialEntity<Parametro> = new Parametro({
+      ...parametroDto,
+      usuarioModificacion: usuarioAuditoria,
+    })
+    return await this.dataSource
+      .getRepository(Parametro)
+      .update(id, datosActualizar)
   }
 
   async listar(paginacionQueryDto: PaginacionQueryDto) {
@@ -96,7 +96,7 @@ export class ParametroRepository {
         grupo,
       })
       .andWhere('parametro.estado = :estado', {
-        estado: Status.ACTIVE,
+        estado: ParametroEstado.ACTIVO,
       })
       .getMany()
   }
@@ -108,10 +108,15 @@ export class ParametroRepository {
   }
 
   async crear(parametroDto: CrearParametroDto, usuarioAuditoria: string) {
-    return await this.dataSource
-      .getRepository(Parametro)
-      .save(
-        new Parametro({ ...parametroDto, usuarioCreacion: usuarioAuditoria })
-      )
+    const { codigo, nombre, grupo, descripcion } = parametroDto
+
+    const parametro = new Parametro()
+    parametro.codigo = codigo
+    parametro.nombre = nombre
+    parametro.grupo = grupo
+    parametro.descripcion = descripcion
+    parametro.usuarioCreacion = usuarioAuditoria
+
+    return await this.dataSource.getRepository(Parametro).save(parametro)
   }
 }

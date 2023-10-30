@@ -109,7 +109,7 @@ export class RefreshTokensService extends BaseService {
       10
     )
 
-    // crear rotacion de refresh token
+    // crear rotación de refresh token
     const sigueVigente = dayjs(refreshToken.expiresAt).diff(dayjs()) < rft
 
     if (!sigueVigente) {

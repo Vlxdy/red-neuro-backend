@@ -68,7 +68,7 @@ export class UsuarioRolRepository {
     usuarioAuditoria: string,
     transaction?: EntityManager
   ) {
-    const usuarioRoles: UsuarioRol[] = roles.map((idRol) => {
+    const usuarioRoles = roles.map((idRol) => {
       const usuario = new Usuario()
       usuario.id = idUsuario
 

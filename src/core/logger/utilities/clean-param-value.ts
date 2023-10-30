@@ -3,7 +3,7 @@ import {
   CLEAN_PARAM_VALUE_MAX_DEEP,
   DEFAULT_SENSITIVE_PARAMS,
 } from '../constants'
-import { LoggerService } from '../classes'
+import { BaseException } from '../classes'
 
 export function cleanParamValue(
   value: unknown,
@@ -13,24 +13,6 @@ export function cleanParamValue(
   try {
     // Para evitar recursividad infinita
     if (deep > CLEAN_PARAM_VALUE_MAX_DEEP) return String(value)
-
-    // INI - Removiendo datos sensibles con la herramienta LoggerService.redact
-    if (
-      deep === 0 &&
-      value &&
-      typeof value === 'object' &&
-      !(value instanceof Error)
-    ) {
-      try {
-        const redact = LoggerService.getRedact()
-        value = redact
-          ? JSON.parse(redact(JSON.parse(JSON.stringify(value))))
-          : JSON.parse(JSON.stringify(value))
-      } catch (err) {
-        // lo intentamos :)
-      }
-    }
-    // FIN - Removiendo datos sensibles
 
     // START
     if (typeof value === 'object' && value !== null) {
@@ -180,6 +162,15 @@ export function cleanParamValue(
             : undefined,
         }
       }
+
+      if (value instanceof BaseException) {
+        return value.toString()
+      }
+
+      if (value instanceof Error) {
+        return value.stack
+      }
+
       return Object.keys(value).reduce((prev, curr) => {
         // Por seguridad se ofusca el valor de parámetros con información sensible
         if (sensitiveParams.includes(curr.toLowerCase())) {
@@ -251,8 +242,7 @@ function isAxiosRequest(data: unknown) {
 }
 
 export function isAxiosError(data: unknown): boolean {
-  const result = Boolean(data instanceof Error && data.name === 'AxiosError')
-  return result
+  return Boolean(data instanceof Error && data.name === 'AxiosError')
 }
 
 export function isConexionError(data: unknown): boolean {
