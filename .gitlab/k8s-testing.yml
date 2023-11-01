@@ -1,18 +1,13 @@
 Build:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: build
   rules:
     - if: $CI_COMMIT_BRANCH =~ /test.*/
-      when: always
+      when: on_success
       allow_failure: false
   tags:
     - kubernetes-runner-test
-  before_script:
-    - echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf
-    - echo "fs.inotify.max_user_instances=512" >> /etc/sysctl.conf
-    - sysctl -p
   script:
-    - ulimit -a
     - npm set registry https://registry.agcs.agetic.gob.bo
     - npm set strict-ssl false
     - npm ci
@@ -33,7 +28,7 @@ Obtener versión:
   stage: build
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
-    when: always  
+    when: on_success  
   - if: $CI_COMMIT_BRANCH =~ /test.*/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
@@ -56,7 +51,7 @@ Verificar paquetes:
   stage: test
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
-    when: always  
+    when: on_success  
   - if: $CI_COMMIT_BRANCH =~ /test.*/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
@@ -69,11 +64,11 @@ Verificar paquetes:
   when: manual
 
 Ejecutar tests de integración:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: test
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
-    when: always  
+    when: on_success  
   - if: $CI_COMMIT_BRANCH =~ /test.*/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
@@ -86,11 +81,11 @@ Ejecutar tests de integración:
   when: manual
 
 Ejecutar tests de covertura:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: test
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
-    when: always  
+    when: on_success  
   - if: $CI_COMMIT_BRANCH =~ /test.*/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
@@ -107,7 +102,7 @@ Generando reporte de calidad sonarqube:
   stage: test
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
-    when: always  
+    when: on_success  
   - if: $CI_COMMIT_BRANCH =~ /test.*/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
@@ -131,11 +126,11 @@ Generando reporte de calidad sonarqube:
   when: manual
 
 RetireJS:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: sast
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
-    when: always  
+    when: on_success  
   - if: $CI_COMMIT_BRANCH =~ /test.*/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
@@ -162,11 +157,11 @@ RetireJS:
   when: manual
 
 Snyk:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: sast
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
-    when: always  
+    when: on_success  
   - if: $CI_COMMIT_BRANCH =~ /test.*/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
@@ -197,7 +192,7 @@ Trivy:
   stage: sast
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
-    when: always  
+    when: on_success  
   - if: $CI_COMMIT_BRANCH =~ /test.*/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
@@ -242,7 +237,7 @@ Generar imagen de la aplicación:
       artifacts: true
   rules:
     - if: $CI_COMMIT_BRANCH =~ /test.*/
-      when: always
+      when: on_success
       allow_failure: false
   tags:
     - kubernetes-runner-test
@@ -273,7 +268,7 @@ Desplegar la aplicación ArgoCD:
       artifacts: false
   rules:
     - if: $CI_COMMIT_BRANCH =~ /test.*/
-      when: always
+      when: on_success
       allow_failure: false
   tags:
     - kubernetes-runner-test
@@ -318,7 +313,7 @@ Ejecutar setup de la base de datos:
     - npm run setup
 
 .configure_setup:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: setup
   needs:
     - job: Build
