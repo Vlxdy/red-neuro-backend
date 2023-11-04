@@ -2,7 +2,6 @@ import { Brackets, DataSource } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { ActualizarParametroDto, CrearParametroDto } from '../dto'
 import { Parametro } from '../entity'
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
 import { ParametroEstado } from '../constant'
 
@@ -23,7 +22,7 @@ export class ParametroRepository {
     parametroDto: ActualizarParametroDto,
     usuarioAuditoria: string
   ) {
-    const datosActualizar: QueryDeepPartialEntity<Parametro> = new Parametro({
+    const datosActualizar = new Parametro({
       ...parametroDto,
       usuarioModificacion: usuarioAuditoria,
     })
