@@ -2,7 +2,7 @@ Build:
   image: hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: build
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /test.*/
+    - if: $CI_COMMIT_BRANCH =~ /test/
       when: on_success
       allow_failure: false
   tags:
@@ -29,7 +29,7 @@ Obtener versión:
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: on_success  
-  - if: $CI_COMMIT_BRANCH =~ /test.*/
+  - if: $CI_COMMIT_BRANCH =~ /test/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
     when: never
@@ -52,7 +52,7 @@ Verificar paquetes:
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: on_success  
-  - if: $CI_COMMIT_BRANCH =~ /test.*/
+  - if: $CI_COMMIT_BRANCH =~ /test/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
     when: never
@@ -69,7 +69,7 @@ Ejecutar tests de integración:
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: on_success  
-  - if: $CI_COMMIT_BRANCH =~ /test.*/
+  - if: $CI_COMMIT_BRANCH =~ /test/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
     when: never
@@ -86,7 +86,7 @@ Ejecutar tests de covertura:
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: on_success  
-  - if: $CI_COMMIT_BRANCH =~ /test.*/
+  - if: $CI_COMMIT_BRANCH =~ /test/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
     when: never
@@ -103,7 +103,7 @@ Generando reporte de calidad sonarqube:
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: on_success  
-  - if: $CI_COMMIT_BRANCH =~ /test.*/
+  - if: $CI_COMMIT_BRANCH =~ /test/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
     when: never
@@ -131,7 +131,7 @@ RetireJS:
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: on_success  
-  - if: $CI_COMMIT_BRANCH =~ /test.*/
+  - if: $CI_COMMIT_BRANCH =~ /test/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
     when: never
@@ -162,7 +162,7 @@ Snyk:
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: on_success  
-  - if: $CI_COMMIT_BRANCH =~ /test.*/
+  - if: $CI_COMMIT_BRANCH =~ /test/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
     when: never
@@ -193,7 +193,7 @@ Trivy:
   rules:
   - if: $TIPO_EJECUCION == 'ejecutar-pruebas'
     when: on_success  
-  - if: $CI_COMMIT_BRANCH =~ /test.*/
+  - if: $CI_COMMIT_BRANCH =~ /test/
     when: manual
   - if: $TIPO_EJECUCION != 'ejecutar-pruebas'
     when: never
@@ -236,7 +236,7 @@ Generar imagen de la aplicación:
     - job: Build
       artifacts: true
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /test.*/
+    - if: $CI_COMMIT_BRANCH =~ /test/
       when: on_success
       allow_failure: false
   tags:
@@ -267,7 +267,7 @@ Desplegar la aplicación ArgoCD:
     - job: Generar imagen de la aplicación
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /test.*/
+    - if: $CI_COMMIT_BRANCH =~ /test/
       when: on_success
       allow_failure: false
   tags:
@@ -319,7 +319,7 @@ Ejecutar setup de la base de datos:
     - job: Build
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /test.*/
+    - if: $CI_COMMIT_BRANCH =~ /test/
       when: manual
   tags:
     - kubernetes-runner-test
