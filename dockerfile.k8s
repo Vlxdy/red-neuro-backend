@@ -1,4 +1,4 @@
-FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine AS build
+FROM hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS build
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 

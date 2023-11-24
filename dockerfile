@@ -1,4 +1,4 @@
-FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:18 AS build
+FROM hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS build
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 
@@ -13,7 +13,7 @@ RUN cp ./src/common/params/index.ts.sample ./src/common/params/index.ts
 RUN npm run build
 RUN npm ci --production --no-optional
 
-FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:18-alpine AS release
+FROM hub.upat.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS release
 RUN mkdir -p /home/node/app/node_modules && mkdir -p /home/node/app/dist  && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 
