@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.9.2...v1.9.3) (2024-01-21)
+
+
+### Features
+
+* :sparkles: se agregó el decorador SetRequestTimeout para controlar el tiempo máximo de respuesta para cada petición ([79f275e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/79f275e625f8b878c2425083b3313d3a55d99e02))
+* actualización de dependencias Nest 10.3.0, TypeORM 0.3.19, TypeScript 5.3.3 ([ac24412](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/ac24412bfd3567562a8a6f6c9123a22dd55899c0))
+* añadida regla "require-await" para asegurar el uso correcto de Async/Await ([61db7ec](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/61db7ece48b3514a3ff7a9db7f354422d2f9f35e))
+* archivo params/index.ts habilitado por defecto ([6c99421](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/6c99421771b8e72c1a1cc0386c800857af18dec0))
+* se añade regla de EsLiint que valida la ejecución de promesas no controladas ([b50064c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b50064c81c77589a558627448b3be78fa00ab0ae))
+
+
+### Bug Fixes
+
+* :bug: cambio de versión de bcrypt para evitar problemas cuando se despliega con docker ([074ad32](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/074ad322a6ca765d57e9e99f8f48a5739f440459))
+
+### [1.9.2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.9.0...v1.9.2) (2023-12-03)
+
+
+### Features
+
+* :sparkles: upgrade mejoras y correcciones del módulo de logger ([97a735e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/97a735e77a66305a738cf1bd5a479cef68e1def8))
+* actualización de dependencias, soporte para Node 20 🎉 ([f4ed6df](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/f4ed6df8b9a9c0247b2b578a636b499797c9c1a9))
+* se agrego documentación en formato OpenApi para controladores y dtos ([e5d9b65](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e5d9b65c5d4d0228daca48d98d47e53366e6cfc2))
+
+
+### Bug Fixes
+
+* adicionado tipo de documento "CIE" entre los tipos de documento permitidos para personas ([c5b4432](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c5b44328d00ea3ff7ca39431c003bc53c8173bd8))
+* correcciones de espaciado entre sentencias condicionales en nueva versión de Lint ([6e17bd1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/6e17bd1ef71771e9fc7c5e64794a8df7a9bccc19))
+* corregido error ocasionado al registrar un usuario con el registro de una persona existente ([b402e8d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b402e8ddec969e80dd55a0c68a4901d9e100d4eb))
+* corrigiendo y añadiendo swagger a los endpoints ([fb9ef4a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/fb9ef4a79c08d90fc2508a964d90414aecba6ee0))
+* corrigiendo y añadiendo swagger a los endpoints ([2b65045](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/2b650451ab882ce2dfca4fc45f9716dc45a1f953))
+
 ### [1.9.1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.9.0...v1.9.1) (2023-10-26)
 
 

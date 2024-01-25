@@ -14,7 +14,7 @@ export class AppController extends BaseController {
 
   @ApiOperation({ summary: 'API para obtener el estado de la aplicación' })
   @Get('/estado')
-  async verificarEstado() {
+  verificarEstado() {
     const now = dayjs()
     return {
       servicio: packageJson.name,

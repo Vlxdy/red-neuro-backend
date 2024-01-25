@@ -2,7 +2,7 @@
 export const Configurations = {
   SCORE_PASSWORD: 3, // NIVEL MÍNIMO DE CALIFICACIÓN PASSWORD
   SALT_ROUNDS: 10, // NUMERO DE SALTOS PARA GENERACIÓN DE HASH
-  WRONG_LOGIN_LIMIT: 3, // NUMERO MÁXIMO DE INTENTOS DE INICIO DE SESIÓN ERRÓNEOS
+  WRONG_LOGIN_LIMIT: 3, // NUMERO MÁXIMO DE INTENTOS DE INICIO DE SESIÓN ERRONEOS
   MINUTES_LOGIN_LOCK: 15, // TIEMPO EN MINUTOS DE BLOQUEO DE CUENTA
   // LISTA DE DOMINIOS DE EMAIL NO PERMITIDOS
   BLACK_LIST_EMAILS: [
@@ -25,6 +25,7 @@ export const Configurations = {
     'chammy.info',
     'devnullmail.com',
     'letthemeatspam.com',
+    'mailinator.com',
     'mailinater.com',
     'mailinator.net',
     'mailinator2.com',
@@ -47,5 +48,13 @@ export const Configurations = {
     'guerrillamail',
     'maildrop',
     'mailnesia',
+    'worldmagic.ink',
+    'gufum.com',
+    'mail.com',
+    'theeyeoftruth.com',
+    'bmomento.com',
+    'bixolabs.com',
+    'evildrako654.online',
+    'mailtemporal.net',
   ],
 }

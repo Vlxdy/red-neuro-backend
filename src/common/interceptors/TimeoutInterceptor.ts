@@ -7,36 +7,33 @@ import {
 } from '@nestjs/common'
 import { Observable, throwError, TimeoutError } from 'rxjs'
 import { catchError, timeout } from 'rxjs/operators'
-import { Request } from 'express'
+import { SetMetadata } from '@nestjs/common'
+import { Reflector } from '@nestjs/core'
 import dotenv from 'dotenv'
-
 dotenv.config()
 
-let tiempoMaximoEsperaEnSegundos = Number(
+export const SetRequestTimeout = (tiempoMaximoEsperaEnSegundos: number) => {
+  return SetMetadata('tiempoMaximoEspera', tiempoMaximoEsperaEnSegundos)
+}
+
+const TIEMPO_ESPERA_POR_DEFECTO = Number(
   process.env.REQUEST_TIMEOUT_IN_SECONDS || '30'
 )
 
-const customTimeoutList = [
-  { method: 'GET', path: '/api/estado', timeout: tiempoMaximoEsperaEnSegundos },
-  // ...
-]
-
 @Injectable()
 export class TimeoutInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const req = context.switchToHttp().getRequest() as Request
+  constructor(private readonly reflector: Reflector) {}
 
-    customTimeoutList.forEach((item) => {
-      if (req.method === item.method && req.originalUrl.startsWith(item.path)) {
-        tiempoMaximoEsperaEnSegundos = item.timeout
-      }
-    })
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const tiempoEspera =
+      this.reflector.get<number>('tiempoMaximoEspera', context.getHandler()) ||
+      TIEMPO_ESPERA_POR_DEFECTO
 
     return next.handle().pipe(
-      timeout(tiempoMaximoEsperaEnSegundos * 1000),
+      timeout(tiempoEspera * 1000),
       catchError((err) => {
         if (err instanceof TimeoutError) {
-          const mensaje = `La solicitud está demorando demasiado (tiempo transcurrido: ${tiempoMaximoEsperaEnSegundos} seg)`
+          const mensaje = `La solicitud está demorando demasiado (tiempo transcurrido: ${tiempoEspera} seg)`
           return throwError(() => new RequestTimeoutException(mensaje))
         }
         return throwError(() => err)

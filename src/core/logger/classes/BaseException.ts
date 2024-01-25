@@ -105,15 +105,15 @@ export class BaseException extends Error {
       error instanceof BaseException
         ? error.errorStack
         : error instanceof Error
-        ? getErrorStack(error)
-        : ''
+          ? getErrorStack(error)
+          : ''
 
     const errorStackOriginal =
       error instanceof BaseException
         ? error.errorStackOriginal
         : error instanceof Error
-        ? getFullErrorStack(error)
-        : ''
+          ? getFullErrorStack(error)
+          : ''
 
     let metadata: Metadata = {}
     const loggerParams = LoggerService.getLoggerParams()
@@ -149,8 +149,8 @@ export class BaseException extends Error {
         error instanceof Error
           ? `${error.name}: ${error.message}`
           : typeof error === 'object'
-          ? JSON.stringify(error)
-          : String(error)
+            ? JSON.stringify(error)
+            : String(error)
     } catch (err) {
       causa = ''
     }
@@ -262,16 +262,16 @@ export class BaseException extends Error {
         httpStatus === HttpStatus.BAD_REQUEST
           ? 'Verifique que los datos de entrada se estén enviando correctamente'
           : httpStatus === HttpStatus.UNAUTHORIZED
-          ? 'Verifique que las credenciales de acceso se estén enviando correctamente'
-          : httpStatus === HttpStatus.FORBIDDEN
-          ? 'Verifique que el usuario actual tenga acceso a este recurso'
-          : httpStatus === HttpStatus.NOT_FOUND
-          ? 'Verifique que el recurso solicitado realmente exista'
-          : httpStatus === HttpStatus.REQUEST_TIMEOUT
-          ? 'Verífica que el servicio responda en un tiempo inferior al tiempo máximo establecido'
-          : httpStatus === HttpStatus.PRECONDITION_FAILED
-          ? 'Verifique que se cumpla con todas las condiciones requeridas para consumir este recurso'
-          : 'Más info en detalles'
+            ? 'Verifique que las credenciales de acceso se estén enviando correctamente'
+            : httpStatus === HttpStatus.FORBIDDEN
+              ? 'Verifique que el usuario actual tenga acceso a este recurso'
+              : httpStatus === HttpStatus.NOT_FOUND
+                ? 'Verifique que el recurso solicitado realmente exista'
+                : httpStatus === HttpStatus.REQUEST_TIMEOUT
+                  ? 'Verífica que el servicio responda en un tiempo inferior al tiempo máximo establecido'
+                  : httpStatus === HttpStatus.PRECONDITION_FAILED
+                    ? 'Verifique que se cumpla con todas las condiciones requeridas para consumir este recurso'
+                    : 'Más info en detalles'
     }
 
     // AXIOS_ERROR

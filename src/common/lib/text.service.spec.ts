@@ -1,7 +1,7 @@
 import { TextService } from './text.service'
 
 describe('TextService', () => {
-  it('[textToUuid] Debería retornar un uuid dada una cadena', async () => {
+  it('[textToUuid] Debería retornar un uuid dada una cadena', () => {
     const texto = 'prueba'
     const uuid = TextService.textToUuid(texto)
     const uuidRegex =
@@ -11,7 +11,7 @@ describe('TextService', () => {
     expect(uuid).toMatch(uuidRegex)
   })
 
-  it('[validateLevelPassword] Debería retornar true si la contrasena es segura', async () => {
+  it('[validateLevelPassword] Debería retornar true si la contrasena es segura', () => {
     const longitudTexto = 12
     const texto = TextService.generateShortRandomText(longitudTexto)
     const uuid = TextService.validateLevelPassword(texto)
@@ -20,7 +20,7 @@ describe('TextService', () => {
     expect(uuid).toBe(true)
   })
 
-  it('[validateLevelPassword] Debería retornar false si la contrasena es insegura', async () => {
+  it('[validateLevelPassword] Debería retornar false si la contraseña es insegura', () => {
     const texto = 'password'
     const uuid = TextService.validateLevelPassword(texto)
 
@@ -28,7 +28,7 @@ describe('TextService', () => {
     expect(uuid).toBe(false)
   })
 
-  it('[generateNanoId] Debería retornar un ID corto', async () => {
+  it('[generateNanoId] Debería retornar un ID corto', () => {
     const uuid = TextService.generateNanoId()
     const uuidRegex = /[A-Za-z0-9_-]{21}$/i
 

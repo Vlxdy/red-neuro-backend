@@ -75,8 +75,7 @@ export class RefreshTokensController extends BaseController {
   @UseGuards(LocalAuthGuard)
   @UseGuards(OidcAuthGuard)
   @Delete(':id')
-  async eliminarRefreshToken(@Param('id') id: string) {
-    //
+  eliminarRefreshToken(@Param('id') id: string) {
     return this.refreshTokensService.removeByid(id)
   }
 }

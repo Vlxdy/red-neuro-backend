@@ -104,10 +104,10 @@ export class LoggerService {
                 : options.auditParams.context,
           }
         : DEFAULT_PARAMS.auditParams?.context
-        ? {
-            context: DEFAULT_PARAMS.auditParams.context,
-          }
-        : undefined,
+          ? {
+              context: DEFAULT_PARAMS.auditParams.context,
+            }
+          : undefined,
 
       projectPath:
         typeof options.projectPath === 'undefined'

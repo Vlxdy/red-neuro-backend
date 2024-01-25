@@ -112,4 +112,4 @@ function createSwagger(app: INestApplication) {
   SwaggerModule.setup(SWAGGER_API_ROOT, app, document)
 }
 
-bootstrap()
+void bootstrap()

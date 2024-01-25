@@ -19,7 +19,7 @@ describe('PdfService', () => {
     expect(pdfBuffer).toBeInstanceOf(Uint8Array)
   })
 
-  it('[generateBuffer] Debería generar un documento y retornar el resultado como stream', async () => {
+  it('[generateBuffer] Debería generar un documento y retornar el resultado como stream', () => {
     const template = '<h1>Test</h1>'
     const pdfBuffer = PdfService.generateStream(template)
 

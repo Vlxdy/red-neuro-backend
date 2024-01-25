@@ -33,7 +33,7 @@ export class RefreshTokensService extends BaseService {
     super()
   }
 
-  async create(grantId: string) {
+  create(grantId: string) {
     const ttl = parseInt(
       this.configService.get('REFRESH_TOKEN_EXPIRES_IN') || '3600000',
       10
@@ -135,7 +135,7 @@ export class RefreshTokensService extends BaseService {
   }
 
   @Cron(process.env.REFRESH_TOKEN_REVISIONS || '0')
-  async eliminarCaducos() {
+  eliminarCaducos() {
     return this.refreshTokensRepository.eliminarTokensCaducos()
   }
 }

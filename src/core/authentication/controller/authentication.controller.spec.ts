@@ -35,7 +35,7 @@ describe('AuthenticationController', () => {
     }).compile()
   })
 
-  it('[login] Debería realizar una autenticacion exitosa.', async () => {
+  it('[login] Debería realizar una autenticación exitosa.', () => {
     expect(true).toBe(true)
   })
 })

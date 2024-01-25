@@ -54,7 +54,7 @@ describe('Logger prueba unitaria', () => {
     await delay()
   })
 
-  it('[logger] Verificando parámetros de configuración', async () => {
+  it('[logger] Verificando parámetros de configuración', () => {
     const params = LoggerService.getLoggerParams()
     expect(params).toMatchObject(loggerOptions)
   })

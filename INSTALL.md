@@ -36,9 +36,6 @@ de entorno**).
 # Variables de entorno globales
 cp .env.sample .env
 
-# Otros parámetros requeridos
-cp src/common/params/index.ts.sample src/common/params/index.ts
-
 # [OPCIONAL] Para el modo producción
 cp ecosystem.config.js.sample ecosystem.config.js
 ```

@@ -19,7 +19,7 @@ export class LoggerModule {
     }
   }
 
-  static async initialize(app: INestApplication) {
+  static initialize(app: INestApplication) {
     app.use(expressMiddleware())
   }
 }
