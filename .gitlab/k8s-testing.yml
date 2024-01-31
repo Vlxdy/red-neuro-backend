@@ -326,7 +326,6 @@ Ejecutar setup de la base de datos:
   cache:
     policy: pull-push
   before_script:
-    - cp src/common/params/index.ts.sample src/common/params/index.ts
     - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
     - chmod +x ./configure-namespaces.sh
     - . ./configure-namespaces.sh
