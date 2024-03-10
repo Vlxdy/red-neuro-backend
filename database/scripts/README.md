@@ -1,25 +1,21 @@
 # Instalación de la Base de Datos
 
+## Para entornos de `producción`
+
+Se recomienda instalar PostgreSQL de forma nativa (sin docker). Ver [PostgreSQL Downloads](https://www.postgresql.org/download/)
+
 Las instrucciones y comandos utilizados para crear desde cero la Base de Datos del proyecto se encuentra en el archivo [dbcreate.sql](./dbcreate.sql).
 
-## Prerequisitos:
-
-- Para entornos de desarrollo (con docker)
+## Para entornos de `desarrollo` (con docker)
 
 ```bash
 # Crea una instancia de postgres
 docker run --name pg16 -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres:16.0
 ```
 
-- Para entornos de **PRODUCCIÓN**
-
-  Se recomienda instalar PostgreSQL de forma nativa (sin docker). Ver [PostgreSQL Downloads](https://www.postgresql.org/download/)
-
-## Para entornos de `desarrollo` (Con docker)
-
 ```bash
-# Ejemplo 1: bash createdb_docker.sh <dockerContainer>
-bash createdb_docker.sh pg16
+# Ejemplo 1: bash dbcreate_docker.sh <dockerContainer>
+bash dbcreate_docker.sh pg16
 ```
 
 Donde: `pg16` es el nombre del contenedor.

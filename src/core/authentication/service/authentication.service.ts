@@ -238,7 +238,9 @@ export class AuthenticationService extends BaseService {
         respPersona.nombres !== persona.nombres ||
         respPersona.primerApellido !== persona.primerApellido ||
         respPersona.segundoApellido !== persona.segundoApellido ||
-        respPersona.fechaNacimiento !== persona.fechaNacimiento
+        respPersona.fechaNacimiento !== persona.fechaNacimiento ||
+        respPersona.telefono !== persona.telefono ||
+        respPersona.uuidCiudadano !== persona.uuidCiudadano
       ) {
         await this.usuarioService.actualizarDatosPersona(persona)
       }
@@ -250,7 +252,7 @@ export class AuthenticationService extends BaseService {
         USUARIO_NORMAL
       )
 
-      const respuesta = await this.usuarioService.buscarUsuarioPorCI(persona)
+      const respuesta = await this.usuarioService.buscarUsuarioPorCI(persona) //??
 
       if (!respuesta) {
         return null
@@ -274,7 +276,9 @@ export class AuthenticationService extends BaseService {
       datosPersona.nombres !== persona.nombres ||
       datosPersona.primerApellido !== persona.primerApellido ||
       datosPersona.segundoApellido !== persona.segundoApellido ||
-      datosPersona.fechaNacimiento !== persona.fechaNacimiento
+      datosPersona.fechaNacimiento !== persona.fechaNacimiento ||
+      datosPersona.telefono !== persona.telefono ||
+      datosPersona.uuidCiudadano !== persona.uuidCiudadano
     ) {
       // Actualizar datos de persona
       await this.usuarioService.actualizarDatosPersona(persona)

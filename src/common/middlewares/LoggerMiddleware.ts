@@ -9,13 +9,21 @@ export class LoggerMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const t1 = Date.now()
     const url = req.originalUrl.split('?')[0]
-    logger.audit('request', {
+    logger.auditInfo('request', {
       metadata: {
         method: req.method,
         url,
       },
-      formato: `${req.method} ${url}`,
+      formato: `${req.method} ${url}...`,
     })
+
+    if (Object.keys(req.query || {}).length > 0) {
+      logger.debug('[request] query =', req.query)
+    }
+
+    if (Object.keys(req.body || {}).length > 0) {
+      logger.debug('[request] body = ', req.body)
+    }
 
     res.on('finish', () => {
       const t2 = Date.now()

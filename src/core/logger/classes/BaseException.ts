@@ -12,10 +12,11 @@ import {
   isConexionError,
   timeToPrint,
 } from '../utilities'
-import { HttpException, HttpStatus } from '@nestjs/common'
+import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common'
 import { extractMessage } from '../utils'
 import { ERROR_CODE, ERROR_NAME, LOG_LEVEL } from '../constants'
 import { inspect } from 'util'
+import { HttpMessages } from '../messages'
 
 export class BaseException extends Error {
   level: LOG_LEVEL.ERROR | LOG_LEVEL.WARN
@@ -138,7 +139,7 @@ export class BaseException extends Error {
       : undefined
 
     let httpStatus: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
-    let mensaje = `Error Interno (${ERROR_CODE.UNKNOWN_ERROR})`
+    let mensaje = `Error Interno`
     let causa: string
     let accion = ''
     let clientInfo: unknown
@@ -179,7 +180,7 @@ export class BaseException extends Error {
     // SERVER_CONEXION
     else if (isConexionError(error)) {
       codigo = ERROR_CODE.SERVER_CONEXION
-      mensaje = `Error de conexión con un servicio externo (${ERROR_CODE.SERVER_CONEXION})`
+      mensaje = `Error de conexión con un servicio externo`
       accion = `Verifique la configuración de red y que el servicio al cual se intenta conectar se encuentre activo`
     }
 
@@ -198,7 +199,7 @@ export class BaseException extends Error {
       typeof error.response.data.message === 'string'
     ) {
       codigo = ERROR_CODE.SERVER_ERROR_1
-      mensaje = `Ocurrió un error con un servicio externo (${ERROR_CODE.SERVER_ERROR_1})`
+      mensaje = `Ocurrió un error con un servicio externo`
       causa = error.response.data.message
       accion = `Verificar que el servicio en cuestión se encuentre activo y respondiendo correctamente`
     }
@@ -218,7 +219,7 @@ export class BaseException extends Error {
       typeof error.response.data.data === 'string'
     ) {
       codigo = ERROR_CODE.SERVER_ERROR_2
-      mensaje = `Ocurrió un error con un servicio externo (${ERROR_CODE.SERVER_ERROR_2})`
+      mensaje = `Ocurrió un error con un servicio externo`
       causa = error.response.data.data
       accion = `Verificar que el servicio en cuestión se encuentre activo y respondiendo correctamente`
     }
@@ -234,7 +235,7 @@ export class BaseException extends Error {
       error.response.data === 'The upstream server is timing out'
     ) {
       codigo = ERROR_CODE.SERVER_TIMEOUT
-      mensaje = `Ocurrió un error con un servicio externo (${ERROR_CODE.SERVER_TIMEOUT})`
+      mensaje = `Ocurrió un error con un servicio externo`
       causa = error.response.data
       accion = `Verificar que el servicio en cuestión se encuentre activo y respondiendo correctamente`
     }
@@ -242,7 +243,7 @@ export class BaseException extends Error {
     // SERVER_CERT_EXPIRED
     else if (isCertExpiredError(error)) {
       codigo = ERROR_CODE.SERVER_CERT_EXPIRED
-      mensaje = `Ocurrió un error con un servicio externo (${ERROR_CODE.SERVER_CERT_EXPIRED})`
+      mensaje = `Ocurrió un error con un servicio externo`
       causa =
         typeof error === 'object' &&
         'code' in error &&
@@ -250,6 +251,26 @@ export class BaseException extends Error {
           ? error.code
           : ''
       accion = `Renovar el certificado digital`
+    }
+
+    // DTO_VALIDATION_ERROR
+    else if (
+      error instanceof BadRequestException &&
+      errorStack?.includes('ValidationPipe.exceptionFactory')
+    ) {
+      const errorResponse = error.getResponse()
+      const reglasDTO =
+        typeof errorResponse === 'object' &&
+        errorResponse &&
+        'message' in errorResponse &&
+        Array.isArray(errorResponse.message)
+          ? errorResponse.message.join(' | ')
+          : ''
+      codigo = ERROR_CODE.DTO_VALIDATION_ERROR
+      httpStatus = error.getStatus()
+      mensaje = `${HttpMessages.EXCEPTION_BAD_REQUEST}`
+      causa = reglasDTO
+      accion = `Verifique que los datos de entrada cumplan con las reglas establecidas en el DTO`
     }
 
     // HTTP_EXCEPTION
@@ -274,21 +295,21 @@ export class BaseException extends Error {
                     : 'Más info en detalles'
     }
 
-    // AXIOS_ERROR
+    // SERVER_AXIOS_ERROR
     else if (
       isAxiosError(error) &&
       typeof error === 'object' &&
       'response' in error &&
       error.response
     ) {
-      codigo = ERROR_CODE.AXIOS_ERROR
+      codigo = ERROR_CODE.SERVER_AXIOS_ERROR
       httpStatus =
         typeof error.response === 'object' &&
         'status' in error.response &&
         typeof error.response.status === 'number'
           ? error.response.status
           : HttpStatus.INTERNAL_SERVER_ERROR
-      mensaje = `Ocurrió un error con un servicio externo (${ERROR_CODE.AXIOS_ERROR})`
+      mensaje = `Ocurrió un error con un servicio externo`
       causa = `Error HTTP ${httpStatus} (Servicio externo)`
       accion = 'Revisar la respuesta devuelta por el servicio externo'
     }
@@ -300,7 +321,7 @@ export class BaseException extends Error {
       (error.name === 'TypeORMError' || error.name === 'QueryFailedError')
     ) {
       codigo = ERROR_CODE.SQL_ERROR
-      mensaje = `Ocurrió un error interno (${ERROR_CODE.SQL_ERROR})`
+      mensaje = `Ocurrió un error interno`
       accion = 'Verificar la consulta SQL'
     }
 
@@ -372,6 +393,8 @@ export class BaseException extends Error {
       opt && 'clientInfo' in opt && typeof opt.clientInfo !== 'undefined'
         ? opt.clientInfo
         : clientInfo
+
+    this.message = this.obtenerMensajeCliente()
   }
 
   getHttpStatus() {

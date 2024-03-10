@@ -33,11 +33,14 @@ DROP DATABASE IF EXISTS database_db;
 
 -- creamos la nueva base
 CREATE DATABASE database_db ENCODING 'UTF-8';
+
+-- configuramos la zona horaria (solo es necesario si utilizamos docker)
+ALTER ROLE postgres SET TIMEZONE TO 'America/La_Paz';
 ```
 
 Ahora si procedemos a restaurar la base
 
 ```bash
 # Restore
-zcat database_db.gz | psql -h localhost -U postgres -W database_db
+zcat database_db.gz | psql -h localhost -p 5432 -U postgres -W database_db
 ```

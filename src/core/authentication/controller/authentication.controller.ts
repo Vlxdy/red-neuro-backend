@@ -99,27 +99,45 @@ export class AuthenticationController extends BaseController {
       return res.status(200).json({})
     }
 
-    const result = await this.autenticacionService.autenticarOidc(req.user)
+    const user = req.user
+    if (user.error) {
+      return await this.logoutCiudadania(req, res, user.error)
+    }
 
-    const refreshToken = result.refresh_token.id
+    try {
+      const result = await this.autenticacionService.autenticarOidc(req.user)
 
-    return res
-      .cookie(
-        this.configService.get('REFRESH_TOKEN_NAME') || '',
-        refreshToken,
-        CookieService.makeConfig(this.configService)
-      )
-      .status(200)
-      .json({
-        access_token: result.data.access_token,
-      })
+      const refreshToken = result.refresh_token.id
+
+      return res
+        .cookie(
+          this.configService.get('REFRESH_TOKEN_NAME') || '',
+          refreshToken,
+          CookieService.makeConfig(this.configService)
+        )
+        .status(200)
+        .json({
+          access_token: result.data.access_token,
+        })
+    } catch (error) {
+      this.logger.error('[ciudadania-autorizar] Error en autenticación ', error)
+      await this.logoutCiudadania(req, res, error.message)
+    }
   }
 
   @ApiOperation({ summary: 'API para logout digital' })
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('logout')
-  async logoutCiudadania(@Req() req: Request, @Res() res: Response) {
+  async salirCiudadania(@Req() req: Request, @Res() res: Response) {
+    await this.logoutCiudadania(req, res)
+  }
+
+  async logoutCiudadania(
+    @Req() req: Request,
+    @Res() res: Response,
+    mensaje = ''
+  ) {
     const jid = req.cookies.jid || ''
     if (jid) {
       await this.refreshTokensService.removeByid(jid)
@@ -133,7 +151,8 @@ export class AuthenticationController extends BaseController {
     const issuer = await Issuer.discover(
       this.configService.get('OIDC_ISSUER') || ''
     )
-    const url = issuer.metadata.end_session_endpoint
+    const urlEndSession = issuer.metadata.end_session_endpoint
+
     res.clearCookie('connect.sid')
     res.clearCookie('jid', jid)
     const idUsuario = req.headers.authorization
@@ -150,14 +169,24 @@ export class AuthenticationController extends BaseController {
       metadata: { usuario: idUsuario },
     })
 
-    if (!(url && idToken)) {
+    // Ciudadanía v2
+    if (!(urlEndSession && idToken)) {
       return res.status(200).json()
     }
 
+    const urlResponse = new URL(urlEndSession)
+
+    urlResponse.searchParams.append(
+      'post_logout_redirect_uri',
+      this.configService.get('OIDC_POST_LOGOUT_REDIRECT_URI') ?? ''
+    )
+    if (idToken) {
+      urlResponse.searchParams.append('id_token_hint', idToken)
+    }
+    urlResponse.searchParams.append('mensaje', mensaje)
+
     return res.status(200).json({
-      url: `${url}?post_logout_redirect_uri=${this.configService.get(
-        'OIDC_POST_LOGOUT_REDIRECT_URI'
-      )}&id_token_hint=${idToken}`,
+      url: urlResponse.toString(),
     })
   }
 }

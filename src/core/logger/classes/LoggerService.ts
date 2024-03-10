@@ -156,6 +156,15 @@ export class LoggerService {
     printLoggerParams(loggerParams)
   }
 
+  /**
+   * Devuelve una instancia de logger.
+   *
+   * @example
+   * import { LoggerService } from '../../core/logger'
+   * const logger = LoggerService.getInstance()
+   *
+   * @returns LoggerService
+   */
   static getInstance(): LoggerService {
     if (LoggerService.loggerInstance) {
       return LoggerService.loggerInstance
@@ -172,6 +181,34 @@ export class LoggerService {
     return LoggerService.redact
   }
 
+  /**
+   * Registra logs de nivel error.
+   *
+   * @example
+   *
+   * logger.error(error)
+   * logger.error(error, ...params)
+   *
+   * // Caso de uso 1:
+   * function tarea(datos) {
+   *   try {
+   *     // código inseguro
+   *   } catch (err) {
+   *     logger.error(err)
+   *   }
+   * }
+   *
+   * // Caso de uso 2 (recomendado):
+   * logger.error(
+   *   new BaseException(err, {
+   *     mensaje: 'Mensaje para el cliente',
+   *     metadata: { algun: 'metadato', adicional: 'clave:valor' },
+   *     modulo: 'SEGIP:CONTRASTACIÓN',
+   *   })
+   * )
+   *
+   * @param params
+   */
   error(...params: unknown[]): void {
     const exceptionInfo = new BaseException(params[0], {
       metadata: this.buildMetadata(params.slice(1)),
@@ -179,18 +216,73 @@ export class LoggerService {
     this.printException(exceptionInfo)
   }
 
+  /**
+   * Registra logs de nivel warning.
+   *
+   * @example
+   *
+   * logger.warn(...params)
+   *
+   * // Caso de uso 1:
+   * logger.warn('Mensaje de advertencia')
+   *
+   * // Caso de uso 2:
+   * logger.warn({
+   *   mensaje: 'Mensaje para el cliente',
+   *   metadata: { algun: 'metadato', adicional: 'clave:valor' },
+   *   modulo: 'opcional',
+   * })
+   * @param params
+   */
   warn(...params: unknown[]): void {
     this._log(LOG_LEVEL.WARN, ...params)
   }
 
+  /**
+   * Registra logs de nivel info.
+   *
+   * @example
+   *
+   * logger.info(...params)
+   *
+   * // Caso de uso 1:
+   * logger.info('Mensaje informativo')
+   *
+   * // Caso de uso 2:
+   * logger.info({
+   *   mensaje: 'Mensaje para el cliente',
+   *   metadata: { algun: 'metadato', adicional: 'clave:valor' },
+   *   modulo: 'opcional',
+   * })
+   * @param params
+   */
   info(...params: unknown[]): void {
     this._log(LOG_LEVEL.INFO, ...params)
   }
 
+  /**
+   * Registra logs de nivel debug.
+   *
+   * @example
+   *
+   * logger.debug(...params)
+   *
+   * // Caso de uso:
+   * logger.debug('DATOS = ', datos)
+   * @param params
+   */
   debug(...params: unknown[]): void {
     this._log(LOG_LEVEL.DEBUG, ...params)
   }
 
+  /**
+   * Registra logs de nivel trace.
+   *
+   * @example
+   *
+   * logger.trace(...params)
+   * @param params
+   */
   trace(...params: unknown[]): void {
     this._log(LOG_LEVEL.TRACE, ...params)
   }
@@ -214,6 +306,28 @@ export class LoggerService {
     }, {}) as Metadata
   }
 
+  /**
+   * Registra logs de auditoría.
+   *
+   * @example
+   * logger.audit(contexto, mensaje)
+   * logger.audit(contexto, mensaje, metadata)
+   * logger.audit(contexto, {
+   *   mensaje,
+   *   metadata,
+   * })
+   *
+   * // Caso de uso:
+   * function login(user) {
+   *  this.logger.audit('authentication', {
+   *    mensaje: 'Ingresó al sistema',
+   *    metadata: { usuario: user.id, tipo: 'básico' },
+   *  })
+   * }
+   *
+   * @param contexto string
+   * @param params unknown[]
+   */
   audit(contexto: string, mensaje: string): void
   audit(contexto: string, mensaje: string, metadata: Metadata): void
   audit(contexto: string, opt: AuditOptions): void
@@ -234,6 +348,14 @@ export class LoggerService {
     this.printAudit(auditInfo)
   }
 
+  /**
+   * Logs de auditoría de tipo error.
+   *
+   * Al imprimirlos en la terminal
+   * se muestran con un resaltado de tipo error.
+   * @param contexto string
+   * @param params unknown[]
+   */
   auditError(contexto: string, mensaje: string): void
   auditError(contexto: string, mensaje: string, metadata: Metadata): void
   auditError(contexto: string, opt: AuditOptions): void
@@ -241,6 +363,14 @@ export class LoggerService {
     this._audit(AUDIT_LEVEL.ERROR, contexto, ...params)
   }
 
+  /**
+   * Logs de auditoría de tipo warning.
+   *
+   * Al imprimirlos en la terminal
+   * se muestran con un resaltado de tipo warning.
+   * @param contexto string
+   * @param params unknown[]
+   */
   auditWarn(contexto: string, mensaje: string): void
   auditWarn(contexto: string, mensaje: string, metadata: Metadata): void
   auditWarn(contexto: string, opt: AuditOptions): void
@@ -248,6 +378,14 @@ export class LoggerService {
     this._audit(AUDIT_LEVEL.WARN, contexto, ...params)
   }
 
+  /**
+   * Logs de auditoría de tipo success.
+   *
+   * Al imprimirlos en la terminal
+   * se muestran con un resaltado de tipo success.
+   * @param contexto string
+   * @param params unknown[]
+   */
   auditSuccess(contexto: string, mensaje: string): void
   auditSuccess(contexto: string, mensaje: string, metadata: Metadata): void
   auditSuccess(contexto: string, opt: AuditOptions): void
@@ -255,6 +393,14 @@ export class LoggerService {
     this._audit(AUDIT_LEVEL.SUCCESS, contexto, ...params)
   }
 
+  /**
+   * Logs de auditoría de tipo info.
+   *
+   * Al imprimirlos en la terminal
+   * se muestran con un resaltado de tipo info.
+   * @param contexto string
+   * @param params unknown[]
+   */
   auditInfo(contexto: string, mensaje: string): void
   auditInfo(contexto: string, mensaje: string, metadata: Metadata): void
   auditInfo(contexto: string, opt: AuditOptions): void
@@ -314,7 +460,7 @@ export class LoggerService {
 
       // PRINT TO CONSOLE
       const msg = info.toString()
-      const caller = getContext()
+      const caller = getContext(4)
       this.printToConsole(level, msg, caller)
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -335,7 +481,7 @@ export class LoggerService {
 
       // PRINT TO CONSOLE
       const msg = info.toString()
-      const caller = getContext()
+      const caller = getContext(5)
       this.printToConsole(level, msg, caller)
     } catch (e) {
       // eslint-disable-next-line no-console

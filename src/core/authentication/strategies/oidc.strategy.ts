@@ -6,6 +6,7 @@ import { PersonaDto } from '../../usuario/dto/persona.dto'
 import { AuthenticationService } from '../service/authentication.service'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { Messages } from 'src/common/constants/response-messages'
 
 dayjs.extend(customParseFormat)
 
@@ -54,6 +55,18 @@ export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
         )
       }
 
+      if (!userinfo.celular) {
+        throw new Error(
+          'El cliente de ciudadanía (client.userinfo(tokenset)) no devolvió el campo "celular"'
+        )
+      }
+
+      if (!userinfo.sub) {
+        throw new Error(
+          'El cliente de ciudadanía (client.userinfo(tokenset)) no devolvió el campo "sub"'
+        )
+      }
+
       /*if (/[a-z]/i.test(ci.numero_documento)) {
         ci.complemento = ci.numero_documento.slice(-2);
         ci.numero_documento = ci.numero_documento.slice(0, -2);
@@ -74,6 +87,8 @@ export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
       persona.primerApellido = nombre.primer_apellido
       persona.segundoApellido = nombre.segundo_apellido
       // const correoElectronico = userinfo.email;
+      persona.telefono = userinfo.celular
+      persona.uuidCiudadano = userinfo.sub
 
       const datosUsuario = {
         correoElectronico: userinfo.email,
@@ -91,7 +106,7 @@ export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
       )
 
       if (!usuario || !usuario.roles || usuario.roles.length === 0) {
-        throw new UnauthorizedException()
+        throw new UnauthorizedException(Messages.EXCEPTION_UNAUTHORIZED)
       }
 
       return {
@@ -103,8 +118,12 @@ export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
         exp: tokenset.expires_at,
       }
     } catch (err) {
-      process.stdout.write('')
-      throw err
+      return {
+        idToken: tokenset.id_token,
+        error: err.message || Messages.EXCEPTION_UNAUTHORIZED,
+        id: '',
+        roles: [],
+      }
     }
   }
 }

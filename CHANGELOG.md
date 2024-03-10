@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.10.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.9.3...v1.10.0) (2024-03-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* el identificador de Ciudadanía digital se guarda en tabla persona al iniciar sesión
+
+### Features
+
+* :sparkles: actualizando códigos de error ([415c2a3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/415c2a30104cc427739f1273c6f26103c8851ae9))
+* :sparkles: actualizando los códigos de error y se agregó el tipo DTO_VALIDATION_ERROR ([ea48d89](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/ea48d89fcf30340c15773a5a9004c042035a310d))
+* :sparkles: agregando la impresión de logs para la query y el body para el modo debug ([9a2e2fa](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/9a2e2fa7a570ac818a70027e1736043c647810db))
+* :sparkles: removiendo el código de error de los mensajes que se envían al cliente ([f9ac4d3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/f9ac4d3389fc29c6b1a3b3f40655e303cbab665d))
+* **Ciudadanía:** adición de teléfono y uuid_ciudadania a la entidad Persona ([91c3e9d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/91c3e9dc6456f40e60c1e45f3835b504c6870d09))
+* logout en caso de restricciones ([f6c0c72](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/f6c0c729b9f1fc60cf6c8ae501b28fcc914a223d))
+
+
+### Bug Fixes
+
+* corrección en comando "compodoc" para generar documentación técnica ([fb5fc21](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/fb5fc2139439516f8585c5cad8cbc9bb8059c905))
+* correcciones en el repositorio de usuarios ([0a01815](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/0a01815e6c8de4d0087c7f76cbb35a7f3ef13a38))
+
+
+* corrección de nombre de variable de "uuidCiudadano" ([6a400f4](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/6a400f40a35587edc642547d999e90c444ca7a2e))
+
 ### [1.9.3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.9.2...v1.9.3) (2024-01-21)
 
 

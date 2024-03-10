@@ -30,7 +30,7 @@ export class SQLLogger extends AdvancedConsoleLogger {
 
     throw new BaseException(error, {
       codigo: ERROR_CODE.SQL_ERROR,
-      mensaje: `Ocurrió un error interno (${ERROR_CODE.SQL_ERROR})`,
+      mensaje: `Ocurrió un error interno`,
       accion: 'Verificar la consulta SQL',
       metadata: { sql },
     })

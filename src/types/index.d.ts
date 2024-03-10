@@ -11,6 +11,7 @@ declare global {
     refreshToken?: string
     exp?: number
     iat?: number
+    error?: string
   }
 
   type PayloadType = {

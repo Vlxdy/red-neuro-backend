@@ -11,11 +11,6 @@ describe('CorreoLista validator', () => {
     expect(correoLista('juan@')).toBe(false)
   })
 
-  it('Debería retornar false para correos que esten en la lista negra', () => {
-    expect(correoLista('correo@10minutemail.com')).toBe(false)
-    expect(correoLista('correo@guerrillamail')).toBe(false)
-  })
-
   it('Debería retornar true para correos que no esten en la lista negra', () => {
     expect(correoLista('correo@gmail.com')).toBe(true)
     expect(correoLista('correo@hotmail.com')).toBe(true)

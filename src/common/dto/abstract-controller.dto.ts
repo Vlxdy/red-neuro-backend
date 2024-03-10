@@ -1,16 +1,21 @@
 import { BadRequestException } from '@nestjs/common'
 import { Messages } from '../constants/response-messages'
 import { SuccessResponseDto } from './success-response.dto'
+import { LoggerService } from '../../core/logger'
+
+const logger = LoggerService.getInstance()
 
 type ListaCantidadType<T> = [Array<T>, number]
 
 export abstract class AbstractController {
   makeResponse<T>(data: T, message: string): SuccessResponseDto<T> {
-    return {
+    const body = {
       finalizado: true,
       mensaje: message,
       datos: data,
     }
+    logger.debug('[response] body = ', body)
+    return body
   }
 
   success<T>(

@@ -5,7 +5,7 @@ import { FileParams, LoggerParams } from '../types'
 import { LokiOptions } from 'pino-loki'
 import { DEFAULT_SENSITIVE_PARAMS, LOG_LEVEL } from '../constants'
 import fs from 'fs'
-import zlib from 'zlib'
+import pako from 'pako'
 
 export class LoggerConfig {
   static getMainStream(loggerParams: LoggerParams): pino.MultiStreamRes {
@@ -75,16 +75,26 @@ export class LoggerConfig {
 
       // stream.on('rotate', (oldFile: string, newFile: string) // en caso de necesitar alguna operación con el nuevo archivo
 
-      stream.on('rotate', (oldFile: string) => {
-        const gzip = zlib.createGzip()
+      stream.on('rotate', (oldFile) => {
         const input = fs.createReadStream(oldFile)
         const output = fs.createWriteStream(oldFile + '.gz')
-        input.pipe(gzip).pipe(output)
-        output.on('error', (e) => {
-          console.error('Error al comprimir el archivo:', e)
+
+        input.on('error', (error: any) => {
+          console.error('Error al leer el archivo:', error)
         })
-        output.on('finish', () => {
-          setTimeout(() => fs.unlink(oldFile, () => ({})), 60000)
+
+        output.on('error', (error: any) => {
+          console.error('Error al escribir el archivo comprimido:', error)
+        })
+
+        input.on('data', (data: Buffer) => {
+          const compressedData = pako.gzip(data.toString())
+          output.write(compressedData)
+        })
+
+        input.on('end', () => {
+          output.end()
+          setTimeout(() => fs.unlink(oldFile, () => {}), 60000)
         })
       })
       return stream

@@ -1,13 +1,15 @@
 import { Transform } from 'class-transformer'
 import {
+  IsDateString,
   IsNotEmpty,
   IsString,
+  IsUUID,
   NombreApellido,
   NroDocumento,
-  IsDateString,
   ValidateIf,
 } from '../../../common/validation'
 import { ApiProperty } from '@nestjs/swagger'
+import { IsOptional } from 'class-validator'
 
 export class PersonaDto {
   @ApiProperty({ example: '4192299' })
@@ -33,7 +35,17 @@ export class PersonaDto {
   @ValidateIf((o) => !o.primerApellido)
   @NombreApellido()
   segundoApellido?: string
+
   @ApiProperty({ example: '2002-05-04' })
   @IsDateString()
   fechaNacimiento?: Date | null
+
+  @ApiProperty({ example: '9941220' })
+  @IsOptional()
+  telefono?: string | null
+
+  @ApiProperty({ example: '32f26897-cd66-4d1e-9feb-b785994f6a86 ' })
+  @IsOptional()
+  @IsUUID()
+  uuidCiudadano?: string | null
 }

@@ -2,9 +2,31 @@
 
 Librería para registrar eventos o capturar errores del sistema.
 
+## Códigos de error
+
+Internos (causados por la aplicación)
+
+| Código  | Descripción                              | Causa                                                                           |
+| ------- | ---------------------------------------- | ------------------------------------------------------------------------------- |
+| `E-50`  | `Error desconocido`                      | error = `'BOOM'`, `{ name: 'Error' }`, `new Error()`, `undefined`, `null`, `''` |
+| `E-40`  | `Error HTTP`                             | error = `new HttpException()`                                                   |
+| `E-SQL` | `Error de consulta con la Base de Datos` | error = `{ name: "QueryFailedError" }`                                          |
+| `E-DTO` | `Error de validación con el DTO`         | error = `new BadRequestException() - DTO`                                       |
+
+Externos (causados por agentes externos)
+
+| Código            | Descripción                                        | Causa                                                      |
+| ----------------- | -------------------------------------------------- | ---------------------------------------------------------- |
+| `ES-REQUEST`      | `Error de consulta con Servicio Externo`           | error = `axios().catch(err => ...)`                        |
+| `ES-ECONNREFUSED` | `Error de conexión con Servicio Externo`           | error = `{ code: 'ECONNREFUSED' }`                         |
+| `ES-TIMEOUT`      | `Error de TIMEOUT con Servicio Externo`            | response = `{ data: "The upstream server is timing out" }` |
+| `ES-CERT`         | `Error de certificado con Servicio Externo`        | error = `{ code: 'CERT_HAS_EXPIRED' }`                     |
+| `ES-MESSAGE`      | `Error desconocido con Servicio Externo (message)` | body = `{ message: "detalle del error" }`                  |
+| `ES-DATA`         | `Error desconocido con Servicio Externo (data)`    | body = `{ data: "detalle del error" }`                     |
+
 ## Modo de uso
 
-**Ejemplo 1** Para registrar un ERROR CONOCIDO manualmente
+**Ejemplo 1** Para guardar cualquier tipo de error.
 
 ```ts
 import { LoggerService } from '../src/core/logger'
@@ -30,7 +52,7 @@ logger.debug(...params)
 logger.trace(...params)
 ```
 
-**Ejemplo 2** Para lanzar una excepción controlada de un error desconocido
+**Ejemplo 2** Para convertir un error desconocido en un error de tipo `HTTP ERROR`.
 
 ```ts
 import { BaseException } from '../src/core/logger'
@@ -126,7 +148,9 @@ async function recuperar() {
 
 ## 3. Logs para servicios externos
 
-Ejemplo: Utilizando la clase `ExternalServiceException`
+Se trata de registrar excepciones causadas por un módulo en específico (en este caso una consulta a un Servicio Externo).
+
+**Ejemplo 1:** Utilizando la clase `ExternalServiceException`.
 
 ```ts
 function tarea(datos) {
@@ -138,7 +162,7 @@ function tarea(datos) {
 }
 ```
 
-Ejemplo: Utilizando la clase `BaseException`
+**Ejemplo 2:** Utilizando la clase `BaseException`.
 
 ```ts
 function tarea(datos) {

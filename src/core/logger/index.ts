@@ -14,4 +14,4 @@ export type {
   Metadata,
   LogEntry,
 } from './types'
-export { ERROR_CODE, LOG_LEVEL, AUDIT_LEVEL } from './constants'
+export { ERROR_CODE, ERROR_NAME, LOG_LEVEL, AUDIT_LEVEL } from './constants'

@@ -1,4 +1,10 @@
-import { BaseException, LogEntry, LoggerService } from '../../..'
+import {
+  BaseException,
+  ERROR_CODE,
+  ERROR_NAME,
+  LogEntry,
+  LoggerService,
+} from '../../..'
 import { delay, readLogFile } from '../../utils'
 
 const logger = LoggerService.getInstance()
@@ -43,9 +49,9 @@ export async function printError() {
     level: 50,
     levelText: 'error',
     modulo: '',
-    mensaje: 'Error Interno (E01)',
+    mensaje: `Error Interno`,
     httpStatus: 500,
-    codigo: 'ERROR DESCONOCIDO (E01)',
+    codigo: `${ERROR_NAME[ERROR_CODE.UNKNOWN_ERROR]} (${ERROR_CODE.UNKNOWN_ERROR})`,
     causa: 'Error: <<< BOOM >>>',
     accion: '',
   })

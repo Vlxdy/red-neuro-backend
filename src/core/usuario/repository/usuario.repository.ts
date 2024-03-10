@@ -145,14 +145,14 @@ export class UsuarioRepository {
       .getOne()
   }
 
-  async buscarUsuarioPorCI(persona: PersonaDto) {
+  async buscarUsuarioPorCI(ci: string) {
     return await this.dataSource
       .getRepository(Usuario)
       .createQueryBuilder('usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
       .leftJoinAndSelect('usuario.usuarioRol', 'usuarioRol')
       .leftJoinAndSelect('usuarioRol.rol', 'rol')
-      .where('persona.nroDocumento = :ci', { ci: persona.nroDocumento })
+      .where('persona.nroDocumento = :ci', { ci: ci })
       .getOne()
   }
 
