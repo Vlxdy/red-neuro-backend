@@ -1,4 +1,4 @@
-import { BaseService } from '../../../common/base/base-service'
+import { BaseService } from '@/common/base/base-service'
 import {
   ConflictException,
   Inject,
@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common'
 import { ParametroRepository } from '../repository'
 import { CrearParametroDto } from '../dto'
-import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
-import { Messages } from '../../../common/constants/response-messages'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { Messages } from '@/common/constants/response-messages'
 import { ActualizarParametroDto } from '../dto'
 import { ParametroEstado } from '../constant'
 

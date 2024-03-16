@@ -9,7 +9,7 @@ import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { TypeormStore } from 'connect-typeorm'
-import { Session } from './core/authentication/entity/session.entity'
+import { Session } from '@/core/authentication/entity/session.entity'
 import dotenv from 'dotenv'
 
 import {

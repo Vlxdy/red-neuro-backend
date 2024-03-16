@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer'
-import { IsNotEmpty, NroDocumento } from '../../../common/validation'
+import { IsNotEmpty, NroDocumento } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class CrearUsuarioCiudadaniaDto {

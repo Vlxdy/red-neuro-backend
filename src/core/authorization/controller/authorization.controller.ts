@@ -8,8 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common'
-import { JwtAuthGuard } from '../../authentication/guards/jwt-auth.guard'
-import { BaseController } from '../../../common/base'
+import { BaseController } from '@/common/base'
 import { AuthorizationService } from './authorization.service'
 import { CasbinGuard } from '../guards/casbin.guard'
 import { FiltrosPoliticasDto } from '../dto/filtros-politicas.dto'
@@ -21,6 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 import { PoliticaDto } from '../dto/politica.dto'
+import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 
 @ApiBearerAuth()
 @ApiTags('Autorización')
@@ -34,7 +34,8 @@ export class AuthorizationController extends BaseController {
   @ApiOperation({ summary: 'API para crear una nueva política' })
   @ApiBody({
     type: PoliticaDto,
-    description: 'Crear nueva política',
+    description:
+      'Esta API permite crear una nueva política de autorización utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Post('/politicas')
@@ -47,7 +48,8 @@ export class AuthorizationController extends BaseController {
   @ApiQuery({ name: 'id' })
   @ApiBody({
     type: PoliticaDto,
-    description: 'Actualizar política',
+    description:
+      'Esta API permite actualizar una política de autorización existente utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Patch('/politicas')

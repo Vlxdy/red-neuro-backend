@@ -18,7 +18,7 @@ import {
 } from '../types'
 import { printLoggerParams, stdoutWrite } from '../tools'
 import { getContext, timeToPrint } from '../utilities'
-import { BaseException } from './BaseException'
+import { BaseException } from '@/core/logger'
 import { BaseAudit } from './BaseAudit'
 import { BaseLog } from './BaseLog'
 import { inspect } from 'util'

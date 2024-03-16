@@ -14,8 +14,8 @@ describe('App controller', () => {
     controller = module.get<AppController>(AppController)
   })
 
-  it('[listar] Debería devolver el status', async () => {
-    const result = await controller.verificarEstado()
+  it('[listar] Debería devolver el status', () => {
+    const result = controller.verificarEstado()
     expect(result).toBeDefined()
     expect(result).toHaveProperty('estado')
     expect(result).toHaveProperty('hora')

@@ -1,10 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import {
-  CorreoLista,
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-} from '../../../common/validation'
+import { CorreoLista, IsEmail, IsNotEmpty, IsString } from '@/common/validation'
 
 export class RecuperarCuentaDto {
   @ApiProperty()

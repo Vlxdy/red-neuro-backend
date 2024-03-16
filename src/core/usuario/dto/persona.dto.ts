@@ -7,7 +7,7 @@ import {
   NombreApellido,
   NroDocumento,
   ValidateIf,
-} from '../../../common/validation'
+} from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsOptional } from 'class-validator'
 

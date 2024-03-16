@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common'
 import { Request, Response, NextFunction } from 'express'
-import { LoggerService } from '../../core/logger'
+import { LoggerService } from '@/core/logger'
 
 const logger = LoggerService.getInstance()
 

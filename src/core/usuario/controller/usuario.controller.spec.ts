@@ -1,16 +1,16 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { plainToClass } from 'class-transformer'
-import { Status } from '../../../common/constants'
-import { TextService } from '../../../common/lib/text.service'
+import { Status } from '@/common/constants'
+import { TextService } from '@/common/lib/text.service'
 import { ActualizarContrasenaDto } from '../dto/actualizar-contrasena.dto'
 import { CrearUsuarioDto } from '../dto/crear-usuario.dto'
 import { UsuarioController } from './usuario.controller'
 import { UsuarioService } from '../service/usuario.service'
 import { FiltrosUsuarioDto } from '../dto/filtros-usuario.dto'
 import { CanActivate } from '@nestjs/common'
-import { CasbinGuard } from '../../authorization/guards/casbin.guard'
 import { Request } from 'express'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 const resUsuario = {
   id: TextService.generateUuid(),

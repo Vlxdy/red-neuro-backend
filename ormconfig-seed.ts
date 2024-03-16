@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm'
 import dotenv from 'dotenv'
-import { LoggerService, SQLLogger } from './src/core/logger'
+import { LoggerService, SQLLogger } from '@/core/logger'
 
 dotenv.config()
 

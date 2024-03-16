@@ -1,7 +1,7 @@
-import { BaseService } from '../../../common/base'
+import { BaseService } from '@/common/base'
 import { Injectable } from '@nestjs/common'
 import { map } from 'rxjs/operators'
-import { ExternalServiceException } from '../../../common/exceptions'
+import { ExternalServiceException } from '@/common/exceptions'
 import { HttpService } from '@nestjs/axios'
 import { firstValueFrom } from 'rxjs'
 

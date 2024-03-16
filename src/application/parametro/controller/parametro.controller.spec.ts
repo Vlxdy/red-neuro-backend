@@ -2,13 +2,13 @@ import { CanActivate } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { plainToClass } from 'class-transformer'
 import { AuthZManagementService } from 'nest-authz'
-import { CasbinGuard } from '../../../core/authorization/guards/casbin.guard'
-import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
-import { TextService } from '../../../common/lib/text.service'
 import { CrearParametroDto } from '../dto'
 import { ParametroController } from '../controller'
 import { ParametroService } from '../service'
 import { Request } from 'express'
+import { TextService } from '@/common/lib/text.service'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 const resParametro = {
   id: TextService.generateUuid(),

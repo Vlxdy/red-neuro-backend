@@ -1,5 +1,5 @@
+import { IsNotEmpty, IsString, Length } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsString, Length } from '../../../common/validation'
 
 export class ParamGrupoDto {
   @ApiProperty({ name: 'grupo', example: 'TD' })

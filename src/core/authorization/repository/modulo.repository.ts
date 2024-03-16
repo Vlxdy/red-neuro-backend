@@ -2,7 +2,7 @@ import { Brackets, DataSource } from 'typeorm'
 import { Modulo, Propiedades } from '../entity/modulo.entity'
 import { CrearModuloDto, FiltroModuloDto } from '../dto/crear-modulo.dto'
 import { Injectable } from '@nestjs/common'
-import { Status } from '../../../common/constants'
+import { Status } from '@/common/constants'
 import { ActualizarModuloDto } from '../dto/actualizar-modulo.dto'
 
 @Injectable()

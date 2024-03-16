@@ -1,5 +1,5 @@
 import { Client, Issuer } from 'openid-client'
-import { BaseException, LoggerService } from '../logger'
+import { BaseException, LoggerService } from '@/core/logger'
 import { custom } from 'openid-client'
 
 //Para cambiar el timeout del cliente de ciudadanía en caso de ser necesario.

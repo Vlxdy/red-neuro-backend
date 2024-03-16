@@ -1,4 +1,4 @@
-import { BaseService } from '../../../common/base'
+import { BaseService } from '@/common/base'
 import {
   ForbiddenException,
   Inject,
@@ -9,25 +9,16 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { UsuarioRepository } from '../repository/usuario.repository'
-import {
-  Status,
-  TipoDocumento,
-  USUARIO_NORMAL,
-} from '../../../common/constants'
+import { Status, TipoDocumento, USUARIO_NORMAL } from '@/common/constants'
 import { CrearUsuarioDto } from '../dto/crear-usuario.dto'
-import { TextService } from '../../../common/lib/text.service'
-import { MensajeriaService } from '../../external-services/mensajeria/mensajeria.service'
-import { Messages } from '../../../common/constants/response-messages'
-import { AuthorizationService } from '../../authorization/controller/authorization.service'
+import { TextService } from '@/common/lib/text.service'
+import { Messages } from '@/common/constants/response-messages'
 import { PersonaDto } from '../dto/persona.dto'
-import { UsuarioRolRepository } from '../../authorization/repository/usuario-rol.repository'
 import { ActualizarUsuarioRolDto } from '../dto/actualizar-usuario-rol.dto'
 import { CrearUsuarioCiudadaniaDto } from '../dto/crear-usuario-ciudadania.dto'
-import { SegipService } from '../../external-services/iop/segip/segip.service'
 import { ConfigService } from '@nestjs/config'
-import { TemplateEmailService } from '../../../common/templates/templates-email.service'
+import { TemplateEmailService } from '@/common/templates/templates-email.service'
 import { FiltrosUsuarioDto } from '../dto/filtros-usuario.dto'
-import { RolRepository } from '../../authorization/repository/rol.repository'
 import { EntityManager } from 'typeorm'
 import { CrearUsuarioCuentaDto } from '../dto/crear-usuario-cuenta.dto'
 import {
@@ -36,6 +27,11 @@ import {
   ValidarRecuperarCuentaDto,
 } from '../dto/recuperar-cuenta.dto'
 import { PersonaRepository } from '../repository/persona.repository'
+import { RolRepository } from '@/core/authorization/repository/rol.repository'
+import { AuthorizationService } from '@/core/authorization/controller/authorization.service'
+import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
+import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
+import { SegipService } from '@/core/external-services/iop/segip/segip.service'
 
 @Injectable()
 export class UsuarioService extends BaseService {
@@ -979,13 +975,14 @@ export class UsuarioService extends BaseService {
         usuario.usuarioRol
           .filter((value) => value.estado === Status.ACTIVE)
           .map(async (usuarioRol) => {
-            const { id, rol, nombre } = usuarioRol.rol
+            const { id, rol, nombre, descripcion } = usuarioRol.rol
             const modulos =
               await this.authorizationService.obtenerPermisosPorRol(rol)
             return {
               idRol: id,
               rol,
               nombre,
+              descripcion,
               modulos,
             }
           })

@@ -1,10 +1,10 @@
-import { BaseService } from '../../../common/base'
+import { BaseService } from '@/common/base'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { RolRepository } from '../repository/rol.repository'
 import { CrearRolDto } from '../dto/crear-rol.dto'
-import { Messages } from '../../../common/constants/response-messages'
-import { Status } from '../../../common/constants'
-import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
+import { Messages } from '@/common/constants/response-messages'
+import { Status } from '@/common/constants'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @Injectable()
 export class RolService extends BaseService {

@@ -2,7 +2,7 @@ import { BaseLogOptions, LogEntry, Metadata } from '../types'
 import { cleanParamValue, getReqID } from '../utilities'
 import { LOG_LEVEL } from '../constants'
 import dayjs from 'dayjs'
-import { LoggerService } from './LoggerService'
+import { LoggerService } from '@/core/logger'
 import { inspect } from 'util'
 
 export class BaseLog {

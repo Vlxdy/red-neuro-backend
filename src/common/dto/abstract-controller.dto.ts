@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common'
 import { Messages } from '../constants/response-messages'
 import { SuccessResponseDto } from './success-response.dto'
-import { LoggerService } from '../../core/logger'
+import { LoggerService } from '@/core/logger'
 
 const logger = LoggerService.getInstance()
 

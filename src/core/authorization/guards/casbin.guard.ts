@@ -1,4 +1,4 @@
-import { LoggerService } from '../../logger'
+import { LoggerService } from '@/core/logger'
 import {
   CanActivate,
   ExecutionContext,

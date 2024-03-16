@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
-import { ParametroController } from './controller'
-import { ParametroService } from './service'
+import { ParametroController } from '@/application/parametro/controller/parametro.controller'
+import { ParametroService } from '@/application/parametro/service/parametro.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { ParametroRepository } from './repository'
-import { Parametro } from './entity'
+import { ParametroRepository } from '@/application/parametro/repository/parametro.repository'
+import { Parametro } from '@/application/parametro/entity/parametro.entity'
 
 @Module({
   controllers: [ParametroController],

@@ -1,9 +1,9 @@
 import { UsuarioRol } from '../entity/usuario-rol.entity'
 import { DataSource, EntityManager } from 'typeorm'
-import { Usuario } from '../../usuario/entity/usuario.entity'
 import { Rol } from '../entity/rol.entity'
-import { Status } from '../../../common/constants'
+import { Status } from '@/common/constants'
 import { Injectable } from '@nestjs/common'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 
 @Injectable()
 export class UsuarioRolRepository {

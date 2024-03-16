@@ -1,4 +1,4 @@
-import { LoggerService } from '../../core/logger'
+import { LoggerService } from '@/core/logger'
 import { AbstractController } from '../dto/abstract-controller.dto'
 
 export class BaseController extends AbstractController {

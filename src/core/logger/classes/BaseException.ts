@@ -1,4 +1,4 @@
-import { LoggerService } from './LoggerService'
+import { LoggerService } from '@/core/logger'
 import { BaseExceptionOptions, LogEntry, Metadata } from '../types'
 import {
   cleanParamValue,

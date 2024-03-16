@@ -4,7 +4,7 @@ import {
   IsEmail,
   IsNotEmpty,
   ValidateNested,
-} from '../../../common/validation'
+} from '@/common/validation'
 import { PersonaDto } from './persona.dto'
 import { Type } from 'class-transformer'
 

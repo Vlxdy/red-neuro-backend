@@ -2,7 +2,7 @@ import { DataSource, EntityManager } from 'typeorm'
 import { Persona } from '../entity/persona.entity'
 import { PersonaDto } from '../dto/persona.dto'
 import { Injectable } from '@nestjs/common'
-import { Status } from '../../../common/constants'
+import { Status } from '@/common/constants'
 
 @Injectable()
 export class PersonaRepository {

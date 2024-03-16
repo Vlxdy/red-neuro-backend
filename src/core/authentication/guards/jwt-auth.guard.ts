@@ -1,4 +1,4 @@
-import { BaseException, LoggerService } from '../../logger'
+import { BaseException, LoggerService } from '@/core/logger'
 import {
   ExecutionContext,
   ForbiddenException,

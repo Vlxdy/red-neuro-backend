@@ -1,4 +1,4 @@
-import { BaseException, Metadata } from '../../core/logger'
+import { BaseException, Metadata } from '@/core/logger'
 
 export class ExternalServiceException extends BaseException {
   constructor(servicio: string, error: unknown)

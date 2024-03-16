@@ -1,4 +1,4 @@
-import { BaseService } from '../../../common/base'
+import { BaseService } from '@/common/base'
 import { Injectable, Query } from '@nestjs/common'
 import { AuthZManagementService } from 'nest-authz'
 import { FiltrosPoliticasDto } from '../dto/filtros-politicas.dto'

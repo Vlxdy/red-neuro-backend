@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
-import { Parametro } from '../../src/application/parametro/entity'
-import { USUARIO_SISTEMA } from '../../src/common/constants'
+import { Parametro } from '@/application/parametro/entity'
+import { USUARIO_SISTEMA } from '@/common/constants'
 
 export class insertsParametros1617820337609 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

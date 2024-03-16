@@ -1,7 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { of } from 'rxjs'
-
-import { PersonaDto } from '../../../usuario/dto/persona.dto'
 import { SegipService } from './segip.service'
 import { plainToClass } from 'class-transformer'
 import { HttpModule, HttpService } from '@nestjs/axios'
@@ -10,6 +8,7 @@ import {
   InternalAxiosRequestConfig,
   RawAxiosResponseHeaders,
 } from 'axios'
+import { PersonaDto } from '@/core/usuario/dto/persona.dto'
 
 const dataDefaultAxios = {
   headers: {} as RawAxiosResponseHeaders,

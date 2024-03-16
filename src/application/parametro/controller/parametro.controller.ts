@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ParametroService } from '../service'
-import { JwtAuthGuard } from '../../../core/authentication/guards/jwt-auth.guard'
-import { CasbinGuard } from '../../../core/authorization/guards/casbin.guard'
-import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
-import { BaseController } from '../../../common/base'
-import { ParamIdDto } from '../../../common/dto/params-id.dto'
+import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { BaseController } from '@/common/base'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import {
   ActualizarParametroDto,
@@ -61,7 +61,8 @@ export class ParametroController extends BaseController {
   @ApiOperation({ summary: 'API para crear un nuevo parámetro' })
   @ApiBody({
     type: CrearParametroDto,
-    description: 'new Parametro',
+    description:
+      'Esta API permite crear un nuevo parámetro utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Post()
@@ -80,7 +81,8 @@ export class ParametroController extends BaseController {
   })
   @ApiBody({
     type: ActualizarParametroDto,
-    description: 'new Rol',
+    description:
+      'Esta API permite actualizar un parámetro existente utilizando los atributos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Patch(':id')

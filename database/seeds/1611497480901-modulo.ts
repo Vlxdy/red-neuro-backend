@@ -1,9 +1,6 @@
-import {
-  Modulo,
-  Propiedades,
-} from '../../src/core/authorization/entity/modulo.entity'
+import { Modulo, Propiedades } from '@/core/authorization/entity/modulo.entity'
 import { MigrationInterface, QueryRunner } from 'typeorm'
-import { USUARIO_SISTEMA } from '../../src/common/constants'
+import { USUARIO_SISTEMA } from '@/common/constants'
 
 export class modulo1611497480901 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

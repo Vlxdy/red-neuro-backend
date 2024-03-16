@@ -1,4 +1,4 @@
-import { UtilService } from '../../../common/lib/util.service'
+import { UtilService } from '@/common/lib/util.service'
 import {
   BeforeInsert,
   Check,
@@ -10,21 +10,13 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import { UsuarioRol } from '../../authorization/entity/usuario-rol.entity'
 import { Persona } from './persona.entity'
 import dotenv from 'dotenv'
-import { AuditoriaEntity } from '../../../common/entity/auditoria.entity'
-import { Status } from '../../../common/constants'
+import { UsuarioEstado } from '../constant'
+import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
+import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
 dotenv.config()
-
-export const UsuarioEstado = {
-  ACTIVE: Status.ACTIVE,
-  INACTIVE: Status.INACTIVE,
-  CREATE: Status.CREATE,
-  PENDING: Status.PENDING,
-}
-
 @Check(UtilService.buildStatusCheck(UsuarioEstado))
 @Entity({ name: 'usuarios', schema: process.env.DB_SCHEMA_USUARIOS })
 export class Usuario extends AuditoriaEntity {

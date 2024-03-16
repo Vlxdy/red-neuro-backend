@@ -1,4 +1,4 @@
-import { IsNotEmpty } from '../../../../common/validation'
+import { IsNotEmpty } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class SINCredencialesDTO {

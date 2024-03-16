@@ -12,11 +12,11 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
-import { CookieService } from '../../../common/lib/cookie.service'
+import { CookieService } from '@/common/lib/cookie.service'
 import { LocalAuthGuard } from '../guards/local-auth.guard'
 import { OidcAuthGuard } from '../guards/oidc-auth.guard'
 import { RefreshTokensService } from '../service/refreshTokens.service'
-import { BaseController } from '../../../common/base'
+import { BaseController } from '@/common/base'
 import {
   ApiBearerAuth,
   ApiBody,

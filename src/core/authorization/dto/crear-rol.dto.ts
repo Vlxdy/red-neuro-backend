@@ -10,6 +10,10 @@ export class CrearRolDto {
   @ApiProperty({ example: 'Consulta' })
   nombre: string
 
+  @ApiProperty({ example: 'Descripción' })
+  @IsNotEmpty()
+  descripcion: string
+
   @ApiProperty({ example: 'ACTIVO' })
   estado?: string
 }

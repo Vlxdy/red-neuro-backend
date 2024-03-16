@@ -1,4 +1,4 @@
-import { LoggerService } from '../../logger'
+import { LoggerService } from '@/core/logger'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'

@@ -1,5 +1,5 @@
 import { ArgumentsHost, ExceptionFilter } from '@nestjs/common'
-import { LoggerService } from '../../core/logger'
+import { LoggerService } from '@/core/logger'
 
 export class BaseExceptionFilter implements ExceptionFilter {
   protected logger: LoggerService

@@ -1,5 +1,5 @@
+import { IsNotEmpty } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty } from '../../../common/validation'
 
 export class ActualizarParametroDto {
   @ApiProperty({ example: 'TD-CI' })

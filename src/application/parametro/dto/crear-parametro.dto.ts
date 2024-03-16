@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional } from '../../../common/validation'
+import { IsNotEmpty, IsOptional } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class CrearParametroDto {

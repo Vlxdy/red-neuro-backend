@@ -1,5 +1,5 @@
 import { DynamicModule, INestApplication, Module } from '@nestjs/common'
-import { LoggerService } from './LoggerService'
+import { LoggerService } from '@/core/logger'
 import { LoggerOptions } from '../types'
 import { expressMiddleware } from 'cls-rtracer'
 

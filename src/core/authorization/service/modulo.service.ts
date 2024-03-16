@@ -1,10 +1,10 @@
-import { BaseService } from '../../../common/base'
+import { BaseService } from '@/common/base'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ModuloRepository } from '../repository/modulo.repository'
 import { CrearModuloDto, FiltroModuloDto } from '../dto/crear-modulo.dto'
-import { Status } from '../../../common/constants'
+import { Status } from '@/common/constants'
 
-import { Messages } from '../../../common/constants/response-messages'
+import { Messages } from '@/common/constants/response-messages'
 import { ActualizarModuloDto } from '../dto/actualizar-modulo.dto'
 
 @Injectable()

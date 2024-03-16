@@ -1,6 +1,6 @@
-import { UsuarioRol } from '../../src/core/authorization/entity/usuario-rol.entity'
+import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { MigrationInterface, QueryRunner } from 'typeorm'
-import { USUARIO_SISTEMA } from '../../src/common/constants'
+import { USUARIO_SISTEMA } from '@/common/constants'
 
 export class usuarioRol1611516017924 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

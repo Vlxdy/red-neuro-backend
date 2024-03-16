@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsString } from '../../../common/validation'
+import { IsNotEmpty, IsString } from '@/common/validation'
 
 export class CambioRolDto {
   @IsString()

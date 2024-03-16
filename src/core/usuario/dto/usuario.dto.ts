@@ -1,4 +1,4 @@
-import { CorreoLista, IsEmail, IsNotEmpty } from '../../../common/validation'
+import { CorreoLista, IsEmail, IsNotEmpty } from '@/common/validation'
 
 export class UsuarioDto {
   usuario?: string

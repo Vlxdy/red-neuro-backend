@@ -1,4 +1,4 @@
-import { UtilService } from '../../../common/lib/util.service'
+import { UtilService } from '@/common/lib/util.service'
 import {
   BeforeInsert,
   Check,
@@ -8,28 +8,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { Usuario } from './usuario.entity'
-import { Genero, Status, TipoDocumento } from '../../../common/constants'
+import { PersonaEstado, TiposDocumento, TiposGenero } from '../constant'
 import dotenv from 'dotenv'
-import { AuditoriaEntity } from '../../../common/entity/auditoria.entity'
+import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 
 dotenv.config()
-
-export const PersonaEstado = {
-  ACTIVE: Status.ACTIVE,
-  INACTIVE: Status.INACTIVE,
-}
-
-export const TiposDocumento = {
-  CI: TipoDocumento.CI,
-  PASAPORTE: TipoDocumento.PASAPORTE,
-  OTRO: TipoDocumento.OTRO,
-}
-
-export const TiposGenero = {
-  MASCULINO: Genero.MASCULINO,
-  FEMENINO: Genero.FEMENINO,
-  OTRO: Genero.OTRO,
-}
 
 @Check(UtilService.buildStatusCheck(PersonaEstado))
 @Check(UtilService.buildCheck('tipo_documento', TiposDocumento))
@@ -82,7 +65,7 @@ export class Persona extends AuditoriaEntity {
     name: 'tipo_documento',
     length: 15,
     type: 'varchar',
-    default: TipoDocumento.CI,
+    default: TiposDocumento.CI,
     comment: 'Tipo de documento de la persona (CI, Pasaporte, otros)',
   })
   tipoDocumento: string

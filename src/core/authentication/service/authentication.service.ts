@@ -1,24 +1,20 @@
-import { BaseService } from '../../../common/base'
+import { BaseService } from '@/common/base'
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
-import { UsuarioService } from '../../usuario/service/usuario.service'
 import { JwtService } from '@nestjs/jwt'
-import { TextService } from '../../../common/lib/text.service'
+import { TextService } from '@/common/lib/text.service'
 import { RefreshTokensService } from './refreshTokens.service'
-import {
-  Status,
-  USUARIO_NORMAL,
-  USUARIO_SISTEMA,
-} from '../../../common/constants'
-import { Configurations } from '../../../common/params'
-import { Messages } from '../../../common/constants/response-messages'
+import { Status, USUARIO_NORMAL, USUARIO_SISTEMA } from '@/common/constants'
+import { Configurations } from '@/common/params'
+import { Messages } from '@/common/constants/response-messages'
 import dayjs from 'dayjs'
-import { MensajeriaService } from '../../external-services/mensajeria/mensajeria.service'
-import { PersonaDto } from '../../usuario/dto/persona.dto'
 import { ConfigService } from '@nestjs/config'
-import { PersonaService } from '../../usuario/service/persona.service'
-import { TemplateEmailService } from '../../../common/templates/templates-email.service'
-import { Usuario } from '../../usuario/entity/usuario.entity'
+import { TemplateEmailService } from '@/common/templates/templates-email.service'
 import { CambioRolDto } from '../dto/index.dto'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
+import { PersonaService } from '@/core/usuario/service/persona.service'
+import { UsuarioService } from '@/core/usuario/service/usuario.service'
+import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
+import { PersonaDto } from '@/core/usuario/dto/persona.dto'
 
 @Injectable()
 export class AuthenticationService extends BaseService {

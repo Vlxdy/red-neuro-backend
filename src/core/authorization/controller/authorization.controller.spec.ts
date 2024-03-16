@@ -4,7 +4,7 @@ import { AuthZManagementService } from 'nest-authz'
 import { CasbinGuard } from '../guards/casbin.guard'
 import { AuthorizationController } from './authorization.controller'
 import { AuthorizationService } from './authorization.service'
-import { Order } from '../../../common/constants'
+import { Order } from '@/common/constants'
 
 const resPolitica = {
   sujeto: 'ADMINISTRADOR',

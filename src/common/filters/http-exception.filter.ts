@@ -1,4 +1,4 @@
-import { BaseException } from '../../core/logger'
+import { BaseException } from '@/core/logger'
 import { ArgumentsHost, Catch } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { BaseExceptionFilter } from '../base'

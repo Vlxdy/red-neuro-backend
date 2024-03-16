@@ -10,12 +10,11 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common'
-import { BaseController } from '../../../common/base'
+import { BaseController } from '@/common/base'
 import { ModuloService } from '../service/modulo.service'
 import { CrearModuloDto, FiltroModuloDto } from '../dto/crear-modulo.dto'
-import { JwtAuthGuard } from '../../authentication/guards/jwt-auth.guard'
 import { CasbinGuard } from '../guards/casbin.guard'
-import { ParamIdDto } from '../../../common/dto/params-id.dto'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { ActualizarModuloDto } from '../dto/actualizar-modulo.dto'
 import {
   ApiBearerAuth,
@@ -25,6 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 import { Request } from 'express'
+import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 
 @ApiBearerAuth()
 @ApiTags('Módulos')
@@ -45,7 +45,8 @@ export class ModuloController extends BaseController {
   @ApiOperation({ summary: 'API para crear un Módulo' })
   @ApiBody({
     type: CrearModuloDto,
-    description: 'new Modulo',
+    description:
+      'Esta API permite crear un nuevo módulo utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Post()
@@ -61,7 +62,8 @@ export class ModuloController extends BaseController {
   })
   @ApiBody({
     type: ActualizarModuloDto,
-    description: 'Modulo',
+    description:
+      'Esta API permite actualizar un módulo existente utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Patch(':id')

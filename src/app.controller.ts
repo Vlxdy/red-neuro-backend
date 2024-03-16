@@ -1,6 +1,6 @@
 import { Controller, Get, Inject } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { BaseController } from './common/base'
+import { BaseController } from '@/common/base'
 import packageJson from '../package.json'
 import dayjs from 'dayjs'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'

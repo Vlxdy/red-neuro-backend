@@ -1,13 +1,9 @@
-import { Usuario } from '../../src/core/usuario/entity/usuario.entity'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { MigrationInterface, QueryRunner } from 'typeorm'
-import { TextService } from '../../src/common/lib/text.service'
-import {
-  Genero,
-  TipoDocumento,
-  USUARIO_SISTEMA,
-} from '../../src/common/constants'
+import { TextService } from '@/common/lib/text.service'
+import { Genero, TipoDocumento, USUARIO_SISTEMA } from '@/common/constants'
 import dayjs from 'dayjs'
-import { Persona } from '../../src/core/usuario/entity/persona.entity'
+import { Persona } from '@/core/usuario/entity/persona.entity'
 
 export class usuario1611171041790 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

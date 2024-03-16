@@ -1,6 +1,6 @@
 {
   "name": "agetic-nestjs-base-backend",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Backend base con Nest.js, TypeORM y TypeScript",
   "author": "agetic@agetic.gob.bo",
   "private": true,
@@ -61,7 +61,7 @@
     "@types/bcrypt": "5.0.2",
     "@types/express-list-endpoints": "6.0.3",
     "@types/html-to-pdfmake": "2.4.4",
-    "bcrypt": "5.1.1",
+    "bcrypt": "5.1.0",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",
     "cls-rtracer": "2.6.3",
@@ -165,7 +165,10 @@
       ".enum.ts"
     ],
     "collectCoverage": true,
-    "testResultsProcessor": "jest-sonar-reporter"
+    "testResultsProcessor": "jest-sonar-reporter",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/../src/$1"
+    }
   },
   "engines": {
     "node": "^20",

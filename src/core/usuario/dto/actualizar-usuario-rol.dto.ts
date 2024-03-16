@@ -8,7 +8,7 @@ import {
   IsOptional,
   ValidateIf,
   ValidateNested,
-} from '../../../common/validation'
+} from '@/common/validation'
 import { PersonaDto } from './persona.dto'
 
 export class ActualizarUsuarioRolDto {

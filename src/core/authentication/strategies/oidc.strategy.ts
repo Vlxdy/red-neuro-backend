@@ -1,12 +1,12 @@
-import { LoggerService } from '../../logger'
 import { UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { Client, Strategy, TokenSet, UserinfoResponse } from 'openid-client'
-import { PersonaDto } from '../../usuario/dto/persona.dto'
 import { AuthenticationService } from '../service/authentication.service'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { Messages } from 'src/common/constants/response-messages'
+import { Messages } from '@/common/constants/response-messages'
+import { PersonaDto } from '@/core/usuario/dto/persona.dto'
+import { LoggerService } from '@/core/logger'
 
 dayjs.extend(customParseFormat)
 

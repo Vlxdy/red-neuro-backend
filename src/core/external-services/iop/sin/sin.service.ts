@@ -1,5 +1,5 @@
-import { ExternalServiceException } from '../../../../common/exceptions'
-import { BaseService } from '../../../../common/base'
+import { ExternalServiceException } from '@/common/exceptions'
+import { BaseService } from '@/common/base'
 import { Injectable } from '@nestjs/common'
 import { SINCredencialesDTO } from './credenciales.dto'
 import { HttpService } from '@nestjs/axios'

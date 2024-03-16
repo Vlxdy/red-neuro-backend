@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.11.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.10.0...v1.11.0) (2024-03-16)
+
+
+### Features
+
+* aplicando alias en las importaciones del módulo Parametro ([b692433](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b6924330cfba5d37fc97c26bfb4b941c67518f88))
+* mejora de descripciones de API, para claridad y consistencia ([54e6a0d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/54e6a0d0aaacffe0a63a7f00a6658a36d89c55b6))
+* se agregó la columna descripcion a la tabla rol ([4d00f94](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/4d00f94535eb6ec02d8bfd81a30187d9399a3348))
+* se cambió las importaciones con rutas relativas por las rutas con alias ([f664588](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/f664588fc1d4661615dbea82ac1e82310574a17e))
+
+
+### Bug Fixes
+
+* configuraciones faltantes para el mapeo de las rutas con alias en los tests ([71c8c8e](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/71c8c8ec6e0e42de29add1244e95bcf99c637c9c))
+
 ## [1.10.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.9.3...v1.10.0) (2024-03-10)
 
 

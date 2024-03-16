@@ -11,17 +11,15 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common'
-import { BaseController } from '../../../common/base'
-import { JwtAuthGuard } from '../../authentication/guards/jwt-auth.guard'
+import { BaseController } from '@/common/base'
 import { CrearUsuarioDto } from '../dto/crear-usuario.dto'
 import { UsuarioService } from '../service/usuario.service'
-import { Messages } from '../../../common/constants/response-messages'
-import { ParamUuidDto } from '../../../common/dto/params-uuid.dto'
+import { Messages } from '@/common/constants/response-messages'
+import { ParamUuidDto } from '@/common/dto/params-uuid.dto'
 import { ActualizarContrasenaDto } from '../dto/actualizar-contrasena.dto'
 import { ActualizarUsuarioRolDto } from '../dto/actualizar-usuario-rol.dto'
 import { CrearUsuarioCiudadaniaDto } from '../dto/crear-usuario-ciudadania.dto'
 import { FiltrosUsuarioDto } from '../dto/filtros-usuario.dto'
-import { CasbinGuard } from '../../authorization/guards/casbin.guard'
 import { CrearUsuarioCuentaDto } from '../dto/crear-usuario-cuenta.dto'
 import {
   ActivarCuentaDto,
@@ -29,7 +27,7 @@ import {
   RecuperarCuentaDto,
   ValidarRecuperarCuentaDto,
 } from '../dto/recuperar-cuenta.dto'
-import { ParamIdDto } from '../../../common/dto/params-id.dto'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
 import {
   ApiBearerAuth,
   ApiBody,
@@ -40,6 +38,8 @@ import {
 } from '@nestjs/swagger'
 import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
+import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 
 @Controller('usuarios')
 @ApiTags('Usuarios')
@@ -84,7 +84,8 @@ export class UsuarioController extends BaseController {
   @ApiBearerAuth()
   @ApiBody({
     type: CrearUsuarioDto,
-    description: 'new Usuario',
+    description:
+      'Esta API permite crear un nuevo usuario utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @UseGuards(JwtAuthGuard, CasbinGuard)
@@ -99,7 +100,8 @@ export class UsuarioController extends BaseController {
   @ApiOperation({ summary: 'API para crear una nueva Cuenta' })
   @ApiBody({
     type: CrearUsuarioDto,
-    description: 'Nueva cuenta de usuario',
+    description:
+      'Esta API permite crear una nueva cuenta de usuario utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Post('crear-cuenta')
@@ -112,7 +114,8 @@ export class UsuarioController extends BaseController {
   @ApiOperation({ summary: 'API para recuperar una Cuenta' })
   @ApiBody({
     type: RecuperarCuentaDto,
-    description: 'Cuenta',
+    description:
+      'Esta API permite recuperar una cuenta de usuario utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Post('recuperar')
@@ -125,7 +128,8 @@ export class UsuarioController extends BaseController {
   @ApiOperation({ summary: 'API para validar recuperación una Cuenta' })
   @ApiBody({
     type: ValidarRecuperarCuentaDto,
-    description: 'Cuenta',
+    description:
+      'Esta API permite validar la recuperación de una cuenta de usuario utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Post('validar-recuperar')
@@ -142,7 +146,8 @@ export class UsuarioController extends BaseController {
   @ApiOperation({ summary: 'API para activar una Cuenta' })
   @ApiBody({
     type: ActivarCuentaDto,
-    description: 'Cuenta',
+    description:
+      'Esta API permite activar una cuenta de usuario utilizando el código de activación proporcionado en el cuerpo de la solicitud.',
     required: true,
   })
   @Patch('/cuenta/activacion')
@@ -157,7 +162,8 @@ export class UsuarioController extends BaseController {
   @ApiOperation({ summary: 'API para nueva Contraseña' })
   @ApiBody({
     type: NuevaContrasenaDto,
-    description: 'Cuenta',
+    description:
+      'Esta API permite establecer una nueva contraseña para una cuenta de usuario utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @Patch('/cuenta/nueva-contrasena')
@@ -232,7 +238,8 @@ export class UsuarioController extends BaseController {
   @ApiBearerAuth()
   @ApiBody({
     type: ActualizarContrasenaDto,
-    description: 'new Rol',
+    description:
+      'Esta API permite actualizar la contraseña de un usuario autenticado utilizando los datos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @UseGuards(JwtAuthGuard, CasbinGuard)
@@ -296,7 +303,8 @@ export class UsuarioController extends BaseController {
   })
   @ApiBody({
     type: ActualizarUsuarioRolDto,
-    description: 'Usuario',
+    description:
+      'Esta API permite actualizar los datos de un usuario utilizando los atributos proporcionados en el cuerpo de la solicitud.',
     required: true,
   })
   @UseGuards(JwtAuthGuard, CasbinGuard)

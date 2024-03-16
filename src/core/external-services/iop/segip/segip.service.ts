@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { map } from 'rxjs/operators'
 import dayjs from 'dayjs'
-import { PersonaDto } from '../../../usuario/dto/persona.dto'
 import { HttpService } from '@nestjs/axios'
 import { firstValueFrom } from 'rxjs'
-import { BaseService } from '../../../../common/base'
-import { ExternalServiceException } from '../../../../common/exceptions'
+import { BaseService } from '@/common/base'
+import { ExternalServiceException } from '@/common/exceptions'
+import { PersonaDto } from '@/core/usuario/dto/persona.dto'
 
 // Respuestas códigos SEGIP
 enum CodigoResSegipEnum {

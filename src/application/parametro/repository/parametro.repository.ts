@@ -2,8 +2,8 @@ import { Brackets, DataSource } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { ActualizarParametroDto, CrearParametroDto } from '../dto'
 import { Parametro } from '../entity'
-import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
 import { ParametroEstado } from '../constant'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @Injectable()
 export class ParametroRepository {
