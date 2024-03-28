@@ -13,6 +13,7 @@ stages:
 
 variables:
   npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  CI_PROJECT_NAME: $PROJECT_NAME
 
 .dependencies_cache:
   cache:
