@@ -24,7 +24,6 @@ Merge Build:
     - export AWS_SECRET_ACCESS_KEY=$(grep -o '"AWS_SECRET_ACCESS_KEY":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
     - export S3_BUCKET=$(grep -o '"S3_BUCKET":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
     - rm harbor.json
-    - cp src/common/params/index.ts.sample src/common/params/index.ts
     - /kaniko/executor --context . --target=merge --dockerfile ./dockerfile.merge --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA --build-arg CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME --build-arg CI_COMMIT_MESSAGE="$CI_COMMIT_MESSAGE" --cache --cache-repo=$IR_REPO_URL/kaniko-cache --cache-ttl=48h --cache-dir=/workspace --no-push --skip-unused-stages
 
 Generar imagen de la aplicación:
@@ -54,7 +53,6 @@ Generar imagen de la aplicación:
     - export AWS_SECRET_ACCESS_KEY=$(grep -o '"AWS_SECRET_ACCESS_KEY":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
     - export S3_BUCKET=$(grep -o '"S3_BUCKET":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
     - rm harbor.json
-    - cp src/common/params/index.ts.sample src/common/params/index.ts
     - /kaniko/executor --context . --target=$NAMESPACE --dockerfile ./dockerfile --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA --build-arg CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME --build-arg CI_COMMIT_MESSAGE="$CI_COMMIT_MESSAGE" --destination $IR_REPO_URL:$NAMESPACE --destination $IR_REPO_URL:$CI_COMMIT_SHORT_SHA --cache --cache-repo=$IR_REPO_URL/kaniko-cache --cache-ttl=48h --cache-dir=/workspace --skip-unused-stages
 
 Desplegar la aplicación en ArgoCD y Plataforma ADAS:
@@ -133,6 +131,5 @@ Setup de la base de datos:
     - export S3_BUCKET=$(grep -o '"S3_BUCKET":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
     - rm harbor.json
     - 'wget "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/$NAMESPACE/$CI_PROJECT_NAME/k8s" --header "X-Vault-Token: $VAULT_TOKEN" -O secrets.json'
-    - cp src/common/params/index.ts.sample src/common/params/index.ts
     - /kaniko/executor --context . --target=setup --dockerfile ./dockerfile.setup --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA --build-arg CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME --build-arg CI_COMMIT_MESSAGE="$CI_COMMIT_MESSAGE" --cache --cache-repo=$IR_REPO_URL/kaniko-cache --cache-ttl=48h --cache-dir=/workspace --no-push --skip-unused-stages
   when: manual
