@@ -1,5 +1,5 @@
 include:
-  - /.gitlab/k8s-testing.yml
+  - /.gitlab/k8s-pre.yml
 
 stages:
   - prebuild

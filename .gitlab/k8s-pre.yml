@@ -5,12 +5,12 @@ Merge Build:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       when: on_success
   tags:
-    - kubernetes-runner-testing
+    - kubernetes-proyectos-base-pre
   script:
     - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
     - chmod +x ./configure-namespaces.sh
     - . ./configure-namespaces.sh
-    - 'wget "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/testing/infraestructura/harbor" --header "X-Vault-Token: $VAULT_TOKEN" -O harbor.json'
+    - 'wget "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/pre/infraestructura/harbor" --header "X-Vault-Token: $VAULT_TOKEN" -O harbor.json'
     - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
     - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
     - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
@@ -30,11 +30,11 @@ Generar imagen de la aplicación:
   image: hub.agcs.agetic.gob.bo/kaniko/kaniko-debug:1.35.0
   stage: release
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /test/
+    - if: $CI_COMMIT_BRANCH =~ /pre/
       when: on_success
       allow_failure: false
   tags:
-    - kubernetes-runner-testing
+    - kubernetes-proyectos-base-pre
   script:
     - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
     - chmod +x ./configure-namespaces.sh
@@ -64,11 +64,11 @@ Desplegar la aplicación en ArgoCD y Plataforma ADAS:
     - job: Generar imagen de la aplicación
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /test/
+    - if: $CI_COMMIT_BRANCH =~ /pre/
       when: on_success
       allow_failure: false
   tags:
-    - kubernetes-runner-testing
+    - kubernetes-proyectos-base-pre
   before_script:
     - apk update
     - apk add --no-cache curl jq yq bash
@@ -108,10 +108,10 @@ Setup de la base de datos:
   image: hub.agcs.agetic.gob.bo/kaniko/kaniko-debug:1.35.0
   stage: setup
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /test/
+    - if: $CI_COMMIT_BRANCH =~ /pre/
       when: manual
   tags:
-    - kubernetes-runner-testing
+    - kubernetes-proyectos-base-pre
   script:
     - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
     - chmod +x ./configure-namespaces.sh
