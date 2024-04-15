@@ -15,5 +15,5 @@ RUN npm ci --prefer-offline --progress=false --no-audit
 
 FROM base AS merge
 COPY --chown=node:node . .
-RUN npm run format
+RUN npm run format-check
 RUN npm run build-docker
