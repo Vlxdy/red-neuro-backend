@@ -70,7 +70,7 @@ export class ModuloService extends BaseService {
     }
 
     const actualizarModuloDto = new ActualizarModuloDto()
-    actualizarModuloDto.estado = ModuloEstado.ACTIVE
+    actualizarModuloDto.estado = ModuloEstado.INACTIVE
 
     await this.moduloRepositorio.actualizar(
       id,
