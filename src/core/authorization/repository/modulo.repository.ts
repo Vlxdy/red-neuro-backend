@@ -2,8 +2,9 @@ import { Brackets, DataSource } from 'typeorm'
 import { Modulo, Propiedades } from '../entity/modulo.entity'
 import { CrearModuloDto, FiltroModuloDto } from '../dto/crear-modulo.dto'
 import { Injectable } from '@nestjs/common'
-import { Status } from '@/common/constants'
+
 import { ActualizarModuloDto } from '../dto/actualizar-modulo.dto'
+import { ModuloEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class ModuloRepository {
@@ -76,7 +77,7 @@ export class ModuloRepository {
         'subModulo',
         'subModulo.estado = :estado',
         {
-          estado: Status.ACTIVE,
+          estado: ModuloEstado.ACTIVE,
         }
       )
       .select([
@@ -95,7 +96,7 @@ export class ModuloRepository {
       ])
       .where('modulo.id_modulo is NULL')
       .andWhere('modulo.estado = :estado', {
-        estado: Status.ACTIVE,
+        estado: ModuloEstado.ACTIVE,
       })
       .orderBy(`"modulo"."propiedades"->'orden'`, 'ASC')
       .addOrderBy(`"subModulo"."propiedades"->'orden'`, 'ASC')

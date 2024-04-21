@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.11.1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.0...v1.11.1) (2024-04-21)
+
+
+### Features
+
+* cambio de estados genéricos a estados espesíficos por módulo ([9ba53ef](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/9ba53ef7b09b9bab13c7575da2e391ce0e514605))
+
+
+### Bug Fixes
+
+* actualización de dependencias NestJS 10.3.7 y otros ([fc021bd](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/fc021bd038ead109fcd4f853cafb007b0f2536c4))
+* adición de @types/passport-jwt y actualización menor de dependencias ([ec6242f](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/ec6242fc613e462e005739ef15fe278e4ce15161))
+* corrección en importaciones de utilidades de validación en lugar de Class Validator ([497d765](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/497d7652a11be9ad11f41303494e4d80245901de))
+
 ## [1.11.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.10.0...v1.11.0) (2024-03-16)
 
 

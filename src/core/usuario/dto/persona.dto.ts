@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer'
 import {
   IsDateString,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   NombreApellido,
@@ -9,7 +10,6 @@ import {
   ValidateIf,
 } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional } from 'class-validator'
 
 export class PersonaDto {
   @ApiProperty({ example: '4192299' })

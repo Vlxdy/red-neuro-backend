@@ -1,11 +1,12 @@
 import {
   IsNotEmpty,
   IsNumberString,
+  IsOptional,
   IsString,
   ValidateNested,
 } from '@/common/validation'
 import { PropiedadesDto } from './crear-modulo.dto'
-import { IsOptional } from 'class-validator'
+
 import { Type } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 

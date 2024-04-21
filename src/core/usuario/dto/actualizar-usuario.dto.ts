@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional } from 'class-validator'
+import { IsOptional } from '@/common/validation'
 
 export class ActualizarUsuarioDto {
   @ApiProperty()

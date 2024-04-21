@@ -1,9 +1,9 @@
 import { UsuarioRol } from '../entity/usuario-rol.entity'
 import { DataSource, EntityManager } from 'typeorm'
 import { Rol } from '../entity/rol.entity'
-import { Status } from '@/common/constants'
 import { Injectable } from '@nestjs/common'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
+import { UsuarioRolEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class UsuarioRolRepository {
@@ -33,7 +33,7 @@ export class UsuarioRolRepository {
       .createQueryBuilder()
       .update(UsuarioRol)
       .set({
-        estado: Status.ACTIVE,
+        estado: UsuarioRolEstado.ACTIVE,
         usuarioModificacion: usuarioAuditoria,
       })
       .where('id_usuario = :idUsuario', { idUsuario })
@@ -54,7 +54,7 @@ export class UsuarioRolRepository {
       .createQueryBuilder()
       .update(UsuarioRol)
       .set({
-        estado: Status.INACTIVE,
+        estado: UsuarioRolEstado.INACTIVE,
         usuarioModificacion: usuarioAuditoria,
       })
       .where('id_usuario = :idUsuario', { idUsuario })

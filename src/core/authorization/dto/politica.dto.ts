@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty } from 'class-validator'
+import { IsNotEmpty } from '@/common/validation'
 
 export class PoliticaDto {
   @ApiProperty({ example: 'ADMINISTRADOR' })

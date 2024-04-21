@@ -1,9 +1,9 @@
 import { Brackets, DataSource, EntityManager } from 'typeorm'
-import { Status } from '@/common/constants'
 import { Injectable } from '@nestjs/common'
 import { Rol } from '../entity/rol.entity'
 import { CrearRolDto } from '../dto/crear-rol.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { RolEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class RolRepository {
@@ -20,7 +20,7 @@ export class RolRepository {
         'rol.descripcion',
         'rol.estado',
       ])
-      .where({ estado: Status.ACTIVE })
+      .where({ estado: RolEstado.ACTIVE })
       .getMany()
   }
 
@@ -79,7 +79,7 @@ export class RolRepository {
       .getRepository(Rol)
       .createQueryBuilder('rol')
       .select(['rol.id', 'rol.rol'])
-      .where({ estado: Status.ACTIVE, usuarioRol: idUsuario })
+      .where({ estado: RolEstado.ACTIVE, usuarioRol: idUsuario })
       .getMany()
   }
 

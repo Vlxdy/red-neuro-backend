@@ -32,6 +32,8 @@ import { AuthorizationService } from '@/core/authorization/controller/authorizat
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
 import { SegipService } from '@/core/external-services/iop/segip/segip.service'
+import { UsuarioEstado } from '@/core/usuario/constant'
+import { UsuarioRolEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class UsuarioService extends BaseService {
@@ -95,7 +97,7 @@ export class UsuarioService extends BaseService {
 
     const op = async (transaction: EntityManager) => {
       usuarioDto.contrasena = await TextService.encrypt(contrasena)
-      usuarioDto.estado = Status.ACTIVE
+      usuarioDto.estado = UsuarioEstado.ACTIVE
 
       const persona = await this.personaRepositorio.crear(
         usuarioDto.persona,
@@ -185,7 +187,7 @@ export class UsuarioService extends BaseService {
         {
           usuario: usuarioDto.correoElectronico,
           correoElectronico: usuarioDto.correoElectronico,
-          estado: Status.PENDING,
+          estado: UsuarioEstado.PENDING,
           contrasena: await TextService.encrypt(usuarioDto.contrasenaNueva),
         },
         USUARIO_NORMAL,
@@ -244,7 +246,7 @@ export class UsuarioService extends BaseService {
     await this.usuarioRepositorio.actualizar(
       usuario?.id,
       {
-        estado: Status.ACTIVE,
+        estado: UsuarioEstado.ACTIVE,
         codigoActivacion: null,
       },
       usuario?.id
@@ -348,7 +350,7 @@ export class UsuarioService extends BaseService {
         contrasena: await TextService.encrypt(
           TextService.decodeBase64(nuevaContrasenaDto.contrasenaNueva)
         ),
-        estado: Status.ACTIVE,
+        estado: UsuarioEstado.ACTIVE,
       },
       usuario.id
     )
@@ -385,7 +387,7 @@ export class UsuarioService extends BaseService {
         transaction
       )
 
-      usuarioDto.estado = Status.ACTIVE
+      usuarioDto.estado = UsuarioEstado.ACTIVE
 
       const usuarioResult = await this.usuarioRepositorio.crear(
         personaResult.id,
@@ -435,7 +437,7 @@ export class UsuarioService extends BaseService {
       const usuarioResult = await this.usuarioRepositorio.crear(
         idPersona,
         {
-          estado: Status.ACTIVE,
+          estado: UsuarioEstado.ACTIVE,
           correoElectronico: otrosDatos?.correoElectronico,
           ciudadaniaDigital: true,
         },
@@ -510,7 +512,7 @@ export class UsuarioService extends BaseService {
         nuevaPersona.id,
         {
           usuario: personaCiudadania.nroDocumento,
-          estado: Status.ACTIVE,
+          estado: UsuarioEstado.ACTIVE,
           correoElectronico: otrosDatos?.correoElectronico,
           ciudadaniaDigital: true,
         },
@@ -536,7 +538,11 @@ export class UsuarioService extends BaseService {
   async activar(idUsuario: string, usuarioAuditoria: string) {
     this.verificarPermisos(idUsuario, usuarioAuditoria)
     const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
-    const statusValid = [Status.CREATE, Status.INACTIVE, Status.PENDING]
+    const statusValid = [
+      UsuarioEstado.CREATE,
+      UsuarioEstado.INACTIVE,
+      UsuarioEstado.PENDING,
+    ]
 
     if (!(usuario && statusValid.includes(usuario.estado as Status))) {
       throw new NotFoundException(Messages.INVALID_USER)
@@ -549,7 +555,7 @@ export class UsuarioService extends BaseService {
       idUsuario,
       {
         contrasena: await TextService.encrypt(contrasena),
-        estado: Status.ACTIVE,
+        estado: UsuarioEstado.ACTIVE,
       },
       usuarioAuditoria
     )
@@ -593,7 +599,7 @@ export class UsuarioService extends BaseService {
     await this.usuarioRepositorio.actualizar(
       idUsuario,
       {
-        estado: Status.INACTIVE,
+        estado: UsuarioEstado.INACTIVE,
       },
 
       usuarioAuditoria
@@ -663,7 +669,7 @@ export class UsuarioService extends BaseService {
       idUsuario,
       {
         contrasena: await TextService.encrypt(contrasena),
-        estado: Status.ACTIVE,
+        estado: UsuarioEstado.ACTIVE,
       },
       idUsuario
     )
@@ -685,7 +691,7 @@ export class UsuarioService extends BaseService {
   async restaurarContrasena(idUsuario: string, usuarioAuditoria: string) {
     this.verificarPermisos(idUsuario, usuarioAuditoria)
     const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
-    const statusValid = [Status.ACTIVE, Status.PENDING]
+    const statusValid = [UsuarioEstado.ACTIVE, UsuarioEstado.PENDING]
 
     if (!(usuario && statusValid.includes(usuario.estado as Status))) {
       throw new NotFoundException(Messages.INVALID_USER)
@@ -738,7 +744,7 @@ export class UsuarioService extends BaseService {
 
   async reenviarCorreoActivacion(idUsuario: string, usuarioAuditoria: string) {
     const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
-    const statusValid = [Status.PENDING]
+    const statusValid = [UsuarioEstado.PENDING]
 
     if (!(usuario && statusValid.includes(usuario.estado as Status))) {
       throw new NotFoundException(Messages.INVALID_USER)
@@ -931,7 +937,8 @@ export class UsuarioService extends BaseService {
     const inactivos = roles.filter((rol) =>
       usuarioRoles.some(
         (usuarioRol) =>
-          usuarioRol.rol.id === rol && usuarioRol.estado === Status.INACTIVE
+          usuarioRol.rol.id === rol &&
+          usuarioRol.estado === UsuarioRolEstado.INACTIVE
       )
     )
 
@@ -939,7 +946,7 @@ export class UsuarioService extends BaseService {
       .filter(
         (usuarioRol) =>
           !roles.includes(usuarioRol.rol.id) &&
-          usuarioRol.estado === Status.ACTIVE
+          usuarioRol.estado === UsuarioRolEstado.ACTIVE
       )
       .map((usuarioRol) => usuarioRol.rol.id)
 
@@ -973,7 +980,7 @@ export class UsuarioService extends BaseService {
       estado: usuario.estado,
       roles: await Promise.all(
         usuario.usuarioRol
-          .filter((value) => value.estado === Status.ACTIVE)
+          .filter((value) => value.estado === UsuarioRolEstado.ACTIVE)
           .map(async (usuarioRol) => {
             const { id, rol, nombre, descripcion } = usuarioRol.rol
             const modulos =

@@ -3,7 +3,7 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { TextService } from '@/common/lib/text.service'
 import { RefreshTokensService } from './refreshTokens.service'
-import { Status, USUARIO_NORMAL, USUARIO_SISTEMA } from '@/common/constants'
+import { USUARIO_NORMAL, USUARIO_SISTEMA } from '@/common/constants'
 import { Configurations } from '@/common/params'
 import { Messages } from '@/common/constants/response-messages'
 import dayjs from 'dayjs'
@@ -15,6 +15,8 @@ import { PersonaService } from '@/core/usuario/service/persona.service'
 import { UsuarioService } from '@/core/usuario/service/usuario.service'
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
 import { PersonaDto } from '@/core/usuario/dto/persona.dto'
+import { PersonaEstado, UsuarioEstado } from '@/core/usuario/constant'
+import { UsuarioRolEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class AuthenticationService extends BaseService {
@@ -88,11 +90,11 @@ export class AuthenticationService extends BaseService {
       throw new UnauthorizedException(Messages.NO_PERMISSION_USER)
     }
 
-    if (respuesta?.estado === Status.PENDING) {
+    if (respuesta?.estado === UsuarioEstado.PENDING) {
       throw new UnauthorizedException(Messages.PENDING_USER)
     }
 
-    if (respuesta?.estado === Status.INACTIVE) {
+    if (respuesta?.estado === UsuarioEstado.INACTIVE) {
       throw new UnauthorizedException(Messages.INACTIVE_USER)
     }
 
@@ -117,7 +119,7 @@ export class AuthenticationService extends BaseService {
     return {
       id: respuesta.id,
       roles: respuesta.usuarioRol
-        .filter((usuarioRol) => usuarioRol.estado === Status.ACTIVE)
+        .filter((usuarioRol) => usuarioRol.estado === UsuarioRolEstado.ACTIVE)
         .map((usuarioRol) => usuarioRol.rol.rol),
     }
   }
@@ -170,7 +172,7 @@ export class AuthenticationService extends BaseService {
 
     const { persona: datosPersona } = respuesta
 
-    if (respuesta.estado === Status.INACTIVE) {
+    if (respuesta.estado === UsuarioEstado.INACTIVE) {
       throw new UnauthorizedException(Messages.INACTIVE_USER)
     }
 
@@ -225,7 +227,7 @@ export class AuthenticationService extends BaseService {
       }
 
       // Persona existe en base de datos, solo crear usuario
-      if (respPersona.estado === Status.INACTIVE) {
+      if (respPersona.estado === PersonaEstado.INACTIVE) {
         throw new UnauthorizedException(Messages.INACTIVE_PERSON)
       }
 
@@ -264,7 +266,7 @@ export class AuthenticationService extends BaseService {
 
     const { estado, persona: datosPersona } = respuesta
 
-    if (estado === Status.INACTIVE) {
+    if (estado === UsuarioEstado.INACTIVE) {
       throw new UnauthorizedException(Messages.INACTIVE_USER)
     }
 

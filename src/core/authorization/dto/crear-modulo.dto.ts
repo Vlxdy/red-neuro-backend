@@ -1,11 +1,12 @@
 import {
   IsNotEmpty,
+  IsNumber,
   IsNumberString,
+  IsOptional,
   IsString,
   ValidateNested,
 } from '@/common/validation'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
-import { IsNumber, IsOptional } from 'class-validator'
 import { Type } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 

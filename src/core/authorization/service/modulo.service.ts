@@ -2,10 +2,9 @@ import { BaseService } from '@/common/base'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ModuloRepository } from '../repository/modulo.repository'
 import { CrearModuloDto, FiltroModuloDto } from '../dto/crear-modulo.dto'
-import { Status } from '@/common/constants'
-
 import { Messages } from '@/common/constants/response-messages'
 import { ActualizarModuloDto } from '../dto/actualizar-modulo.dto'
+import { ModuloEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class ModuloService extends BaseService {
@@ -51,7 +50,7 @@ export class ModuloService extends BaseService {
     }
 
     const actualizarModuloDto = new ActualizarModuloDto()
-    actualizarModuloDto.estado = Status.ACTIVE
+    actualizarModuloDto.estado = ModuloEstado.ACTIVE
 
     await this.moduloRepositorio.actualizar(
       id,
@@ -71,7 +70,7 @@ export class ModuloService extends BaseService {
     }
 
     const actualizarModuloDto = new ActualizarModuloDto()
-    actualizarModuloDto.estado = Status.INACTIVE
+    actualizarModuloDto.estado = ModuloEstado.ACTIVE
 
     await this.moduloRepositorio.actualizar(
       id,

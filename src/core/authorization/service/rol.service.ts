@@ -3,8 +3,8 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { RolRepository } from '../repository/rol.repository'
 import { CrearRolDto } from '../dto/crear-rol.dto'
 import { Messages } from '@/common/constants/response-messages'
-import { Status } from '@/common/constants'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { RolEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class RolService extends BaseService {
@@ -44,7 +44,7 @@ export class RolService extends BaseService {
     }
 
     const rolDto = new CrearRolDto()
-    rolDto.estado = Status.ACTIVE
+    rolDto.estado = RolEstado.ACTIVE
     await this.rolRepositorio.actualizar(idRol, rolDto, usuarioAuditoria)
     return { id: idRol, estado: rolDto.estado }
   }
@@ -56,7 +56,7 @@ export class RolService extends BaseService {
     }
 
     const rolDto = new CrearRolDto()
-    rolDto.estado = Status.INACTIVE
+    rolDto.estado = RolEstado.INACTIVE
     await this.rolRepositorio.actualizar(idRol, rolDto, usuarioAuditoria)
     return { id: idRol, estado: rolDto.estado }
   }

@@ -8,7 +8,6 @@ import { TextService } from '@/common/lib/text.service'
 import { plainToClass } from 'class-transformer'
 import { ConfigService } from '@nestjs/config'
 import { UnauthorizedException } from '@nestjs/common'
-import { Status } from '@/common/constants'
 import { Persona } from '@/core/usuario/entity/persona.entity'
 import { PersonaService } from '@/core/usuario/service/persona.service'
 import { PersonaRepository } from '@/core/usuario/repository/persona.repository'
@@ -17,6 +16,7 @@ import { RolRepository } from '@/core/authorization/repository/rol.repository'
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
 import { UsuarioService } from '@/core/usuario/service/usuario.service'
 import { PersonaDto } from '@/core/usuario/dto/persona.dto'
+import { UsuarioEstado } from '@/core/usuario/constant'
 
 const resSign = 'aaa.bbb.ccc'
 const resBuscarUsuario = {
@@ -47,7 +47,7 @@ const refreshToken = { resfresh_token: '1' }
 const resPerfil = {
   id: TextService.generateUuid(),
   usuario: '7171717',
-  estado: Status.ACTIVE,
+  estado: UsuarioEstado.ACTIVE,
   roles: {},
   persona: {},
 }
