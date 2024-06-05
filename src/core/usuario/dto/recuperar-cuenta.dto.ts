@@ -29,6 +29,7 @@ export class NuevaContrasenaDto {
   @IsString()
   @IsNotEmpty()
   codigo: string
+
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
