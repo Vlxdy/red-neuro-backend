@@ -4,7 +4,7 @@ import path from 'path'
 import { FileParams, LoggerParams } from '../types'
 import { LokiOptions } from 'pino-loki'
 import { DEFAULT_SENSITIVE_PARAMS, LOG_LEVEL } from '../constants'
-import fs from 'fs'
+import fs from 'node:fs/promises'
 import pako from 'pako'
 
 export class LoggerConfig {
@@ -75,9 +75,12 @@ export class LoggerConfig {
 
       // stream.on('rotate', (oldFile: string, newFile: string) // en caso de necesitar alguna operación con el nuevo archivo
 
-      stream.on('rotate', (oldFile) => {
-        const input = fs.createReadStream(oldFile)
-        const output = fs.createWriteStream(oldFile + '.gz')
+      stream.on('rotate', async (oldFile) => {
+        const inputFile = await fs.open(oldFile)
+        const input = inputFile.createWriteStream()
+
+        const outputFile = await fs.open(oldFile + '.gz')
+        const output = outputFile.createWriteStream()
 
         input.on('error', (error: any) => {
           console.error('Error al leer el archivo:', error)
@@ -94,7 +97,9 @@ export class LoggerConfig {
 
         input.on('end', () => {
           output.end()
-          setTimeout(() => fs.unlink(oldFile, () => {}), 60000)
+          setTimeout(async () => {
+            await fs.unlink(oldFile)
+          }, 60000)
         })
       })
       return stream
