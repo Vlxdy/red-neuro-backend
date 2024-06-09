@@ -1,6 +1,20 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [1.11.2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.1...v1.11.2) (2024-06-09)
+
+
+### Features
+
+* actualización de dependencias NestJS 10.3.9 y otros ([8ca8300](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/8ca8300c38207cbd1b80ea83659d3f1a22b3683b))
+* implementación de node:fs/promises para uso asincrono de sistema de archivos ([8086f46](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/8086f4614063114180cc72ede89fd28b32968260))
+* se agrega **commit-and-tag-version** en reemplazo de **standard-version** que fue deprecada ([f8a607b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/f8a607bf409a4e668cf6670882de9f291a1e531a))
+
+
+### Bug Fixes
+
+* corrección en doble declaración de ApiProperty en DTO de actualización de parámetros ([fc99c29](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/fc99c29254f7c9f2be669b14967c00bba783e392))
 
 ### [1.11.1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.0...v1.11.1) (2024-04-21)
 
