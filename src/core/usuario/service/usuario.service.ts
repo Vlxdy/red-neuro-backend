@@ -202,9 +202,12 @@ export class UsuarioService extends BaseService {
       )
 
       const codigo = TextService.generateUuid()
-      const urlActivacion = `${this.configService.get(
-        'URL_FRONTEND'
-      )}/activacion?q=${codigo}`
+
+      const urlActivacion = new URL(
+        this.configService.get('URL_FRONTEND') ?? ''
+      )
+      urlActivacion.pathname = 'activacion'
+      urlActivacion.searchParams.append('q', codigo)
 
       this.logger.info(`📩 urlActivacion: ${urlActivacion}`)
 
@@ -216,7 +219,9 @@ export class UsuarioService extends BaseService {
       )
 
       const template =
-        TemplateEmailService.armarPlantillaActivacionCuentaManual(urlActivacion)
+        TemplateEmailService.armarPlantillaActivacionCuentaManual(
+          urlActivacion.toString()
+        )
 
       if (usuarioNuevo.correoElectronico) {
         await this.mensajeriaService
@@ -274,16 +279,19 @@ export class UsuarioService extends BaseService {
     }
 
     const codigo = TextService.generateUuid()
-    const urlRecuperacion = `${this.configService.get(
-      'URL_FRONTEND'
-    )}/recuperacion?q=${codigo}`
+    const urlRecuperacion = new URL(
+      this.configService.get('URL_FRONTEND') ?? ''
+    )
+    urlRecuperacion.pathname = 'recuperacion'
+    urlRecuperacion.searchParams.append('q', codigo)
 
     // this.logger.info(`📩 urlRecuperacion: ${urlRecuperacion}`)
 
     await this.actualizarDatosRecuperacion(usuario.id, codigo)
 
-    const template =
-      TemplateEmailService.armarPlantillaRecuperacionCuenta(urlRecuperacion)
+    const template = TemplateEmailService.armarPlantillaRecuperacionCuenta(
+      urlRecuperacion.toString()
+    )
 
     if (usuario.correoElectronico) {
       await this.mensajeriaService
@@ -752,9 +760,11 @@ export class UsuarioService extends BaseService {
 
     const op = async (transaction: EntityManager) => {
       const codigo = TextService.generateUuid()
-      const urlActivacion = `${this.configService.get(
-        'URL_FRONTEND'
-      )}/activacion?q=${codigo}`
+      const urlActivacion = new URL(
+        this.configService.get('URL_FRONTEND') ?? ''
+      )
+      urlActivacion.pathname = 'activacion'
+      urlActivacion.searchParams.append('q', codigo)
 
       // this.logger.info(`📩 urlActivacion nuevo: ${urlActivacion}`)
 
@@ -766,7 +776,9 @@ export class UsuarioService extends BaseService {
       )
 
       const template =
-        TemplateEmailService.armarPlantillaActivacionCuentaManual(urlActivacion)
+        TemplateEmailService.armarPlantillaActivacionCuentaManual(
+          urlActivacion.toString()
+        )
 
       if (usuario.correoElectronico) {
         await this.mensajeriaService

@@ -53,12 +53,13 @@ export class AuthenticationService extends BaseService {
       fechaBloqueo.toDate()
     )
     // enviar código por email
-    const urlDesbloqueo = `${this.configService.get(
-      'URL_FRONTEND'
-    )}/desbloqueo?q=${codigo}`
+    const urlDesbloqueo = new URL(this.configService.get('URL_FRONTEND') ?? '')
+    urlDesbloqueo.pathname = 'desbloqueo'
+    urlDesbloqueo.searchParams.append('q', codigo)
 
-    const template =
-      TemplateEmailService.armarPlantillaBloqueoCuenta(urlDesbloqueo)
+    const template = TemplateEmailService.armarPlantillaBloqueoCuenta(
+      urlDesbloqueo.toString()
+    )
 
     await this.mensajeriaService.sendEmail(
       usuario.correoElectronico ?? '',

@@ -48,7 +48,7 @@ export async function ocultarInfo() {
   await delay()
 
   const zeroLine = 4
-  const logFile = readLogFile<LogEntry>('info.log')
+  const logFile = await readLogFile<LogEntry>('info.log')
   expect(logFile.getValue(zeroLine + 1)).toHaveLength(1)
 
   const firstEntry = logFile.getEntry(zeroLine + 1)

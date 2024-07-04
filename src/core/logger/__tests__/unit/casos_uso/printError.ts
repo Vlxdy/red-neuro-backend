@@ -41,7 +41,7 @@ export async function printError() {
   await delay()
 
   const zeroLine = 0
-  const logFile = readLogFile<LogEntry>('error.log')
+  const logFile = await readLogFile<LogEntry>('error.log')
   expect(logFile.getValue(zeroLine + 1)).toHaveLength(5)
 
   const firstEntry = logFile.getEntry(zeroLine + 1)
