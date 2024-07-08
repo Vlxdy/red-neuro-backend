@@ -16,7 +16,7 @@ RUN npm ci --prefer-offline --progress=false --no-audit
 FROM base AS build
 COPY --chown=node:node . .
 
-RUN npm run build
+RUN npm run build-docker
 RUN npm ci --production --no-optional --prefer-offline --progress=false --no-audit
 
 FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS release
