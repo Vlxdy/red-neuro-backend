@@ -6,10 +6,8 @@
 
 #ignoring dotfiles
 .dockerignore
-.eslintrc.js
 .env.sample
 .env
-.prettierrc
 .gitignore
 .git
 

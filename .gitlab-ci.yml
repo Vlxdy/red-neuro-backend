@@ -1,0 +1,32 @@
+stages:
+  - prebuild
+  - build
+  - release
+  - deploy
+  - test
+  - sast
+  - dast
+  - setup
+
+include:
+  - local: '/.gitlab/k8s-testing.yml'
+    rules:
+      - if: $CI_COMMIT_BRANCH == "test"
+        when: always
+      - when: never
+  - local: '/.gitlab/k8s-development.yml'
+    rules:
+      - if: $CI_COMMIT_BRANCH =~ /develop/
+        when: always
+      - when: never
+  - local: '/.gitlab/k8s-merge-request.yml'
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        when: always
+      - when: never
+
+dummy_job:
+  script:
+    - echo "Este job corre para evitar los errores de pipelines"
+  rules:
+    - when: never
