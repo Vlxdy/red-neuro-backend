@@ -34,7 +34,7 @@ Merge Build Develop:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
       when: on_success
   tags:
-    - k7t-dev
+    - kt7-dev
   script:
     - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
     - chmod +x ./configure-namespaces.sh
