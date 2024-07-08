@@ -7,7 +7,9 @@
   "license": "LPG-Bolivia",
   "scripts": {
     "build": "nest build",
+    "build-docker": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format-check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "setup": "npm run migrations:clean && npm run schema:drop && npm run migrations:generate database/migrations/init && npm run migrations:run && npm run seeds:run",
     "dev": "LOG_SQL=true LOG_CONSOLE=true LOG_LEVEL=debug npm run start:dev",
     "start": "nest start",
