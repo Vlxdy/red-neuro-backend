@@ -45,12 +45,12 @@ USER node
 CMD ["sh", "-c", "node dist/src/main"]
 EXPOSE 3000
 
-FROM release AS testing
+FROM release AS testing-base
 USER node
 CMD ["sh", "-c", "node dist/src/main"]
 EXPOSE 3000
 
-FROM release AS development
+FROM release AS development-base
 USER node
 CMD ["sh", "-c", "node dist/src/main"]
 EXPOSE 3000

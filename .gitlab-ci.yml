@@ -1,25 +1,32 @@
-include:
-  - /.gitlab/k8s-testing.yml
-
 stages:
   - prebuild
   - build
-  - test
-  - sast
   - release
   - deploy
+  - test
+  - sast
   - dast
   - setup
 
-variables:
-  npm_config_cache: "$CI_PROJECT_DIR/.npm"
-  CI_PROJECT_NAME: $PROJECT_NAME
+include:
+  - local: '/.gitlab/k8s-testing.yml'
+    rules:
+      - if: $CI_COMMIT_BRANCH == "test"
+        when: always
+      - when: never
+  - local: '/.gitlab/k8s-development.yml'
+    rules:
+      - if: $CI_COMMIT_BRANCH =~ /develop/
+        when: always
+      - when: never
+  - local: '/.gitlab/k8s-merge-request.yml'
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        when: always
+      - when: never
 
-.dependencies_cache:
-  cache:
-    key:
-      files:
-        - package-lock.json
-    paths:
-      - .npm
-    policy: pull
+dummy_job:
+  script:
+    - echo "Este job corre para evitar los errores de pipelines"
+  rules:
+    - when: never
