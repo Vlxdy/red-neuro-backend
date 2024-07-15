@@ -41,7 +41,7 @@ Desplegar la aplicación en ArgoCD:
   script:
     - cat /scripts/d1.sh
     - sh /scripts/d1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -D
-    - cat /scripts/s1.sh
+    - cat /scripts/d1.sh
 
 Setup de la base de datos:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-s-debug
