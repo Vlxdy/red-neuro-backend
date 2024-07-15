@@ -1,34 +1,31 @@
+Merge Build:
+  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-s-debug
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: on_success
+  tags:
+    - kt7
+  script:
+    - cat /scripts/s1.sh
+    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -l # cambiar `l` por `D` para debug
+    # - sh s1.sh -p $CI_PROJECT_NAMESPACE -e $CI_COMMIT_BRANCH-$CI_PROJECT_NAMESPACE -P $CI_PROJECT_NAME -m -D
 Generar imagen de la aplicación:
-  image: hub.agcs.agetic.gob.bo/kaniko/kaniko-debug:1.35.0
+  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-s-debug
   stage: release
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /develop/
+    - if: $CI_COMMIT_BRANCH =~ /develop*/
       when: on_success
       allow_failure: false
   tags:
-    - kt7-dev
+    - kt7
   script:
-    - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
-    - chmod +x ./configure-namespaces.sh
-    - . ./configure-namespaces.sh
-    - 'wget "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/$NAMESPACE/infraestructura/harbor" --header "X-Vault-Token: $VAULT_TOKEN" -O harbor.json'
-    - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export IR_PASS=$(grep -o '"IR_PASS":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export IR_USER=$(grep -o '"IR_USER":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - echo $CONFIGURE_IMAGE | base64 -d > ./configure-image-generation.sh
-    - chmod +x ./configure-image-generation.sh
-    - . ./configure-image-generation.sh
-    - export S3_ENDPOINT=$(grep -o '"S3_ENDPOINT":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export AWS_ACCESS_KEY_ID=$(grep -o '"AWS_ACCESS_KEY_ID":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export AWS_SECRET_ACCESS_KEY=$(grep -o '"AWS_SECRET_ACCESS_KEY":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export S3_BUCKET=$(grep -o '"S3_BUCKET":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - rm harbor.json
-    - /kaniko/executor --context . --target=$NAMESPACE --dockerfile ./dockerfile --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA --build-arg CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME --build-arg CI_COMMIT_MESSAGE="$CI_COMMIT_MESSAGE" --destination $IR_REPO_URL:$NAMESPACE --destination $IR_REPO_URL:$CI_COMMIT_SHORT_SHA --cache --cache-repo=$IR_REPO_URL/kaniko-cache --cache-ttl=48h --cache-dir=/workspace --skip-unused-stages
+    - cat /scripts/s1.sh
+    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -T development-base -l
+    # - sh s1.sh -p $CI_PROJECT_NAMESPACE -e $CI_COMMIT_BRANCH-$CI_PROJECT_NAMESPACE -P $CI_PROJECT_NAME -d -D
 
 Desplegar la aplicación en ArgoCD:
-  image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/alpine:3.20.1
+  image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1-1
   stage: deploy
   dependencies:
     - Generar imagen de la aplicación
@@ -36,71 +33,24 @@ Desplegar la aplicación en ArgoCD:
     - job: Generar imagen de la aplicación
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /develop/
+    - if: $CI_COMMIT_BRANCH =~ /develop*/
       when: on_success
       allow_failure: false
   tags:
-    - kt7-dev
-  before_script:
-    - apk update
-    - apk add --no-cache curl jq yq bash
+    - kt7
   script:
-    - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
-    - chmod +x ./configure-namespaces.sh
-    - . ./configure-namespaces.sh
-    - 'curl "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/$NAMESPACE/infraestructura/harbor" --header "X-Vault-Token: $VAULT_TOKEN" > harbor.json'
-    - echo $(jq ".data.data" harbor.json) > harbor.json
-    - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export IR_CHART_REPO=$(grep -o '"IR_CHART_REPO":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export IR_CHART_VERSION=$(grep -o '"IR_CHART_VERSION":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export IR_PASS=$(grep -o '"IR_PASS":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export IR_USER=$(grep -o '"IR_USER":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - 'curl "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/$NAMESPACE/infraestructura/kubernetes" --header "X-Vault-Token: $VAULT_TOKEN" > kubernetes.json'
-    - echo $(jq ".data.data" kubernetes.json) > kubernetes.json
-    - export K8S_CA_DATA=$(grep -o '"K8S_CA_DATA":\ *"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export K8S_SERVER_URL=$(grep -o '"K8S_SERVER_URL":\ *"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export K8S_USER_TOKEN=$(grep -o '"K8S_USER_TOKEN":\ *"[^"]*"' kubernetes.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - 'curl "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/$NAMESPACE/infraestructura/argocd" --header "X-Vault-Token: $VAULT_TOKEN" > argocd.json'
-    - echo $(jq ".data.data" argocd.json) > argocd.json
-    - export ARGO_TOKEN=$(grep -o '"ARGO_TOKEN":\ *"[^"]*"' argocd.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - export ARGO_SERVER=$(grep -o '"ARGO_SERVER":\ *"[^"]*"' argocd.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
-    - echo $DEPLOY_CONTAINER | base64 -d > ./configure-container-deployment.sh
-    - chmod +x ./configure-container-deployment.sh
-    - . ./configure-container-deployment.sh
-    - echo $ARGO_TEMPLATE | base64 -d > ./payload.json
-    - echo $ARGO_CONFIG | base64 -d > ./payload.sh
-    - chmod +x payload.sh
-    - bash ./payload.sh
-    - 'curl -X POST -H "Authorization: Bearer $ARGO_TOKEN" -H "Content-Type: application/json" -d @final_payload.json $ARGO_SERVER/api/v1/applications?upsert=true'
+    - cat /scripts/d1.sh
+    - sh /scripts/d1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -D
 
 Setup de la base de datos:
-  image: hub.agcs.agetic.gob.bo/kaniko/kaniko-debug:1.35.0
+  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-s-debug
   stage: setup
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /develop/
+    - if: $CI_COMMIT_BRANCH =~ /develop*/
       when: manual
   tags:
-    - kt7-dev
+    - kt7
   script:
-    - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
-    - chmod +x ./configure-namespaces.sh
-    - . ./configure-namespaces.sh
-    - 'wget "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/$NAMESPACE/infraestructura/harbor" --header "X-Vault-Token: $VAULT_TOKEN" -O harbor.json'
-    - export IR_CHART_NAME=$(grep -o '"IR_CHART_NAME":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export IR_DOMAIN=$(grep -o '"IR_DOMAIN":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export IR_PASS=$(grep -o '"IR_PASS":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export IR_USER=$(grep -o '"IR_USER":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - echo $CONFIGURE_IMAGE | base64 -d > ./configure-image-generation.sh
-    - chmod +x ./configure-image-generation.sh
-    - . ./configure-image-generation.sh
-    - export S3_ENDPOINT=$(grep -o '"S3_ENDPOINT":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export AWS_ACCESS_KEY_ID=$(grep -o '"AWS_ACCESS_KEY_ID":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export AWS_SECRET_ACCESS_KEY=$(grep -o '"AWS_SECRET_ACCESS_KEY":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - export S3_BUCKET=$(grep -o '"S3_BUCKET":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' -e 's/"$//')
-    - rm harbor.json
-    - 'wget "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/$NAMESPACE/$CI_PROJECT_NAME/k8s" --header "X-Vault-Token: $VAULT_TOKEN" -O secrets.json'
-    - /kaniko/executor --context . --target=setup --dockerfile ./dockerfile.setup --build-arg CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA --build-arg CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME --build-arg CI_COMMIT_MESSAGE="$CI_COMMIT_MESSAGE" --cache --cache-repo=$IR_REPO_URL/kaniko-cache --cache-ttl=48h --cache-dir=/workspace --no-push --skip-unused-stages
+    - cat /scripts/s1.sh
+    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d setup -n -l -s
   when: manual
