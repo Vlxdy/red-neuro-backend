@@ -1,17 +1,5 @@
-Merge Build:
-  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-s-debug
-  stage: build
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      when: on_success
-  tags:
-    - kt7
-  script:
-    - cat /scripts/s1.sh
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -l # cambiar `l` por `D` para debug
-    # - sh s1.sh -p $CI_PROJECT_NAMESPACE -e $CI_COMMIT_BRANCH-$CI_PROJECT_NAMESPACE -P $CI_PROJECT_NAME -m -D
 Generar imagen de la aplicación:
-  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-s-debug
+  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.2-s-debug
   stage: release
   rules:
     - if: $CI_COMMIT_BRANCH =~ /develop*/
@@ -20,12 +8,10 @@ Generar imagen de la aplicación:
   tags:
     - kt7
   script:
-    - cat /scripts/s1.sh
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -T development-base -l
-    # - sh s1.sh -p $CI_PROJECT_NAMESPACE -e $CI_COMMIT_BRANCH-$CI_PROJECT_NAMESPACE -P $CI_PROJECT_NAME -d -D
+    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -T development-base -D
 
 Desplegar la aplicación en ArgoCD:
-  image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1-1
+  image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1-2
   stage: deploy
   dependencies:
     - Generar imagen de la aplicación
@@ -39,12 +25,10 @@ Desplegar la aplicación en ArgoCD:
   tags:
     - kt7
   script:
-    - cat /scripts/d1.sh
     - sh /scripts/d1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -D
-    - cat /scripts/d1.sh
 
 Setup de la base de datos:
-  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-s-debug
+  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.2-s-debug
   stage: setup
   rules:
     - if: $CI_COMMIT_BRANCH =~ /develop*/
@@ -52,6 +36,5 @@ Setup de la base de datos:
   tags:
     - kt7
   script:
-    - cat /scripts/s1.sh
     - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d setup -n -l -s
   when: manual
