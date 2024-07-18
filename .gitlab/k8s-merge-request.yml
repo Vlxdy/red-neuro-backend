@@ -5,7 +5,7 @@ Merge Build Test:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       when: on_success
   tags:
-    - uit
+    - uit-k8s
   script:
     - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -D # cambiar `l` por `D` para debug
 

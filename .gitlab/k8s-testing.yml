@@ -6,7 +6,7 @@ Generar imagen de la aplicación:
       when: on_success
       allow_failure: false
   tags:
-    - uit
+    - uit-k8s
   script:
     - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -T testing-base -D
 
@@ -23,7 +23,7 @@ Desplegar la aplicación en ArgoCD:
       when: on_success
       allow_failure: false
   tags:
-    - uit
+    - uit-k8s
   script:
     - sh /scripts/d1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -D
 
@@ -34,7 +34,7 @@ Setup de la base de datos:
     - if: $CI_COMMIT_BRANCH =~ /test/
       when: manual
   tags:
-    - uit
+    - uit-k8s
   script:
     - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d setup -n -l -s
   when: manual
