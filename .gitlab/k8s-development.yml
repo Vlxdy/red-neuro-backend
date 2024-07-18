@@ -11,7 +11,7 @@ Generar imagen de la aplicación:
     - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -T development-base -D
 
 Desplegar la aplicación en ArgoCD:
-  image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1-2
+  image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1-3
   stage: deploy
   dependencies:
     - Generar imagen de la aplicación
