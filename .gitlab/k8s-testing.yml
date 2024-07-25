@@ -123,6 +123,58 @@ Desplegar la aplicación en ArgoCD:
     - bash ./payload.sh
     - 'curl -X POST -H "Authorization: Bearer $ARGO_TOKEN" -H "Content-Type: application/json" -d @final_payload.json $ARGO_SERVER/api/v1/applications?upsert=true'
 
+Audit npm:
+  image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
+  stage: sast
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: manual
+  tags:
+    - kubernetes-runner-testing
+  script:
+    - npm ci
+    - npm audit --json | npx npm-audit-helper
+  allow_failure: true
+
+Njsscan:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/opensecurity/njsscan:0.3.6
+  stage: sast
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: manual
+  tags:
+    - kubernetes-runner-testing
+  variables:
+    SCAN_NJSSCAN: scan_njsscan_$CI_COMMIT_SHORT_SHA.html
+  script:
+    - find . -name "*.ts" | xargs njsscan --missing-controls
+  allow_failure: true
+
+Trivy:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/aquasec/trivy:0.46.0
+  stage: sast
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /test.*/
+      when: manual
+  tags:
+    - kubernetes-runner-testing
+  before_script:
+    - echo $CONFIGURE_NAMESPACES | base64 -d > ./configure-namespaces.sh
+    - chmod +x ./configure-namespaces.sh
+    - . ./configure-namespaces.sh
+    - 'wget "$VAULT_DOMAIN/v1/$VAULT_ROOT_PATH/data/$CLUSTER_NAME/$PATH_FOLDER/$NAMESPACE/infraestructura/harbor" --header "X-Vault-Token: $VAULT_TOKEN" -O harbor.json'
+    - export IR_USER=$(grep -o '"IR_USER":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export IR_IOP_REPO=$(grep -o '"IR_IOP_REPO":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export TRIVY_AUTH_URL=$(grep -o '"IR_DOMAIN":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export TRIVY_PASSWORD=$(grep -o '"IR_PASS":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
+    - export TRIVY_USERNAME=robot\$$IR_USER
+    - export IR_REPO_URL=$TRIVY_AUTH_URL/$IR_IOP_REPO/$CI_PROJECT_NAME
+  script:
+    - time trivy image --clear-cache
+    - time trivy image --download-db-only
+    - time trivy image $IR_REPO_URL:$CI_COMMIT_SHORT_SHA
+  allow_failure: true
+
 Setup de la base de datos:
   image: hub.agcs.agetic.gob.bo/kaniko/kaniko-debug:1.35.0
   stage: setup
