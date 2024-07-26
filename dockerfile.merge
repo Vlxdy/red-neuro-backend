@@ -17,3 +17,14 @@ FROM base AS merge
 COPY --chown=node:node . .
 RUN npm run format-check
 RUN npm run build
+
+FROM base AS development-base
+COPY --chown=node:node . .
+RUN npm run format-check
+RUN npm run build
+
+FROM base AS testing-base
+COPY --chown=node:node . .
+RUN npm run format-check
+RUN npm run build
+
