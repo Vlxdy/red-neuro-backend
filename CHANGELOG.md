@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.11.3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.2...v1.11.3) (2024-07-28)
+
+
+### Features
+
+* agregar -D ([24a4ce2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/24a4ce2159b2ba2c19b7d7a70f3959a0d2a3a328))
+* agregar cambio de imagen ([58e605a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/58e605aeb9a2183f680dae885b058ca78a146764))
+* cambiar images del pipelines ([3586e47](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/3586e47b3f5e1daa1d70c98c052fa812981d372d))
+* cambiar la condicional para test ([c04e4db](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c04e4dbedfa72f08b2ed884a8e3147f05a4d0e38))
+* cambiar sin tags ([20eeee6](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/20eeee6411e4fb35ae64ce5f2ca2d606f1ca099e))
+* cambiar tag ([e44b95b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e44b95bbdc7120697d6d031a41b2e9d5c20588dd))
+* configuracion con scripts ([cd3b4d1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/cd3b4d1396309777838a9c435c691c3d37c68199))
+* configurar automatizacion ([9000137](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/9000137815274dd2f10d2cf3c1e478fa4264bae7))
+* log del deploy argo ([efc9120](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/efc912016ea7bee902d8369b2f35fc54baa31e7f))
+* resolver conflicto del merge ([e72b309](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e72b3097c604af5bceecd06ef366e2239302e729))
+* usar imagen version 2 ([af71b39](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/af71b397ad874b4efc3ced6ca4d34245eb581414))
+
+
+### Bug Fixes
+
+* cambiar nombre de tag del runner ([e015b68](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e015b687b6eb2e6d4d2dd15cc5fb8c9318857833))
+* cambio de usernameFromContext por userFromContext desde nest-authz ([076dbd1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/076dbd1e3e83cb61a454d582d3fb16e5c164d81b))
+* corrección en sintaxis de uso de URL para evitar contatenación de parámetros ([00e262f](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/00e262f53d26ce94cf221c6d8dd0236593c18e09))
+* corregir k8s ([66b2ce9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/66b2ce91c85d4cec39ac6e558a13879b3eaaa64d))
+* log error ([478dab8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/478dab846649f14095c33921e0b3bf020cd3e39e))
+* modificado número de saltos para generar un Hash a 15 ([69bf5d0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/69bf5d087b8d08c8b41371d140592461bcdfb8d7))
+
 ## [1.11.2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.1...v1.11.2) (2024-06-09)
 
 
