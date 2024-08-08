@@ -9,7 +9,7 @@ import { ActualizarUsuarioDto } from '../dto/actualizar-usuario.dto'
 import dayjs from 'dayjs'
 import { UsuarioDto } from '../dto/usuario.dto'
 import { UsuarioEstado } from '@/core/usuario/constant'
-import { UsuarioRolEstado } from '@/core/authorization/constant'
+import { RolEstado, UsuarioRolEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class UsuarioRepository {
@@ -21,8 +21,15 @@ export class UsuarioRepository {
     const query = this.dataSource
       .getRepository(Usuario)
       .createQueryBuilder('usuario')
-      .leftJoinAndSelect('usuario.usuarioRol', 'usuarioRol')
-      .leftJoinAndSelect('usuarioRol.rol', 'rol')
+      .leftJoinAndSelect(
+        'usuario.usuarioRol',
+        'usuarioRol',
+        'usuarioRol.estado = :estado',
+        { estado: UsuarioRolEstado.ACTIVE }
+      )
+      .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :estado', {
+        estado: RolEstado.ACTIVE,
+      })
       .leftJoinAndSelect('usuario.persona', 'persona')
       .select([
         'usuario.id',
@@ -40,7 +47,6 @@ export class UsuarioRepository {
         'persona.fechaNacimiento',
         'persona.tipoDocumento',
       ])
-      .where('usuarioRol.estado = :estado', { estado: UsuarioRolEstado.ACTIVE })
       .take(limite)
       .skip(saltar)
 
@@ -95,8 +101,15 @@ export class UsuarioRepository {
     return await this.dataSource
       .getRepository(Usuario)
       .createQueryBuilder('usuario')
-      .leftJoinAndSelect('usuario.usuarioRol', 'usuarioRol')
-      .leftJoinAndSelect('usuarioRol.rol', 'rol')
+      .leftJoinAndSelect(
+        'usuario.usuarioRol',
+        'usuarioRol',
+        'usuarioRol.estado = :estado',
+        { estado: UsuarioEstado.ACTIVE }
+      )
+      .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :estado', {
+        estado: RolEstado.ACTIVE,
+      })
       .getMany()
   }
 
@@ -104,8 +117,15 @@ export class UsuarioRepository {
     return await this.dataSource
       .getRepository(Usuario)
       .createQueryBuilder('usuario')
-      .leftJoinAndSelect('usuario.usuarioRol', 'usuarioRol')
-      .leftJoinAndSelect('usuarioRol.rol', 'rol')
+      .leftJoinAndSelect(
+        'usuario.usuarioRol',
+        'usuarioRol',
+        'usuarioRol.estado = :estado',
+        { estado: UsuarioRolEstado.ACTIVE }
+      )
+      .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :estado', {
+        estado: RolEstado.ACTIVE,
+      })
       .where({ usuario: usuario })
       .getOne()
   }
@@ -124,9 +144,16 @@ export class UsuarioRepository {
     return await this.dataSource
       .getRepository(Usuario)
       .createQueryBuilder('usuario')
-      .leftJoinAndSelect('usuario.usuarioRol', 'usuarioRol')
       .leftJoinAndSelect('usuario.persona', 'persona')
-      .leftJoinAndSelect('usuarioRol.rol', 'rol')
+      .leftJoinAndSelect(
+        'usuario.usuarioRol',
+        'usuarioRol',
+        'usuarioRol.estado = :estado',
+        { estado: UsuarioRolEstado.ACTIVE }
+      )
+      .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :estado', {
+        estado: RolEstado.ACTIVE,
+      })
       .select([
         'usuario.id',
         'usuario.usuario',
@@ -151,8 +178,15 @@ export class UsuarioRepository {
       .getRepository(Usuario)
       .createQueryBuilder('usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
-      .leftJoinAndSelect('usuario.usuarioRol', 'usuarioRol')
-      .leftJoinAndSelect('usuarioRol.rol', 'rol')
+      .leftJoinAndSelect(
+        'usuario.usuarioRol',
+        'usuarioRol',
+        'usuarioRol.estado = :estado',
+        { estado: UsuarioRolEstado.ACTIVE }
+      )
+      .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :estado', {
+        estado: RolEstado.ACTIVE,
+      })
       .where('persona.nroDocumento = :ci', { ci: ci })
       .getOne()
   }

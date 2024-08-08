@@ -4,6 +4,7 @@ import { Rol } from '../entity/rol.entity'
 import { Injectable } from '@nestjs/common'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
+import { Status } from '@/common/constants'
 
 @Injectable()
 export class UsuarioRolRepository {
@@ -58,6 +59,26 @@ export class UsuarioRolRepository {
         usuarioModificacion: usuarioAuditoria,
       })
       .where('id_usuario = :idUsuario', { idUsuario })
+      .andWhere('id_rol IN(:...ids)', { ids: roles })
+      .execute()
+  }
+
+  async cambiarEstadoPorRoles(
+    roles: Array<string>,
+    estado: Status | Status.ACTIVE | Status.INACTIVE,
+    usuarioAuditoria: string,
+    transaction?: EntityManager
+  ) {
+    return await (
+      transaction?.getRepository(UsuarioRol) ??
+      this.dataSource.getRepository(UsuarioRol)
+    )
+      .createQueryBuilder()
+      .update(UsuarioRol)
+      .set({
+        estado: estado,
+        usuarioModificacion: usuarioAuditoria,
+      })
       .andWhere('id_rol IN(:...ids)', { ids: roles })
       .execute()
   }
