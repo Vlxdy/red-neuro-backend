@@ -2,13 +2,13 @@ Generar imagen de la aplicación:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: release
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /develop/
+    - if: $CI_COMMIT_BRANCH == 'develop'
       when: on_success
       allow_failure: false
   tags:
-    - kt7
+    - runner-kt9-upat
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -T development-base -D
+    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -T development-base -l
 
 Desplegar la aplicación en ArgoCD:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
@@ -19,22 +19,22 @@ Desplegar la aplicación en ArgoCD:
     - job: Generar imagen de la aplicación
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /develop/
+    - if: $CI_COMMIT_BRANCH == 'develop'
       when: on_success
       allow_failure: false
   tags:
-    - kt7
+    - runner-kt9-upat
   script:
-    - sh /scripts/d1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -D
+    - sh /scripts/d1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -l
 
 Setup de la base de datos:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: setup
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /develop/
+    - if: $CI_COMMIT_BRANCH == 'develop'
       when: manual
   tags:
-    - kt7
+    - runner-kt9-upat
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d setup -T setup -n -l -s
+    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d setup -t setup -n -l -s
   when: manual
