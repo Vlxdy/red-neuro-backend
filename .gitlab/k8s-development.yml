@@ -6,7 +6,7 @@ Generar imagen de la aplicación:
       when: on_success
       allow_failure: false
   tags:
-    - kt7
+    - runner-kt9-upat
   script:
     - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -T development-base -l
 
@@ -23,7 +23,7 @@ Desplegar la aplicación en ArgoCD:
       when: on_success
       allow_failure: false
   tags:
-    - kt7
+    - runner-kt9-upat
   script:
     - sh /scripts/d1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -l
 
@@ -34,7 +34,7 @@ Setup de la base de datos:
     - if: $CI_COMMIT_BRANCH == 'develop'
       when: manual
   tags:
-    - kt7
+    - runner-kt9-upat
   script:
     - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d setup -t setup -n -l -s
   when: manual
