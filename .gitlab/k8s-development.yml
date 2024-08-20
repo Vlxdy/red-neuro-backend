@@ -169,12 +169,6 @@ Trivy:
     - export TRIVY_PASSWORD=$(grep -o '"IR_PASS":\ *"[^"]*"' harbor.json | grep -o '"[^"]*"$' | sed -e 's/^"//' | sed -e 's/"$//')
     - export TRIVY_USERNAME=robot\$$IR_USER
     - export IR_REPO_URL=$TRIVY_AUTH_URL/$IR_IOP_REPO/$CI_PROJECT_NAME
-    - echo "IR_USER: $IR_USER"
-    - echo "IR_IOP_REPO: $IR_IOP_REPO"
-    - echo "TRIVY_AUTH_URL: $TRIVY_AUTH_URL"
-    - echo "TRIVY_PASSWORD: $TRIVY_PASSWORD"
-    - echo "TRIVY_USERNAME: $TRIVY_USERNAME"
-    - echo "IR_REPO_URL: $IR_REPO_URL"
   script:
     - time trivy image --clear-cache
     - time trivy image --download-db-only
