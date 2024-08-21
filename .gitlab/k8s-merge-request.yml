@@ -7,7 +7,7 @@ Merge Build Test:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d -t merge -l -n
+    - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -t merge -l -n
 
 Merge Build Develop:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
@@ -18,4 +18,4 @@ Merge Build Develop:
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d -t merge -l -n
+    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -t merge -l -n
