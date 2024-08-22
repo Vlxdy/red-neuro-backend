@@ -9,12 +9,12 @@ export function getIPAddress(): string {
     if (!netInfo) continue
 
     for (const net of netInfo) {
-      if (!net.internal) {
-        if (net.family === 'IPv4' && Address4.isValid(net.address)) {
-          return new Address4(net.address).correctForm()
-        } else if (net.family === 'IPv6' && Address6.isValid(net.address)) {
-          return new Address6(net.address).correctForm()
-        }
+      if (net.internal) return ''
+      if (net.family === 'IPv4' && Address4.isValid(net.address)) {
+        return new Address4(net.address).correctForm()
+      }
+      if (net.family === 'IPv6' && Address6.isValid(net.address)) {
+        return new Address6(net.address).correctForm()
       }
     }
   }
