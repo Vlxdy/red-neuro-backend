@@ -32,7 +32,7 @@ export enum Messages {
   PENDING_USER = 'El usuario está pendiente de activación. Revisa tu correo electrónico.',
   INACTIVE_PERSON = 'El registro de persona está inactivo.',
   INVALID_PASSWORD_SCORE = 'La nueva contraseña no cumple con el nivel de seguridad necesario.',
-  USER_BLOCKED = 'El usuario ha sido bloqueado debido a demasiados intentos fallidos de inicio de sesión. Revisa tu correo electrónico.',
+  USER_BLOCKED = 'Usuario bloqueado debido a demasiados intentos fallidos de inicio de sesión. Revisa tu correo electrónico.',
   SUBJECT_EMAIL_ACCOUNT_ACTIVE = 'Generación de credenciales.',
   SUBJECT_EMAIL_ACCOUNT_RECOVERY = 'Revisa tu bandeja de correo. Enviamos un enlace para que puedas recuperar tu cuenta.',
   SUBJECT_EMAIL_ACCOUNT_RESET = 'Restauración de contraseña.',
