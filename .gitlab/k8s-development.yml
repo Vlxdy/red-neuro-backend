@@ -1,38 +1,6 @@
-Ejecutar test:
-  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
-  stage: test
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'develop'
-      when: on_success
-      allow_failure: false
-  tags:
-    - runner-kt9-upat
-  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
-  script:
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d coverage -t coverage -l -s
-    - cp -r /home/node/app/coverage ./coverage
-    - failures=$(sed -n '2p' ./coverage/junit.xml | sed -n 's/.*failures="\([0-9]\+\)".*/\1/p')
-    - if ["$failures" -gt 0]; then exit 1; fi
-  artifacts:
-    when: always
-    paths:
-      - ./coverage
-    reports:
-      junit:
-        - ./coverage/junit.xml
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage/cobertura-coverage.xml
-  allow_failure: false
-
 Generar imagen de la aplicación:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: release
-  dependencies:
-    - Ejecutar test
-  needs:
-    - job: Ejecutar test
-      artifacts: false
   rules:
     - if: $CI_COMMIT_BRANCH == 'develop'
       when: on_success
@@ -59,6 +27,32 @@ Desplegar la aplicación en ArgoCD:
   script:
     - sh /scripts/d1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -l
 
+Ejecutar test:
+  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
+  stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'develop'
+      when: on_success
+  tags:
+    - runner-kt9-upat
+  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
+  script:
+    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d coverage -t coverage -l -s
+    - cp -r /home/node/app/coverage ./coverage
+    - failures=$(sed -n '2p' ./coverage/junit.xml | sed -n 's/.*failures="\([0-9]\+\)".*/\1/p')
+    - if ["$failures" -gt 0]; then exit 1; fi
+  artifacts:
+    when: always
+    paths:
+      - ./coverage
+    reports:
+      junit:
+        - ./coverage/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+  when: manual
+
 Audit npm:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: sast
@@ -70,7 +64,7 @@ Audit npm:
   script:
     - npm ci
     - npm audit --json | npx npm-audit-helper
-  allow_failure: true
+  when: manual
 
 Njsscan:
   image: hub.upat.agetic.gob.bo/dockerhub-proxy/opensecurity/njsscan:0.3.6
@@ -84,7 +78,7 @@ Njsscan:
     SCAN_NJSSCAN: scan_njsscan_$CI_COMMIT_SHORT_SHA.html
   script:
     - find . -name "*.ts" | xargs njsscan --missing-controls
-  allow_failure: true
+  when: manual
 
 Trivy:
   image: hub.upat.agetic.gob.bo/dockerhub-proxy/aquasec/trivy:0.46.0
@@ -106,7 +100,7 @@ Trivy:
     - time trivy image --clear-cache
     - time trivy image --download-db-only
     - time trivy image $IR_REPO_URL:$CI_COMMIT_SHORT_SHA
-  allow_failure: true
+  when: manual
 
 Setup de la base de datos:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
