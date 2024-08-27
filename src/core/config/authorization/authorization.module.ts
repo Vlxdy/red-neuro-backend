@@ -34,7 +34,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
         },
         inject: [ConfigService],
       },
-      usernameFromContext: (ctx) => {
+      userFromContext: (ctx) => {
         const request = ctx.switchToHttp().getRequest()
         return request.user && request.user.username
       },
