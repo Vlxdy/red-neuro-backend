@@ -31,6 +31,7 @@ export class ModuloRepository {
         'modulo.url',
         'modulo.nombre',
         'modulo.propiedades',
+        'modulo.fechaCreacion',
         'modulo.estado',
         'moduloTipoSeccion.id',
       ])

@@ -34,6 +34,7 @@ export class RolRepository {
         'rol.rol',
         'rol.nombre',
         'rol.descripcion',
+        'rol.fechaCreacion',
         'rol.estado',
       ])
       .take(limite)

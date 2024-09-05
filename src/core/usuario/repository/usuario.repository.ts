@@ -30,6 +30,7 @@ export class UsuarioRepository {
         'usuario.correoElectronico',
         'usuario.estado',
         'usuario.ciudadaniaDigital',
+        'usuario.fechaCreacion',
         'usuarioRol',
         'rol.id',
         'rol.rol',
