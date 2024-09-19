@@ -28,8 +28,6 @@ ENV TURBO_API=${TURBO_API}
 ENV TURBO_TEAM=${TURBO_TEAM}
 ENV TURBO_TOKEN=${TURBO_TOKEN}
 
-run printenv
-
 RUN turbo build-docker
 RUN npm ci --production --no-optional --prefer-offline --progress=false --no-audit
 

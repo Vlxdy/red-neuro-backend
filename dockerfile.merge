@@ -4,7 +4,7 @@ WORKDIR /home/node/app
 RUN mkdir -p node_modules && \
     chown -R node:node /home/node
 
-COPY --chown=node:node package*.json ./
+COPY --chown=node:node --link package*.json ./
 
 USER node
 
@@ -13,7 +13,20 @@ RUN npm set registry https://registry.agcs.agetic.gob.bo/ && \
     
 RUN npm ci --prefer-offline --progress=false --no-audit 
 
+USER root
+RUN npm install -g turbo
+
+ARG TURBO_API
+ARG TURBO_TEAM
+ARG TURBO_TOKEN
+
+ENV TURBO_TELEMETRY_DISABLED=${TURBO_TELEMETRY_DISABLED}
+ENV DO_NOT_TRACK=${DO_NOT_TRACK}
+ENV TURBO_API=${TURBO_API}
+ENV TURBO_TEAM=${TURBO_TEAM}
+ENV TURBO_TOKEN=${TURBO_TOKEN}
+
 FROM base AS merge
-COPY --chown=node:node . .
+COPY --chown=node:node --link . .
 RUN npm run format-check
-RUN npm run build
+RUN turbo build-docker
