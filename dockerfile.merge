@@ -16,17 +16,15 @@ RUN npm ci --prefer-offline --progress=false --no-audit
 USER root
 RUN npm install -g turbo
 
+FROM base AS merge
+COPY --chown=node:node --link . .
 ARG TURBO_API
 ARG TURBO_TEAM
 ARG TURBO_TOKEN
-
 ENV TURBO_TELEMETRY_DISABLED=${TURBO_TELEMETRY_DISABLED}
 ENV DO_NOT_TRACK=${DO_NOT_TRACK}
 ENV TURBO_API=${TURBO_API}
 ENV TURBO_TEAM=${TURBO_TEAM}
 ENV TURBO_TOKEN=${TURBO_TOKEN}
-
-FROM base AS merge
-COPY --chown=node:node --link . .
 RUN npm run format-check
 RUN turbo build-docker
