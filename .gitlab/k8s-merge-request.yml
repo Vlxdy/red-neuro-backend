@@ -13,7 +13,7 @@ Merge Build Develop:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: build
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /develop/
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
       when: on_success
   tags:
     - runner-kt9-upat
