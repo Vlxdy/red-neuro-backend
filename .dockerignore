@@ -19,3 +19,7 @@
 
 ./.gitlab-ci.yml
 ./.gitlab
+
+<!-- turbo -->
+.turbo/
+infraestructura.json
