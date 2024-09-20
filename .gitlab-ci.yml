@@ -3,10 +3,11 @@ stages:
   - build
   - release
   - deploy
+  - setup
   - test
   - sast
   - dast
-  - setup
+  - export
 
 include:
   - local: '/.gitlab/k8s-testing.yml'
