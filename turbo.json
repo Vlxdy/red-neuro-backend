@@ -4,7 +4,7 @@
     "build-docker": {
       "dependsOn": ["^build-docker"],
       "outputs": ["dist/**"]
-    }, 
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },
