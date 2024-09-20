@@ -8,7 +8,7 @@ Generar imagen de la aplicación:
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -t development-base 
+    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -t development-base -s 
 
 Desplegar la aplicación en ArgoCD:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
@@ -19,7 +19,7 @@ Desplegar la aplicación en ArgoCD:
     - job: Generar imagen de la aplicación
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH == 'develop'
+    - if: $CI_COMMIT_BRANCH == 'feat/archivos-k8s'
       when: on_success
       allow_failure: false
   tags:
