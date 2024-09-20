@@ -18,7 +18,7 @@ Ejecutar test:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/test.sh -p pruebas -e development-pruebas -P $CI_PROJECT_NAME -test jest
+    - sh /scripts/test.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -test jest
   artifacts:
     paths:
       - results_test
@@ -33,7 +33,7 @@ Audit npm:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/test.sh -p pruebas -e development-pruebas -P $CI_PROJECT_NAME -test audit
+    - sh /scripts/test.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -test audit
   artifacts:
     paths:
       - results_test
@@ -64,7 +64,7 @@ Trivy:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/trivy.sh -p pruebas -e development-pruebas -P $CI_PROJECT_NAME -v 3
+    - sh /scripts/trivy.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -v 3
   artifacts:
     paths:
       - results_test
@@ -94,7 +94,7 @@ Exponer_archivos:
     - Audit npm
     - Ejecutar test
   script:
-    - sh /scripts/export_files.sh -p pruebas -e development-pruebas -P $CI_PROJECT_NAME
+    - sh /scripts/export_files.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
 
 Merge Build Develop:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
