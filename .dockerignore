@@ -8,7 +8,7 @@
 .dockerignore
 .env.sample
 .env
-.gitignore
+# .gitignore
 .git
 
 #ignoring markdown files
