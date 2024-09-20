@@ -2,13 +2,13 @@ Generar imagen de la aplicación:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: release
   rules:
-    - if: $CI_COMMIT_BRANCH == 'develop'
+    - if: $CI_COMMIT_BRANCH == 'feat/archivos-k8s'
       when: on_success
       allow_failure: false
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -T development-base -l
+    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -t development-base 
 
 Desplegar la aplicación en ArgoCD:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
@@ -25,16 +25,32 @@ Desplegar la aplicación en ArgoCD:
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/d1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -l
+    - sh /scripts/d2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME
+
+Trivy:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/aquasec/trivy:0.46.0
+  stage: sast
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'feat/archivos-k8s'
+      when: on_success
+      allow_failure: true
+  tags:
+    - runner-kt9-upat
+  script:
+    - sh /scripts/trivy.sh -p pruebas -e development-pruebas -P $CI_PROJECT_NAME
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 1d
 
 Setup de la base de datos:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: setup
   rules:
-    - if: $CI_COMMIT_BRANCH == 'develop'
+    - if: $CI_COMMIT_BRANCH == 'feat/archivos-k8s'
       when: manual
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d setup -T setup -n -l -s
+    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d setup -t setup -n -s
   when: manual
