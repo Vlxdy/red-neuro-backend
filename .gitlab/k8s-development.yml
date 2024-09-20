@@ -37,7 +37,7 @@ Trivy:
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/trivy.sh -p pruebas -e development-pruebas -P $CI_PROJECT_NAME
+    - sh /scripts/trivy.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME
   artifacts:
     paths:
       - results_test
