@@ -44,7 +44,7 @@ Trivy:
   stage: sast
   rules:
     - if: $CI_COMMIT_BRANCH =~ /develop/
-       when: manual
+      when: manual
       allow_failure: true
   tags:
     - runner-kt9-upat
