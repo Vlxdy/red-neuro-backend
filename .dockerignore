@@ -8,7 +8,6 @@
 .dockerignore
 .env.sample
 .env
-.gitignore
 .git
 
 #ignoring markdown files
@@ -20,6 +19,6 @@
 ./.gitlab-ci.yml
 ./.gitlab
 
-<!-- turbo -->
+#turbo
 .turbo/
 infraestructura.json

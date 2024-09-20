@@ -1,4 +1,6 @@
 FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS base
+USER root
+RUN npm install -g turbo
 WORKDIR /home/node/app
 
 RUN mkdir -p node_modules && \
@@ -14,8 +16,6 @@ RUN npm set registry https://registry.agcs.agetic.gob.bo/ && \
 RUN npm ci --prefer-offline --progress=false --no-audit 
 
 FROM base AS build
-USER root
-RUN npm install -g turbo
 COPY --chown=node:node --link . .
 
 ARG TURBO_API
