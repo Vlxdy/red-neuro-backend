@@ -3,10 +3,11 @@ stages:
   - build
   - release
   - deploy
+  - setup
   - test
   - sast
   - dast
-  - setup
+  - export
 
 include:
   - local: '/.gitlab/k8s-testing.yml'
@@ -16,7 +17,7 @@ include:
       - when: never
   - local: '/.gitlab/k8s-development.yml'
     rules:
-      - if: $CI_COMMIT_BRANCH == 'develop'
+      - if: $CI_COMMIT_BRANCH == 'feat/archivos-k8s'
         when: always
       - when: never
   - local: '/.gitlab/k8s-merge-request.yml'

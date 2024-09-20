@@ -7,7 +7,6 @@
 #ignoring dotfiles
 .dockerignore
 .env.sample
-.env
 .git
 
 #ignoring markdown files
