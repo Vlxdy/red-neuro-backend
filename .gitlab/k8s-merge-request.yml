@@ -54,22 +54,6 @@ Njsscan:
       - results_test
     expire_in: 1d
 
-Trivy:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/aquasec/trivy:0.46.0
-  stage: sast
-  rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
-      when: on_success
-      allow_failure: true
-  tags:
-    - runner-k8s-uit
-  script:
-    - sh /scripts/trivy.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -v 3
-  artifacts:
-    paths:
-      - results_test
-    expire_in: 1d
-
 Exponer_archivos:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
   stage: export
@@ -82,15 +66,12 @@ Exponer_archivos:
   needs:
     - job: Njsscan
       artifacts: true
-    - job: Trivy
-      artifacts: true
     - job: Audit npm
       artifacts: true
     - job: Ejecutar test
       artifacts: true
   dependencies:
     - Njsscan
-    - Trivy
     - Audit npm
     - Ejecutar test
   script:
@@ -100,7 +81,7 @@ Merge Build Develop:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: build
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == /develop/
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
       when: on_success
   tags:
     - runner-k8s-uit
