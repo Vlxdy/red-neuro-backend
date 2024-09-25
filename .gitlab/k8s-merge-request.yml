@@ -86,4 +86,4 @@ Merge Build Develop:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -t development-base -u -n
+    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -t development-base -u -n -v 3
