@@ -84,6 +84,6 @@ Merge Build Develop:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
       when: on_success
   tags:
-    - runner-k8s-uit
+    - runner-kt9-upat
   script:
-    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -t development-base -u -n -v 3
+    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -t development-base -u -n
