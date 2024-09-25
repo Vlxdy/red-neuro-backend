@@ -7,7 +7,7 @@ Merge Build Test:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -t testing-base -u -n
+    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -t merge -u -n
 
 Ejecutar test:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
@@ -86,4 +86,4 @@ Merge Build Develop:
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -t development-base -u -n
+    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -t merge -u -n
