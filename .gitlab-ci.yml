@@ -17,7 +17,7 @@ include:
       - when: never
   - local: '/.gitlab/k8s-development.yml'
     rules:
-      - if: $CI_COMMIT_BRANCH == 'develop-turborepo'
+      - if: $CI_COMMIT_BRANCH == 'develop'
         when: always
       - when: never
   - local: '/.gitlab/k8s-merge-request.yml'
