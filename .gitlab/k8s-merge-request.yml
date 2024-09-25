@@ -7,7 +7,7 @@ Merge Build Test:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -t merge -u -n
+    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -t merge -n
 
 Ejecutar test:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
@@ -81,9 +81,9 @@ Merge Build Develop:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: build
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop-turborepo'
       when: on_success
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -t merge -u -n
+    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -t merge -n
