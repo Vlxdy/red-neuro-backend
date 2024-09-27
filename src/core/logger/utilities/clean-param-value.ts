@@ -1,14 +1,11 @@
 import { toJSON } from 'flatted'
-import {
-  CLEAN_PARAM_VALUE_MAX_DEEP,
-  DEFAULT_SENSITIVE_PARAMS,
-} from '../constants'
-import { BaseException } from '../classes'
+import { CLEAN_PARAM_VALUE_MAX_DEEP } from '../constants'
+import { BaseException, LoggerParams } from '../classes'
 
 export function cleanParamValue(
   value: unknown,
   deep = 0,
-  sensitiveParams = DEFAULT_SENSITIVE_PARAMS
+  sensitiveParams = LoggerParams.HIDE
 ) {
   try {
     // Para evitar recursividad infinita
@@ -61,10 +58,7 @@ export function cleanParamValue(
                 baseURL: 'baseURL' in config ? config.baseURL : undefined,
                 method: 'method' in config ? config.method : undefined,
                 url: 'url' in config ? config.url : undefined,
-                data:
-                  'data' in config
-                    ? cleanParamValue(config.data, 0, sensitiveParams)
-                    : undefined,
+                data: getAndCleanRequestDataFromConfig(config),
               }
             : undefined,
           response: response
@@ -106,10 +100,7 @@ export function cleanParamValue(
                 baseURL: 'baseURL' in config ? config.baseURL : undefined,
                 method: 'method' in config ? config.method : undefined,
                 url: 'url' in config ? config.url : undefined,
-                data:
-                  'data' in config
-                    ? cleanParamValue(config.data, 0, sensitiveParams)
-                    : undefined,
+                data: getAndCleanRequestDataFromConfig(config),
               }
             : undefined,
           cause: cause
@@ -147,10 +138,7 @@ export function cleanParamValue(
                 baseURL: 'baseURL' in config ? config.baseURL : undefined,
                 method: 'method' in config ? config.method : undefined,
                 url: 'url' in config ? config.url : undefined,
-                data:
-                  'data' in config
-                    ? cleanParamValue(config.data, 0, sensitiveParams)
-                    : undefined,
+                data: getAndCleanRequestDataFromConfig(config),
               }
             : undefined,
           cause: cause
@@ -205,6 +193,23 @@ export function cleanParamValue(
       return e.toString()
     }
   }
+}
+
+function getAndCleanRequestDataFromConfig(
+  config?: object,
+  sensitiveParams?: string[]
+): unknown | undefined {
+  let dataCleaned: unknown | undefined = undefined
+  if (config && 'data' in config && typeof config.data === 'string') {
+    try {
+      dataCleaned = JSON.stringify(
+        cleanParamValue(JSON.parse(config.data), 0, sensitiveParams)
+      )
+    } catch (err) {
+      dataCleaned = cleanParamValue(config.data, 0, sensitiveParams)
+    }
+  }
+  return dataCleaned
 }
 
 function isAxiosResponse(data: unknown) {
