@@ -39,6 +39,7 @@ export enum AUDIT_LEVEL {
   ERROR = 'error',
   WARN = 'warn',
   INFO = 'info',
+  DEBUG = 'debug',
   SUCCESS = 'success',
 }
 
@@ -46,9 +47,11 @@ export const LOG_AUDIT_COLOR = {
   [AUDIT_LEVEL.ERROR]: COLOR.LIGHT_RED,
   [AUDIT_LEVEL.WARN]: COLOR.YELLOW,
   [AUDIT_LEVEL.INFO]: COLOR.CYAN,
+  [AUDIT_LEVEL.DEBUG]: COLOR.LIGHT_MAGENTA,
   [AUDIT_LEVEL.SUCCESS]: COLOR.GREEN,
-  [AUDIT_LEVEL.DEFAULT]: COLOR.LIGHT_GREY,
+  [AUDIT_LEVEL.DEFAULT]: COLOR.CYAN,
 }
 
 export * from './initial-values'
 export * from './errorcode'
+export * from './sensitive-log-params'

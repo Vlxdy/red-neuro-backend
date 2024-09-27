@@ -12,42 +12,46 @@ export async function printWarn() {
     metadata: { algun: 'metadato', adicional: 'clave:valor' },
     modulo: 'OTRO MÓDULO',
   })
+  logger.warn({ otro: 'objeto' }, 'otro mensaje')
   await delay()
 
   const zeroLine = 0
   const logFile = await readLogFile<LogEntry>('warn.log')
-  expect(logFile.getValue(zeroLine + 1)).toHaveLength(4)
+  expect(logFile.getValue(zeroLine + 1)).toHaveLength(5)
 
   const firstEntry = logFile.getEntry(zeroLine + 1)
   expect(firstEntry).toMatchObject({
     level: 40,
+    context: 'warn',
   })
   expect(firstEntry).toHaveProperty('time')
   expect(firstEntry).toHaveProperty('pid')
   expect(firstEntry).toHaveProperty('fecha')
-  expect(firstEntry).toHaveProperty('metadata')
-  expect(firstEntry.metadata).toHaveProperty('0', 'Mensaje para el cliente')
+  expect(firstEntry).toHaveProperty('mensaje', 'Mensaje para el cliente')
 
   const secondEntry = logFile.getEntry(zeroLine + 2)
   expect(secondEntry).toMatchObject({
     level: 40,
+    context: 'warn',
   })
+  expect(firstEntry).toHaveProperty('mensaje', 'Mensaje para el cliente')
   expect(secondEntry).toHaveProperty('metadata')
-  expect(secondEntry.metadata).toHaveProperty('0', 'Mensaje para el cliente')
-  expect(secondEntry.metadata).toHaveProperty('1', { algun: 'metadato' })
+  expect(secondEntry.metadata).toHaveProperty('0', { algun: 'metadato' })
 
   const thirdEntry = logFile.getEntry(zeroLine + 3)
   expect(thirdEntry).toMatchObject({
     level: 40,
+    context: 'warn',
   })
+  expect(firstEntry).toHaveProperty('mensaje', 'Mensaje para el cliente')
   expect(thirdEntry).toHaveProperty('metadata')
-  expect(thirdEntry.metadata).toHaveProperty('0', 'Mensaje para el cliente')
-  expect(thirdEntry.metadata).toHaveProperty('1', { algun: 'metadato' })
-  expect(thirdEntry.metadata).toHaveProperty('2', 'MÓDULO')
+  expect(thirdEntry.metadata).toHaveProperty('0', { algun: 'metadato' })
+  expect(thirdEntry.metadata).toHaveProperty('1', 'MÓDULO')
 
   const fourthEntry = logFile.getEntry(zeroLine + 4)
   expect(fourthEntry).toMatchObject({
     level: 40,
+    context: 'warn',
   })
   expect(fourthEntry).toHaveProperty('metadata')
   expect(fourthEntry.metadata).toHaveProperty('0', {
@@ -55,4 +59,18 @@ export async function printWarn() {
     metadata: { algun: 'metadato', adicional: 'clave:valor' },
     modulo: 'OTRO MÓDULO',
   })
+
+  const fifthEntry = logFile.getEntry(zeroLine + 5)
+  expect(fifthEntry).toMatchObject({
+    level: 40,
+    context: 'warn',
+  })
+  expect(fifthEntry).toHaveProperty('time')
+  expect(fifthEntry).toHaveProperty('pid')
+  expect(fifthEntry).toHaveProperty('fecha')
+  expect(fifthEntry).toHaveProperty('metadata')
+  expect(fifthEntry.metadata).toHaveProperty('0', {
+    otro: 'objeto',
+  })
+  expect(fifthEntry.metadata).toHaveProperty('1', 'otro mensaje')
 }

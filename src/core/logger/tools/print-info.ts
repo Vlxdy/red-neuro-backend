@@ -25,9 +25,12 @@ export function printInfo(appInfo: AppInfo) {
       entorno: nodeEnv,
       urlLocal: appLocalUrl,
       urlRed: appNetworkUrl,
-      fecha: now,
     },
-    formato: `🚀 ${appName} ${appVersion}`,
+    consoleOptions: {
+      mensaje: `🚀 ${appName} v${appVersion}`,
+      disabled: false,
+      propsToHide: ['app', 'version', 'entorno', 'urlLocal', 'urlRed'],
+    },
   })
 
   const serviceInfo = `

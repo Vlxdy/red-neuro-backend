@@ -5,7 +5,12 @@ export {
   BaseAudit,
 } from './classes'
 export { printInfo, printLogo, printRoutes } from './tools'
-export { SQLLogger, getReqID, getIPAddress } from './utilities'
+export {
+  SQLLogger,
+  QueryExecutionTime,
+  getReqID,
+  getIPAddress,
+} from './utilities'
 export type {
   AppInfo,
   LoggerOptions,
@@ -13,5 +18,8 @@ export type {
   BaseAuditOptions,
   Metadata,
   LogEntry,
+  FileParams,
+  LokiParams,
+  AuditOptions,
 } from './types'
 export { ERROR_CODE, ERROR_NAME, LOG_LEVEL, AUDIT_LEVEL } from './constants'
