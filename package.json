@@ -5,6 +5,7 @@
   "author": "agetic@agetic.gob.bo",
   "private": true,
   "license": "LPG-Bolivia",
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "nest build",
     "build-docker": "nest build",
@@ -25,6 +26,7 @@
     "test:cov": "NODE_ENV=test jest --coverage",
     "test:debug": "NODE_ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "NODE_ENV=test jest --config ./test/jest-e2e.json",
+    "test:ci": "NODE_ENV=test jest --collectCoverage --ci --reporters=default --reporters=jest-junit --watchAll=false",
     "typeorm": "NODE_OPTIONS=--max_old_space_size=8192 ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migrations:clean": "rimraf database/migrations/*",
     "migrations:generate": "npm run typeorm -- migration:generate -d ormconfig-default.ts",
@@ -139,6 +141,7 @@
     "ts-loader": "9.5.1",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
+    "jest-junit": "16.0.0",
     "typescript": "5.5.4"
   },
   "jest": {
@@ -172,6 +175,9 @@
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/../src/$1"
     }
+  },
+  "jest-junit": {
+    "outputDirectory": "./coverage"
   },
   "engines": {
     "node": "^20",

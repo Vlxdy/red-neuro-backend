@@ -5,6 +5,7 @@ stages:
   - deploy
   - test
   - sast
+  - export
   - dast
   - setup
 

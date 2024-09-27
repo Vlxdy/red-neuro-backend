@@ -8,7 +8,7 @@ Generar imagen de la aplicación:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -T testing-base -l
+    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -t testing-base -u
 
 Desplegar la aplicación en ArgoCD:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
@@ -25,7 +25,46 @@ Desplegar la aplicación en ArgoCD:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/d1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -l
+    - sh /scripts/d2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
+
+Trivy:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/aquasec/trivy:0.46.0
+  stage: sast
+  dependencies:
+    - Desplegar la aplicación en ArgoCD
+  needs:
+    - job: Desplegar la aplicación en ArgoCD
+      artifacts: false
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'test'
+      when: on_success
+      allow_failure: false
+  tags:
+    - runner-k8s-uit
+  script:
+    - sh /scripts/trivy.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 1d
+
+Exponer_archivos:
+  image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
+  stage: export
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'test'
+      when: on_success
+      allow_failure: false
+  tags:
+    - runner-k8s-uit
+  needs:
+    - job: Trivy
+      artifacts: true
+  dependencies:
+    - Trivy
+  script:
+    - sh /scripts/export_files.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
+
 
 Setup de la base de datos:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
@@ -36,5 +75,5 @@ Setup de la base de datos:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d setup -T setup -n -l -s
+    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d setup -t setup -n -s
   when: manual

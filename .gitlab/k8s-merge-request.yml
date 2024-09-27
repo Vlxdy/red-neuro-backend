@@ -7,7 +7,75 @@ Merge Build Test:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -t merge -l -n # cambiar `l` por `D` para debug
+    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -t merge -n
+
+Ejecutar test:
+  image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
+  stage: sast
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
+      allow_failure: true
+  tags:
+    - runner-k8s-uit
+  script:
+    - sh /scripts/test.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -test jest
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 1d
+
+Audit npm:
+  image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
+  stage: sast
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
+      allow_failure: true
+  tags:
+    - runner-k8s-uit
+  script:
+    - sh /scripts/test.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -test audit
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 1d
+
+Njsscan:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/opensecurity/njsscan:0.3.6
+  stage: sast
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
+      allow_failure: true
+  tags:
+    - runner-k8s-uit
+  script:
+    - bash /scripts/njsscan.sh -v 3
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 1d
+
+Exponer_archivos:
+  image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
+  stage: export
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
+      when: on_success
+      allow_failure: true
+  tags:
+    - runner-k8s-uit
+  needs:
+    - job: Njsscan
+      artifacts: true
+    - job: Audit npm
+      artifacts: true
+    - job: Ejecutar test
+      artifacts: true
+  dependencies:
+    - Njsscan
+    - Audit npm
+    - Ejecutar test
+  script:
+    - sh /scripts/export_files.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
 
 Merge Build Develop:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
@@ -18,4 +86,4 @@ Merge Build Develop:
   tags:
     - runner-kt9-upat
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -t merge -l -n # cambiar `l` por `D` para debug
+    - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -t merge -n

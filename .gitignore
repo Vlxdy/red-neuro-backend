@@ -45,3 +45,6 @@ sonar-project.properties.sample
 # archivos temporales
 /tmp
 /temp
+
+# turbo
+.turbo
