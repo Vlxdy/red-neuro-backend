@@ -188,7 +188,9 @@ export class UsuarioService extends BaseService {
           usuario: usuarioDto.correoElectronico,
           correoElectronico: usuarioDto.correoElectronico,
           estado: UsuarioEstado.PENDING,
-          contrasena: await TextService.encrypt(usuarioDto.contrasenaNueva),
+          contrasena: await TextService.encrypt(
+            TextService.decodeBase64(usuarioDto.contrasenaNueva)
+          ),
         },
         USUARIO_NORMAL,
         transaction
@@ -988,7 +990,8 @@ export class UsuarioService extends BaseService {
     return {
       id: usuario.id,
       usuario: usuario.usuario,
-      ciudadania_digital: usuario.ciudadaniaDigital,
+      ciudadaniaDigital: usuario.ciudadaniaDigital,
+      correoElectronico: usuario.correoElectronico,
       estado: usuario.estado,
       roles: await Promise.all(
         usuario.usuarioRol

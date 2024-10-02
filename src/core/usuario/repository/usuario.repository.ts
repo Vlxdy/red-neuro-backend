@@ -30,6 +30,7 @@ export class UsuarioRepository {
         'usuario.correoElectronico',
         'usuario.estado',
         'usuario.ciudadaniaDigital',
+        'usuario.fechaCreacion',
         'usuarioRol',
         'rol.id',
         'rol.rol',
@@ -131,6 +132,7 @@ export class UsuarioRepository {
         'usuario.id',
         'usuario.usuario',
         'usuario.contrasena',
+        'usuario.correoElectronico',
         'usuario.estado',
         'usuario.ciudadaniaDigital',
         'persona.nombres',
@@ -220,6 +222,9 @@ export class UsuarioRepository {
         ? dayjs(usuarioDto.fechaBloqueo).toDate()
         : undefined,
       codigoDesbloqueo: usuarioDto.codigoDesbloqueo,
+      codigoRecuperacion: usuarioDto.codigoRecuperacion,
+      codigoTransaccion: usuarioDto.codigoTransaccion,
+      codigoActivacion: usuarioDto.codigoActivacion,
       usuarioModificacion: usuarioAuditoria,
       ciudadaniaDigital: usuarioDto.ciudadaniaDigital || undefined,
     })

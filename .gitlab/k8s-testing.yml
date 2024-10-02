@@ -8,7 +8,7 @@ Generar imagen de la aplicación:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -t testing-base -l -s
+    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -t testing-base -u
 
 Desplegar la aplicación en ArgoCD:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
@@ -25,82 +25,7 @@ Desplegar la aplicación en ArgoCD:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/d1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -l
-
-Ejecutar test:
-  image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
-  stage: test
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'test'
-      when: on_success
-  tags:
-    - runner-k8s-uit
-  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
-  script:
-    - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d coverage -t coverage -l -s
-    - cp -r /home/node/app/coverage ./coverage
-    - failures=$(sed -n '2p' ./coverage/junit.xml | sed -n 's/.*failures="\([0-9]\+\)".*/\1/p')
-    - if ["$failures" -gt 0]; then exit 1; fi
-  artifacts:
-    when: always
-    paths:
-      - ./coverage
-    reports:
-      junit:
-        - ./coverage/junit.xml
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage/cobertura-coverage.xml
-  when: manual
-
-Audit npm:
-  image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
-  stage: sast
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'test'
-      when: manual
-  tags:
-    - runner-k8s-uit
-  script:
-    - npm ci
-    - npm audit --json | npx npm-audit-helper
-  when: manual
-
-Njsscan:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/opensecurity/njsscan:0.3.6
-  stage: sast
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'test'
-      when: manual
-  tags:
-    - runner-k8s-uit
-  variables:
-    SCAN_NJSSCAN: scan_njsscan_$CI_COMMIT_SHORT_SHA.html
-  script:
-    - find . -name "*.ts" | xargs njsscan --missing-controls
-  when: manual
-
-Trivy:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/aquasec/trivy:0.46.0
-  stage: sast
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'test'
-      when: manual
-  tags:
-    - runner-k8s-uit
-  before_script:
-    - source /scripts/c1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -l
-    - export IR_USER=$HUB_USERNAME
-    - export IR_IOP_REPO=$HUB_PROJECT
-    - export TRIVY_AUTH_URL=$HUB_URL
-    - export TRIVY_PASSWORD=$HUB_PASSWORD
-    - export TRIVY_USERNAME=robot\$$IR_USER
-    - export IR_REPO_URL=$TRIVY_AUTH_URL/$IR_IOP_REPO/$CI_PROJECT_NAME
-  script:
-    - time trivy image --clear-cache
-    - time trivy image --download-db-only
-    - time trivy image $IR_REPO_URL:$CI_COMMIT_SHORT_SHA
-  when: manual
+    - sh /scripts/d2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
 
 Setup de la base de datos:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
@@ -111,5 +36,5 @@ Setup de la base de datos:
   tags:
     - runner-k8s-uit
   script:
-    - sh /scripts/s1.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d setup -n -l -s -t setup
+    - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d setup -t setup -n -s
   when: manual

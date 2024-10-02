@@ -1,105 +1,159 @@
-# Backend Base - NestJS
+# Backend Base - NestJS con TypeORM
 
-<p>
-  <a href="./">
-    <img src="https://img.shields.io/badge/version-v1.9.1-blue" alt="Versión">
-  </a>
-  <a href="./LICENSE">
-      <img src="https://img.shields.io/static/v1?label=license&message=LPG%20-%20Bolivia&color=green" alt="Licencia: LPG - Bolivia" />
-  </a>
-</p>
+![NestJS](https://img.shields.io/badge/NestJS-10-red?style=flat-square&logo=nestjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue?style=flat-square&logo=typescript)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=flat-square&logo=postgresql)
+![TypeORM](https://img.shields.io/badge/TypeORM-0.3-orange?style=flat-square)
+<a href="./">
+<img src="https://img.shields.io/badge/version-v1.9.1-blue" alt="Versión">
+</a>
+<a href="./LICENSE">
+<img src="https://img.shields.io/static/v1?label=license&message=LPG%20-%20Bolivia&color=green" alt="Licencia: LPG - Bolivia" />
+</a>
 
-## Recomendaciones
+Backend Base es una plantilla robusta y escalable para el desarrollo de APIs, diseñada para ser compatible con
+el [Frontend Base](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-next-base-frontend) creado con
+Next.js.
 
-Para usar este proyecto como base de un nuevo proyecto, debe seguir los siguientes pasos:
+## 🚀 Características
 
-- Crear nuevo proyecto en [Gitlab](https://gitlab.agetic.gob.bo/projects/new) y clonarlo en local
-- Añadir este proyecto como otro origen, ejecutar dentro del nuevo proyecto:
+- 🔐 Sistema de autenticación robusto con JWT y Ciudadanía Digital
+- 🔒 Autorización avanzada con Casbin para control de acceso basado en roles
+- 🌐 Clientes para interoperabilidad (SEGIP, SIN)
+- 📨 Cliente para Mensajería Electrónica
+- 📊 ORM TypeORM para manejo eficiente de base de datos
+- 📝 Documentación automática de API con OpenAPI (Swagger)
+- 🧪 Configuración de pruebas con Jest
+- 🐳 Dockerización para fácil despliegue y desarrollo
+
+## 🛠️ Tecnologías principales
+
+- [NestJS](https://nestjs.com)
+- [TypeScript](https://www.typescriptlang.org)
+- [PostgreSQL](https://www.postgresql.org)
+- [TypeORM](https://typeorm.io)
+- [Passport.js](http://www.passportjs.org)
+- [Jest](https://jestjs.io)
+- [OpenAPI](https://www.openapis.org)
+- [Casbin](https://casbin.org)
+- [PinoJs](https://getpino.io)
+- [Docker](https://www.docker.com)
+
+## 📁 Estructura del proyecto
 
 ```
-git remote add origin2 git@gitlab.agetic.gob.bo:agetic/agetic/proyectos-base/agetic-nestjs-base-backend.git
+src/
+├── app.module.ts              # Módulo principal de la aplicación
+├── application/               # Módulos de la aplicación
+│   └── parametro/             # Ejemplo de módulo (Parámetros)
+├── common/                    # Utilidades y componentes comunes
+├── core/                      # Módulos centrales (autenticación, autorización, etc.)
+│   ├── authentication/        # Módulo de autenticación
+│   ├── authorization/         # Módulo de autorización
+│   ├── config/                # Configuraciones
+│   ├── external-services/     # Servicios externos (IOP, mensajería)
+│   ├── logger/                # Módulo de logging
+│   └── usuario/               # Módulo de usuarios
+├── main.ts                    # Punto de entrada de la aplicación
+└── templates/                 # Plantillas (ej. para emails)
 ```
 
-- Descargar los commits desde el 2.º origen, ejecutar
+## 🚀 Inicio rápido
 
+1. Clona el repositorio:
+   ```bash
+   git clone https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend.git mi-proyecto
+   cd mi-proyecto
+   ```
+
+2. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+
+3. Configura las variables de entorno:
+   ```bash
+   cp .env.example .env
+   ```
+   Edita `.env` con tus configuraciones.
+
+4. Inicia la base de datos (requiere Docker):
+   ```bash
+   npm run db:create
+   ```
+
+5. Inicia el servidor de desarrollo:
+   ```bash
+   npm run start:dev
+   ```
+
+6. Abre [http://localhost:3000/api](http://localhost:3000/api) para ver la documentación de la API.
+
+## 📚 Documentación
+
+- [Instalación y Configuración](INSTALL.md)
+- [Arquitectura](/docs/arquitectura.md)
+- [Documentación de APIs](/docs/openapi.yaml)
+- [Documentación de Permisos](/docs/permisos.md)
+
+## 🧪 Pruebas
+
+Ejecuta las pruebas con:
+
+```bash
+npm run test
 ```
-git pull origin2 master --allow-unrelated-histories
+
+## 📦 Compilación para producción
+
+```bash
+npm run build
 ```
 
-## Tecnologías
+## 🐳 Docker
 
-| Nombre      | Descripción                                                       | Sitio Web                  |
-| ----------- | ----------------------------------------------------------------- | -------------------------- |
-| NestJS      | Framework de Node.js con TypeScript para aplicaciones escalables. | https://nestjs.com         |
-| Jest        | Framework de prueba de JavaScript de fácil uso.                   | https://jestjs.io          |
-| Passport.js | Middleware de autenticación para Node.js.                         | http://www.passportjs.org  |
-| OpenAPI     | Estándar de descripción de API para documentación.                | https://www.openapis.org   |
-| TypeORM     | ORM para TypeScript y JavaScript para bases de datos.             | https://typeorm.io         |
-| PinoJs      | Registro eficiente para aplicaciones Node.js.                     | https://getpino.io         |
-| Casbin      | Biblioteca de control de acceso flexible.                         | https://casbin.org         |
-| PostgreSQL  | Sistema de gestión de bases de datos relacional.                  | https://www.postgresql.org |
-| Docker      | Plataforma de contenedorización para empaquetar aplicaciones.     | https://www.docker.com     |
+Para ejecutar la aplicación en un contenedor Docker:
 
-## Funcionalidades
+```bash
+docker-compose up -d
+```
 
-- Autenticación JWT
-- Autenticación con Ciudadanía Digital
-- Refresh Token
-- Autorización (Roles, Módulos, Usuarios, Permisos)
-- Paramétricas
-- Clientes para Interoperabilidad (SEGIP, SIN)
-- Cliente para Mensajería Electrónica
-- Proveedores de:
-  - Logger
-  - Reportes
-  - Manejo de errores
+## 💡 Recomendaciones para usar como base de un nuevo proyecto
 
-## Documentación
+Para usar este proyecto como base de un nuevo proyecto, sigue estos pasos:
 
-Documentación relacionada con el proyecto:
+1. Crea un nuevo proyecto en [Gitlab](https://gitlab.agetic.gob.bo/projects/new) y clónalo en local.
 
-1. [Instalación y Configuración](INSTALL.md)
-2. [Arquitectura](/docs/arquitectura.md)
-3. [Documentación de APIS](/docs/openapi.yaml)
-4. [Documentación de Permisos](/docs/permisos.md)
-
-## Comandos útiles
-
-1. Crea la base de datos desde cero (con docker)
-
+2. Añade este proyecto como otro origen, ejecutando dentro del nuevo proyecto:
    ```bash
-   $ npm run db:create
+   git remote add origin2 git@gitlab.agetic.gob.bo:agetic/agetic/proyectos-base/agetic-nestjs-base-backend.git
    ```
 
-2. Generación del diagrama ERD (deshabilitado hasta tener soporte para TypeOrm 0.3)
-
-   [//]: # 'TODO: Actualizar soporte TypeOrm 0.3 para generar diagramas'
-
+3. Descarga los commits desde el 2.º origen, ejecutando:
    ```bash
-   $ npm run db:diagram
+   git pull origin2 master --allow-unrelated-histories
    ```
 
-3. Generación de documentación
 
+## 🔖 Versionado
+
+Para generar una nueva versión:
+
+1. Actualiza la versión en `package.json`
+2. Ejecuta:
    ```bash
-   $ npm run compodoc
+   npm run release -- --release-as patch
+   ```
+3. Publica los tags:
+   ```bash
+   git push --follow-tags origin master
    ```
 
-## Changelog
+## 🤝 Contribución
 
-1. Generar tag y archivo CHANGELOG. `patch (0.0.x) | minor (0.x.0) | major (x.0.0)`
+Las contribuciones son bienvenidas. Por favor, abre un issue o realiza un pull request con tus cambios.
 
-   ```bash
-   $ npm run release -- --release-as patch
-   ```
-
-2. Guardar los tags generados
-
-   ```bash
-   $ git push --follow-tags origin master
-   ```
-
-## Colaboradores
+## 👥 Colaboradores
 
 - almamani@agetic.gob.bo
 - jpoma@agetic.gob.bo
@@ -107,10 +161,10 @@ Documentación relacionada con el proyecto:
 - wilmer.quispe@agetic.gob.bo
 - ivillarreal@agetic.gob.bo
 
-## Licencia
+## 📄 Licencia
 
-[LGP-Bolivia](LICENSE).
+Este proyecto está bajo la [Licencia LPG-Bolivia](LICENSE).
 
-## Información de contacto
+## 📞 Contacto
 
-- contacto@agetic.gob.bo
+Para más información, contacta a: contacto@agetic.gob.bo
