@@ -140,13 +140,15 @@ export class UsuarioService extends BaseService {
   }
 
   async crearCuenta(usuarioDto: CrearUsuarioCuentaDto) {
+    const { persona, ...datosUsuarios } = usuarioDto
+
     // verificar si el usuario ya fue registrado con su correo
     const usuario = await this.usuarioRepositorio.buscarUsuario(
-      usuarioDto.correoElectronico
+      persona.nroDocumento
     )
 
     if (usuario) {
-      throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
+      throw new PreconditionFailedException(Messages.EXISTING_USER)
     }
 
     // verificar si el correo no esta registrado
@@ -168,15 +170,17 @@ export class UsuarioService extends BaseService {
       throw new PreconditionFailedException(Messages.INVALID_PASSWORD_SCORE)
     }
 
+    // contrastación SEGIP
+    const contrastaSegip = await this.segipServices.contrastar(persona)
+    if (!contrastaSegip?.finalizado) {
+      throw new PreconditionFailedException(contrastaSegip?.mensaje)
+    }
+
     const op = async (transaction: EntityManager) => {
       const personaNueva = await this.personaRepositorio.crear(
         {
-          nombres: usuarioDto.nombres,
-          primerApellido: '',
-          segundoApellido: '',
-          nroDocumento: TextService.textToUuid(usuarioDto.correoElectronico),
-          fechaNacimiento: new Date(),
-          tipoDocumento: TipoDocumento.OTRO,
+          ...persona,
+          tipoDocumento: TipoDocumento.CI,
         },
         USUARIO_NORMAL,
         transaction
@@ -185,11 +189,11 @@ export class UsuarioService extends BaseService {
       const usuarioNuevo = await this.usuarioRepositorio.crear(
         personaNueva.id,
         {
-          usuario: usuarioDto.correoElectronico,
-          correoElectronico: usuarioDto.correoElectronico,
+          usuario: persona.nroDocumento,
+          correoElectronico: datosUsuarios.correoElectronico,
           estado: UsuarioEstado.PENDING,
           contrasena: await TextService.encrypt(
-            TextService.decodeBase64(usuarioDto.contrasenaNueva)
+            TextService.decodeBase64(datosUsuarios.contrasenaNueva)
           ),
         },
         USUARIO_NORMAL,
@@ -237,7 +241,9 @@ export class UsuarioService extends BaseService {
             this.logger.error(err, mensaje)
           })
       }
-      return usuarioNuevo
+
+      const { id, usuario, correoElectronico, estado } = usuarioNuevo
+      return { id, usuario, correoElectronico, estado }
     }
     return await this.usuarioRepositorio.runTransaction(op)
   }

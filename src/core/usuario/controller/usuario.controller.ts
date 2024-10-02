@@ -98,12 +98,6 @@ export class UsuarioController extends BaseController {
 
   //create user account
   @ApiOperation({ summary: 'API para crear una nueva Cuenta' })
-  @ApiBody({
-    type: CrearUsuarioDto,
-    description:
-      'Esta API permite crear una nueva cuenta de usuario utilizando los datos proporcionados en el cuerpo de la solicitud.',
-    required: true,
-  })
   @Post('crear-cuenta')
   async crearUsuario(@Body() usuarioDto: CrearUsuarioCuentaDto) {
     const result = await this.usuarioService.crearCuenta(usuarioDto)
