@@ -69,7 +69,7 @@ Trivy:
     - job: Desplegar la aplicación en ArgoCD
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH == 'test'
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
       when: on_success
       allow_failure: false
   tags:
