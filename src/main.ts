@@ -7,7 +7,8 @@ import session from 'express-session'
 import passport from 'passport'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
-import { INestApplication, ValidationPipe } from '@nestjs/common'
+import { INestApplication } from '@nestjs/common'
+import { CustomValidationPipe } from '@/common/pipes'
 import { TypeormStore } from 'connect-typeorm'
 import { Session } from '@/core/authentication/entity/session.entity'
 import dotenv from 'dotenv'
@@ -19,7 +20,7 @@ import {
   SWAGGER_API_ROOT,
 } from './common/constants'
 import { DataSource } from 'typeorm'
-import { LoggerModule, printInfo, printLogo, printRoutes } from './core/logger'
+import { LoggerModule, printInfo, printLogo, printRoutes } from '@/core/logger'
 import packageJson from '../package.json'
 
 dotenv.config()
@@ -84,7 +85,7 @@ const bootstrap = async () => {
   app.use(helmet.hidePoweredBy())
   app.use(helmet())
   app.setGlobalPrefix(configService.get('PATH_SUBDOMAIN') || 'api')
-  app.useGlobalPipes(new ValidationPipe({ transform: true }))
+  app.useGlobalPipes(new CustomValidationPipe())
 
   const port = configService.get('PORT')
   await app.listen(port)

@@ -33,27 +33,8 @@ export class CasbinGuard implements CanActivate {
 
     const isPermitted = await this.enforcer.enforce(user.rol, resource, action)
     if (isPermitted) {
-      this.logger.audit('casbin', {
-        mensaje: 'Acceso permitido',
-        metadata: {
-          v0: user.rol,
-          v1: resource,
-          v2: action,
-          usuario: user.id,
-        },
-      })
       return true
     }
-
-    this.logger.audit('casbin', {
-      mensaje: 'Acceso no autorizado',
-      metadata: {
-        v0: user.rol,
-        v1: resource,
-        v2: action,
-        usuario: user.id,
-      },
-    })
 
     throw new ForbiddenException('Permisos insuficientes (CASBIN)', {
       cause: `CASBIN ${action} ${resource} -> false`,

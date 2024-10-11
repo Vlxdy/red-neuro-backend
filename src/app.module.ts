@@ -9,36 +9,43 @@ import { ApplicationModule } from './application/application.module'
 import { LoggerMiddleware } from '@/common/middlewares'
 import { LoggerModule } from '@/core/logger'
 import packageJson from '../package.json'
-import { TimeoutInterceptor } from '@/common/interceptors'
+import { AppInterceptor } from '@/common/interceptors'
 
 import dotenv from 'dotenv'
 dotenv.config()
 
+const loggingEnabled = String(process.env.LOG_ENABLED) === 'true'
+const logToConsoleEnabled = String(process.env.LOG_CONSOLE) === 'true'
+const logToFileEnabled = String(process.env.LOG_FILE_ENABLED) === 'true'
+const logToLokiEnabled = String(process.env.LOG_LOKI_ENABLED) === 'true'
+
 @Module({
   imports: [
     LoggerModule.forRoot({
-      console: process.env.LOG_CONSOLE,
+      enabled: loggingEnabled,
+      console: logToConsoleEnabled,
       appName: packageJson.name,
       level: process.env.LOG_LEVEL,
-      fileParams: process.env.LOG_PATH
-        ? {
-            path: process.env.LOG_PATH,
-            size: process.env.LOG_SIZE,
-            rotateInterval: process.env.LOG_INTERVAL,
-          }
-        : undefined,
-      lokiParams: process.env.LOG_LOKI_URL
-        ? {
-            url: process.env.LOG_LOKI_URL,
-            username: process.env.LOG_LOKI_USERNAME,
-            password: process.env.LOG_LOKI_PASSWORD,
-            batching: process.env.LOG_LOKI_BATCHING,
-            batchInterval: process.env.LOG_LOKI_BATCH_INTERVAL,
-          }
-        : undefined,
-      auditParams: {
-        context: process.env.LOG_AUDIT,
-      },
+      hide: '', // para ofuscar datos sensibles (Ej: hide = 'pin cvv bank_account')
+      audit: process.env.LOG_AUDIT,
+      fileParams:
+        loggingEnabled && logToFileEnabled
+          ? {
+              path: process.env.LOG_FILE_PATH,
+              size: process.env.LOG_FILE_SIZE,
+              rotateInterval: process.env.LOG_FILE_INTERVAL,
+            }
+          : undefined,
+      lokiParams:
+        loggingEnabled && logToLokiEnabled
+          ? {
+              url: process.env.LOG_LOKI_URL,
+              username: process.env.LOG_LOKI_USERNAME,
+              password: process.env.LOG_LOKI_PASSWORD,
+              batching: String(process.env.LOG_LOKI_BATCHING) === 'true',
+              batchInterval: Number(process.env.LOG_LOKI_BATCH_INTERVAL),
+            }
+          : undefined,
     }),
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
@@ -53,7 +60,7 @@ dotenv.config()
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: TimeoutInterceptor,
+      useClass: AppInterceptor,
     },
   ],
 })

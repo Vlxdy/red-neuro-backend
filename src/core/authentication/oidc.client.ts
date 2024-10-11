@@ -25,15 +25,12 @@ export class ClientOidcService {
         client_secret: oidcSecret,
       })
     } catch (error: unknown) {
-      setTimeout(() => {
-        logger.error(
-          new BaseException(error, {
-            modulo: 'CIUDADANÍA',
-            mensaje: 'Error de conexión con ciudadanía',
-            metadata: { oidcIssuer },
-          })
-        )
-      }, 2000)
+      const errorInfo = new BaseException(error, {
+        modulo: 'CIUDADANÍA:PROVEEDOR IDENTIDAD',
+        mensaje: 'Error de conexión con ciudadanía',
+        metadata: { oidcIssuer },
+      })
+      setTimeout(() => logger.error(errorInfo), 2000)
     }
     return ClientOidcService.client
   }
