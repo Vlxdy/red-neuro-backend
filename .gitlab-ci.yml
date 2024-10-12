@@ -1,9 +1,9 @@
 stages:
   - prebuild
   - build
+  - test
   - release
   - deploy
-  - test
   - sast
   - export
   - dast
