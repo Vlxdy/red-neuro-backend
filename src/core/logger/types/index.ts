@@ -1,7 +1,6 @@
-import { Level } from 'pino'
 import { LoggerService } from '../classes'
 import { HttpStatus } from '@nestjs/common'
-import { AUDIT_LEVEL, ERROR_CODE, LOG_LEVEL } from '../constants'
+import { AUDIT_LEVEL, COLOR, ERROR_CODE, LOG_LEVEL } from '../constants'
 
 export type FileParams = {
   path: string
@@ -13,38 +12,34 @@ export type LokiParams = {
   url: string
   username: string
   password: string
-  batching: string
-  batchInterval: string
+  batching: boolean
+  batchInterval: number
 }
 
-export type AuditParams = {
-  context: string
+export type RowData = {
+  fechaEvento: Date
+  contexto: string
+  mensaje: string | null
+  reqId: string | null
+  metadata: { [key: string]: unknown } | null
 }
 
-export type LoggerParams = {
-  console: string
-  appName: string
-  level: string
-  hide: string
-  projectPath: string
-  fileParams?: FileParams
-  lokiParams?: LokiParams
-  auditParams?: AuditParams
-  excludeOrigen?: string[]
-  _levels: Level[]
-  _audit: string[]
+export type LogData = {
+  json: object | null
+  str: string | null
 }
 
 export type LoggerOptions = {
-  console?: string
+  enabled?: boolean
+  console?: boolean
   appName?: string
   level?: string
+  audit?: string
   hide?: string
   projectPath?: string
   excludeOrigen?: string[]
   fileParams?: Partial<FileParams>
   lokiParams?: Partial<LokiParams>
-  auditParams?: Partial<AuditParams>
 }
 
 export type AppInfo = {
@@ -79,6 +74,7 @@ export type BaseExceptionOptions = {
   codigo?: ERROR_CODE
   origen?: string
   clientInfo?: unknown
+  consoleOptions?: ConsoleOptions
 }
 
 export type BaseLogOptions = {
@@ -86,6 +82,16 @@ export type BaseLogOptions = {
   mensaje?: string
   metadata?: Metadata
   modulo?: string
+  consoleOptions?: ConsoleOptions
+}
+
+export type ConsoleOptions = {
+  disabled?: boolean
+  hideLevel?: boolean
+  hideCaller?: boolean
+  display?: 'inline' | 'block'
+  mensaje?: string
+  propsToHide?: string[]
 }
 
 export type BaseAuditOptions = {
@@ -94,6 +100,7 @@ export type BaseAuditOptions = {
   mensaje?: string
   metadata?: Metadata
   formato?: string
+  consoleOptions?: ConsoleOptions
 }
 
 export type LogOptions = {
@@ -105,7 +112,13 @@ export type LogOptions = {
 export type AuditOptions = {
   mensaje?: string
   metadata?: Metadata
+
+  /**
+   * En su lugar utilizar: consoleOptions.mensaje
+   * @deprecated
+   */
   formato?: string
+  consoleOptions?: ConsoleOptions
 }
 
 export type Metadata = { [key: string]: unknown }
@@ -121,8 +134,7 @@ export type LogEntry = {
   context?: string
   fecha: string // con formato YYYY-MM-DD HH:mm:ss.SSS
   hostname?: string
-  level?: number // 30=info, 40=warn, 50=error
-  levelText?: string // error | warn | info
+  level?: number // 20=debug, 30=info, 40=warn, 50=error, 100=audit
   mensaje?: string
   metadata?: Metadata
   modulo?: string
@@ -134,15 +146,23 @@ export type LogEntry = {
   codigo?: string // ERROR_CODE
   error?: object // error parseado
   errorStack?: string
-  formato?: string
   httpStatus?: number // ^400 | ^500
   origen?: string // 'at printError (.../casos_uso/printError.ts:8:15)'
   traceStack?: string
+  caller?: string // printError (printError.ts:8:15)
 }
 
 export type AuditEntry = {
   level?: number // 10=application | 11=request | ...
   time?: number // miliseconds
+  fecha: string // con formato YYYY-MM-DD HH:mm:ss.SSS
   msg?: string
   [key: string]: unknown // metadata key:value
+}
+
+export type ToStringOptions = {
+  color?: COLOR
+  keyColor?: COLOR
+  timeColor?: COLOR
+  resetColor?: COLOR
 }

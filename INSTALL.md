@@ -145,10 +145,11 @@ npm run seeds:run
 
 **Configuración para el servicio de Mensajería Electrónica (Alertín), si se utiliza en el sistema**
 
-| Variable    | Valor por defecto | Descripción                                                       |
-| ----------- | ----------------- | ----------------------------------------------------------------- |
-| `MSJ_URL`   |                   | URL de consumo al servicio de Mensajería Electrónico (Alertín).   |
-| `MSJ_TOKEN` |                   | TOKEN de consumo al servicio de Mensajería Electrónico (Alertín). |
+| Variable                  | Valor por defecto | Descripción                                                       |
+| ------------------------- | ----------------- | ----------------------------------------------------------------- |
+| `MSJ_URL`                 |                   | URL de consumo al servicio de Mensajería Electrónico (Alertín).   |
+| `MSJ_TOKEN`               |                   | TOKEN de consumo al servicio de Mensajería Electrónico (Alertín). |
+| `MSJ_TIMEOUT_EN_SEGUNDOS` | `10`              | Tiempo máximo de espera para las consultas a mensajería           |
 
 **Configuración para el servicio SEGIP de IOP, si corresponde**
 
@@ -192,13 +193,16 @@ npm run seeds:run
 
 | Variable                  | Valor por defecto | Descripción                                                                                |
 | ------------------------- | ----------------- | ------------------------------------------------------------------------------------------ |
+| `LOG_ENABLED`             | `true`            | Habilita el registro de logs.                                                              |
 | `LOG_LEVEL`               | `info`            | Nivel de logs (en PRODUCCIÓN utilizar el valor `info`)                                     |
 | `LOG_AUDIT`               | `application ...` | Habilita los logs de auditoria.                                                            |
 | `LOG_CONSOLE`             | `true`            | Indica si se mostrarán los logs en la terminal (en PRODUCCIÓN utilizar el valor `false`)   |
 | `LOG_SQL`                 | `true`            | Habilita los logs SQL (en PRODUCCIÓN utilizar el valor `false`)                            |
-| `LOG_PATH`                | `/tmp/logs/`      | Ruta absoluta de la carpeta logs. Si esta vacio no se crearán los archvos.                 |
-| `LOG_SIZE`                | `50M`             | Para el rotado de logs por tamaño (`K` = kilobytes, `M` = megabytes, `G` = gigabytes).     |
-| `LOG_INTERVAL`            | `YM`              | Para el rotado de logs por tiempo (`Y` = cada año, `YM` = cada mes, `YMD` = cada día, ...) |
+| `LOG_FILE_ENABLED`        | `true`            | Para guardar logs en ficheros.                                                             |
+| `LOG_FILE_PATH`           | `/tmp/logs/`      | Ruta absoluta de la carpeta logs. Si esta vacio no se crearán los archvos.                 |
+| `LOG_FILE_SIZE`           | `50M`             | Para el rotado de logs por tamaño (`K` = kilobytes, `M` = megabytes, `G` = gigabytes).     |
+| `LOG_FILE_INTERVAL`       | `YM`              | Para el rotado de logs por tiempo (`Y` = cada año, `YM` = cada mes, `YMD` = cada día, ...) |
+| `LOG_LOKI_ENABLED`        | `false`           | Para guardar logs en la nube con loki.                                                     |
 | `LOG_LOKI_URL`            |                   | Indica la URL del servicio de loki para el registro de logs.                               |
 | `LOG_LOKI_USERNAME`       |                   | Indica el nombre de usuario para autenticarse con el servicio de loki.                     |
 | `LOG_LOKI_PASSWORD`       |                   | Indica la contraseña de usuario para autenticarse con el servicio de loki.                 |

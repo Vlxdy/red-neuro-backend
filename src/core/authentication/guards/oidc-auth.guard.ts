@@ -11,13 +11,6 @@ export class OidcAuthGuard extends AuthGuard('oidc') {
   protected logger = LoggerService.getInstance()
 
   async canActivate(context: ExecutionContext) {
-    const {
-      originalUrl,
-      query,
-      route,
-      method: action,
-    } = context.switchToHttp().getRequest()
-    const resource = Object.keys(query).length ? route.path : originalUrl
     const request = context.switchToHttp().getRequest()
 
     try {
@@ -25,10 +18,9 @@ export class OidcAuthGuard extends AuthGuard('oidc') {
       if (!isPermitted) throw new UnauthorizedException()
     } catch (err) {
       throw new BaseException(err, {
-        accion: `Asegúrese de que el usuario se encuentre registrado en ciudadanía`,
-        metadata: {
-          msg: `${action} ${resource} -> false - LOGIN CON CIUDADANÍA (Error con ciudadania)`,
-        },
+        modulo: 'CIUDADANÍA:PROVEEDOR IDENTIDAD',
+        mensaje: 'Error de autenticación con Ciudadanía',
+        accion: `Asegúrese de que el cliente de ciudadanía se encuentre correctamente configurado`,
       })
     }
 

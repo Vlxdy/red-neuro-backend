@@ -1,1 +1,1 @@
-export { TimeoutInterceptor, SetRequestTimeout } from './TimeoutInterceptor'
+export { AppInterceptor, SetRequestTimeout } from './AppInterceptor'

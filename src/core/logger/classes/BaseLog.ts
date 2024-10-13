@@ -1,9 +1,21 @@
-import { BaseLogOptions, LogEntry, Metadata } from '../types'
-import { cleanParamValue, getReqID } from '../utilities'
+import {
+  BaseLogOptions,
+  ConsoleOptions,
+  LogEntry,
+  Metadata,
+  ToStringOptions,
+} from '../types'
+import {
+  cleanParamValue,
+  extraerOrigenSimplificado,
+  getOrigen,
+  getReqID,
+  timeToPrint,
+} from '../utilities'
 import { LOG_LEVEL } from '../constants'
-import dayjs from 'dayjs'
-import { LoggerService } from '@/core/logger'
+import { LoggerService } from './LoggerService'
 import { inspect } from 'util'
+import { replacePlaceholders } from '../tools'
 
 export class BaseLog {
   level: LOG_LEVEL
@@ -29,14 +41,24 @@ export class BaseLog {
   modulo: string
 
   /**
-   * Fecha en la que se registró el mensaje (YYYY-MM-DD HH:mm:ss.SSS)
+   * Fecha exacta en la que registra el log
    */
-  fecha: string
+  fecha: Date
 
   /**
    * Stack del componente que registró el mensaje (se genera de forma automática)
    */
   traceStack: string
+
+  /**
+   * Ruta simplificada de la línea de código que imprimió este log (Ej.: AppModule.bootstrap (main.ts:12:45))
+   */
+  caller?: string
+
+  /**
+   * Parámetros de configuración exclusivos para la impresión de logs por consola
+   */
+  consoleOptions?: ConsoleOptions
 
   constructor(opt?: BaseLogOptions) {
     const level = LOG_LEVEL.INFO
@@ -47,12 +69,21 @@ export class BaseLog {
     const mensaje = ''
 
     // GUARDAMOS LOS DATOS
-    this.fecha = dayjs().format('YYYY-MM-DD HH:mm:ss.SSS')
+    this.fecha = new Date()
     this.level = opt && typeof opt.level !== 'undefined' ? opt.level : level
     this.mensaje =
       opt && typeof opt.mensaje !== 'undefined' ? opt.mensaje : mensaje
     this.appName = appName
     this.modulo = opt && typeof opt.modulo !== 'undefined' ? opt.modulo : modulo
+    this.caller = extraerOrigenSimplificado(getOrigen(`${new Error().stack}`))
+
+    this.consoleOptions = opt?.consoleOptions || {}
+    if (typeof opt?.consoleOptions?.disabled === 'undefined') {
+      this.consoleOptions.disabled = false
+    }
+    if (typeof opt?.consoleOptions?.display === 'undefined') {
+      this.consoleOptions.display = 'block'
+    }
 
     if (opt && 'metadata' in opt && typeof opt.metadata !== 'undefined') {
       if (metadata && Object.keys(metadata).length > 0) {
@@ -77,17 +108,25 @@ export class BaseLog {
     return this.level
   }
 
+  getReqId() {
+    return getReqID() || undefined
+  }
+
+  getFechaConFormato() {
+    return timeToPrint(this.fecha)
+  }
+
   getLogEntry(): LogEntry {
     const args: LogEntry = {
-      reqId: getReqID(),
+      fecha: this.getFechaConFormato(),
+      reqId: this.getReqId(),
       pid: process.pid,
-      fecha: this.fecha,
+      context: this.getLevel(),
       mensaje: this.obtenerMensajeCliente(),
     }
 
     // Para evitar guardar información vacía
     if (!args.mensaje) args.mensaje = undefined
-    if (!args.reqId) args.reqId = undefined
 
     if (this.metadata && Object.keys(this.metadata).length > 0) {
       Object.assign(args, { metadata: this.metadata })
@@ -96,19 +135,64 @@ export class BaseLog {
     return args
   }
 
-  toString(): string {
-    const args: string[] = []
+  toString(opt: ToStringOptions = {}) {
+    const color = opt.color || ''
+    const keyColor = opt.keyColor || ''
+    const timeColor = opt.timeColor || ''
+    const resetColor = opt.resetColor || ''
 
-    if (this.metadata && Object.keys(this.metadata).length > 0) {
-      Object.keys(this.metadata).map((key) => {
-        const item = this.metadata[key]
-        args.push(
-          typeof item === 'string' ? item : inspect(item, false, null, false)
-        )
-        args.push('')
-      })
+    let msgToPrint = ''
+    msgToPrint += `\n`
+    msgToPrint += `${timeColor}${this.getFechaConFormato()}${color}`
+
+    if (!this.consoleOptions?.hideLevel) {
+      msgToPrint += ` [${this.level.toUpperCase()}]`
     }
 
-    return args.join('\n')
+    if (!this.consoleOptions?.hideCaller && this.caller) {
+      msgToPrint += ` ${resetColor}${this.caller}${color}`
+    }
+
+    if (this.consoleOptions?.mensaje) {
+      const mensaje = replacePlaceholders(
+        this.consoleOptions.mensaje,
+        this.metadata,
+        opt
+      )
+      msgToPrint += ` ${mensaje}`
+    } else {
+      msgToPrint += ` ${this.obtenerMensajeCliente()}`
+    }
+
+    const display = this.consoleOptions?.display || 'block'
+    // block
+    if (display === 'block') {
+      const nProps = Object.keys(this.metadata || {}).length
+      if (this.metadata && nProps > 0) {
+        Object.keys(this.metadata).map((key, index) => {
+          const item = this.metadata[key]
+          msgToPrint += `${typeof item === 'string' ? item : inspect(item, false, null, false)}`
+          msgToPrint += index === nProps - 1 ? '' : '\n\n'
+        })
+      }
+    }
+    // inline
+    else if (display === 'inline') {
+      const metadata = this.metadata
+      const cValues = Object.keys(metadata)
+        .filter(
+          (key) =>
+            typeof metadata[key] !== 'undefined' &&
+            !this.consoleOptions?.propsToHide?.includes(key)
+        )
+        .map((key) => {
+          const value = inspect(metadata[key], false, null, false)
+          return `${keyColor}${key}=${color}${value}`
+        })
+        .join(' ')
+      msgToPrint += ` ${cValues}`
+    }
+
+    return `${color}${msgToPrint.replace(/\n/g, `\n${color}`)}${resetColor}\n`
   }
 }

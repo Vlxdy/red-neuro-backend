@@ -1,22 +1,28 @@
-import { LoggerService } from '@/core/logger'
-import { BaseExceptionOptions, LogEntry, Metadata } from '../types'
+import { LoggerService } from './LoggerService'
+import {
+  BaseExceptionOptions,
+  ConsoleOptions,
+  LogEntry,
+  Metadata,
+  ToStringOptions,
+} from '../types'
 import {
   cleanParamValue,
   getErrorStack,
   getFullErrorStack,
   getHostname,
   getOrigen,
+  extraerOrigenSimplificado,
   getReqID,
   isAxiosError,
   isCertExpiredError,
   isConexionError,
   timeToPrint,
 } from '../utilities'
-import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common'
+import { HttpException, HttpStatus } from '@nestjs/common'
 import { extractMessage } from '../utils'
 import { ERROR_CODE, ERROR_NAME, LOG_LEVEL } from '../constants'
 import { inspect } from 'util'
-import { HttpMessages } from '../messages'
 
 export class BaseException extends Error {
   level: LOG_LEVEL.ERROR | LOG_LEVEL.WARN
@@ -42,9 +48,9 @@ export class BaseException extends Error {
   modulo: string
 
   /**
-   * Fecha en la que se registró el mensaje (YYYY-MM-DD HH:mm:ss.SSS)
+   * Fecha exacta en la que registra el log
    */
-  fecha: string
+  fecha: Date
 
   /**
    * Stack del componente que registró el mensaje (se genera de forma automática)
@@ -54,7 +60,7 @@ export class BaseException extends Error {
   /**
    * Código que índica el tipo de error detectado
    */
-  codigo: ERROR_CODE
+  codigo?: ERROR_CODE
 
   /**
    * Código de respuesta HTTP en caso de que la excepción sea del tipo correspondiente
@@ -82,7 +88,7 @@ export class BaseException extends Error {
   causa: string
 
   /**
-   * Ruta del archivo que originó el error (Ej.: .../src/main.ts:24:4)
+   * Ruta completa de la línea de código que originó el error (Ej.: .../src/main.ts:24:4)
    */
   origen: string
 
@@ -96,11 +102,21 @@ export class BaseException extends Error {
    */
   clientInfo: unknown
 
+  /**
+   * Ruta simplificada de la línea de código que originó el error (Ej.: AppModule.bootstrap (main.ts:12:45))
+   */
+  caller?: string
+
+  /**
+   * Parámetros de configuración exclusivos para la impresión de logs por consola
+   */
+  consoleOptions?: ConsoleOptions
+
   constructor(error: unknown, opt?: BaseExceptionOptions) {
     super(BaseException.name)
 
     // UNKNOWN_ERROR
-    let codigo = ERROR_CODE.UNKNOWN_ERROR
+    let codigo: ERROR_CODE | undefined = ERROR_CODE.UNKNOWN_ERROR
 
     const errorStack =
       error instanceof BaseException
@@ -143,7 +159,8 @@ export class BaseException extends Error {
     let causa: string
     let accion = ''
     let clientInfo: unknown
-    let fecha = timeToPrint()
+    let fecha = new Date()
+    let consoleOptions: ConsoleOptions | undefined = undefined
 
     try {
       causa =
@@ -158,7 +175,9 @@ export class BaseException extends Error {
 
     // EMPTY_ERROR
     if (!error) {
+      mensaje = ''
       causa = ''
+      codigo = undefined
     }
 
     // BASE_EXCEPTION
@@ -175,12 +194,13 @@ export class BaseException extends Error {
       fecha = error.fecha
       errorParsed = error.error
       clientInfo = error.clientInfo
+      consoleOptions = error.consoleOptions
     }
 
     // SERVER_CONEXION
     else if (isConexionError(error)) {
       codigo = ERROR_CODE.SERVER_CONEXION
-      mensaje = `Error de conexión con un servicio externo`
+      mensaje = `Error de conexión con el servicio externo`
       accion = `Verifique la configuración de red y que el servicio al cual se intenta conectar se encuentre activo`
     }
 
@@ -199,7 +219,7 @@ export class BaseException extends Error {
       typeof error.response.data.message === 'string'
     ) {
       codigo = ERROR_CODE.SERVER_ERROR_1
-      mensaje = `Ocurrió un error con un servicio externo`
+      mensaje = `Ocurrió un error con el servicio externo`
       causa = error.response.data.message
       accion = `Verificar que el servicio en cuestión se encuentre activo y respondiendo correctamente`
     }
@@ -219,7 +239,7 @@ export class BaseException extends Error {
       typeof error.response.data.data === 'string'
     ) {
       codigo = ERROR_CODE.SERVER_ERROR_2
-      mensaje = `Ocurrió un error con un servicio externo`
+      mensaje = `Ocurrió un error con el servicio externo`
       causa = error.response.data.data
       accion = `Verificar que el servicio en cuestión se encuentre activo y respondiendo correctamente`
     }
@@ -235,7 +255,7 @@ export class BaseException extends Error {
       error.response.data === 'The upstream server is timing out'
     ) {
       codigo = ERROR_CODE.SERVER_TIMEOUT
-      mensaje = `Ocurrió un error con un servicio externo`
+      mensaje = `Ocurrió un error con el servicio externo`
       causa = error.response.data
       accion = `Verificar que el servicio en cuestión se encuentre activo y respondiendo correctamente`
     }
@@ -243,7 +263,7 @@ export class BaseException extends Error {
     // SERVER_CERT_EXPIRED
     else if (isCertExpiredError(error)) {
       codigo = ERROR_CODE.SERVER_CERT_EXPIRED
-      mensaje = `Ocurrió un error con un servicio externo`
+      mensaje = `Ocurrió un error con el servicio externo`
       causa =
         typeof error === 'object' &&
         'code' in error &&
@@ -251,26 +271,6 @@ export class BaseException extends Error {
           ? error.code
           : ''
       accion = `Renovar el certificado digital`
-    }
-
-    // DTO_VALIDATION_ERROR
-    else if (
-      error instanceof BadRequestException &&
-      errorStack?.includes('ValidationPipe.exceptionFactory')
-    ) {
-      const errorResponse = error.getResponse()
-      const reglasDTO =
-        typeof errorResponse === 'object' &&
-        errorResponse &&
-        'message' in errorResponse &&
-        Array.isArray(errorResponse.message)
-          ? errorResponse.message.join(' | ')
-          : ''
-      codigo = ERROR_CODE.DTO_VALIDATION_ERROR
-      httpStatus = error.getStatus()
-      mensaje = `${HttpMessages.EXCEPTION_BAD_REQUEST}`
-      causa = reglasDTO
-      accion = `Verifique que los datos de entrada cumplan con las reglas establecidas en el DTO`
     }
 
     // HTTP_EXCEPTION
@@ -292,7 +292,7 @@ export class BaseException extends Error {
                   ? 'Verífica que el servicio responda en un tiempo inferior al tiempo máximo establecido'
                   : httpStatus === HttpStatus.PRECONDITION_FAILED
                     ? 'Verifique que se cumpla con todas las condiciones requeridas para consumir este recurso'
-                    : 'Más info en detalles'
+                    : ''
     }
 
     // SERVER_AXIOS_ERROR
@@ -309,7 +309,7 @@ export class BaseException extends Error {
         typeof error.response.status === 'number'
           ? error.response.status
           : HttpStatus.INTERNAL_SERVER_ERROR
-      mensaje = `Ocurrió un error con un servicio externo`
+      mensaje = `Ocurrió un error con el servicio externo`
       causa = `Error HTTP ${httpStatus} (Servicio externo)`
       accion = 'Revisar la respuesta devuelta por el servicio externo'
     }
@@ -384,6 +384,8 @@ export class BaseException extends Error {
         ? opt.origen
         : '')
 
+    this.caller = extraerOrigenSimplificado(this.origen)
+
     this.accion =
       opt && 'accion' in opt && typeof opt.accion !== 'undefined'
         ? opt.accion
@@ -395,6 +397,13 @@ export class BaseException extends Error {
         : clientInfo
 
     this.message = this.obtenerMensajeCliente()
+
+    this.consoleOptions =
+      opt &&
+      'consoleOptions' in opt &&
+      typeof opt.consoleOptions !== 'undefined'
+        ? opt.consoleOptions
+        : consoleOptions
   }
 
   getHttpStatus() {
@@ -416,16 +425,25 @@ export class BaseException extends Error {
     return LOG_LEVEL.ERROR
   }
 
+  getReqId() {
+    return getReqID() || undefined
+  }
+
+  getFechaConFormato() {
+    return timeToPrint(this.fecha)
+  }
+
   getLogEntry(): LogEntry {
     const args: LogEntry = {
+      fecha: this.getFechaConFormato(),
       hostname: getHostname(),
+      reqId: this.getReqId(),
       pid: process.pid,
+      context: this.getLevel(),
 
-      reqId: getReqID(),
-      fecha: this.fecha,
-      levelText: this.level,
       appName: this.appName,
       modulo: this.modulo,
+      caller: this.caller,
       mensaje: this.obtenerMensajeCliente(),
 
       httpStatus: this.httpStatus,
@@ -434,14 +452,15 @@ export class BaseException extends Error {
       origen: this.origen,
       accion: this.accion,
       error: this.error as object,
-      formato: this.toString(),
       errorStack: this.errorStackOriginal,
       traceStack: this.traceStack,
     }
 
     // Para evitar guardar información vacía
     if (!args.mensaje) args.mensaje = undefined
-    if (!args.reqId) args.reqId = undefined
+    if (!args.causa) args.causa = undefined
+    if (!args.modulo) args.modulo = undefined
+    if (!args.caller) args.caller = undefined
 
     // Para evitar guardar informacion redundante
     if (args.error === args.errorStack && args.error) args.error = undefined
@@ -454,34 +473,54 @@ export class BaseException extends Error {
   }
 
   getErrorCodeName() {
-    return `${ERROR_NAME[this.codigo]} (${this.codigo})`
+    return this.codigo ? `${ERROR_NAME[this.codigo]} (${this.codigo})` : ''
   }
 
-  toString(): string {
-    const args: string[] = []
-    args.push(`${this.getErrorCodeName()}\n───────────────────────`)
-    args.push(`─ Mensaje : ${this.obtenerMensajeCliente()}`)
+  toString(opt: ToStringOptions = {}): string {
+    const color = opt.color || ''
+    const timeColor = opt.timeColor || ''
+    const resetColor = opt.resetColor || ''
 
+    let msgToPrint = ''
+
+    msgToPrint += `\n`
+    msgToPrint += `${timeColor}${this.getFechaConFormato()}${color}`
+
+    if (!this.consoleOptions?.hideLevel) {
+      msgToPrint += ` [${this.level.toUpperCase()}]`
+    }
+
+    if (!this.consoleOptions?.hideCaller && this.caller) {
+      msgToPrint += ` ${resetColor}${this.caller}${color}`
+    }
+
+    msgToPrint += ` ${this.obtenerMensajeCliente()}\n`
+    msgToPrint += `───────────────────────\n`
     if (this.causa) {
-      args.push(`─ Causa   : ${this.causa}`)
+      msgToPrint += `─ Causa  : ${this.causa}\n`
+    }
+
+    if (this.codigo) {
+      msgToPrint += `─ Código : ${this.getErrorCodeName()}\n`
     }
 
     if (this.origen) {
-      args.push(`─ Origen  : ${this.origen}`)
+      msgToPrint += `─ Origen : ${this.origen}\n`
     }
 
     if (this.accion) {
-      args.push(`─ Acción  : ${this.accion}`)
+      msgToPrint += `─ Acción : ${this.accion}\n`
     }
 
-    if (this.metadata && Object.keys(this.metadata).length > 0) {
-      args.push('\n───── Metadata ────────')
-      Object.keys(this.metadata).map((key) => {
+    const nProps = Object.keys(this.metadata || {}).length
+    if (this.metadata && nProps > 0) {
+      msgToPrint += `\n───── Metadata ────────\n`
+      Object.keys(this.metadata).map((key, index) => {
         const item = this.metadata[key]
-        args.push(
+        const value =
           typeof item === 'string' ? item : inspect(item, false, null, false)
-        )
-        args.push('')
+        msgToPrint += `${key}=${value}`
+        msgToPrint += index === nProps - 1 ? '\n' : '\n\n'
       })
     }
 
@@ -490,22 +529,20 @@ export class BaseException extends Error {
       typeof this.error === 'object' &&
       Object.keys(this.error).length > 0
     ) {
-      args.push('\n───── Error ───────────')
-      args.push(inspect(this.error, false, null, false))
+      msgToPrint += `\n───── Error ───────────\n`
+      msgToPrint += `${inspect(this.error, false, null, false)}\n`
     }
 
     if (this.errorStack) {
-      args.push('\n───── Error stack ─────')
-      args.push(this.errorStack)
+      msgToPrint += `\n───── Error stack ─────\n`
+      msgToPrint += `${this.errorStack}\n`
     }
 
     if (this.traceStack) {
-      args.push('\n───── Trace stack ─────')
-      args.push(this.traceStack)
+      msgToPrint += `\n───── Trace stack ─────\n`
+      msgToPrint += `${this.traceStack}\n`
     }
 
-    args.push('')
-
-    return args.join('\n')
+    return `${color}${msgToPrint.replace(/\n/g, `\n${color}`)}${resetColor}`
   }
 }

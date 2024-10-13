@@ -6,23 +6,23 @@ Librería para registrar eventos o capturar errores del sistema.
 
 Internos (causados por la aplicación)
 
-| Código  | Descripción                              | Causa                                                                           |
-| ------- | ---------------------------------------- | ------------------------------------------------------------------------------- |
-| `E-50`  | `Error desconocido`                      | error = `'BOOM'`, `{ name: 'Error' }`, `new Error()`, `undefined`, `null`, `''` |
-| `E-40`  | `Error HTTP`                             | error = `new HttpException()`                                                   |
-| `E-SQL` | `Error de consulta con la Base de Datos` | error = `{ name: "QueryFailedError" }`                                          |
-| `E-DTO` | `Error de validación con el DTO`         | error = `new BadRequestException() - DTO`                                       |
+| Código   | Descripción                              | Causa                                                                           |
+| -------- | ---------------------------------------- | ------------------------------------------------------------------------------- |
+| `E-500`  | `Error desconocido`                      | error = `'BOOM'`, `{ name: 'Error' }`, `new Error()`, `undefined`, `null`, `''` |
+| `E-HTTP` | `Error HTTP`                             | error = `new HttpException()`                                                   |
+| `E-SQL`  | `Error de consulta con la Base de Datos` | error = `{ name: "QueryFailedError" }`                                          |
+| `E-DTO`  | `Error de validación con el DTO`         | error = `new BadRequestException() - DTO`                                       |
 
 Externos (causados por agentes externos)
 
-| Código            | Descripción                                        | Causa                                                      |
-| ----------------- | -------------------------------------------------- | ---------------------------------------------------------- |
-| `ES-REQUEST`      | `Error de consulta con Servicio Externo`           | error = `axios().catch(err => ...)`                        |
-| `ES-ECONNREFUSED` | `Error de conexión con Servicio Externo`           | error = `{ code: 'ECONNREFUSED' }`                         |
-| `ES-TIMEOUT`      | `Error de TIMEOUT con Servicio Externo`            | response = `{ data: "The upstream server is timing out" }` |
-| `ES-CERT`         | `Error de certificado con Servicio Externo`        | error = `{ code: 'CERT_HAS_EXPIRED' }`                     |
-| `ES-MESSAGE`      | `Error desconocido con Servicio Externo (message)` | body = `{ message: "detalle del error" }`                  |
-| `ES-DATA`         | `Error desconocido con Servicio Externo (data)`    | body = `{ data: "detalle del error" }`                     |
+| Código             | Descripción                                        | Causa                                                      |
+| ------------------ | -------------------------------------------------- | ---------------------------------------------------------- |
+| `EXT-REQUEST`      | `Error de consulta con Servicio Externo`           | error = `axios().catch(err => ...)`                        |
+| `EXT-ECONNREFUSED` | `Error de conexión con Servicio Externo`           | error = `{ code: 'ECONNREFUSED' }`                         |
+| `EXT-TIMEOUT`      | `Error de TIMEOUT con Servicio Externo`            | response = `{ data: "The upstream server is timing out" }` |
+| `EXT-CERT`         | `Error de certificado con Servicio Externo`        | error = `{ code: 'CERT_HAS_EXPIRED' }`                     |
+| `EXT-MESSAGE`      | `Error desconocido con Servicio Externo (message)` | body = `{ message: "detalle del error" }`                  |
+| `EXT-DATA`         | `Error desconocido con Servicio Externo (data)`    | body = `{ data: "detalle del error" }`                     |
 
 ## Modo de uso
 

@@ -21,6 +21,7 @@ export async function printInfo() {
   const firstEntry = logFile.getEntry(zeroLine + 1)
   expect(firstEntry).toMatchObject({
     level: 30,
+    context: 'info',
   })
   expect(firstEntry).toHaveProperty('time')
   expect(firstEntry).toHaveProperty('pid')
@@ -31,6 +32,7 @@ export async function printInfo() {
   const secondEntry = logFile.getEntry(zeroLine + 2)
   expect(secondEntry).toMatchObject({
     level: 30,
+    context: 'info',
   })
   expect(secondEntry).toHaveProperty('metadata')
   expect(secondEntry.metadata).toHaveProperty('0', 'Mensaje para el cliente')
@@ -39,6 +41,7 @@ export async function printInfo() {
   const thirdEntry = logFile.getEntry(zeroLine + 3)
   expect(thirdEntry).toMatchObject({
     level: 30,
+    context: 'info',
   })
   expect(thirdEntry).toHaveProperty('metadata')
   expect(thirdEntry.metadata).toHaveProperty('0', 'Mensaje para el cliente')
@@ -48,6 +51,7 @@ export async function printInfo() {
   const fourthEntry = logFile.getEntry(zeroLine + 4)
   expect(fourthEntry).toMatchObject({
     level: 30,
+    context: 'info',
   })
   expect(fourthEntry).toHaveProperty('metadata')
   expect(fourthEntry.metadata).toHaveProperty('0', {

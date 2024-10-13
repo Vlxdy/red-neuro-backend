@@ -1,38 +1,27 @@
 import path from 'path'
 import dotenv from 'dotenv'
-import packageJson from '../../../../../package.json'
 import { LoggerOptions, LoggerService } from '../..'
 import { createLogFile, delay } from '../utils'
 import { printError } from './casos_uso/printError'
 import { printWarn } from './casos_uso/printWarn'
 import { printInfo } from './casos_uso/printInfo'
+import { printAudit } from './casos_uso/printAudit'
 import { ocultarInfo } from './casos_uso/ocultarInfo'
+import { ocultarAudit } from './casos_uso/ocultarAudit'
+import { TEST_APP_NAME } from '../utils/log-entry'
 
 dotenv.config()
 
+const loggingEnabled = String(process.env.LOG_ENABLED) === 'true'
+const logToFileEnabled = String(process.env.LOG_FILE_ENABLED) === 'true'
+
 const loggerOptions: LoggerOptions = {
-  console: 'false',
-  appName: packageJson.name,
-  level: 'trace',
-  fileParams: process.env.LOG_PATH
-    ? {
-        path: process.env.LOG_PATH,
-        size: process.env.LOG_SIZE,
-        rotateInterval: process.env.LOG_INTERVAL,
-      }
-    : undefined,
-  lokiParams: process.env.LOG_LOKI_URL
-    ? {
-        url: process.env.LOG_LOKI_URL,
-        username: process.env.LOG_LOKI_USERNAME,
-        password: process.env.LOG_LOKI_PASSWORD,
-        batching: process.env.LOG_LOKI_BATCHING,
-        batchInterval: process.env.LOG_LOKI_BATCH_INTERVAL,
-      }
-    : undefined,
-  auditParams: {
-    context: process.env.LOG_AUDIT,
-  },
+  enabled: loggingEnabled,
+  console: false,
+  appName: TEST_APP_NAME,
+  level: process.env.LOG_LEVEL,
+  audit: process.env.LOG_AUDIT,
+  hide: 'supersecretword',
   excludeOrigen: [
     'node:internal',
     'node_modules',
@@ -42,6 +31,14 @@ const loggerOptions: LoggerOptions = {
     'src/common/exceptions',
   ],
   projectPath: path.resolve(__dirname),
+}
+
+if (loggingEnabled && logToFileEnabled) {
+  loggerOptions.fileParams = {
+    path: process.env.LOG_FILE_PATH,
+    size: process.env.LOG_FILE_SIZE,
+    rotateInterval: process.env.LOG_FILE_INTERVAL,
+  }
 }
 
 describe('Logger prueba unitaria', () => {
@@ -71,7 +68,15 @@ describe('Logger prueba unitaria', () => {
     await printInfo()
   })
 
+  it('[logger] print audit', async () => {
+    await printAudit()
+  })
+
   it('[logger] ocultar info', async () => {
     await ocultarInfo()
+  })
+
+  it('[logger] ocultar audit', async () => {
+    await ocultarAudit()
   })
 })

@@ -1,4 +1,4 @@
-import { BaseException } from '@/core/logger'
+import { BaseException, AuditOptions } from '@/core/logger'
 import { ArgumentsHost, Catch } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { BaseExceptionFilter } from '../base'
@@ -38,23 +38,23 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
     }
 
     this.logger.error(errorInfo, errorRequest, errorResult)
-    if (errorResult.codigo >= 500) {
-      this.logger.auditError('http-exception', {
-        metadata: {
-          usuario: errorRequest.user?.id,
-          codigo: errorResult.codigo,
-          mensaje: errorResult.mensaje,
-        },
-      })
-    } else {
-      this.logger.auditWarn('http-exception', {
-        metadata: {
-          usuario: errorRequest.user?.id,
-          codigo: errorResult.codigo,
-          mensaje: errorResult.mensaje,
-        },
-      })
+
+    const method = request.method
+    const url = request.originalUrl.split('?')[0]
+    const auditOptions: AuditOptions = {
+      metadata: {
+        status: errorResult.codigo,
+        elapsedTimeMs: Date.now() - Number(request.startTime),
+        method,
+        url,
+      },
+      consoleOptions: {
+        mensaje: `${method} ${url} {status} {elapsedTimeMs}`,
+      },
     }
+    errorResult.codigo >= 500
+      ? this.logger.auditError('response', auditOptions)
+      : this.logger.auditWarn('response', auditOptions)
 
     response.status(errorResult.codigo).json(errorResult)
   }

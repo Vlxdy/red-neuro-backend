@@ -1,8 +1,9 @@
 import fs, { constants } from 'node:fs/promises'
 import path from 'path'
 import { cmd } from './cmd'
-import packageJson from '../../../../../package.json'
 import dayjs from 'dayjs'
+
+export const TEST_APP_NAME = 'test-base-backend'
 
 const checkFileExists = async (filePath: string) => {
   try {
@@ -16,10 +17,15 @@ const checkFileExists = async (filePath: string) => {
 }
 
 export const createLogFile = async (filename: string) => {
-  if (!process.env.LOG_PATH) {
-    throw new Error('Se requiere la variable de entorno process.env.LOG_PATH')
+  if (!process.env.LOG_FILE_PATH) {
+    throw new Error(
+      'Se requiere la variable de entorno process.env.LOG_FILE_PATH'
+    )
   }
-  const basePath = path.resolve(String(process.env.LOG_PATH), packageJson.name)
+  const basePath = path.resolve(
+    String(process.env.LOG_FILE_PATH),
+    TEST_APP_NAME
+  )
 
   if (!(await checkFileExists(basePath))) {
     return
@@ -42,11 +48,21 @@ export const createLogFile = async (filename: string) => {
 }
 
 export const readLogFile = async <T>(filename: string) => {
-  if (!process.env.LOG_PATH) {
-    throw new Error('Se requiere la variable de entorno process.env.LOG_PATH')
+  if (String(process.env.LOG_FILE_ENABLED) !== 'true') {
+    throw new Error(
+      'Se requiere que la variable de entorno process.env.LOG_FILE_ENABLED tenga el valor true'
+    )
+  }
+  if (!process.env.LOG_FILE_PATH) {
+    throw new Error(
+      'Se requiere la variable de entorno process.env.LOG_FILE_PATH'
+    )
   }
 
-  const basePath = path.resolve(String(process.env.LOG_PATH), packageJson.name)
+  const basePath = path.resolve(
+    String(process.env.LOG_FILE_PATH),
+    TEST_APP_NAME
+  )
   const items = await fs.readdir(basePath)
 
   const files = await Promise.all(

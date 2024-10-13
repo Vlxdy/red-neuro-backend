@@ -2,29 +2,25 @@ import { Logger, pino } from 'pino'
 import {
   AUDIT_LEVEL,
   COLOR,
-  DEFAULT_PARAMS,
   LOG_AUDIT_COLOR,
   LOG_COLOR,
   LOG_LEVEL,
 } from '../constants'
-import fastRedact from 'fast-redact'
 import { LoggerConfig } from './LoggerConfig'
 import {
   AuditOptions,
   BaseAuditOptions,
+  LogData,
   LoggerOptions,
-  LoggerParams,
   Metadata,
 } from '../types'
-import { printLoggerParams, stdoutWrite } from '../tools'
-import { getContext, timeToPrint } from '../utilities'
-import { BaseException } from '@/core/logger'
+import { BaseException } from './BaseException'
 import { BaseAudit } from './BaseAudit'
 import { BaseLog } from './BaseLog'
-import { inspect } from 'util'
+import { LoggerParams } from './LoggerParams'
 
 export class LoggerService {
-  private static CONSOLA_HABILITADA = true
+  private static INITIALIZED = false
 
   private static loggerParams: LoggerParams | null = null
   private static loggerInstance: LoggerService | null = null
@@ -32,135 +28,41 @@ export class LoggerService {
   private static mainPinoInstance: Logger | null = null
   private static auditPinoInstance: Logger | null = null
 
-  private static redact: fastRedact.redactFn | null = null
-
   static initialize(options: LoggerOptions): void {
-    if (LoggerService.mainPinoInstance) return
+    if (LoggerService.INITIALIZED) return
 
-    const loggerParams: LoggerParams = {
-      console:
-        typeof options.console === 'undefined'
-          ? DEFAULT_PARAMS.console
-          : String(options.console === 'true'),
-      appName:
-        typeof options.appName === 'undefined'
-          ? DEFAULT_PARAMS.appName
-          : options.appName,
-      level:
-        typeof options.level === 'undefined'
-          ? DEFAULT_PARAMS.level
-          : options.level,
-      hide:
-        typeof options.hide === 'undefined'
-          ? DEFAULT_PARAMS.hide
-          : options.hide,
-      fileParams: options.fileParams
-        ? {
-            path:
-              typeof options.fileParams.path === 'undefined'
-                ? DEFAULT_PARAMS.fileParams?.path || ''
-                : options.fileParams.path,
-            size:
-              typeof options.fileParams.size === 'undefined'
-                ? DEFAULT_PARAMS.fileParams?.size || ''
-                : options.fileParams.size,
-            rotateInterval:
-              typeof options.fileParams.rotateInterval === 'undefined'
-                ? DEFAULT_PARAMS.fileParams?.rotateInterval || ''
-                : options.fileParams.rotateInterval,
-          }
-        : undefined,
-
-      lokiParams: options.lokiParams
-        ? {
-            url:
-              typeof options.lokiParams.url === 'undefined'
-                ? DEFAULT_PARAMS.lokiParams?.url || ''
-                : options.lokiParams.url,
-            username:
-              typeof options.lokiParams.username === 'undefined'
-                ? DEFAULT_PARAMS.lokiParams?.username || ''
-                : options.lokiParams.username,
-            password:
-              typeof options.lokiParams.password === 'undefined'
-                ? DEFAULT_PARAMS.lokiParams?.password || ''
-                : options.lokiParams.password,
-            batching:
-              typeof options.lokiParams.batching === 'undefined'
-                ? DEFAULT_PARAMS.lokiParams?.batching || ''
-                : options.lokiParams.batching,
-            batchInterval:
-              typeof options.lokiParams.batchInterval === 'undefined'
-                ? DEFAULT_PARAMS.lokiParams?.batchInterval || ''
-                : options.lokiParams.batchInterval,
-          }
-        : undefined,
-
-      auditParams: options.auditParams
-        ? {
-            context:
-              typeof options.auditParams.context === 'undefined'
-                ? DEFAULT_PARAMS.auditParams?.context || ''
-                : options.auditParams.context,
-          }
-        : DEFAULT_PARAMS.auditParams?.context
-          ? {
-              context: DEFAULT_PARAMS.auditParams.context,
-            }
-          : undefined,
-
-      projectPath:
-        typeof options.projectPath === 'undefined'
-          ? DEFAULT_PARAMS.projectPath
-          : options.projectPath,
-
-      excludeOrigen:
-        typeof options.excludeOrigen === 'undefined'
-          ? DEFAULT_PARAMS.excludeOrigen
-          : options.excludeOrigen,
-
-      _levels: [],
-      _audit: [],
-    }
-
-    loggerParams._levels = Object.keys(LOG_LEVEL).map((key) => LOG_LEVEL[key])
-    loggerParams._audit = loggerParams.auditParams?.context.split(' ') || []
-
-    const opts = LoggerConfig.getMainConfig(loggerParams)
-    const stream = LoggerConfig.getMainStream(loggerParams)
-    const redact = LoggerConfig.getRedactOptions(loggerParams)
+    const loggerParams = new LoggerParams(options)
+    loggerParams.print()
+    LoggerService.loggerParams = loggerParams
 
     // CREANDO LA INSTANCIA PRINCIPAL
-    const mainLogger = pino(opts, stream)
-    mainLogger.on('level-change', (lvl, val, prevLvl, prevVal) => {
-      process.stdout.write(
-        `\n[logger] Cambio de nivel - valor previo: ${prevVal} ${prevLvl} nuevo valor: ${val} ${lvl}\n`
-      )
-    })
+    if (LoggerParams.LOG_ENABLED) {
+      const opts = LoggerConfig.getMainConfig(loggerParams)
+      if (opts.level) {
+        const stream = LoggerConfig.getMainStream(loggerParams)
+        const mainLogger = pino(opts, stream)
+        LoggerService.mainPinoInstance = mainLogger
+      }
+    }
 
     // CREANDO LA INSTANCIA PARA AUDIT
-    const auditOpts = LoggerConfig.getAuditConfig(loggerParams)
-    const auditStream = LoggerConfig.getAuditStream(loggerParams)
-    const auditLogger = pino(auditOpts, auditStream)
-    auditLogger.on('level-change', (lvl, val, prevLvl, prevVal) => {
-      process.stdout.write(
-        `\n[logger] Cambio de nivel - valor previo: ${prevVal} ${prevLvl} nuevo valor: ${val} ${lvl}\n`
-      )
-    })
+    if (LoggerParams.LOG_ENABLED) {
+      const auditOpts = LoggerConfig.getAuditConfig(loggerParams)
+      if (auditOpts.level) {
+        const auditStream = LoggerConfig.getAuditStream(loggerParams)
+        const auditLogger = pino(auditOpts, auditStream)
+        LoggerService.auditPinoInstance = auditLogger
+      }
+    }
 
-    LoggerService.redact = fastRedact(redact)
-    LoggerService.mainPinoInstance = mainLogger
-    LoggerService.auditPinoInstance = auditLogger
-    LoggerService.loggerParams = loggerParams
-    LoggerService.CONSOLA_HABILITADA = loggerParams.console === 'true'
-    printLoggerParams(loggerParams)
+    LoggerService.INITIALIZED = true
   }
 
   /**
    * Devuelve una instancia de logger.
    *
    * @example
-   * import { LoggerService } from '../../core/logger'
+   * import { LoggerService } from '@/core/logger'
    * const logger = LoggerService.getInstance()
    *
    * @returns LoggerService
@@ -177,8 +79,10 @@ export class LoggerService {
     return LoggerService.loggerParams
   }
 
-  static getRedact() {
-    return LoggerService.redact
+  static isDebugEnabled(): boolean {
+    return (
+      LoggerParams.LOG_ENABLED && LoggerParams.LEVELS.includes(LOG_LEVEL.DEBUG)
+    )
   }
 
   /**
@@ -210,10 +114,7 @@ export class LoggerService {
    * @param params
    */
   error(...params: unknown[]): void {
-    const exceptionInfo = new BaseException(params[0], {
-      metadata: this.buildMetadata(params.slice(1)),
-    })
-    this.printException(exceptionInfo)
+    this._error(...params)
   }
 
   /**
@@ -235,7 +136,7 @@ export class LoggerService {
    * @param params
    */
   warn(...params: unknown[]): void {
-    this._log(LOG_LEVEL.WARN, ...params)
+    this._warn(...params)
   }
 
   /**
@@ -287,25 +188,6 @@ export class LoggerService {
     this._log(LOG_LEVEL.TRACE, ...params)
   }
 
-  private _log(level: LOG_LEVEL, ...params: unknown[]) {
-    const pinoLogger = LoggerService.mainPinoInstance
-    if (!pinoLogger || !pinoLogger.isLevelEnabled(level)) {
-      return
-    }
-    const logInfo = new BaseLog({
-      metadata: this.buildMetadata(params),
-      level,
-    })
-    this.printLog(logInfo)
-  }
-
-  private buildMetadata(params: unknown[]) {
-    return params.reduce((prev: object, curr, index) => {
-      prev[index] = curr
-      return prev
-    }, {}) as Metadata
-  }
-
   /**
    * Registra logs de auditoría.
    *
@@ -333,19 +215,6 @@ export class LoggerService {
   audit(contexto: string, opt: AuditOptions): void
   audit(contexto: string, ...params: unknown[]): void {
     this._audit(AUDIT_LEVEL.DEFAULT, contexto, ...params)
-  }
-
-  private _audit(level: AUDIT_LEVEL, contexto: string, ...params: unknown[]) {
-    const pinoLogger = LoggerService.auditPinoInstance
-    if (
-      !pinoLogger ||
-      !pinoLogger.isLevelEnabled(contexto) ||
-      !LoggerService.loggerParams?._audit.includes(contexto)
-    ) {
-      return
-    }
-    const auditInfo = LoggerService.buildAudit(level, contexto, ...params)
-    this.printAudit(auditInfo)
   }
 
   /**
@@ -408,7 +277,85 @@ export class LoggerService {
     this._audit(AUDIT_LEVEL.INFO, contexto, ...params)
   }
 
-  private static buildAudit(
+  /**
+   * Logs de auditoría de tipo debug.
+   *
+   * Al imprimirlos en la terminal
+   * se muestran con un resaltado de tipo debug.
+   * @param contexto string
+   * @param params unknown[]
+   */
+  auditDebug(contexto: string, mensaje: string): void
+  auditDebug(contexto: string, mensaje: string, metadata: Metadata): void
+  auditDebug(contexto: string, opt: AuditOptions): void
+  auditDebug(contexto: string, ...params: unknown[]): void {
+    this._audit(AUDIT_LEVEL.DEBUG, contexto, ...params)
+  }
+
+  private _error(...params: unknown[]) {
+    try {
+      if (!LoggerParams.LOG_ENABLED) return
+      const exceptionInfo = new BaseException(params[0], {
+        metadata: this.buildMetadata(params.slice(1)),
+      })
+      this.saveLog(exceptionInfo)
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e)
+    }
+  }
+
+  private _warn(...params: unknown[]) {
+    try {
+      if (!LoggerParams.LOG_ENABLED) return
+      const withMessage = params.length > 0 && typeof params[0] === 'string'
+      const exceptionInfo = new BaseException(undefined, {
+        httpStatus: 400,
+        mensaje: withMessage ? String(params[0]) : undefined,
+        metadata: this.buildMetadata(params.slice(withMessage ? 1 : 0)),
+      })
+      this.saveLog(exceptionInfo)
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e)
+    }
+  }
+
+  private _log(level: LOG_LEVEL, ...params: unknown[]) {
+    try {
+      if (!LoggerParams.LOG_ENABLED) return
+      if (!LoggerParams.LEVELS.includes(level)) return
+      const logInfo = new BaseLog({
+        metadata: this.buildMetadata(params),
+        level,
+      })
+      this.saveLog(logInfo)
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e)
+    }
+  }
+
+  private _audit(level: AUDIT_LEVEL, contexto: string, ...params: unknown[]) {
+    try {
+      if (!LoggerParams.LOG_ENABLED) return
+      if (!LoggerParams.AUDIT.includes(contexto)) return
+      const auditInfo = this.buildAudit(level, contexto, ...params)
+      this.saveAudit(auditInfo)
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e)
+    }
+  }
+
+  private buildMetadata(params: unknown[]) {
+    return params.reduce((prev: object, curr, index) => {
+      prev[index] = curr
+      return prev
+    }, {}) as Metadata
+  }
+
+  private buildAudit(
     lvl: AUDIT_LEVEL,
     contexto: string,
     ...args: unknown[]
@@ -442,136 +389,47 @@ export class LoggerService {
     }
   }
 
-  private printException(info: BaseException) {
-    try {
-      const level = info.getLevel()
-
-      const pinoLogger = LoggerService.mainPinoInstance
-      if (!pinoLogger || !pinoLogger.isLevelEnabled(level)) {
-        return
-      }
-
-      // SAVE WITH PINO
-      this.saveWithPino(level, info)
-
-      if (!LoggerService.CONSOLA_HABILITADA) {
-        return
-      }
-
-      // PRINT TO CONSOLE
-      const msg = info.toString()
-      const caller = getContext(4)
-      this.printToConsole(level, msg, caller)
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e)
-    }
-  }
-
-  private printLog(info: BaseLog) {
-    try {
-      const level = info.getLevel()
-
-      // SAVE WITH PINO
-      this.saveWithPino(level, info)
-
-      if (!LoggerService.CONSOLA_HABILITADA) {
-        return
-      }
-
-      // PRINT TO CONSOLE
-      const msg = info.toString()
-      const caller = getContext(5)
-      this.printToConsole(level, msg, caller)
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e)
-    }
-  }
-
-  private printAudit(info: BaseAudit) {
-    try {
-      // SAVE WITH PINO
-      this.saveAuditWithPino(info)
-
-      if (!LoggerService.CONSOLA_HABILITADA) {
-        return
-      }
-
-      // PRINT TO CONSOLE
-      this.printAuditToConsole(info)
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e)
-    }
-  }
-
-  private saveWithPino(level: LOG_LEVEL, info: BaseLog | BaseException) {
-    const args = info.getLogEntry()
+  private saveLog(info: BaseException | BaseLog) {
+    const level = info.getLevel()
     const pinoLogger = LoggerService.mainPinoInstance
-    if (pinoLogger && pinoLogger[level]) {
-      pinoLogger[level](args)
+    if (pinoLogger && pinoLogger[level] && pinoLogger.isLevelEnabled(level)) {
+      const dataJson =
+        LoggerParams.LOG_FILE_ENABLED || LoggerParams.LOG_LOKI_ENABLED
+          ? info.getLogEntry()
+          : null
+      const dataStr =
+        LoggerParams.LOG_CONSOLE_ENABLED && !info.consoleOptions?.disabled
+          ? info.toString({
+              color: LOG_COLOR[info.level],
+              resetColor: COLOR.RESET,
+              timeColor: COLOR.LIGHT_GREY,
+              keyColor: COLOR.LIGHT_GREY,
+            })
+          : null
+      const logData: LogData = { json: dataJson, str: dataStr }
+      pinoLogger[level](logData)
     }
   }
 
-  private saveAuditWithPino(info: BaseAudit): void {
+  private saveAudit(info: BaseAudit): void {
     const level = info.contexto
-    const args = info.getLogEntry()
     const pinoLogger = LoggerService.auditPinoInstance
-    if (pinoLogger && pinoLogger[level]) {
-      pinoLogger[level](args)
-    }
-  }
-
-  private printToConsole(level: LOG_LEVEL, msg: string, caller: string): void {
-    const color = LOG_COLOR[level]
-    const time = timeToPrint()
-    const cTime = `${COLOR.RESET}${time}${COLOR.RESET}`
-    const cLevel = `${color}[${level.toUpperCase()}]${COLOR.RESET}`
-    const cCaller = `${COLOR.RESET}${caller}${COLOR.RESET}`
-
-    stdoutWrite('\n')
-    stdoutWrite(`${cTime} ${cLevel} ${cCaller} ${color}`)
-    stdoutWrite(`${color}${msg.replace(/\n/g, `\n${color}`)}\n`)
-    stdoutWrite(COLOR.RESET)
-  }
-
-  private printAuditToConsole(info: BaseAudit): void {
-    const colorPrimario = LOG_AUDIT_COLOR[info.level]
-    const colorSecundario = colorPrimario
-
-    const metadata = info.metadata || {}
-    const time = timeToPrint()
-    const timeColor =
-      info.level === AUDIT_LEVEL.DEFAULT ? COLOR.LIGHT_GREY : COLOR.RESET
-    const cTime = `${timeColor}${time}${COLOR.RESET}`
-
-    // FORMATO PERSONALIZADO
-    if (info.formato) {
-      const msg = info.formato
-      const cLevel = `${colorPrimario}[${info.contexto}]${COLOR.RESET}`
-      const cMsg = `${colorSecundario}${msg}${COLOR.RESET}`
-      stdoutWrite('\n')
-      stdoutWrite(`${cTime} ${cLevel} ${cMsg}\n`)
-      stdoutWrite(COLOR.RESET)
-    }
-
-    // FORMATO POR DEFECTO
-    else {
-      const msg = info.mensaje ? info.mensaje : ''
-      const cLevel = `${colorPrimario}[${info.contexto}]${COLOR.RESET}`
-      const cMsg = `${timeColor}${msg}${COLOR.RESET}`
-      const cValues = Object.keys(metadata)
-        .filter((key) => typeof metadata[key] !== 'undefined')
-        .map((key) => {
-          const value = inspect(metadata[key], false, null, false)
-          const cValue = value.replace(/\n/g, `\n${colorSecundario}`)
-          return `${COLOR.LIGHT_GREY}${key}=${colorSecundario}${cValue}`
-        })
-        .join(' ')
-      stdoutWrite('\n')
-      stdoutWrite(`${cTime} ${cLevel} ${cMsg} ${cValues}\n`)
-      stdoutWrite(COLOR.RESET)
+    if (pinoLogger && pinoLogger[level] && pinoLogger.isLevelEnabled(level)) {
+      const dataJson =
+        LoggerParams.LOG_FILE_ENABLED || LoggerParams.LOG_LOKI_ENABLED
+          ? info.getLogEntry()
+          : null
+      const dataStr =
+        LoggerParams.LOG_CONSOLE_ENABLED && !info.consoleOptions?.disabled
+          ? info.toString({
+              color: LOG_AUDIT_COLOR[info.level],
+              resetColor: COLOR.RESET,
+              timeColor: COLOR.LIGHT_GREY,
+              keyColor: COLOR.LIGHT_GREY,
+            })
+          : null
+      const logData: LogData = { json: dataJson, str: dataStr }
+      pinoLogger[level](logData)
     }
   }
 }
