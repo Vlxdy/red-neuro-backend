@@ -2,6 +2,66 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.11.4](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.3...v1.11.4) (2024-10-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **logger:** Actualizar variables de entorno
+
+### Features
+
+* :sparkles: se agregó la gestión de errores al validar una ip ([dc3cd9f](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/dc3cd9f6324ab1c579360ae9e430284da33657dc))
+* actualización de estilo de documentación ([a86d6c8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a86d6c860f7dc311db0df6ce5cc23b56b9017299))
+* actualizar automatizacion ([b777c0b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b777c0bf7c7f9a3c47b83cb229732561206c8b63))
+* actualizar automatizacion con scripts ([6424425](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/642442547918933412c8134aab0fe2d328fed0de))
+* agrega job para tests en el pipeline ([6755f92](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/6755f921eecb889743ad89b309a4ec3ddb6a2802))
+* agrega pruebas sast ([72c98a9](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/72c98a93dfd68dd8c92046fefde66836a6d0f6ff))
+* agregar cambios para el turbo ([20935ec](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/20935ec41508ac1eeb9494201ed6e768257ed718))
+* cambiar a images estables ([c68901f](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c68901faa3cc94a6087618c281728e56682a2a20))
+* cambiar condicional para que se ejecuto solo con la rama test ([0501d74](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/0501d74ee781cf8d338a2c8de5f3515cb16a8fae))
+* cambiar image ([8f36a31](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/8f36a31d234b4098f44b3adc70a0929a4995a6f6))
+* cambiar rules de jobs ([edffbb8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/edffbb8a6b4a56a13ea26abb80afc34b3ea8dc7c))
+* cambiar tag runner ([c812126](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c812126303ee6ce69e5eb919189fd1aa6ea4fb70))
+* cambiar version de image ([40dfb7d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/40dfb7da4ea32c30c271f6b850b619f538a2e47f))
+* configurar test con jest ([3b36818](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/3b368189e235564685cf69cf75d3827c88896c6c))
+* corregir nombre de tag para develop ([701c977](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/701c977073254cab6768523e30277d2ce4b8b0de))
+* crea cuentas de usuarios con datos de personas ([cfff7f2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/cfff7f29860d9138938eee03f7404264fe50b627))
+* implementar turborepo y test para la rama test ([97efa4f](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/97efa4fe9079c8827ba4c43173460c00935c3a18))
+* **logger:** ✨ ajuste para las nuevas funcionalidades de logger ([accc486](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/accc486d4159c4d902bf42088406c2545173a140))
+* **logger:** ✨ mejoras y correcciones con el manejo de streams y pino ([f45d168](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/f45d1686ed12adfe1e6ed5d1b02ff562493dbc6b))
+* probar cambios ([31994d2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/31994d25b269be686387d8e99f5b0578b1631955))
+* probar en test-pipeline ([2b2ae33](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/2b2ae339908c8f4ff36d63f3145a72e61c7f3e84))
+* probar modificacion de package ([4e57e99](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/4e57e990b45d1cd46c3d3b7d21240ec67ed63872))
+* terminar pruebas de cacheo ([665ef63](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/665ef6338de2c027114959fc262e96d83a15ef48))
+* ver valores en trivy ([fecdfb1](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/fecdfb1830b30500fad8fe9c6057f40179abffa2))
+* volver cambios atras ([c6dd003](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c6dd003638ec8743a05da75f6708f7907e66ce59))
+
+
+### Bug Fixes
+
+* :package: se reemplazó el paquete ip por ip-address ([a10a120](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/a10a1207a398d93b6d026c66879e66171134a687))
+* actualizar tags ([8aa9b12](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/8aa9b1240478d678c60ac2cab3dd8f9e75d19378))
+* actualizar tags ([61c648c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/61c648cb002e341de03b3e1277fed431e82348d5))
+* agregar diagrama de arquitectura y ajustar pipelines ([f8fa534](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/f8fa534476d67a90f5b3c0e0ebb667d5b8a7b733))
+* agregar packagemanager al package ([2b24b23](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/2b24b23551eaacc840c7059154345db6907508b9))
+* agregar turbo al merge ([6fca243](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/6fca24377718333172735d8bae54ea97840519f0))
+* ajustar pipelines ([35ea332](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/35ea3328a11282d2a496f83c7a93fe8cccbd183a))
+* ajustar rules de jobs ([dc6faba](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/dc6faba63256e17226d9675ad4e0f08751c3f685))
+* añadida función decodeBase64 al registrar una nueva cuenta, denominación de tipos de Ciudadanía y Correo ([c270df3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/c270df3968cdd572e9a40777960498db428e6d3c))
+* apuntar a nuevo script ([b9832b6](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/b9832b6da6c5f81d6ff17739f11265b602732b6f))
+* arreglar donde apunta el merge ([69c97cd](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/69c97cdae1276beafd874da17d903ef77b695054))
+* arreglar git pull ([02fa07d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/02fa07d51055a025f78e0fa42a59467b047aa97c))
+* arreglar package.json ([2ced839](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/2ced83902f1776840504b0a4c8e7437fb05e5da0))
+* corregir conflictos pull ([4713c73](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/4713c731f4ae09c1a5b12759cdb5e1c83b7a65db))
+* corregir k8s-dev ([e6f4e69](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e6f4e69fe6d622b47f2dbf2cb2e08142d7f81cd4))
+* corregir merge ([423d4f7](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/423d4f75637bcb2ef32ffb4efdda371079323c77))
+* escuchar evento merge para trivy ([49e43be](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/49e43be5bf0b0a10ff2127d05163aa957863e8d7))
+* **logger:** :bug: ofuscando datos sensibles (OWASP A09:2021 mitigation) ([7b46c6a](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/7b46c6a7b18f73c4ab2068a9e2f2b375a567b7a7))
+* modificar merge de develop ([e510b0d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e510b0d78c122a8aeec1d73fdad04fc484b2b17f))
+* probar cambio de envs ([351f489](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/351f4893fa612a965375ed9608d89c5a5a54ef17))
+* usar environments para el dockerfile ([879cacc](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/879cacceede2b8d4ffa2c0ca6e387f7d9c682579))
+
 ## [1.11.3](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.2...v1.11.3) (2024-07-28)
 
 
