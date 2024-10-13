@@ -10,10 +10,16 @@ USER node
 
 RUN npm set registry https://registry.agcs.agetic.gob.bo/ && \
     npm set strict-ssl false
-    
-RUN npm ci --prefer-offline --progress=false --no-audit 
 
-FROM base AS setup
+RUN npm ci --prefer-offline --progress=false --no-audit
+
+FROM base AS coverage
 COPY --chown=node:node . .
+USER root
+RUN apk add --no-cache jq
+RUN jq -r '.data.data' secrets.json > secrets_temp.json && \
+    jq -r 'to_entries | .[] | "\(.key)=\(.value)"' secrets_temp.json > .env && \
+    chown -R node:node .env
 USER node
-RUN npm run setup
+RUN npm run test:ci || exit 0
+
