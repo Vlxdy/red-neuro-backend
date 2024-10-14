@@ -28,7 +28,7 @@ Ejecutar test Test:
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
 Audit npm Test:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
@@ -44,7 +44,7 @@ Audit npm Test:
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
 Njsscan Test:
   image: hub.upat.agetic.gob.bo/dockerhub-proxy/opensecurity/njsscan:0.3.6
@@ -60,7 +60,7 @@ Njsscan Test:
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
 Trivy Test:
   image: hub.agcs.agetic.gob.bo/trivy/trivy_db:latest
@@ -76,7 +76,7 @@ Trivy Test:
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
 Exponer_archivos Test:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
@@ -136,7 +136,7 @@ Ejecutar test Develop:
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
 Audit npm Develop:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
@@ -152,7 +152,7 @@ Audit npm Develop:
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
 Njsscan Develop:
   image: hub.upat.agetic.gob.bo/dockerhub-proxy/opensecurity/njsscan:0.3.6
@@ -168,7 +168,7 @@ Njsscan Develop:
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
 Trivy Develop:
   image: hub.agcs.agetic.gob.bo/trivy/trivy_db:latest
@@ -184,7 +184,7 @@ Trivy Develop:
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
 Exponer_archivos Develop:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
