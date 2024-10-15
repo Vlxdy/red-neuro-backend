@@ -14,7 +14,7 @@ Merge Build Test:
   script:
     - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -t merge -n
 
-Ejecutar test Test:
+Ejecutar jest Test:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: sast
   rules:
@@ -91,14 +91,14 @@ Exponer_archivos Test:
       artifacts: true
     - job: Audit npm Test
       artifacts: true
-    - job: Ejecutar test Test
+    - job: Ejecutar jest Test
       artifacts: true
     - job: Trivy Test
       artifacts: true
   dependencies:
     - Njsscan Test
     - Audit npm Test
-    - Ejecutar test Test
+    - Ejecutar jest Test
     - Trivy Test
   script:
     - sh /scripts/export_files.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
@@ -122,7 +122,7 @@ Merge Build Develop:
   script:
     - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -t merge -n
 
-Ejecutar test Develop:
+Ejecutar jest Develop:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: sast
   rules:
@@ -199,14 +199,14 @@ Exponer_archivos Develop:
       artifacts: true
     - job: Audit npm Develop
       artifacts: true
-    - job: Ejecutar test Develop
+    - job: Ejecutar jest Develop
       artifacts: true
     - job: Trivy Develop
       artifacts: true
   dependencies:
     - Njsscan Develop
     - Audit npm Develop
-    - Ejecutar test Develop
+    - Ejecutar jest Develop
     - Trivy Develop
   script:
     - sh /scripts/export_files.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME
