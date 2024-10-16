@@ -118,7 +118,7 @@ describe('AuthenticationService', () => {
         {
           provide: MensajeriaService,
           useValue: {
-            sendEmail: jest.fn(() => ({ finalizado: true })),
+            sendEmail: jest.fn(() => Promise.resolve({ finalizado: true })),
           },
         },
         {
