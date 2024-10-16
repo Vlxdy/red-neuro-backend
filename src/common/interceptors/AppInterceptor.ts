@@ -29,8 +29,13 @@ export class AppInterceptor implements NestInterceptor {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const request = context.switchToHttp().getRequest<Request>()
-    const response = context.switchToHttp().getResponse<Response>()
+    const request = context.switchToHttp().getRequest<Request>() as
+      | Request
+      | undefined
+
+    const response = context.switchToHttp().getResponse<Response>() as
+      | Response
+      | undefined
 
     const tiempoEspera =
       this.reflector.get<number>('tiempoMaximoEspera', context.getHandler()) ||
@@ -52,16 +57,16 @@ export class AppInterceptor implements NestInterceptor {
       tap((data) => {
         // REGISTRO DEL LOG DE RESPUESTA DEL SERVICIO
         const metadata: Metadata = {
-          status: response.statusCode,
-          elapsedTimeMs: Date.now() - Number(request.startTime),
-          method: request.method,
-          url: request.originalUrl.split('?')[0],
+          status: response?.statusCode,
+          elapsedTimeMs: request ? Date.now() - Number(request.startTime) : 0,
+          method: request?.method,
+          url: request ? String(request.originalUrl).split('?')[0] : undefined,
         }
         if (LoggerService.isDebugEnabled()) {
           metadata.data =
             typeof data === 'object' && data && !('statusCode' in data)
               ? data
-              : String(data)
+              : undefined
         }
         logger.audit('response', {
           metadata,

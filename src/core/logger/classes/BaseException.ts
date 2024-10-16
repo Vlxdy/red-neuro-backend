@@ -463,7 +463,9 @@ export class BaseException extends Error {
     if (!args.caller) args.caller = undefined
 
     // Para evitar guardar informacion redundante
-    if (args.error === args.errorStack && args.error) args.error = undefined
+    if (String(args.error) === String(args.errorStack) && args.error) {
+      args.error = undefined
+    }
 
     if (this.metadata && Object.keys(this.metadata).length > 0) {
       Object.assign(args, { metadata: this.metadata })
