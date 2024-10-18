@@ -79,6 +79,21 @@ export class UsuarioController extends BaseController {
     return this.success(result)
   }
 
+  @ApiOperation({ summary: 'Obtiene la información de un usuario por su ID' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, CasbinGuard)
+  @Get(':id')
+  async getUsuarioPorId(@Req() req: Request, @Param('id') id: string) {
+    const user = req.user
+    if (!user) {
+      throw new BadRequestException(
+        `Es necesario que esté autenticado para consumir este recurso.`
+      )
+    }
+    const result = await this.usuarioService.buscarUsuarioPersonaPorId(id)
+    return this.success(result)
+  }
+
   //create user
   @ApiOperation({ summary: 'API para crear un nuevo usuario' })
   @ApiBearerAuth()

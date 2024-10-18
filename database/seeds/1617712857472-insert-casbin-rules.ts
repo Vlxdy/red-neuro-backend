@@ -85,7 +85,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
 
       '/api/usuarios/:id': {
-        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.ADMINISTRADOR]: 'PATCH|GET',
       },
 
       '/api/usuarios/cuenta/ciudadania': {
