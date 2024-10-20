@@ -114,6 +114,14 @@ export class Usuario extends AuditoriaEntity {
   fechaBloqueo?: Date | null
 
   @Column({
+    name: 'url_foto',
+    type: 'varchar',
+    nullable: true,
+    comment: 'URL de la foto de perfil del usuario',
+  })
+  urlFoto?: string | null
+
+  @Column({
     name: 'id_persona',
     type: 'bigint',
     nullable: false,

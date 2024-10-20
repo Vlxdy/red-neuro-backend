@@ -135,6 +135,7 @@ export class UsuarioRepository {
         'usuario.correoElectronico',
         'usuario.estado',
         'usuario.ciudadaniaDigital',
+        'usuario.urlFoto',
         'persona.nombres',
         'persona.primerApellido',
         'persona.segundoApellido',
@@ -227,6 +228,7 @@ export class UsuarioRepository {
       codigoActivacion: usuarioDto.codigoActivacion,
       usuarioModificacion: usuarioAuditoria,
       ciudadaniaDigital: usuarioDto.ciudadaniaDigital || undefined,
+      urlFoto: usuarioDto.urlFoto,
     })
     return await repo.update(idUsuario, datosActualizar)
   }

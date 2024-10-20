@@ -1,5 +1,6 @@
 import { BaseService } from '@/common/base'
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -34,6 +35,10 @@ import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeri
 import { SegipService } from '@/core/external-services/iop/segip/segip.service'
 import { UsuarioEstado } from '@/core/usuario/constant'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
+import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
+import { ImageXssValidationService } from '@/common/lib/ImageXssValidationService'
+import path from 'path'
+import fs from 'node:fs/promises'
 
 @Injectable()
 export class UsuarioService extends BaseService {
@@ -49,6 +54,7 @@ export class UsuarioService extends BaseService {
     private readonly mensajeriaService: MensajeriaService,
     private readonly authorizationService: AuthorizationService,
     private readonly segipServices: SegipService,
+    private imageXssValidationService: ImageXssValidationService,
     private configService: ConfigService
   ) {
     super()
@@ -998,6 +1004,7 @@ export class UsuarioService extends BaseService {
       usuario: usuario.usuario,
       ciudadaniaDigital: usuario.ciudadaniaDigital,
       correoElectronico: usuario.correoElectronico,
+      urlFoto: usuario.urlFoto,
       estado: usuario.estado,
       roles: await Promise.all(
         usuario.usuarioRol
@@ -1073,6 +1080,132 @@ export class UsuarioService extends BaseService {
       idUsuario,
       codigo
     )
+  }
+
+  async actualizarPerfil(
+    idUsuario: string,
+    actualizarPerfilDto: ActualizarPerfilDto
+  ) {
+    const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
+    if (!usuario) {
+      throw new NotFoundException(Messages.INVALID_USER)
+    }
+
+    const { nombres, primerApellido, segundoApellido, correoElectronico } =
+      actualizarPerfilDto
+
+    // Actualizar datos de la persona
+    await this.personaRepositorio.actualizar(
+      usuario.idPersona,
+      { nombres, primerApellido, segundoApellido },
+      idUsuario
+    )
+
+    // Actualizar correo electrónico del usuario si ha cambiado
+    if (correoElectronico && correoElectronico !== usuario.correoElectronico) {
+      const existeCorreo =
+        await this.usuarioRepositorio.buscarUsuarioPorCorreo(correoElectronico)
+      if (existeCorreo) {
+        throw new BadRequestException(Messages.EXISTING_EMAIL)
+      }
+      await this.usuarioRepositorio.actualizar(
+        idUsuario,
+        { correoElectronico },
+        idUsuario
+      )
+    }
+
+    return { id: idUsuario, mensaje: 'Perfil actualizado correctamente' }
+  }
+
+  async actualizarFotoPerfil(idUsuario: string, file: Express.Multer.File) {
+    const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado')
+    }
+
+    // Validar el archivo contra XSS
+    await this.imageXssValidationService.validateImageFile(file)
+
+    const storagePath = this.configService.get<string>('STORAGE_NFS_PATH')
+    if (!storagePath) {
+      throw new BadRequestException(
+        'La configuración de almacenamiento no está disponible'
+      )
+    }
+
+    const codigo = TextService.generateUuid()
+    const fileName = `${codigo}${path.extname(file.originalname)}`
+    const uploadPath = path.join(
+      storagePath,
+      'uploads',
+      'profile-photos',
+      fileName
+    )
+
+    try {
+      await fs.mkdir(path.dirname(uploadPath), { recursive: true })
+      await fs.copyFile(file.path, uploadPath)
+      await fs.unlink(file.path) // Eliminar el archivo temporal
+
+      const fotoUrl = `/uploads/profile-photos/${fileName}`
+
+      // Si existe una foto anterior, la eliminamos
+      if (usuario.urlFoto) {
+        const oldPhotoPath = path.join(
+          storagePath,
+          usuario.urlFoto.substring(1)
+        )
+        await fs.unlink(oldPhotoPath).catch((reason) => {
+          this.logger.error(reason, 'Error en eliminar archivo')
+        })
+      }
+
+      await this.usuarioRepositorio.actualizar(
+        idUsuario,
+        { urlFoto: fotoUrl },
+        idUsuario
+      )
+
+      return {
+        id: idUsuario,
+        urlFoto: fotoUrl,
+        mensaje: 'Foto de perfil actualizada correctamente',
+      }
+    } catch (error) {
+      console.error('Error al procesar el archivo:', error)
+      throw new BadRequestException('Error al procesar el archivo')
+    }
+  }
+
+  async eliminarFotoPerfil(idUsuario: string) {
+    const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado')
+    }
+
+    if (usuario.urlFoto) {
+      const storagePath = this.configService.get<string>('STORAGE_NFS_PATH')
+
+      if (!storagePath) {
+        throw new BadRequestException(
+          'La configuración de almacenamiento no está disponible'
+        )
+      }
+
+      const filePath = path.join(storagePath, usuario.urlFoto.substring(1))
+      await fs.unlink(filePath).catch((reason) => {
+        this.logger.error(reason, 'Error en eliminar archivo')
+      })
+
+      await this.usuarioRepositorio.actualizar(
+        idUsuario,
+        { urlFoto: null },
+        idUsuario
+      )
+    }
+
+    return { mensaje: 'Foto de perfil eliminada correctamente' }
   }
 
   async desbloquearCuenta(codigo: string) {

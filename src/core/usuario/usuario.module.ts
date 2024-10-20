@@ -14,6 +14,7 @@ import { Usuario } from './entity/usuario.entity'
 import { Persona } from './entity/persona.entity'
 import { UsuarioRol } from '../authorization/entity/usuario-rol.entity'
 import { Rol } from '../authorization/entity/rol.entity'
+import { ImageXssValidationService } from '@/common/lib/ImageXssValidationService'
 
 @Module({
   providers: [
@@ -22,6 +23,7 @@ import { Rol } from '../authorization/entity/rol.entity'
     PersonaRepository,
     UsuarioRolRepository,
     RolRepository,
+    ImageXssValidationService,
   ],
   exports: [UsuarioService],
   imports: [

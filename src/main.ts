@@ -12,6 +12,7 @@ import { CustomValidationPipe } from '@/common/pipes'
 import { TypeormStore } from 'connect-typeorm'
 import { Session } from '@/core/authentication/entity/session.entity'
 import dotenv from 'dotenv'
+import path from 'path'
 
 import {
   SWAGGER_API_CURRENT_VERSION,
@@ -56,6 +57,9 @@ const bootstrap = async () => {
   // configuration app
   const repositorySession = SessionAppDataSource.getRepository(Session)
 
+  app.use(express.json({ limit: '50mb' }))
+  app.use(express.urlencoded({ extended: true, limit: '50mb' }))
+
   app.use(
     session({
       secret: configService.get('SESSION_SECRET') || '',
@@ -76,6 +80,16 @@ const bootstrap = async () => {
   app.use(passport.session())
   app.use(cookieParser())
   app.use(express.static('public'))
+
+  // Configuración para servir archivos estáticos desde STORAGE_NFS_PATH
+  const storagePath = configService.get('STORAGE_NFS_PATH')
+  if (storagePath) {
+    app.use('/uploads', express.static(path.join(storagePath, 'uploads')))
+  } else {
+    console.warn(
+      'STORAGE_NFS_PATH no está configurado. Los archivos estáticos no se servirán correctamente.'
+    )
+  }
 
   app.enableCors({
     origin: true,

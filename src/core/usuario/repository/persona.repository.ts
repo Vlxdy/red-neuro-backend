@@ -31,6 +31,24 @@ export class PersonaRepository {
     )
   }
 
+  async actualizar(
+    id: string,
+    personaDto: Partial<PersonaDto>,
+    usuarioAuditoria: string,
+    transaction?: EntityManager
+  ) {
+    const repo =
+      transaction?.getRepository(Persona) ??
+      this.dataSource.getRepository(Persona)
+    await repo.update(id, {
+      nombres: personaDto.nombres,
+      primerApellido: personaDto.primerApellido,
+      segundoApellido: personaDto.segundoApellido,
+      usuarioModificacion: usuarioAuditoria,
+    })
+    return await repo.findOne({ where: { id } })
+  }
+
   async buscarPersonaPorCI(persona: PersonaDto) {
     return await this.dataSource
       .getRepository(Persona)
