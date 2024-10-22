@@ -9,7 +9,7 @@ export function getIPAddress(): string {
     if (!netInfo) continue
 
     for (const net of netInfo) {
-      if (net.internal) return ''
+      if (net.internal) continue
       try {
         if (net.family === 'IPv4' && Address4.isValid(net.address)) {
           return new Address4(net.address).correctForm()
