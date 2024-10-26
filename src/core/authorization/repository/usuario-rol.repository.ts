@@ -4,7 +4,6 @@ import { Rol } from '../entity/rol.entity'
 import { Injectable } from '@nestjs/common'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
-import { Status } from '@/common/constants'
 
 @Injectable()
 export class UsuarioRolRepository {
@@ -65,7 +64,7 @@ export class UsuarioRolRepository {
 
   async cambiarEstadoPorRoles(
     roles: Array<string>,
-    estado: Status | Status.ACTIVE | Status.INACTIVE,
+    estado: string,
     usuarioAuditoria: string,
     transaction?: EntityManager
   ) {
