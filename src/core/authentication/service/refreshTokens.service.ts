@@ -67,7 +67,6 @@ export class RefreshTokensService extends BaseService {
     )
 
     const roles = usuario.roles.map((rol) => rol.rol)
-
     try {
       this.jwtService.verify(datos.token, {
         secret: this.configService.get('JWT_SECRET'),
