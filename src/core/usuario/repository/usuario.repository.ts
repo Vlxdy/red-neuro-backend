@@ -121,6 +121,36 @@ export class UsuarioRepository {
       .getOne()
   }
 
+  async buscarUsuarioPersonaPorId(id: string) {
+    const query = this.dataSource
+      .getRepository(Usuario)
+      .createQueryBuilder('usuario')
+      .leftJoinAndSelect('usuario.usuarioRol', 'usuarioRol')
+      .leftJoinAndSelect('usuarioRol.rol', 'rol')
+      .leftJoinAndSelect('usuario.persona', 'persona')
+      .select([
+        'usuario.id',
+        'usuario.usuario',
+        'usuario.correoElectronico',
+        'usuario.estado',
+        'usuario.ciudadaniaDigital',
+        'usuario.fechaCreacion',
+        'usuarioRol',
+        'rol.id',
+        'rol.rol',
+        'persona.nroDocumento',
+        'persona.nombres',
+        'persona.primerApellido',
+        'persona.segundoApellido',
+        'persona.fechaNacimiento',
+        'persona.tipoDocumento',
+      ])
+      .where('usuarioRol.estado = :estado', { estado: UsuarioRolEstado.ACTIVE })
+      .andWhere('usuario.id = :id', { id })
+
+    return await query.getOne()
+  }
+
   async buscarUsuarioRolPorId(id: string) {
     return await this.dataSource
       .getRepository(Usuario)

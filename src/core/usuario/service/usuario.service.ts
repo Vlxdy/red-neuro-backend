@@ -992,6 +992,10 @@ export class UsuarioService extends BaseService {
     return { ...perfil, idRol }
   }
 
+  async buscarUsuarioPersonaPorId(id: string) {
+    return await this.usuarioRepositorio.buscarUsuarioPersonaPorId(id)
+  }
+
   async buscarUsuarioId(id: string) {
     const usuario = await this.usuarioRepositorio.buscarUsuarioRolPorId(id)
 
