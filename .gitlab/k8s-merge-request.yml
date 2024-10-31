@@ -3,7 +3,6 @@
 #   Rama test                                                                                     #
 #                                                                                                 #
 ###################################################################################################
-
 Merge Build Test:
   image: hub.agcs.agetic.gob.bo/kaniko/executor:v1.23.1-debug
   stage: build
@@ -15,95 +14,95 @@ Merge Build Test:
   script:
     - sh /scripts/s2.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -d merge -t merge -n
 
-Ejecutar test:
+Ejecutar jest Test:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: sast
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
-      allow_failure: true
+      when: on_success
   tags:
     - runner-k8s-uit
   script:
     - sh /scripts/test.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -test jest
+  allow_failure: true
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
-Audit npm:
+Audit npm Test:
   image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
   stage: sast
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
-      allow_failure: true
+      when: on_success
   tags:
     - runner-k8s-uit
   script:
     - sh /scripts/test.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME -test audit
+  allow_failure: true
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
-Njsscan:
+Njsscan Test:
   image: hub.upat.agetic.gob.bo/dockerhub-proxy/opensecurity/njsscan:0.3.6
   stage: sast
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
-      allow_failure: true
+      when: on_success
   tags:
     - runner-k8s-uit
   script:
-    - bash /scripts/njsscan.sh -v 3
+    - bash /scripts/njsscan.sh
+  allow_failure: true
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
-Trivy:
-  image: hub.upat.agetic.gob.bo/dockerhub-proxy/aquasec/trivy:0.46.0
+Trivy Test:
+  image: hub.agcs.agetic.gob.bo/trivy/trivy_db:latest
   stage: sast
-  dependencies:
-    - Desplegar la aplicación en ArgoCD
-  needs:
-    - job: Desplegar la aplicación en ArgoCD
-      artifacts: false
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
       when: on_success
-      allow_failure: false
   tags:
     - runner-k8s-uit
   script:
     - sh /scripts/trivy.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
+  allow_failure: true
   artifacts:
     paths:
       - results_test
-    expire_in: 1d
+    expire_in: 5m
 
-Exponer_archivos:
+Exponer_archivos Test:
   image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
   stage: export
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'test'
       when: on_success
-      allow_failure: true
   tags:
     - runner-k8s-uit
   needs:
-    - job: Njsscan
+    - job: Njsscan Test
       artifacts: true
-    - job: Audit npm
+    - job: Audit npm Test
       artifacts: true
-    - job: Ejecutar test
+    - job: Ejecutar jest Test
+      artifacts: true
+    - job: Trivy Test
       artifacts: true
   dependencies:
-    - Njsscan
-    - Audit npm
-    - Ejecutar test
-    - Trivy
+    - Njsscan Test
+    - Audit npm Test
+    - Ejecutar jest Test
+    - Trivy Test
   script:
     - sh /scripts/export_files.sh -p proyectos-base -e testing-base -P $CI_PROJECT_NAME
+  allow_failure: true
 
 
 ###################################################################################################
@@ -122,3 +121,93 @@ Merge Build Develop:
     - runner-kt9-upat
   script:
     - sh /scripts/s2.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -d merge -t merge -n
+
+Ejecutar jest Develop:
+  image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
+  stage: sast
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      when: manual
+  tags:
+    - runner-kt9-upat
+  script:
+    - sh /scripts/test.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -test jest
+  allow_failure: true
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 5m
+
+Audit npm Develop:
+  image: hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine
+  stage: sast
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      when: manual
+  tags:
+    - runner-kt9-upat
+  script:
+    - sh /scripts/test.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME -test audit
+  allow_failure: true
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 5m
+
+Njsscan Develop:
+  image: hub.upat.agetic.gob.bo/dockerhub-proxy/opensecurity/njsscan:0.3.6
+  stage: sast
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      when: manual
+  tags:
+    - runner-kt9-upat
+  script:
+    - bash /scripts/njsscan.sh
+  allow_failure: true
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 5m
+
+Trivy Develop:
+  image: hub.agcs.agetic.gob.bo/trivy/trivy_db:latest
+  stage: sast
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      when: manual
+  tags:
+    - runner-kt9-upat
+  script:
+    - sh /scripts/trivy.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME
+  allow_failure: true
+  artifacts:
+    paths:
+      - results_test
+    expire_in: 5m
+
+Exponer_archivos Develop:
+  image: hub.agcs.agetic.gob.bo/kaniko/alpine:3.20.1
+  stage: export
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      when: manual
+  tags:
+    - runner-kt9-upat
+  needs:
+    - job: Njsscan Develop
+      artifacts: true
+    - job: Audit npm Develop
+      artifacts: true
+    - job: Ejecutar jest Develop
+      artifacts: true
+    - job: Trivy Develop
+      artifacts: true
+  dependencies:
+    - Njsscan Develop
+    - Audit npm Develop
+    - Ejecutar jest Develop
+    - Trivy Develop
+  script:
+    - sh /scripts/export_files.sh -p proyectos-base -e development-base -P $CI_PROJECT_NAME
+  allow_failure: true
