@@ -1,4 +1,4 @@
-FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS base
+FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:22-alpine AS base
 WORKDIR /home/node/app
 
 RUN mkdir -p node_modules && \
@@ -16,4 +16,4 @@ RUN npm ci --prefer-offline --progress=false --no-audit
 FROM base AS setup
 COPY --chown=node:node . .
 USER node
-RUN npm run setup
+RUN node --run setup
