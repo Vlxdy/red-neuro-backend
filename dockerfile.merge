@@ -1,4 +1,4 @@
-FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS base
+FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:22-alpine AS base
 WORKDIR /home/node/app
 
 RUN mkdir -p node_modules && \
@@ -28,5 +28,5 @@ ENV TURBO_TOKEN=${TURBO_TOKEN}
 
 FROM base AS merge
 COPY --chown=node:node --link . .
-RUN npm run format-check
+RUN node --run format-check
 RUN turbo build-docker
