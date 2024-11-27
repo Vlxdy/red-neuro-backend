@@ -41,6 +41,7 @@ export class UsuarioRepository {
         'usuarioRol',
         'rol.id',
         'rol.rol',
+        'rol.nombre',
         'persona.nroDocumento',
         'persona.nombres',
         'persona.primerApellido',
