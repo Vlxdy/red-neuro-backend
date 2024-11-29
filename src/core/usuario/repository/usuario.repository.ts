@@ -48,6 +48,7 @@ export class UsuarioRepository {
         'persona.segundoApellido',
         'persona.fechaNacimiento',
         'persona.tipoDocumento',
+        'persona.telefono',
       ])
       .take(limite)
       .skip(saltar)
