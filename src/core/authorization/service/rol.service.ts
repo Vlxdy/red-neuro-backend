@@ -4,13 +4,16 @@ import { RolRepository } from '../repository/rol.repository'
 import { CrearRolDto } from '../dto/crear-rol.dto'
 import { Messages } from '@/common/constants/response-messages'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
-import { RolEstado } from '@/core/authorization/constant'
+import { RolEstado, UsuarioRolEstado } from '@/core/authorization/constant'
+import { UsuarioRolRepository } from '../repository/usuario-rol.repository'
 
 @Injectable()
 export class RolService extends BaseService {
   constructor(
     @Inject(RolRepository)
-    private rolRepositorio: RolRepository
+    private rolRepositorio: RolRepository,
+    @Inject(UsuarioRolRepository)
+    private usuarioRolRepository: UsuarioRolRepository
   ) {
     super()
   }
@@ -46,6 +49,11 @@ export class RolService extends BaseService {
     const rolDto = new CrearRolDto()
     rolDto.estado = RolEstado.ACTIVE
     await this.rolRepositorio.actualizar(idRol, rolDto, usuarioAuditoria)
+    await this.usuarioRolRepository.cambiarEstadoPorRoles(
+      [idRol],
+      UsuarioRolEstado.ACTIVE,
+      usuarioAuditoria
+    )
     return { id: idRol, estado: rolDto.estado }
   }
 
@@ -58,6 +66,11 @@ export class RolService extends BaseService {
     const rolDto = new CrearRolDto()
     rolDto.estado = RolEstado.INACTIVE
     await this.rolRepositorio.actualizar(idRol, rolDto, usuarioAuditoria)
+    await this.usuarioRolRepository.cambiarEstadoPorRoles(
+      [idRol],
+      UsuarioRolEstado.INACTIVE,
+      usuarioAuditoria
+    )
     return { id: idRol, estado: rolDto.estado }
   }
 }

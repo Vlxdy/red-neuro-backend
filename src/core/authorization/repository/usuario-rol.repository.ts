@@ -62,6 +62,26 @@ export class UsuarioRolRepository {
       .execute()
   }
 
+  async cambiarEstadoPorRoles(
+    roles: Array<string>,
+    estado: string,
+    usuarioAuditoria: string,
+    transaction?: EntityManager
+  ) {
+    return await (
+      transaction?.getRepository(UsuarioRol) ??
+      this.dataSource.getRepository(UsuarioRol)
+    )
+      .createQueryBuilder()
+      .update(UsuarioRol)
+      .set({
+        estado: estado,
+        usuarioModificacion: usuarioAuditoria,
+      })
+      .andWhere('id_rol IN(:...ids)', { ids: roles })
+      .execute()
+  }
+
   async crear(
     idUsuario: string,
     roles: Array<string>,

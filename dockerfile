@@ -1,4 +1,4 @@
-FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS base
+FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:22-alpine AS base
 USER root
 RUN npm install -g turbo
 WORKDIR /home/node/app
@@ -31,7 +31,7 @@ ENV TURBO_TOKEN=${TURBO_TOKEN}
 RUN turbo build-docker
 RUN npm ci --production --no-optional --prefer-offline --progress=false --no-audit
 
-FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:20-alpine AS release
+FROM hub.agcs.agetic.gob.bo/dockerhub-proxy/library/node:22-alpine AS release
 WORKDIR /home/node/app
 RUN chown -R node:node /home/node
 

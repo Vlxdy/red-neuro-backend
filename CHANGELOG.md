@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.11.5](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.4...v1.11.5) (2024-11-17)
+
+
+### Features
+
+* se cambió la versió de node a 22 y se actualizo las dependencias ([1ecaed8](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/1ecaed899572b75f6a5b660ab84a158431245cda))
+
+
+### Bug Fixes
+
+* :bug: corrección para obtener la IP correctamente ([4ec722c](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/4ec722c02e617e5458ee89932365b2c407ae620f))
+* :white_check_mark: corrección de los tests de mensajería ([03713ec](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/03713ec0736f724ffb3a577cdaefbed80ea08e4b))
+* corregir el comando setup ([3dc7604](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/3dc760457c3ddd925a615d22c7c4cb7c0adc4fd3))
+* **logger:** :bug: ajuste para controlar posible request undefined ([388ba8b](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/388ba8bbc62ee1fb0064f6d1f5d81960dfa0b3a2))
+* remover espacio en blanco del script lint ([e5bd777](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/e5bd77714fce71e9f52661f0e478ea0d7e819cee))
+* validado de roles activos ([119cbcd](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/119cbcdf258fda93fcf2f4f5d8445127720b865a))
+
 ## [1.11.4](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.3...v1.11.4) (2024-10-13)
 
 
