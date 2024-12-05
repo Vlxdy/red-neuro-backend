@@ -8,8 +8,11 @@ import {
   NombreApellido,
   NroDocumento,
   ValidateIf,
+  IsNumberString,
+  IsNumberInRangeConstraint,
 } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
+import { Validate } from 'class-validator'
 
 export class PersonaDto {
   @ApiProperty({ example: '4192299' })
@@ -40,8 +43,10 @@ export class PersonaDto {
   @IsDateString()
   fechaNacimiento?: Date | null
 
-  @ApiProperty({ example: '9941220' })
+  @ApiProperty({ example: '71234567' })
   @IsOptional()
+  @IsNumberString()
+  @Validate(IsNumberInRangeConstraint, [60000000, 79999999])
   telefono?: string | null
 
   @ApiProperty({ example: '32f26897-cd66-4d1e-9feb-b785994f6a86 ' })
