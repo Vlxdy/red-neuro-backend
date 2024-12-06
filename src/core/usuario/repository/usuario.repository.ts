@@ -170,6 +170,7 @@ export class UsuarioRepository {
         'persona.tipoDocumento',
         'persona.nroDocumento',
         'persona.fechaNacimiento',
+        'persona.telefono',
         'usuarioRol',
         'rol',
       ])
