@@ -6,7 +6,7 @@ import pdfFonts from 'pdfmake/build/vfs_fonts'
 import { DynamicContent, Margins, PageSize } from 'pdfmake/interfaces'
 
 const pdf = pdfMake
-pdf.vfs = pdfFonts.pdfMake.vfs
+pdf.vfs = pdfFonts.vfs
 
 const { JSDOM } = jsdom
 const { window } = new JSDOM('')

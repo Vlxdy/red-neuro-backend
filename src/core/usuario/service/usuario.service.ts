@@ -36,7 +36,7 @@ import { SegipService } from '@/core/external-services/iop/segip/segip.service'
 import { UsuarioEstado } from '@/core/usuario/constant'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
 import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
-import { ImageXssValidationService } from '@/common/lib/ImageXssValidationService'
+import { FileValidationService } from '@/common/lib/file-validation.service'
 import path from 'path'
 import fs from 'node:fs/promises'
 
@@ -54,7 +54,7 @@ export class UsuarioService extends BaseService {
     private readonly mensajeriaService: MensajeriaService,
     private readonly authorizationService: AuthorizationService,
     private readonly segipServices: SegipService,
-    private imageXssValidationService: ImageXssValidationService,
+    private fileValidationService: FileValidationService,
     private configService: ConfigService
   ) {
     super()
@@ -1195,7 +1195,13 @@ export class UsuarioService extends BaseService {
     }
 
     // Validar el archivo contra XSS
-    await this.imageXssValidationService.validateImageFile(file)
+    const validationResult = await this.fileValidationService.validateFile(
+      file,
+      'image'
+    )
+    if (!validationResult.isValid) {
+      throw new BadRequestException(validationResult.error)
+    }
 
     const storagePath = this.configService.get<string>('STORAGE_NFS_PATH')
     if (!storagePath) {
