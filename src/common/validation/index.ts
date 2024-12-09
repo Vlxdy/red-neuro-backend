@@ -306,3 +306,20 @@ export const ValidateNested = validator.ValidateNested
 export const NroDocumento = _NroDocumento
 export const NombreApellido = _NombreApellido
 export const CorreoLista = _CorreoLista
+
+// VERIFICA SI UN STRING NUMBER ESTA EN RANGO
+@validator.ValidatorConstraint({ async: false })
+export class IsNumberInRangeConstraint
+  implements validator.ValidatorConstraintInterface
+{
+  validate(value: string, args: validator.ValidationArguments) {
+    const [min, max] = args.constraints // Recibe el mínimo y máximo desde los argumentos
+    const num = Number(value)
+    return !isNaN(num) && num >= min && num <= max // Verifica que el valor esté en el rango
+  }
+
+  defaultMessage(args: validator.ValidationArguments) {
+    const [min, max] = args.constraints
+    return `El valor debe estar entre ${min} y ${max}` // Mensaje de error
+  }
+}

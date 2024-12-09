@@ -45,6 +45,7 @@ export class PersonaRepository {
       primerApellido: personaDto.primerApellido,
       segundoApellido: personaDto.segundoApellido,
       usuarioModificacion: usuarioAuditoria,
+      telefono: personaDto.telefono,
     })
     return await repo.findOne({ where: { id } })
   }
@@ -54,6 +55,19 @@ export class PersonaRepository {
       .getRepository(Persona)
       .createQueryBuilder('persona')
       .where('persona.nro_documento = :ci', { ci: persona.nroDocumento })
+      .getOne()
+  }
+
+  async buscarPersonaPorTelefono(
+    telefono: string,
+    transaction?: EntityManager
+  ) {
+    return await (
+      transaction?.getRepository(Persona) ??
+      this.dataSource.getRepository(Persona)
+    )
+      .createQueryBuilder('persona')
+      .where('persona.telefono = :telefono', { telefono })
       .getOne()
   }
 

@@ -48,6 +48,7 @@ export class UsuarioRepository {
         'persona.segundoApellido',
         'persona.fechaNacimiento',
         'persona.tipoDocumento',
+        'persona.telefono',
       ])
       .take(limite)
       .skip(saltar)
@@ -172,6 +173,27 @@ export class UsuarioRepository {
     return await query.getOne()
   }
 
+  async buscarDatosDeContactoDelUsuarioPorId(
+    id: string,
+    transaction?: EntityManager
+  ) {
+    return await (
+      transaction?.getRepository(Usuario) ??
+      this.dataSource.getRepository(Usuario)
+    )
+      .createQueryBuilder('usuario')
+      .leftJoinAndSelect('usuario.persona', 'persona')
+      .select([
+        'usuario.id',
+        'usuario.correoElectronico',
+        'usuario.idPersona',
+        'persona.id',
+        'persona.telefono',
+      ])
+      .where('usuario.id = :id', { id })
+      .getOne()
+  }
+
   async buscarUsuarioRolPorId(id: string) {
     return await this.dataSource
       .getRepository(Usuario)
@@ -200,6 +222,7 @@ export class UsuarioRepository {
         'persona.tipoDocumento',
         'persona.nroDocumento',
         'persona.fechaNacimiento',
+        'persona.telefono',
         'usuarioRol',
         'rol',
       ])

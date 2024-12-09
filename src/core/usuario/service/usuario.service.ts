@@ -87,6 +87,17 @@ export class UsuarioService extends BaseService {
       throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
     }
 
+    // verificar si el telefono no esta registrado
+    if (usuarioDto.persona.telefono) {
+      const telefono = await this.personaRepositorio.buscarPersonaPorTelefono(
+        usuarioDto.persona.telefono
+      )
+
+      if (telefono) {
+        throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+      }
+    }
+
     // Constrastación SEGIP
     const { persona, roles } = usuarioDto
     const contrastaSegip = await this.segipServices.contrastar(persona)
@@ -164,6 +175,17 @@ export class UsuarioService extends BaseService {
 
     if (correo) {
       throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
+    }
+
+    // verificar si el telefono no esta registrado
+    if (usuarioDto.persona.telefono) {
+      const telefono = await this.personaRepositorio.buscarPersonaPorTelefono(
+        usuarioDto.persona.telefono
+      )
+
+      if (telefono) {
+        throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+      }
     }
 
     const rol = await this.rolRepositorio.buscarPorNombreRol('USUARIO')
@@ -832,7 +854,11 @@ export class UsuarioService extends BaseService {
     this.verificarPermisos(id, usuarioAuditoria)
     // 1. verificar que exista el usuario
     const op = async (transaction: EntityManager) => {
-      const usuario = await this.usuarioRepositorio.buscarPorId(id, transaction)
+      const usuario =
+        await this.usuarioRepositorio.buscarDatosDeContactoDelUsuarioPorId(
+          id,
+          transaction
+        )
 
       if (!usuario) {
         throw new NotFoundException(Messages.INVALID_USER)
@@ -846,6 +872,19 @@ export class UsuarioService extends BaseService {
         const contrastaSegip = await this.segipServices.contrastar(persona)
         if (!contrastaSegip?.finalizado) {
           throw new PreconditionFailedException(contrastaSegip?.mensaje)
+        }
+
+        // Verificar que el telefono no este registrado
+        if (
+          usuarioDto.persona?.telefono &&
+          usuarioDto.persona.telefono !== usuario.persona.telefono
+        ) {
+          const existe = await this.personaRepositorio.buscarPersonaPorTelefono(
+            usuarioDto.persona.telefono
+          )
+          if (existe) {
+            throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+          }
         }
 
         const personaResult = await this.personaRepositorio.buscarPersonaId(
@@ -1090,34 +1129,61 @@ export class UsuarioService extends BaseService {
     idUsuario: string,
     actualizarPerfilDto: ActualizarPerfilDto
   ) {
-    const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
+    const usuario =
+      await this.usuarioRepositorio.buscarDatosDeContactoDelUsuarioPorId(
+        idUsuario
+      )
     if (!usuario) {
       throw new NotFoundException(Messages.INVALID_USER)
     }
 
-    const { nombres, primerApellido, segundoApellido, correoElectronico } =
-      actualizarPerfilDto
+    const {
+      nombres,
+      primerApellido,
+      segundoApellido,
+      correoElectronico,
+      telefono,
+    } = actualizarPerfilDto
 
-    // Actualizar datos de la persona
-    await this.personaRepositorio.actualizar(
-      usuario.idPersona,
-      { nombres, primerApellido, segundoApellido },
-      idUsuario
-    )
+    const op = async (transaction: EntityManager) => {
+      if (telefono && telefono !== usuario.persona.telefono) {
+        const existeTelefono =
+          await this.personaRepositorio.buscarPersonaPorTelefono(telefono)
 
-    // Actualizar correo electrónico del usuario si ha cambiado
-    if (correoElectronico && correoElectronico !== usuario.correoElectronico) {
-      const existeCorreo =
-        await this.usuarioRepositorio.buscarUsuarioPorCorreo(correoElectronico)
-      if (existeCorreo) {
-        throw new BadRequestException(Messages.EXISTING_EMAIL)
+        if (existeTelefono) {
+          throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+        }
       }
-      await this.usuarioRepositorio.actualizar(
+
+      // Actualizar datos de la persona
+      await this.personaRepositorio.actualizar(
+        usuario.idPersona,
+        { nombres, primerApellido, segundoApellido, telefono },
         idUsuario,
-        { correoElectronico },
-        idUsuario
+        transaction
       )
+
+      // Actualizar correo electrónico del usuario si ha cambiado
+      if (
+        correoElectronico &&
+        correoElectronico !== usuario.correoElectronico
+      ) {
+        const existeCorreo =
+          await this.usuarioRepositorio.buscarUsuarioPorCorreo(
+            correoElectronico
+          )
+        if (existeCorreo) {
+          throw new BadRequestException(Messages.EXISTING_EMAIL)
+        }
+        await this.usuarioRepositorio.actualizar(
+          idUsuario,
+          { correoElectronico },
+          idUsuario,
+          transaction
+        )
+      }
     }
+    await this.usuarioRepositorio.runTransaction(op)
 
     return { id: idUsuario, mensaje: 'Perfil actualizado correctamente' }
   }
