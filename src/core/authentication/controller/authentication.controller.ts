@@ -91,7 +91,7 @@ export class AuthenticationController extends BaseController {
     //
   }
 
-  @ApiOperation({ summary: 'API para autorización con ciudadania digital' })
+  @ApiOperation({ summary: 'API para autorización con Ciudadanía Digital' })
   @UseGuards(OidcAuthGuard)
   @Get('ciudadania-autorizar')
   async loginCiudadaniaCallback(@Req() req: Request, @Res() res: Response) {

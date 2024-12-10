@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -9,7 +10,9 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common'
 import { BaseController } from '@/common/base'
 import { CrearUsuarioDto } from '../dto/crear-usuario.dto'
@@ -31,6 +34,7 @@ import { ParamIdDto } from '@/common/dto/params-id.dto'
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiProperty,
   ApiQuery,
@@ -40,13 +44,19 @@ import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
+import { diskStorage } from 'multer'
+import { extname } from 'path'
+import { v4 as uuidv4 } from 'uuid'
+import fs from 'node:fs/promises'
 
 @Controller('usuarios')
 @ApiTags('Usuarios')
 export class UsuarioController extends BaseController {
   constructor(
-    private usuarioService: UsuarioService,
-    private configService: ConfigService
+    private readonly usuarioService: UsuarioService,
+    private readonly configService: ConfigService
   ) {
     super()
   }
@@ -79,6 +89,21 @@ export class UsuarioController extends BaseController {
     return this.success(result)
   }
 
+  @ApiOperation({ summary: 'Obtiene la información de un usuario por su ID' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, CasbinGuard)
+  @Get(':id')
+  async getUsuarioPorId(@Req() req: Request, @Param('id') id: string) {
+    const user = req.user
+    if (!user) {
+      throw new BadRequestException(
+        `Es necesario que esté autenticado para consumir este recurso.`
+      )
+    }
+    const result = await this.usuarioService.buscarUsuarioPersonaPorId(id)
+    return this.success(result)
+  }
+
   //create user
   @ApiOperation({ summary: 'API para crear un nuevo usuario' })
   @ApiBearerAuth()
@@ -102,6 +127,95 @@ export class UsuarioController extends BaseController {
   async crearUsuario(@Body() usuarioDto: CrearUsuarioCuentaDto) {
     const result = await this.usuarioService.crearCuenta(usuarioDto)
     return this.successCreate(result, Messages.NEW_USER_ACCOUNT)
+  }
+
+  @ApiOperation({ summary: 'Actualiza el perfil del usuario' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, CasbinGuard)
+  @Patch('/cuenta/perfil')
+  async actualizarPerfil(
+    @Req() req: Request,
+    @Body() actualizarPerfilDto: ActualizarPerfilDto
+  ) {
+    const idUsuario = this.getUser(req)
+    const result = await this.usuarioService.actualizarPerfil(
+      idUsuario,
+      actualizarPerfilDto
+    )
+    return this.successUpdate(result)
+  }
+
+  @ApiOperation({ summary: 'Actualiza la foto de perfil del usuario' })
+  @Patch('cuenta/foto')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('foto', {
+      storage: diskStorage({
+        destination: async (_, __, cb) => {
+          const configuredPath = process.env.STORAGE_NFS_PATH
+          if (!configuredPath) {
+            throw new Error(
+              'STORAGE_NFS_PATH no está definido en la configuración'
+            )
+          }
+
+          const destPath = `${configuredPath}/uploads/temp`
+
+          // Ensure the directory exists
+          await fs.mkdir(destPath, { recursive: true })
+
+          cb(null, destPath)
+        },
+        filename: (_req, file, cb) => {
+          cb(null, `${uuidv4()}${extname(file.originalname)}`)
+        },
+      }),
+      fileFilter: (_req, file, cb) => {
+        if (file.mimetype.match(/^image\/(jpg|jpeg|png|gif)$/)) {
+          cb(null, true)
+        } else {
+          cb(
+            new BadRequestException(
+              'Solo se permiten archivos de imagen (jpg, jpeg, png, gif)'
+            ),
+            false
+          )
+        }
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB
+      },
+    })
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        foto: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  actualizarFotoPerfil(
+    @Req() req: Request,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    if (!file) {
+      throw new BadRequestException('No se ha proporcionado ningún archivo')
+    }
+    const idUsuario = this.getUser(req)
+    return this.usuarioService.actualizarFotoPerfil(idUsuario, file)
+  }
+
+  @Delete('cuenta/foto')
+  @UseGuards(JwtAuthGuard)
+  eliminarFotoPerfil(@Req() req: Request) {
+    const idUsuario = this.getUser(req)
+    return this.usuarioService.eliminarFotoPerfil(idUsuario)
   }
 
   //restore user account

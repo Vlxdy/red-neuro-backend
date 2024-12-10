@@ -85,7 +85,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
 
       '/api/usuarios/:id': {
-        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.ADMINISTRADOR]: 'PATCH|GET',
       },
 
       '/api/usuarios/cuenta/ciudadania': {
@@ -132,7 +132,11 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
 
       '/api/usuarios/cuenta/perfil': {
-        [RolEnum.TODOS]: 'GET',
+        [RolEnum.TODOS]: 'GET|PATCH',
+      },
+
+      '/api/usuarios/cuenta/foto': {
+        [RolEnum.TODOS]: 'PATCH',
       },
 
       '/api/usuarios/cuenta/contrasena': {

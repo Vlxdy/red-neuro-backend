@@ -14,6 +14,7 @@ import { Usuario } from './entity/usuario.entity'
 import { Persona } from './entity/persona.entity'
 import { UsuarioRol } from '../authorization/entity/usuario-rol.entity'
 import { Rol } from '../authorization/entity/rol.entity'
+import { FileValidationService } from '@/common/lib/file-validation.service'
 
 @Module({
   providers: [
@@ -22,6 +23,7 @@ import { Rol } from '../authorization/entity/rol.entity'
     PersonaRepository,
     UsuarioRolRepository,
     RolRepository,
+    FileValidationService,
   ],
   exports: [UsuarioService],
   imports: [

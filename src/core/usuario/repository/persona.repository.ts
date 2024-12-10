@@ -31,11 +31,43 @@ export class PersonaRepository {
     )
   }
 
+  async actualizar(
+    id: string,
+    personaDto: Partial<PersonaDto>,
+    usuarioAuditoria: string,
+    transaction?: EntityManager
+  ) {
+    const repo =
+      transaction?.getRepository(Persona) ??
+      this.dataSource.getRepository(Persona)
+    await repo.update(id, {
+      nombres: personaDto.nombres,
+      primerApellido: personaDto.primerApellido,
+      segundoApellido: personaDto.segundoApellido,
+      usuarioModificacion: usuarioAuditoria,
+      telefono: personaDto.telefono,
+    })
+    return await repo.findOne({ where: { id } })
+  }
+
   async buscarPersonaPorCI(persona: PersonaDto) {
     return await this.dataSource
       .getRepository(Persona)
       .createQueryBuilder('persona')
       .where('persona.nro_documento = :ci', { ci: persona.nroDocumento })
+      .getOne()
+  }
+
+  async buscarPersonaPorTelefono(
+    telefono: string,
+    transaction?: EntityManager
+  ) {
+    return await (
+      transaction?.getRepository(Persona) ??
+      this.dataSource.getRepository(Persona)
+    )
+      .createQueryBuilder('persona')
+      .where('persona.telefono = :telefono', { telefono })
       .getOne()
   }
 

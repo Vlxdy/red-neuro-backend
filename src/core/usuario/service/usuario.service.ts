@@ -1,5 +1,6 @@
 import { BaseService } from '@/common/base'
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -34,6 +35,10 @@ import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeri
 import { SegipService } from '@/core/external-services/iop/segip/segip.service'
 import { UsuarioEstado } from '@/core/usuario/constant'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
+import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
+import { FileValidationService } from '@/common/lib/file-validation.service'
+import path from 'path'
+import fs from 'node:fs/promises'
 
 @Injectable()
 export class UsuarioService extends BaseService {
@@ -49,6 +54,7 @@ export class UsuarioService extends BaseService {
     private readonly mensajeriaService: MensajeriaService,
     private readonly authorizationService: AuthorizationService,
     private readonly segipServices: SegipService,
+    private fileValidationService: FileValidationService,
     private configService: ConfigService
   ) {
     super()
@@ -79,6 +85,17 @@ export class UsuarioService extends BaseService {
 
     if (correo) {
       throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
+    }
+
+    // verificar si el telefono no esta registrado
+    if (usuarioDto.persona.telefono) {
+      const telefono = await this.personaRepositorio.buscarPersonaPorTelefono(
+        usuarioDto.persona.telefono
+      )
+
+      if (telefono) {
+        throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+      }
     }
 
     // Constrastación SEGIP
@@ -158,6 +175,17 @@ export class UsuarioService extends BaseService {
 
     if (correo) {
       throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
+    }
+
+    // verificar si el telefono no esta registrado
+    if (usuarioDto.persona.telefono) {
+      const telefono = await this.personaRepositorio.buscarPersonaPorTelefono(
+        usuarioDto.persona.telefono
+      )
+
+      if (telefono) {
+        throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+      }
     }
 
     const rol = await this.rolRepositorio.buscarPorNombreRol('USUARIO')
@@ -826,7 +854,11 @@ export class UsuarioService extends BaseService {
     this.verificarPermisos(id, usuarioAuditoria)
     // 1. verificar que exista el usuario
     const op = async (transaction: EntityManager) => {
-      const usuario = await this.usuarioRepositorio.buscarPorId(id, transaction)
+      const usuario =
+        await this.usuarioRepositorio.buscarDatosDeContactoDelUsuarioPorId(
+          id,
+          transaction
+        )
 
       if (!usuario) {
         throw new NotFoundException(Messages.INVALID_USER)
@@ -840,6 +872,19 @@ export class UsuarioService extends BaseService {
         const contrastaSegip = await this.segipServices.contrastar(persona)
         if (!contrastaSegip?.finalizado) {
           throw new PreconditionFailedException(contrastaSegip?.mensaje)
+        }
+
+        // Verificar que el telefono no este registrado
+        if (
+          usuarioDto.persona?.telefono &&
+          usuarioDto.persona.telefono !== usuario.persona.telefono
+        ) {
+          const existe = await this.personaRepositorio.buscarPersonaPorTelefono(
+            usuarioDto.persona.telefono
+          )
+          if (existe) {
+            throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+          }
         }
 
         const personaResult = await this.personaRepositorio.buscarPersonaId(
@@ -986,6 +1031,10 @@ export class UsuarioService extends BaseService {
     return { ...perfil, idRol }
   }
 
+  async buscarUsuarioPersonaPorId(id: string) {
+    return await this.usuarioRepositorio.buscarUsuarioPersonaPorId(id)
+  }
+
   async buscarUsuarioId(id: string) {
     const usuario = await this.usuarioRepositorio.buscarUsuarioRolPorId(id)
 
@@ -998,6 +1047,7 @@ export class UsuarioService extends BaseService {
       usuario: usuario.usuario,
       ciudadaniaDigital: usuario.ciudadaniaDigital,
       correoElectronico: usuario.correoElectronico,
+      urlFoto: usuario.urlFoto,
       estado: usuario.estado,
       roles: await Promise.all(
         usuario.usuarioRol
@@ -1073,6 +1123,165 @@ export class UsuarioService extends BaseService {
       idUsuario,
       codigo
     )
+  }
+
+  async actualizarPerfil(
+    idUsuario: string,
+    actualizarPerfilDto: ActualizarPerfilDto
+  ) {
+    const usuario =
+      await this.usuarioRepositorio.buscarDatosDeContactoDelUsuarioPorId(
+        idUsuario
+      )
+    if (!usuario) {
+      throw new NotFoundException(Messages.INVALID_USER)
+    }
+
+    const {
+      nombres,
+      primerApellido,
+      segundoApellido,
+      correoElectronico,
+      telefono,
+    } = actualizarPerfilDto
+
+    const op = async (transaction: EntityManager) => {
+      if (telefono && telefono !== usuario.persona.telefono) {
+        const existeTelefono =
+          await this.personaRepositorio.buscarPersonaPorTelefono(telefono)
+
+        if (existeTelefono) {
+          throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+        }
+      }
+
+      // Actualizar datos de la persona
+      await this.personaRepositorio.actualizar(
+        usuario.idPersona,
+        { nombres, primerApellido, segundoApellido, telefono },
+        idUsuario,
+        transaction
+      )
+
+      // Actualizar correo electrónico del usuario si ha cambiado
+      if (
+        correoElectronico &&
+        correoElectronico !== usuario.correoElectronico
+      ) {
+        const existeCorreo =
+          await this.usuarioRepositorio.buscarUsuarioPorCorreo(
+            correoElectronico
+          )
+        if (existeCorreo) {
+          throw new BadRequestException(Messages.EXISTING_EMAIL)
+        }
+        await this.usuarioRepositorio.actualizar(
+          idUsuario,
+          { correoElectronico },
+          idUsuario,
+          transaction
+        )
+      }
+    }
+    await this.usuarioRepositorio.runTransaction(op)
+
+    return { id: idUsuario, mensaje: 'Perfil actualizado correctamente' }
+  }
+
+  async actualizarFotoPerfil(idUsuario: string, file: Express.Multer.File) {
+    const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado')
+    }
+
+    // Validar el archivo contra XSS
+    const validationResult = await this.fileValidationService.validateFile(
+      file,
+      'image'
+    )
+    if (!validationResult.isValid) {
+      throw new BadRequestException(validationResult.error)
+    }
+
+    const storagePath = this.configService.get<string>('STORAGE_NFS_PATH')
+    if (!storagePath) {
+      throw new BadRequestException(
+        'La configuración de almacenamiento no está disponible'
+      )
+    }
+
+    const codigo = TextService.generateUuid()
+    const fileName = `${codigo}${path.extname(file.originalname)}`
+    const uploadPath = path.join(
+      storagePath,
+      'uploads',
+      'profile-photos',
+      fileName
+    )
+
+    try {
+      await fs.mkdir(path.dirname(uploadPath), { recursive: true })
+      await fs.copyFile(file.path, uploadPath)
+      await fs.unlink(file.path) // Eliminar el archivo temporal
+
+      const fotoUrl = `/uploads/profile-photos/${fileName}`
+
+      // Si existe una foto anterior, la eliminamos
+      if (usuario.urlFoto) {
+        const oldPhotoPath = path.join(
+          storagePath,
+          usuario.urlFoto.substring(1)
+        )
+        await fs.unlink(oldPhotoPath).catch((reason) => {
+          this.logger.error(reason, 'Error en eliminar archivo')
+        })
+      }
+
+      await this.usuarioRepositorio.actualizar(
+        idUsuario,
+        { urlFoto: fotoUrl },
+        idUsuario
+      )
+
+      return {
+        id: idUsuario,
+        urlFoto: fotoUrl,
+        mensaje: 'Foto de perfil actualizada correctamente',
+      }
+    } catch (error) {
+      console.error('Error al procesar el archivo:', error)
+      throw new BadRequestException('Error al procesar el archivo')
+    }
+  }
+
+  async eliminarFotoPerfil(idUsuario: string) {
+    const usuario = await this.usuarioRepositorio.buscarPorId(idUsuario)
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado')
+    }
+
+    if (usuario.urlFoto) {
+      const storagePath = this.configService.get<string>('STORAGE_NFS_PATH')
+
+      if (!storagePath) {
+        throw new BadRequestException(
+          'La configuración de almacenamiento no está disponible'
+        )
+      }
+
+      const filePath = path.join(storagePath, usuario.urlFoto.substring(1))
+      await fs.unlink(filePath).catch((reason) => {
+        this.logger.error(reason, 'Error en eliminar archivo')
+      })
+
+      await this.usuarioRepositorio.actualizar(
+        idUsuario,
+        { urlFoto: null },
+        idUsuario
+      )
+    }
+
+    return { mensaje: 'Foto de perfil eliminada correctamente' }
   }
 
   async desbloquearCuenta(codigo: string) {
