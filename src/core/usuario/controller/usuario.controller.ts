@@ -152,7 +152,7 @@ export class UsuarioController extends BaseController {
   @UseInterceptors(
     FileInterceptor('foto', {
       storage: diskStorage({
-        destination: async (req, file, cb) => {
+        destination: async (_, __, cb) => {
           const configuredPath = process.env.STORAGE_NFS_PATH
           if (!configuredPath) {
             throw new Error(

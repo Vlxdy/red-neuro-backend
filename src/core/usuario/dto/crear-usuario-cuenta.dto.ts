@@ -12,7 +12,6 @@ import { PersonaDto } from './persona.dto'
 class CustomPersonaDto extends OmitType(PersonaDto, [
   'tipoDocumento',
   'uuidCiudadano',
-  'telefono',
 ] as const) {}
 
 export class CrearUsuarioCuentaDto {
