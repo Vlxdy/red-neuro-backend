@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.12.0](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.5...v1.12.0) (2024-12-10)
+
+
+### Features
+
+* adición de servicio "FileValidationService" con validaciones XSS para imágenes y PDFs ([f9b0c6d](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/f9b0c6df5cce32f8bfc0f767fe20eddae16279b4))
+* crea endpoint para obtener usuario por id ([7401704](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/740170411b3c1762a2c954615c33796ade2fe586))
+* implementación de cambio de foto de perfil con validaciones de extensión y XSS ([5b5c9f2](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/5b5c9f2f6579bf67cec29e6217432841fe75646d))
+
+
+### Bug Fixes
+
+* adición de nombre de rol en lista de usuarios ([6ec5e23](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/commit/6ec5e23bc5d513bc8c053e273292bf07cf378f8a))
+
 ## [1.11.5](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/agetic-nestjs-base-backend/compare/v1.11.4...v1.11.5) (2024-11-17)
 
 
