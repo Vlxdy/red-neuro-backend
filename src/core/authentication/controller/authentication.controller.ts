@@ -11,11 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { Issuer } from 'openid-client'
 import { CookieService } from '@/common/lib/cookie.service'
 import { BaseController } from '@/common/base'
 import { LocalAuthGuard } from '../guards/local-auth.guard'
-import { OidcAuthGuard } from '../guards/oidc-auth.guard'
 import { AuthenticationService } from '../service/authentication.service'
 import { RefreshTokensService } from '../service/refreshTokens.service'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
@@ -85,14 +83,12 @@ export class AuthenticationController extends BaseController {
   }
 
   @ApiOperation({ summary: 'API para autenticación con ciudadania digital' })
-  @UseGuards(OidcAuthGuard)
   @Get('ciudadania-auth')
   async loginCiudadania() {
     //
   }
 
   @ApiOperation({ summary: 'API para autorización con Ciudadanía Digital' })
-  @UseGuards(OidcAuthGuard)
   @Get('ciudadania-autorizar')
   async loginCiudadaniaCallback(@Req() req: Request, @Res() res: Response) {
     if (!req.user) {
@@ -101,7 +97,7 @@ export class AuthenticationController extends BaseController {
 
     const user = req.user
     if (user.error) {
-      return await this.logoutCiudadania(req, res, user.error)
+      return await this.logoutCiudadania(req, res)
     }
 
     try {
@@ -121,7 +117,7 @@ export class AuthenticationController extends BaseController {
         })
     } catch (error) {
       this.logger.error('[ciudadania-autorizar] Error en autenticación ', error)
-      await this.logoutCiudadania(req, res, error.message)
+      await this.logoutCiudadania(req, res)
     }
   }
 
@@ -133,11 +129,7 @@ export class AuthenticationController extends BaseController {
     await this.logoutCiudadania(req, res)
   }
 
-  async logoutCiudadania(
-    @Req() req: Request,
-    @Res() res: Response,
-    mensaje = ''
-  ) {
+  async logoutCiudadania(@Req() req: Request, @Res() res: Response) {
     const jid = req.cookies.jid || ''
     if (jid) {
       await this.refreshTokensService.removeByid(jid)
@@ -145,13 +137,6 @@ export class AuthenticationController extends BaseController {
 
     const idToken =
       req.user?.idToken || req.session?.passport?.user?.idToken || null
-
-    // req.logout();
-    req.session.destroy(() => ({}))
-    const issuer = await Issuer.discover(
-      this.configService.get('OIDC_ISSUER') || ''
-    )
-    const urlEndSession = issuer.metadata.end_session_endpoint
 
     res.clearCookie('connect.sid')
     res.clearCookie('jid', jid)
@@ -170,23 +155,10 @@ export class AuthenticationController extends BaseController {
     })
 
     // Ciudadanía v2
-    if (!(urlEndSession && idToken)) {
+    if (!idToken) {
       return res.status(200).json()
     }
 
-    const urlResponse = new URL(urlEndSession)
-
-    urlResponse.searchParams.append(
-      'post_logout_redirect_uri',
-      this.configService.get('OIDC_POST_LOGOUT_REDIRECT_URI') ?? ''
-    )
-    if (idToken) {
-      urlResponse.searchParams.append('id_token_hint', idToken)
-    }
-    urlResponse.searchParams.append('mensaje', mensaje)
-
-    return res.status(200).json({
-      url: urlResponse.toString(),
-    })
+    return res.status(200).json({})
   }
 }
