@@ -5,7 +5,6 @@ import { UsuarioController } from './controller/usuario.controller'
 import { MensajeriaModule } from '../external-services/mensajeria/mensajeria.module'
 import { ConfigModule } from '@nestjs/config'
 import { AuthorizationModule } from '../authorization/authorization.module'
-import { IopModule } from '../external-services/iop/iop.module'
 import { RolRepository } from '../authorization/repository/rol.repository'
 import { UsuarioRepository } from './repository/usuario.repository'
 import { PersonaRepository } from './repository/persona.repository'
@@ -29,7 +28,6 @@ import { FileValidationService } from '@/common/lib/file-validation.service'
   imports: [
     TypeOrmModule.forFeature([Usuario, Persona, UsuarioRol, Rol]),
     MensajeriaModule,
-    IopModule,
     ConfigModule,
     AuthorizationModule,
   ],

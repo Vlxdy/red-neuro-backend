@@ -32,7 +32,6 @@ import { RolRepository } from '@/core/authorization/repository/rol.repository'
 import { AuthorizationService } from '@/core/authorization/controller/authorization.service'
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
-import { SegipService } from '@/core/external-services/iop/segip/segip.service'
 import { UsuarioEstado } from '@/core/usuario/constant'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
 import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
@@ -53,7 +52,6 @@ export class UsuarioService extends BaseService {
     private personaRepositorio: PersonaRepository,
     private readonly mensajeriaService: MensajeriaService,
     private readonly authorizationService: AuthorizationService,
-    private readonly segipServices: SegipService,
     private fileValidationService: FileValidationService,
     private configService: ConfigService
   ) {
@@ -99,12 +97,7 @@ export class UsuarioService extends BaseService {
     }
 
     // Constrastación SEGIP
-    const { persona, roles } = usuarioDto
-    const contrastaSegip = await this.segipServices.contrastar(persona)
-
-    if (!contrastaSegip?.finalizado) {
-      throw new PreconditionFailedException(contrastaSegip?.mensaje)
-    }
+    const { roles } = usuarioDto
 
     const contrasena = TextService.generateShortRandomText()
     const datosCorreo = {
@@ -199,10 +192,6 @@ export class UsuarioService extends BaseService {
     }
 
     // contrastación SEGIP
-    const contrastaSegip = await this.segipServices.contrastar(persona)
-    if (!contrastaSegip?.finalizado) {
-      throw new PreconditionFailedException(contrastaSegip?.mensaje)
-    }
 
     const op = async (transaction: EntityManager) => {
       const personaNueva = await this.personaRepositorio.crear(
@@ -868,11 +857,6 @@ export class UsuarioService extends BaseService {
 
       if (persona) {
         //contrastación SEGIP
-
-        const contrastaSegip = await this.segipServices.contrastar(persona)
-        if (!contrastaSegip?.finalizado) {
-          throw new PreconditionFailedException(contrastaSegip?.mensaje)
-        }
 
         // Verificar que el telefono no este registrado
         if (

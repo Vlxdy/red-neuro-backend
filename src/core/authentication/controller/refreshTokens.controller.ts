@@ -14,7 +14,6 @@ import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
 import { CookieService } from '@/common/lib/cookie.service'
 import { LocalAuthGuard } from '../guards/local-auth.guard'
-import { OidcAuthGuard } from '../guards/oidc-auth.guard'
 import { RefreshTokensService } from '../service/refreshTokens.service'
 import { BaseController } from '@/common/base'
 import {
@@ -73,7 +72,6 @@ export class RefreshTokensController extends BaseController {
   })
   @ApiBearerAuth()
   @UseGuards(LocalAuthGuard)
-  @UseGuards(OidcAuthGuard)
   @Delete(':id')
   eliminarRefreshToken(@Param('id') id: string) {
     return this.refreshTokensService.removeByid(id)

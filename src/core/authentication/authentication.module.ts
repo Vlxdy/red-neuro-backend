@@ -8,7 +8,6 @@ import { RefreshTokensController } from './controller/refreshTokens.controller'
 import { AuthenticationService } from './service/authentication.service'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { LocalStrategy } from './strategies/local.strategy'
-import { OidcStrategy } from './strategies/oidc.strategy'
 import { SessionSerializer } from './session.serializer'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UsuarioRepository } from '../usuario/repository/usuario.repository'
@@ -25,18 +24,6 @@ import { Usuario } from '../usuario/entity/usuario.entity'
 import { RefreshTokens } from './entity/refreshTokens.entity'
 import { UsuarioRol } from '../authorization/entity/usuario-rol.entity'
 import { Rol } from '../authorization/entity/rol.entity'
-import { BaseClient } from 'openid-client'
-import { ClientOidcService } from './oidc.client'
-
-const OidcStrategyFactory = {
-  provide: 'OidcStrategy',
-  useFactory: async (autenticacionService: AuthenticationService) => {
-    const client: BaseClient | undefined = await ClientOidcService.getInstance()
-    if (client) return new OidcStrategy(autenticacionService, client)
-    else return undefined
-  },
-  inject: [AuthenticationService],
-}
 
 @Module({
   imports: [
@@ -67,7 +54,6 @@ const OidcStrategyFactory = {
     RefreshTokensService,
     LocalStrategy,
     JwtStrategy,
-    OidcStrategyFactory,
     SessionSerializer,
     RolRepository,
     PersonaRepository,
