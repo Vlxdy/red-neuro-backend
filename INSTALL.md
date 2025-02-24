@@ -15,10 +15,10 @@
 
 ```bash
 # Clonación del proyecto
-git clone git@gitlab.agetic.gob.bo:agetic/agetic/proyectos-base/agetic-nestjs-base-backend.git
+git clone git@gitlab.com:sistema-alimenta/alimenta-backend-v2.git
 
 # Ingresamos dentro de la carpeta del proyecto
-cd agetic-nestjs-base-backend
+cd alimenta-frontend-v2
 
 # Cambiamos a la rama develop
 git checkout develop
@@ -105,9 +105,9 @@ npm run seeds:run
 | Variable   | Valor por defecto | Descripción                                                    |
 | ---------- | ----------------- | -------------------------------------------------------------- |
 | `NODE_ENV` | `development`     | Ambiente de despliegue (`development`, `test` o `production`). |
-| `PORT`     | `3000`            | Puerto en el que se levantará la aplicación.                   |
+| `PORT`     | `4500`            | Puerto en el que se levantará la aplicación.                   |
 
-\*\*\* La URL de despliegue sería: `http://localhost:3000/api/estado`
+\*\*\* La URL de despliegue sería: `http://localhost:4500/api/estado`
 
 **Configuración de la base de datos**
 
@@ -151,32 +151,6 @@ npm run seeds:run
 | `MSJ_TOKEN`               |                   | TOKEN de consumo al servicio de Mensajería Electrónico (Alertín). |
 | `MSJ_TIMEOUT_EN_SEGUNDOS` | `10`              | Tiempo máximo de espera para las consultas a mensajería           |
 
-**Configuración para el servicio SEGIP de IOP, si corresponde**
-
-| Variable          | Valor por defecto | Descripción                                              |
-| ----------------- | ----------------- | -------------------------------------------------------- |
-| `IOP_SEGIP_URL`   |                   | URL de consumo al servicio interoperabilidad de SEGIP.   |
-| `IOP_SEGIP_TOKEN` |                   | Token de consumo al servicio interoperabilidad de SEGIP. |
-
-**Configuración para el servicio SIN de IOP, si corresponde**
-
-| Variable        | Valor por defecto | Descripción                                           |
-| --------------- | ----------------- | ----------------------------------------------------- |
-| `IOP_SIN_URL`   |                   | URL de consumo al Servicio de Impuestos Nacionales.   |
-| `IOP_SIN_TOKEN` |                   | Token de consumo al Servicio de Impuestos Nacionales. |
-
-**Configuración para la integracion de autenticación con Ciudadanía Digital**
-
-| Variable                        | Valor por defecto | Descripción |
-| ------------------------------- | ----------------- | ----------- |
-| `OIDC_ISSUER`                   |                   |             |
-| `OIDC_CLIENT_ID`                |                   |             |
-| `OIDC_CLIENT_SECRET`            |                   |             |
-| `OIDC_SCOPE`                    |                   |             |
-| `OIDC_REDIRECT_URI`             |                   |             |
-| `OIDC_POST_LOGOUT_REDIRECT_URI` |                   |             |
-| `SESSION_SECRET`                |                   |             |
-
 **Configurar la URL del frontend**
 
 | Variable       | Valor por defecto | Descripción                                                           |
@@ -208,12 +182,3 @@ npm run seeds:run
 | `LOG_LOKI_PASSWORD`       |                   | Indica la contraseña de usuario para autenticarse con el servicio de loki.                 |
 | `LOG_LOKI_BATCHING`       | `true`            | Habilitado el envío de logs por lote cuando se utiliza loki.                               |
 | `LOG_LOKI_BATCH_INTERVAL` | `5`               | Tiempo en segundos para el envío de logs con loki si `LOG_BATCHING=true`.                  |
-
-### Monitoreo de logs
-
-Para más info sobre los códigos de error ver el archivo [src/core/logger/README.md](./src/core/logger/README.md)
-
-Esta configuración es opcional y se utiliza para visualizar logs en tiempo real. Puede encontrar más información
-respecto al despliegue de estos servicios en el siguiente enlace:
-
-- [Proyectos Base / Utilidades / Gestión Logs](https://gitlab.agetic.gob.bo/agetic/agetic/proyectos-base/utilidades/gestion-logs)
