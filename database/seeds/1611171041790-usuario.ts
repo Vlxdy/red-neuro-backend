@@ -13,7 +13,7 @@ export class usuario1611171041790 implements MigrationInterface {
       {
         //id: 1,
         usuario: 'ADMINISTRADOR',
-        correoElectonico: 'agepic-9270815@yopmail.com',
+        correoElectonico: '9270815@yopmail.com',
         persona: {
           nombres: 'YASMIN',
           primerApellido: 'RODRIGUEZ',
@@ -26,8 +26,8 @@ export class usuario1611171041790 implements MigrationInterface {
       },
       {
         //id: 2,
-        usuario: 'ADMINISTRADOR-TECNICO',
-        correoElectonico: 'agepic-1765251@yopmail.com',
+        usuario: 'NUTRICIONISTA',
+        correoElectonico: '1765251@yopmail.com',
         persona: {
           nombres: 'ALBANO',
           primerApellido: 'ROJAS',
@@ -40,8 +40,8 @@ export class usuario1611171041790 implements MigrationInterface {
       },
       {
         //id: 3,
-        usuario: 'TECNICO',
-        correoElectonico: 'agepic-6114767@yopmail.com',
+        usuario: 'PACIENTE',
+        correoElectonico: '6114767@yopmail.com',
         persona: {
           nombres: 'JESUS',
           primerApellido: 'ROJAS',
@@ -49,6 +49,20 @@ export class usuario1611171041790 implements MigrationInterface {
           tipoDocumento: TipoDocumento.CI,
           nroDocumento: '6114767',
           fechaNacimiento: '2009-02-28',
+          genero: Genero.MASCULINO,
+        },
+      },
+      {
+        //id: 4,
+        usuario: 'USUARIO',
+        correoElectonico: '6752344@yopmail.com',
+        persona: {
+          nombres: 'HANS',
+          primerApellido: 'MAMANI',
+          segundoApellido: 'CRUZ',
+          tipoDocumento: TipoDocumento.CI,
+          nroDocumento: '6752344',
+          fechaNacimiento: '1992-03-14',
           genero: Genero.MASCULINO,
         },
       },
