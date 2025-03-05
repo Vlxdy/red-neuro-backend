@@ -7,11 +7,11 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
     const frontendRoutes: CasbinValue = {
       '/admin/usuarios': {
         [RolEnum.ADMINISTRADOR]: 'read|update|create|delete',
-        [RolEnum.TECNICO]: 'read',
+        [RolEnum.NUTRICIONISTA]: 'read',
       },
       '/admin/parametros': {
         [RolEnum.ADMINISTRADOR]: 'read|update|create',
-        [RolEnum.TECNICO]: 'read',
+        [RolEnum.NUTRICIONISTA]: 'read',
       },
 
       '/admin/modulos': {
@@ -24,14 +24,14 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
 
       '/admin/perfil': {
         [RolEnum.ADMINISTRADOR]: 'read|update',
-        [RolEnum.TECNICO]: 'read|update',
-        [RolEnum.USUARIO]: 'read|update',
+        [RolEnum.NUTRICIONISTA]: 'read|update',
+        [RolEnum.PACIENTE]: 'read|update',
       },
 
       '/admin/home': {
         [RolEnum.ADMINISTRADOR]: 'read',
-        [RolEnum.TECNICO]: 'read',
-        [RolEnum.USUARIO]: 'read',
+        [RolEnum.NUTRICIONISTA]: 'read',
+        [RolEnum.PACIENTE]: 'read',
       },
       '/admin/roles': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
@@ -44,7 +44,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
       '/api/autorizacion/modulos': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST|DELETE|PATCH',
-        [RolEnum.TECNICO]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
       },
 
       '/api/autorizacion/modulos/:id': {
@@ -61,7 +61,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
 
       '/api/autorizacion/roles': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [RolEnum.TECNICO]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
       },
 
       '/api/autorizacion/roles/todos': {
@@ -81,7 +81,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
 
       '/api/usuarios': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [RolEnum.TECNICO]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
       },
 
       '/api/usuarios/:id': {
@@ -109,7 +109,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
 
       '/api/parametros': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [RolEnum.TECNICO]: 'GET|POST',
+        [RolEnum.NUTRICIONISTA]: 'GET|POST',
       },
       '/api/parametros/:id': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',

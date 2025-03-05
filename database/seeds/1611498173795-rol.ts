@@ -15,16 +15,16 @@ export class rol1611498173795 implements MigrationInterface {
       },
       {
         // id: '2',
-        rol: RolEnum.TECNICO,
-        nombre: 'Técnico',
+        rol: RolEnum.NUTRICIONISTA,
+        nombre: 'Nutricionista',
         descripcion:
-          'Responsable de herramientas y funciones específicas del sistema.',
+          'Profesional de la salud especializado en nutrición y dietética.',
       },
       {
         // id: '3',
-        rol: RolEnum.USUARIO,
-        nombre: 'Usuario',
-        descripcion: 'Individuo que utiliza el sistema.',
+        rol: RolEnum.PACIENTE,
+        nombre: 'Paciente',
+        descripcion: 'Usuario que recibe atención nutricional.',
       },
     ]
     const roles = items.map((item) => {

@@ -7,23 +7,33 @@ export class usuarioRol1611516017924 implements MigrationInterface {
     const items = [
       {
         id: '1',
-        rol: '1', //TextService.textToUuid(RolEnum.ADMINISTRADOR),
-        usuario: '1', //TextService.textToUuid('ADMINISTRADOR'),
+        rol: '1', //(RolEnum.ADMINISTRADOR),
+        usuario: '1', //('ADMINISTRADOR'),
       },
       {
         id: '2',
-        rol: '1', // TextService.textToUuid(RolEnum.ADMINISTRADOR),
-        usuario: '2', // TextService.textToUuid('ADMINISTRADOR-TECNICO'),
+        rol: '2', // (RolEnum.NUTRICIONISTA),
+        usuario: '2', // ('NUTRICIONISTA'),
       },
       {
         id: '3',
-        rol: '2', // TextService.textToUuid(RolEnum.TECNICO),
-        usuario: '2', // TextService.textToUuid('ADMINISTRADOR-TECNICO'),
+        rol: '3', // (RolEnum.PACIENTE),
+        usuario: '3', // ('PACIENTE'),
       },
       {
         id: '4',
-        rol: '2', //TextService.textToUuid(RolEnum.TECNICO),
-        usuario: '3', // TextService.textToUuid('TECNICO'),
+        rol: '1', //(RolEnum.ADMINISTRADOR),
+        usuario: '4', // ('ADMINISTRADOR),'),
+      },
+      {
+        id: '5',
+        rol: '2', //(RolEnum.NUTRICIONISTA),
+        usuario: '4', // ('NUTRICIONISTA),'),
+      },
+      {
+        id: '6',
+        rol: '3', //(RolEnum.PACIENTE),
+        usuario: '4', // ('PACIENTE),'),
       },
     ]
     const usuariosRoles = items.map((item) => {
