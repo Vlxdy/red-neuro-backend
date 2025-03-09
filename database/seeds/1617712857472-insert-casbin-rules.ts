@@ -9,18 +9,18 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'read|update|create|delete',
         [RolEnum.NUTRICIONISTA]: 'read',
       },
-      '/admin/parametros': {
-        [RolEnum.ADMINISTRADOR]: 'read|update|create',
-        [RolEnum.NUTRICIONISTA]: 'read',
-      },
+      // '/admin/parametros': {
+      //   [RolEnum.ADMINISTRADOR]: 'read|update|create',
+      //   [RolEnum.NUTRICIONISTA]: 'read',
+      // },
 
-      '/admin/modulos': {
-        [RolEnum.ADMINISTRADOR]: 'read|update|create',
-      },
+      // '/admin/modulos': {
+      //   [RolEnum.ADMINISTRADOR]: 'read|update|create',
+      // },
 
-      '/admin/politicas': {
-        [RolEnum.ADMINISTRADOR]: 'create|read|update|delete',
-      },
+      // '/admin/politicas': {
+      //   [RolEnum.ADMINISTRADOR]: 'create|read|update|delete',
+      // },
 
       '/admin/perfil': {
         [RolEnum.ADMINISTRADOR]: 'read|update',
@@ -33,7 +33,13 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.NUTRICIONISTA]: 'read',
         [RolEnum.PACIENTE]: 'read',
       },
-      '/admin/roles': {
+      // '/admin/roles': {
+      //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      // },
+      // '/admin/nutricionistas': {
+      //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      // },
+      '/admin/asignaciones': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       },
     }

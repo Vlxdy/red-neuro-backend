@@ -50,16 +50,6 @@ export class modulo1611497480901 implements MigrationInterface {
         },
         subMenus: [
           {
-            nombre: 'usuarios',
-            url: '/admin/usuarios',
-            label: 'Usuarios',
-            propiedades: {
-              icono: 'manage_accounts',
-              descripcion: 'Control de usuarios del sistema',
-              orden: 1,
-            },
-          },
-          {
             nombre: 'parametros',
             url: '/admin/parametros',
             label: 'Parámetros',
@@ -97,6 +87,47 @@ export class modulo1611497480901 implements MigrationInterface {
               icono: 'admin_panel_settings',
               descripcion: 'Control de roles para los usuarios',
               orden: 5,
+            },
+          },
+        ],
+      },
+      {
+        nombre: '0rganizacion',
+        url: '/organizacion',
+        label: 'Organización',
+        propiedades: {
+          descripcion: 'Sección de configuraciones',
+          orden: 3,
+        },
+        subMenus: [
+          {
+            nombre: 'usuarios',
+            url: '/admin/usuarios',
+            label: 'Usuarios',
+            propiedades: {
+              icono: 'manage_accounts',
+              descripcion: 'Control de usuarios del sistema',
+              orden: 1,
+            },
+          },
+          {
+            nombre: 'asignaciones',
+            url: '/admin/asignaciones',
+            label: 'Asignaciones',
+            propiedades: {
+              icono: 'assignment',
+              descripcion: 'Asignaciones de roles y permisos',
+              orden: 2,
+            },
+          },
+          {
+            nombre: 'pacientes',
+            url: '/admin/pacientes',
+            label: 'Pacientes',
+            propiedades: {
+              icono: 'supervisor_account',
+              descripcion: 'Pacientes generales del sistema',
+              orden: 3,
             },
           },
         ],
