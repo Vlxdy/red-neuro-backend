@@ -11,6 +11,7 @@ import { UsuarioRol } from './usuario-rol.entity'
 import dotenv from 'dotenv'
 import { RolEstado } from '../constant'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
+import { RolEnum } from '../rol.enum'
 dotenv.config()
 
 @Check(UtilService.buildStatusCheck(RolEstado))
@@ -29,7 +30,7 @@ export class Rol extends AuditoriaEntity {
     unique: true,
     comment: 'Rol definido',
   })
-  rol: string
+  rol: RolEnum
 
   @Column({ length: 100, type: 'varchar', comment: 'Nombre de rol' })
   nombre: string

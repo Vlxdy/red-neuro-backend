@@ -148,6 +148,12 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/usuarios/cuenta/contrasena': {
         [RolEnum.TODOS]: 'PATCH',
       },
+
+      // asignaciones
+
+      '/api/asignaciones': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+      },
     }
 
     const registrarCasbin = async (

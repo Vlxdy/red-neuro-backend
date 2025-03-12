@@ -4,6 +4,7 @@ import { Rol } from '../entity/rol.entity'
 import { Injectable } from '@nestjs/common'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
+import { UsuarioEstado } from '@/core/usuario/constant'
 
 @Injectable()
 export class UsuarioRolRepository {
@@ -18,6 +19,27 @@ export class UsuarioRolRepository {
       .leftJoinAndSelect('usuarioRol.rol', 'rol')
       .where('usuarioRol.id_usuario = :idUsuario', { idUsuario })
       .getMany()
+  }
+
+  async buscarPorId(id: string, transaction?: EntityManager) {
+    return await (
+      transaction?.getRepository(UsuarioRol) ??
+      this.dataSource.getRepository(UsuarioRol)
+    )
+      .createQueryBuilder('usuarioRol')
+      .where('usuarioRol.id = :id', { id })
+      .innerJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :estado', {
+        estado: UsuarioRolEstado.ACTIVE,
+      })
+      .innerJoinAndSelect(
+        'usuarioRol.usuario',
+        'usuario',
+        'usuario.estado = :estado',
+        {
+          estado: UsuarioEstado.ACTIVE,
+        }
+      )
+      .getOne()
   }
 
   async activar(
