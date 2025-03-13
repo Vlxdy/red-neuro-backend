@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ParametroModule } from './parametro/parametro.module'
 import { ConsultasModule } from './consultas/consultas.module'
 import { UsuariosRegistradosModule } from './usuarios-registrado/usuarios-registrados.module'
+import { SeguimientoModule } from './seguimiento/seguimiento.module'
 
 @Module({
   imports: [
@@ -9,6 +10,7 @@ import { UsuariosRegistradosModule } from './usuarios-registrado/usuarios-regist
     ApplicationModule,
     ConsultasModule,
     UsuariosRegistradosModule,
+    SeguimientoModule,
   ],
 })
 export class ApplicationModule {}

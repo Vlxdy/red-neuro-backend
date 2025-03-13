@@ -153,6 +153,10 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/consultas': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
       },
+      // seguimiento
+      '/api/seguimiento': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+      },
     }
 
     const registrarCasbin = async (

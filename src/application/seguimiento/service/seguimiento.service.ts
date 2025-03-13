@@ -1,35 +1,35 @@
 import { BaseService } from '@/common/base/base-service'
 import { Inject, Injectable } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
-import { ConsultasRepository } from '../repository/consultas.repository'
-import { CrearConsultaDto } from '../dto/consultas.dto'
 import { UsuariosRegistradosService } from '@/application/usuarios-registrado/service/usuarios-registrados.service'
+import { SeguimientoRepository } from '../repository/seguimiento.repository'
+import { CrearSeguimientoDto } from '../dto/seguimiento.dto'
 
 @Injectable()
-export class ConsultasService extends BaseService {
+export class SeguimientoService extends BaseService {
   constructor(
-    @Inject(ConsultasRepository)
-    private consultasRepositorio: ConsultasRepository,
+    @Inject(SeguimientoRepository)
+    private seguimientoRepositorio: SeguimientoRepository,
     private usuariosRegistradosService: UsuariosRegistradosService
   ) {
     super()
   }
 
-  async crearConsulta(
-    data: CrearConsultaDto,
+  async crearSeguimiento(
+    data: CrearSeguimientoDto,
     usuarioAuditoria: string,
     transaccion?: EntityManager
   ): Promise<{ id: string }> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.crearConsulta(
+        return await this.crearSeguimiento(
           data,
           usuarioAuditoria,
           nuevaTransaccion
         )
       }
 
-      return await this.consultasRepositorio.runTransaction(op)
+      return await this.seguimientoRepositorio.runTransaction(op)
     }
 
     const medico = await this.usuariosRegistradosService.obtenerMedico(
@@ -41,11 +41,11 @@ export class ConsultasService extends BaseService {
       transaccion
     )
 
-    const asignacion = await this.consultasRepositorio.crear({
+    const seguimiento = await this.seguimientoRepositorio.crear({
       idMedico: medico.id,
       idPaciente: paciente.id,
       usuarioAuditoria,
     })
-    return { id: asignacion.id }
+    return { id: seguimiento.id }
   }
 }
