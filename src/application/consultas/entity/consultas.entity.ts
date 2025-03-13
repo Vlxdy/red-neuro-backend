@@ -10,22 +10,22 @@ import {
 } from 'typeorm'
 import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
-import { AsignacionEstado } from '../constant'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { ConsultasEstado } from '../constant'
 
 dotenv.config()
 
-@Check(UtilService.buildStatusCheck(AsignacionEstado))
-@Entity({ name: 'asignaciones', schema: process.env.DB_SCHEMA })
-export class Asignacion extends AuditoriaEntity {
+@Check(UtilService.buildStatusCheck(ConsultasEstado))
+@Entity({ name: 'consultas', schema: process.env.DB_SCHEMA })
+export class Consultas extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla Asignacion',
+    comment: 'Clave primaria de la tabla Consultas',
   })
   id: string
 
-  constructor(data?: Partial<Asignacion>) {
+  constructor(data?: Partial<Consultas>) {
     super(data)
   }
 
@@ -59,6 +59,6 @@ export class Asignacion extends AuditoriaEntity {
 
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || AsignacionEstado.ACTIVO
+    this.estado = this.estado || ConsultasEstado.ACTIVO
   }
 }

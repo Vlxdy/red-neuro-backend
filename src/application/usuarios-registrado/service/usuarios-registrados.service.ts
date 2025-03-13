@@ -6,7 +6,7 @@ import { RolEnum } from '@/core/authorization/rol.enum'
 import { Messages } from '@/common/constants/response-messages'
 
 @Injectable()
-export class MedicoPacienteService extends BaseService {
+export class UsuariosRegistradosService extends BaseService {
   constructor(
     @Inject(UsuarioRolRepository)
     private usuarioRolRepositorio: UsuarioRolRepository

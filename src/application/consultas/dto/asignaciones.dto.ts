@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumberString } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
 
-export class CrearAsignacionDto {
+export class CrearConsultaDto {
   @ApiProperty({
     description: 'Clave foránea que referencia al medico idRolUsuario',
     example: '2',

@@ -1,15 +1,15 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
-import { Asignacion } from '../entity/asignacion.entity'
+import { Consultas } from '../entity/consultas.entity'
 
 @Injectable()
-export class AsignacionesRepository {
+export class ConsultasRepository {
   constructor(private dataSource: DataSource) {}
 
   async buscarPorId(id: string) {
     return await this.dataSource
-      .getRepository(Asignacion)
-      .createQueryBuilder('asignacion')
+      .getRepository(Consultas)
+      .createQueryBuilder('consultas')
       .where({ id })
       .getOne()
   }
@@ -20,15 +20,15 @@ export class AsignacionesRepository {
     usuarioAuditoria,
   }: {
     id: string
-    datosDto: Partial<Asignacion>
+    datosDto: Partial<Consultas>
     usuarioAuditoria: string
   }) {
-    const datosActualizar = new Asignacion({
+    const datosActualizar = new Consultas({
       ...datosDto,
       usuarioModificacion: usuarioAuditoria,
     })
     return await this.dataSource
-      .getRepository(Asignacion)
+      .getRepository(Consultas)
       .update(id, datosActualizar)
   }
 
@@ -41,12 +41,12 @@ export class AsignacionesRepository {
     idPaciente: string
     usuarioAuditoria: string
   }) {
-    const asignacion = new Asignacion({
+    const consultas = new Consultas({
       idMedico,
       idPaciente,
       usuarioCreacion: usuarioAuditoria,
     })
-    return await this.dataSource.getRepository(Asignacion).save(asignacion)
+    return await this.dataSource.getRepository(Consultas).save(consultas)
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {

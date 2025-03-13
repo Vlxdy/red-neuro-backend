@@ -15,10 +15,9 @@ import { UsuarioRol } from './entity/usuario-rol.entity'
 import { Rol } from './entity/rol.entity'
 import { Modulo } from './entity/modulo.entity'
 import { Usuario } from '../usuario/entity/usuario.entity'
-import { Asignacion } from '@/application/asignaciones/entity/asignacion.entity'
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UsuarioRol, Rol, Modulo, Usuario, Asignacion]),
+    TypeOrmModule.forFeature([UsuarioRol, Rol, Modulo, Usuario]),
     ConfigModule,
   ],
   exports: [AuthorizationService],

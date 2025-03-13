@@ -14,7 +14,7 @@ import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
-import { Asignacion } from '@/application/asignaciones/entity/asignacion.entity'
+import { Consultas } from '@/application/consultas/entity/consultas.entity'
 
 dotenv.config()
 
@@ -52,11 +52,11 @@ export class UsuarioRol extends AuditoriaEntity {
   @JoinColumn({ name: 'id_usuario', referencedColumnName: 'id' })
   usuario: Usuario
 
-  @OneToMany(() => Asignacion, (asignacion) => asignacion.paciente)
-  pacientes: Asignacion[]
+  @OneToMany(() => Consultas, (consultas) => consultas.paciente)
+  pacientes: Consultas[]
 
-  @OneToMany(() => Asignacion, (asignacion) => asignacion.medico)
-  medicos: Asignacion[]
+  @OneToMany(() => Consultas, (consultas) => consultas.medico)
+  medicos: Consultas[]
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)
