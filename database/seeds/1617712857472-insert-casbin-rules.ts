@@ -149,9 +149,8 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.TODOS]: 'PATCH',
       },
 
-      // asignaciones
-
-      '/api/asignaciones': {
+      // consultas
+      '/api/consultas': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
       },
     }
