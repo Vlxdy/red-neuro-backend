@@ -4,6 +4,7 @@ import { EntityManager } from 'typeorm'
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { Messages } from '@/common/constants/response-messages'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @Injectable()
 export class UsuariosRegistradosService extends BaseService {
@@ -36,5 +37,28 @@ export class UsuariosRegistradosService extends BaseService {
     }
     if (usuarioRol.rol.rol === RolEnum.PACIENTE) return usuarioRol
     throw new NotFoundException(Messages.PACIENTE_NOT_FOUND)
+  }
+
+  async listarUsuariosPorRol(params: PaginacionQueryDto, rol: RolEnum) {
+    const usuarios = await this.usuarioRolRepositorio.listarUsuariosPorRol(
+      params,
+      rol
+    )
+
+    const usuariosResponse = usuarios[0].map((usuario) => {
+      return {
+        id: usuario.id,
+        nombre: usuario.persona.nombres,
+        primerApellido: usuario.persona.primerApellido,
+        segundoApellido: usuario.persona.segundoApellido,
+        nroDocumento: usuario.persona.nroDocumento,
+        tipoDocumento: usuario.persona.tipoDocumento,
+        genero: usuario.persona.genero,
+        correoElectronico: usuario.correoElectronico,
+        estado: usuario.usuarioRol[0].estado,
+      }
+    })
+
+    return [usuariosResponse, usuarios[1]]
   }
 }
