@@ -7,6 +7,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UsuariosRegistradosService } from '../service/usuarios-registrados.service'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { ListarUsuariosRegistradosDto } from '../dto/usuarios-registrados.dto'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
 
 @ApiTags('Consultas')
 @ApiBearerAuth()
@@ -27,6 +28,20 @@ export class UsuariosRegistradosController extends BaseController {
     const result = await this.usuariosRegistrados.listarUsuariosPorRol(
       paginacionQueryDto,
       rol
+    )
+    return this.successListRows(result as any)
+  }
+
+  @ApiOperation({ summary: 'API para asignar medicos a los pacientes' })
+  @Get('medicos/:id/pacientes')
+  async listarPacientePorMedico(
+    @Query() paginacionQueryDto: PaginacionQueryDto,
+    @Param() params: ParamIdDto
+  ) {
+    const { id: idMedico } = params
+    const result = await this.usuariosRegistrados.listarPacientePorMedico(
+      paginacionQueryDto,
+      idMedico
     )
     return this.successListRows(result as any)
   }

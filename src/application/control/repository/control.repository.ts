@@ -1,15 +1,15 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
-import { Seguimiento } from '../entity/seguimiento.entity'
+import { Control } from '../entity/control.entity'
 
 @Injectable()
-export class SeguimientoRepository {
+export class ControlRepository {
   constructor(private dataSource: DataSource) {}
 
   async buscarPorId(id: string) {
     return await this.dataSource
-      .getRepository(Seguimiento)
-      .createQueryBuilder('consultas')
+      .getRepository(Control)
+      .createQueryBuilder('control')
       .where({ id })
       .getOne()
   }
@@ -20,15 +20,15 @@ export class SeguimientoRepository {
     usuarioAuditoria,
   }: {
     id: string
-    datosDto: Partial<Seguimiento>
+    datosDto: Partial<Control>
     usuarioAuditoria: string
   }) {
-    const datosActualizar = new Seguimiento({
+    const datosActualizar = new Control({
       ...datosDto,
       usuarioModificacion: usuarioAuditoria,
     })
     return await this.dataSource
-      .getRepository(Seguimiento)
+      .getRepository(Control)
       .update(id, datosActualizar)
   }
 
@@ -41,12 +41,12 @@ export class SeguimientoRepository {
     idPaciente: string
     usuarioAuditoria: string
   }) {
-    const seguimiento = new Seguimiento({
+    const seguimiento = new Control({
       idMedico,
       idPaciente,
       usuarioCreacion: usuarioAuditoria,
     })
-    return await this.dataSource.getRepository(Seguimiento).save(seguimiento)
+    return await this.dataSource.getRepository(Control).save(seguimiento)
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {

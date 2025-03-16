@@ -111,12 +111,12 @@ export class modulo1611497480901 implements MigrationInterface {
             },
           },
           {
-            nombre: 'asignaciones',
-            url: '/admin/asignaciones',
-            label: 'Asignaciones',
+            nombre: 'nutricionistas',
+            url: '/admin/nutricionistas',
+            label: 'Nutricionistas',
             propiedades: {
               icono: 'assignment',
-              descripcion: 'Asignaciones de roles y permisos',
+              descripcion: 'Nutricionistas generales del sistema',
               orden: 2,
             },
           },

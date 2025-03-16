@@ -11,3 +11,16 @@ export class ListarUsuariosRegistradosDto {
   @IsEnum(RolEnum)
   rol: RolEnum
 }
+
+export interface UsuariosRegistradosResponse {
+  id: string
+  nombres: string
+  primerApellido?: string | null
+  segundoApellido?: string | null
+  nroDocumento: string
+  tipoDocumento: string
+  genero?: string | null
+  correoElectronico?: string | null
+  estado: string
+  // especialidad: string
+}

@@ -39,7 +39,10 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       // '/admin/nutricionistas': {
       //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       // },
-      '/admin/asignaciones': {
+      '/admin/nutricionistas': {
+        [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      },
+      '/admin/pacientes': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       },
     }
@@ -159,6 +162,19 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
       // usuario registrados
       '/api/usuarios-registrados/:rol': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      // usuario registrados
+      '/api/usuarios-registrados/medicos/:id/pacientes': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      '/api/usuarios-registrados/medicos/:id/seguimiento': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/control': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/usuarios-registrados/pacientes': {
         [RolEnum.ADMINISTRADOR]: 'GET',
       },
     }

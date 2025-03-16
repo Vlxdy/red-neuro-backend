@@ -37,7 +37,7 @@ export class Consultas extends AuditoriaEntity {
   })
   idMedico: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.medicos, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.consultaMedicos, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
@@ -51,7 +51,7 @@ export class Consultas extends AuditoriaEntity {
   })
   idPaciente: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.pacientes, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.consultaPacientes, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })

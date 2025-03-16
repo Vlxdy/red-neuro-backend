@@ -11,21 +11,21 @@ import {
 import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
-import { SeguimientoEstado } from '../constant'
+import { ControlEstado } from '../constant'
 
 dotenv.config()
 
-@Check(UtilService.buildStatusCheck(SeguimientoEstado))
-@Entity({ name: 'seguimiento', schema: process.env.DB_SCHEMA })
-export class Seguimiento extends AuditoriaEntity {
+@Check(UtilService.buildStatusCheck(ControlEstado))
+@Entity({ name: 'control', schema: process.env.DB_SCHEMA })
+export class Control extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla seguimiento',
+    comment: 'Clave primaria de la tabla control',
   })
   id: string
 
-  constructor(data?: Partial<Seguimiento>) {
+  constructor(data?: Partial<Control>) {
     super(data)
   }
 
@@ -37,7 +37,7 @@ export class Seguimiento extends AuditoriaEntity {
   })
   idMedico: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.medicos, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.controlMedicos, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
@@ -51,7 +51,7 @@ export class Seguimiento extends AuditoriaEntity {
   })
   idPaciente: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.pacientes, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.controlPacientes, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
@@ -59,6 +59,6 @@ export class Seguimiento extends AuditoriaEntity {
 
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || SeguimientoEstado.ACTIVO
+    this.estado = this.estado || ControlEstado.ACTIVO
   }
 }

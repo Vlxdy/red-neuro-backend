@@ -2,34 +2,30 @@ import { BaseService } from '@/common/base/base-service'
 import { Inject, Injectable } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { UsuariosRegistradosService } from '@/application/usuarios-registrado/service/usuarios-registrados.service'
-import { SeguimientoRepository } from '../repository/seguimiento.repository'
-import { CrearSeguimientoDto } from '../dto/seguimiento.dto'
+import { ControlRepository } from '../repository/control.repository'
+import { CrearControlDto } from '../dto/control.dto'
 
 @Injectable()
-export class SeguimientoService extends BaseService {
+export class ControlService extends BaseService {
   constructor(
-    @Inject(SeguimientoRepository)
-    private seguimientoRepositorio: SeguimientoRepository,
+    @Inject(ControlRepository)
+    private controlRepositorio: ControlRepository,
     private usuariosRegistradosService: UsuariosRegistradosService
   ) {
     super()
   }
 
-  async crearSeguimiento(
-    data: CrearSeguimientoDto,
+  async crearControl(
+    data: CrearControlDto,
     usuarioAuditoria: string,
     transaccion?: EntityManager
   ): Promise<{ id: string }> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.crearSeguimiento(
-          data,
-          usuarioAuditoria,
-          nuevaTransaccion
-        )
+        return await this.crearControl(data, usuarioAuditoria, nuevaTransaccion)
       }
 
-      return await this.seguimientoRepositorio.runTransaction(op)
+      return await this.controlRepositorio.runTransaction(op)
     }
 
     const medico = await this.usuariosRegistradosService.obtenerMedico(
@@ -41,7 +37,7 @@ export class SeguimientoService extends BaseService {
       transaccion
     )
 
-    const seguimiento = await this.seguimientoRepositorio.crear({
+    const seguimiento = await this.controlRepositorio.crear({
       idMedico: medico.id,
       idPaciente: paciente.id,
       usuarioAuditoria,

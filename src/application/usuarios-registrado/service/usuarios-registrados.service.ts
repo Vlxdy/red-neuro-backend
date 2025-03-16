@@ -5,12 +5,15 @@ import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-ro
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { Messages } from '@/common/constants/response-messages'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { UsuariosRegistradosRepository } from '../repository/usuarios-registrados.repository'
+import { UsuariosRegistradosResponse } from '../dto/usuarios-registrados.dto'
 
 @Injectable()
 export class UsuariosRegistradosService extends BaseService {
   constructor(
     @Inject(UsuarioRolRepository)
-    private usuarioRolRepositorio: UsuarioRolRepository
+    private usuarioRolRepositorio: UsuarioRolRepository,
+    private usuarioRegistradoRepositorio: UsuariosRegistradosRepository
   ) {
     super()
   }
@@ -40,15 +43,13 @@ export class UsuariosRegistradosService extends BaseService {
   }
 
   async listarUsuariosPorRol(params: PaginacionQueryDto, rol: RolEnum) {
-    const usuarios = await this.usuarioRolRepositorio.listarUsuariosPorRol(
-      params,
-      rol
-    )
+    const usuarios =
+      await this.usuarioRegistradoRepositorio.listarUsuariosPorRol(params, rol)
 
     const usuariosResponse = usuarios[0].map((usuario) => {
       return {
-        id: usuario.id,
-        nombre: usuario.persona.nombres,
+        id: usuario.usuarioRol[0].id,
+        nombres: usuario.persona.nombres,
         primerApellido: usuario.persona.primerApellido,
         segundoApellido: usuario.persona.segundoApellido,
         nroDocumento: usuario.persona.nroDocumento,
@@ -60,5 +61,30 @@ export class UsuariosRegistradosService extends BaseService {
     })
 
     return [usuariosResponse, usuarios[1]]
+  }
+  async listarPacientePorMedico(
+    params: PaginacionQueryDto,
+    idMedico: string
+  ): Promise<[UsuariosRegistradosResponse[], number]> {
+    const [usuarios, total] =
+      await this.usuarioRegistradoRepositorio.listarPacientesPorMedico(
+        idMedico,
+        params
+      )
+
+    return [
+      usuarios.map((usuario) => ({
+        id: usuario.usuarioRol[0].id,
+        nombres: usuario.persona.nombres,
+        correoElectronico: usuario.correoElectronico,
+        estado: usuario?.usuarioRol?.[0].estado,
+        genero: usuario.persona.genero,
+        nroDocumento: usuario.persona.nroDocumento,
+        primerApellido: usuario.persona.primerApellido,
+        segundoApellido: usuario.persona.segundoApellido,
+        tipoDocumento: usuario.persona.tipoDocumento,
+      })),
+      total,
+    ]
   }
 }

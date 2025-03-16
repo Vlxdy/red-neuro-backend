@@ -15,6 +15,7 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Consultas } from '@/application/consultas/entity/consultas.entity'
+import { Control } from '@/application/control/entity/control.entity'
 
 dotenv.config()
 
@@ -53,10 +54,16 @@ export class UsuarioRol extends AuditoriaEntity {
   usuario: Usuario
 
   @OneToMany(() => Consultas, (consultas) => consultas.paciente)
-  pacientes: Consultas[]
+  consultaPacientes: Consultas[]
 
   @OneToMany(() => Consultas, (consultas) => consultas.medico)
-  medicos: Consultas[]
+  consultaMedicos: Consultas[]
+
+  @OneToMany(() => Control, (control) => control.medico)
+  controlMedicos: Control[]
+
+  @OneToMany(() => Control, (control) => control.paciente)
+  controlPacientes: Control[]
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)
