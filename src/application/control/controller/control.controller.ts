@@ -16,14 +16,16 @@ export class ControlController extends BaseController {
     super()
   }
 
-  @ApiOperation({ summary: 'API para asignar medicos a los pacientes' })
+  @ApiOperation({ summary: 'API para asignar pacientes a medico' })
   @Post()
-  async crearConsulta(@Body() data: CrearControlDto, @Req() req: Request) {
+  async crearControl(@Body() data: CrearControlDto, @Req() req: Request) {
     const usuarioAuditoria = this.getUser(req)
-    const respuesta = await this.seguimientoService.crearControl(
-      data,
-      usuarioAuditoria
-    )
+    const { idMedico, idPacientes } = data
+    const respuesta = await this.seguimientoService.crearControles({
+      idMedico,
+      idPacientes,
+      usuarioAuditoria,
+    })
     return this.successCreate(respuesta)
   }
 }

@@ -1,5 +1,29 @@
-import { IsNotEmpty, IsNumberString } from '@/common/validation'
+import {
+  ArrayMinSize,
+  ArrayNotEmpty,
+  IsArray,
+  IsNotEmpty,
+  IsNumberString,
+} from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
+import {
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator'
+
+@ValidatorConstraint({ async: false })
+class IsNumericStringConstraint implements ValidatorConstraintInterface {
+  // eslint-disable-next-line
+  validate(value: string, args: ValidationArguments): boolean {
+    return !isNaN(Number(value)) // Verifica si la cadena es un número
+  }
+  // eslint-disable-next-line
+  defaultMessage(args: ValidationArguments): string {
+    return 'Each element must be a numeric string'
+  }
+}
 
 export class CrearControlDto {
   @ApiProperty({
@@ -11,10 +35,13 @@ export class CrearControlDto {
   idMedico: string
 
   @ApiProperty({
-    description: 'Clave foránea que referencia al paciente idRolUsuario',
-    example: '3',
+    description: 'Clave foránea que referencia a los pacientes',
+    example: ['3', '5', '7'],
   })
   @IsNotEmpty()
-  @IsNumberString()
-  idPaciente: string
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
+  @Validate(IsNumericStringConstraint, { each: true })
+  idPacientes: Array<string>
 }

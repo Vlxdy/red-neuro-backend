@@ -18,7 +18,7 @@ export class UsuariosRegistradosController extends BaseController {
     super()
   }
 
-  @ApiOperation({ summary: 'API para asignar medicos a los pacientes' })
+  @ApiOperation({ summary: 'API para listar usuarios por rol' })
   @Get(':rol')
   async listar(
     @Query() paginacionQueryDto: PaginacionQueryDto,
@@ -32,7 +32,7 @@ export class UsuariosRegistradosController extends BaseController {
     return this.successListRows(result as any)
   }
 
-  @ApiOperation({ summary: 'API para asignar medicos a los pacientes' })
+  @ApiOperation({ summary: 'API para listar pacientes de un medico' })
   @Get('medicos/:id/pacientes')
   async listarPacientePorMedico(
     @Query() paginacionQueryDto: PaginacionQueryDto,
@@ -43,6 +43,23 @@ export class UsuariosRegistradosController extends BaseController {
       paginacionQueryDto,
       idMedico
     )
+    return this.successListRows(result as any)
+  }
+
+  @ApiOperation({
+    summary:
+      'API para listar pacientes que no fueron asignados a un medico especifico',
+  })
+  @Get('medicos/:id/pacientes-asignar')
+  async listarPacienteParaAsignar(
+    @Query() paginacionQueryDto: PaginacionQueryDto,
+    @Param() params: ParamIdDto
+  ) {
+    const { id: idMedico } = params
+    const result = await this.usuariosRegistrados.listarPacientesPorAsignar({
+      params: paginacionQueryDto,
+      idMedico,
+    })
     return this.successListRows(result as any)
   }
 }
