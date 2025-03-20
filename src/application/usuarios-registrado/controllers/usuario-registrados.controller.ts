@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common'
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { BaseController } from '@/common/base'
@@ -8,6 +8,7 @@ import { UsuariosRegistradosService } from '../service/usuarios-registrados.serv
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { ListarUsuariosRegistradosDto } from '../dto/usuarios-registrados.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
+import { Request } from 'express'
 
 @ApiTags('Consultas')
 @ApiBearerAuth()
@@ -17,7 +18,21 @@ export class UsuariosRegistradosController extends BaseController {
   constructor(private usuariosRegistrados: UsuariosRegistradosService) {
     super()
   }
+  @ApiOperation({ summary: 'Listar pacientes asignados a un medico' })
+  @Get('pacientes-asignados')
+  async asignarPacienteAMedico(
+    @Query() paginacionQueryDto: PaginacionQueryDto,
+    @Req() req: Request
+  ) {
+    const idUsuarioRol = this.getUsuarioRol(req)
+    // const usuarioAuditoria = this.getUser(req)
 
+    const result = await this.usuariosRegistrados.listarPacientePorMedico(
+      paginacionQueryDto,
+      idUsuarioRol
+    )
+    return this.successListRows(result as any)
+  }
   @ApiOperation({ summary: 'API para listar usuarios por rol' })
   @Get(':rol')
   async listar(

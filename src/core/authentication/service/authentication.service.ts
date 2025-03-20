@@ -141,6 +141,7 @@ export class AuthenticationService extends BaseService {
       roles: user.roles,
       idRol: rol.idRol,
       rol: rol.rol,
+      idUsuarioRol: rol.idUsuarioRol,
     }
     // crear refresh_token
     const refreshToken = await this.refreshTokensService.create(user.id)
@@ -148,6 +149,7 @@ export class AuthenticationService extends BaseService {
     const data = {
       access_token: this.jwtService.sign(payload),
       ...usuario,
+      idUsuarioRol: rol.idUsuarioRol,
       idRol: rol.idRol,
       rol: rol.rol,
     }
@@ -328,6 +330,7 @@ export class AuthenticationService extends BaseService {
       roles: user.roles,
       idRol: rol.idRol,
       rol: rol.rol,
+      idUsuarioRol: rol.idUsuarioRol,
     }
     // crear refresh_token
     const refreshToken = await this.refreshTokensService.create(user.id)

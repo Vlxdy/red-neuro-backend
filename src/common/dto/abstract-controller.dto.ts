@@ -65,4 +65,12 @@ export abstract class AbstractController {
       `Es necesario que esté autenticado para consumir este recurso.`
     )
   }
+  getUsuarioRol(req) {
+    if (req?.user?.idUsuarioRol) {
+      return req.user.idUsuarioRol
+    }
+    throw new BadRequestException(
+      `Es necesario que esté autenticado para consumir este recurso.`
+    )
+  }
 }

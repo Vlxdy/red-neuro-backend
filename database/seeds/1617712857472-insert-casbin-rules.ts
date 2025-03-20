@@ -7,7 +7,6 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
     const frontendRoutes: CasbinValue = {
       '/admin/usuarios': {
         [RolEnum.ADMINISTRADOR]: 'read|update|create|delete',
-        [RolEnum.NUTRICIONISTA]: 'read',
       },
       // '/admin/parametros': {
       //   [RolEnum.ADMINISTRADOR]: 'read|update|create',
@@ -44,6 +43,12 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
       '/admin/pacientes': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      },
+      '/admin/citas-nutricionista': {
+        [RolEnum.NUTRICIONISTA]: 'read|create|update|delete',
+      },
+      '/admin/pacientes-asignados': {
+        [RolEnum.NUTRICIONISTA]: 'read|create|update|delete',
       },
     }
 
@@ -179,6 +184,13 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
       '/api/usuarios-registrados/pacientes': {
         [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      // Pacientes asignados
+      '/api/usuarios-registrados/pacientes-asignados': {
+        [RolEnum.NUTRICIONISTA]: 'GET',
+      },
+      '/api/usuarios-registrados/pacientes-asignados/:id': {
+        [RolEnum.NUTRICIONISTA]: 'GET',
       },
     }
 

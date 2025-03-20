@@ -7,6 +7,7 @@ declare global {
     idRol?: string // rol principal
     rol?: string // rol principal
     idToken?: string
+    idUsuarioRol?: string
     accessToken?: string
     refreshToken?: string
     exp?: number
@@ -19,6 +20,7 @@ declare global {
     roles: Array<string>
     idRol?: string // rol principal
     rol?: string // rol principal
+    idUsuarioRol: string
     exp?: number
     iat?: number
   }

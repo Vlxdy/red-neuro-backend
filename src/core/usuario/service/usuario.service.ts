@@ -1042,6 +1042,7 @@ export class UsuarioService extends BaseService {
               await this.authorizationService.obtenerPermisosPorRol(rol)
             return {
               idRol: id,
+              idUsuarioRol: usuarioRol.id,
               rol,
               nombre,
               descripcion,
@@ -1290,7 +1291,7 @@ export class UsuarioService extends BaseService {
   }
 
   obtenerRolActual(
-    roles: Array<{ idRol: string; rol: string }>,
+    roles: Array<{ idRol: string; rol: string; idUsuarioRol: string }>,
     idRol: string | null | undefined
   ) {
     if (roles.length < 1) {

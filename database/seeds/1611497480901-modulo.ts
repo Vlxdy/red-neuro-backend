@@ -92,7 +92,7 @@ export class modulo1611497480901 implements MigrationInterface {
         ],
       },
       {
-        nombre: '0rganizacion',
+        nombre: 'organizacion',
         url: '/organizacion',
         label: 'Organización',
         propiedades: {
@@ -128,6 +128,37 @@ export class modulo1611497480901 implements MigrationInterface {
               icono: 'supervisor_account',
               descripcion: 'Pacientes generales del sistema',
               orden: 3,
+            },
+          },
+        ],
+      },
+      {
+        nombre: 'seguimiento',
+        url: '/seguimiento',
+        label: 'Seguimiento',
+        propiedades: {
+          descripcion: 'Sección de configuraciones',
+          orden: 3,
+        },
+        subMenus: [
+          {
+            nombre: 'pacisntes-asignados',
+            url: '/admin/pacientes-asignados',
+            label: 'Pacientes asignados',
+            propiedades: {
+              icono: 'assignment_ind',
+              descripcion: 'Pacientes asignados al nutricionista',
+              orden: 1,
+            },
+          },
+          {
+            nombre: 'citas',
+            url: '/admin/citas-nutricionista',
+            label: 'Citas programadas',
+            propiedades: {
+              icono: 'event',
+              descripcion: 'Citas programadas por el nutricionista',
+              orden: 2,
             },
           },
         ],
