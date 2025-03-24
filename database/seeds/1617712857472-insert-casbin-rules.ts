@@ -179,7 +179,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/usuarios-registrados/medicos/:id/seguimiento': {
         [RolEnum.ADMINISTRADOR]: 'POST',
       },
-      '/api/control': {
+      '/api/asignacion': {
         [RolEnum.ADMINISTRADOR]: 'POST',
       },
       '/api/usuarios-registrados/pacientes': {

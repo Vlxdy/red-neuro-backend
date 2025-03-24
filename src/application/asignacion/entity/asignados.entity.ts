@@ -6,26 +6,27 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
-import { ControlEstado } from '../constant'
+import { AsignacionEstado } from '../constant'
 
 dotenv.config()
 
-@Check(UtilService.buildStatusCheck(ControlEstado))
-@Entity({ name: 'control', schema: process.env.DB_SCHEMA })
-export class Control extends AuditoriaEntity {
+@Check(UtilService.buildStatusCheck(AsignacionEstado))
+@Entity({ name: 'asignados', schema: process.env.DB_SCHEMA })
+export class Asignacion extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla control',
+    comment: 'Clave primaria de la tabla asignados',
   })
   id: string
 
-  constructor(data?: Partial<Control>) {
+  constructor(data?: Partial<Asignacion>) {
     super(data)
   }
 
@@ -37,7 +38,7 @@ export class Control extends AuditoriaEntity {
   })
   idMedico: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.controlMedicos, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.asignacionMedicos, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
@@ -51,14 +52,18 @@ export class Control extends AuditoriaEntity {
   })
   idPaciente: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.controlPacientes, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.asignacionPacientes, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
   paciente: UsuarioRol
 
+  @OneToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.usuario, {
+    cascade: true,
+  })
+  pacienteAsignado: UsuarioRol
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || ControlEstado.ACTIVO
+    this.estado = this.estado || AsignacionEstado.ACTIVO
   }
 }

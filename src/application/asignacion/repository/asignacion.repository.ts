@@ -1,15 +1,15 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
-import { Control } from '../entity/control.entity'
+import { Asignacion } from '../entity/asignados.entity'
 
 @Injectable()
-export class ControlRepository {
+export class AsignacionRepository {
   constructor(private dataSource: DataSource) {}
 
   async buscarPorId(id: string) {
     return await this.dataSource
-      .getRepository(Control)
-      .createQueryBuilder('control')
+      .getRepository(Asignacion)
+      .createQueryBuilder('asignacion')
       .where({ id })
       .getOne()
   }
@@ -21,16 +21,16 @@ export class ControlRepository {
     transaccion,
   }: {
     id: string
-    datosDto: Partial<Control>
+    datosDto: Partial<Asignacion>
     usuarioAuditoria: string
     transaccion?: EntityManager
   }) {
-    const datosActualizar = new Control({
+    const datosActualizar = new Asignacion({
       ...datosDto,
       usuarioModificacion: usuarioAuditoria,
     })
     return await (transaccion || this.dataSource)
-      .getRepository(Control)
+      .getRepository(Asignacion)
       .update(id, datosActualizar)
   }
 
@@ -43,24 +43,22 @@ export class ControlRepository {
     idMedico: string
     idPaciente: string
     usuarioAuditoria: string
-    transaccion?: EntityManager
+    transaccion: EntityManager
   }) {
-    const seguimiento = new Control({
+    const asignacion = new Asignacion({
       idMedico,
       idPaciente,
       usuarioCreacion: usuarioAuditoria,
     })
-    return await (transaccion || this.dataSource)
-      .getRepository(Control)
-      .save(seguimiento)
+    return await transaccion.getRepository(Asignacion).save(asignacion)
   }
 
   async buscarPorPaciente(idPaciente: string, transaccion?: EntityManager) {
     return await (transaccion || this.dataSource)
-      .getRepository(Control)
-      .createQueryBuilder('control')
+      .getRepository(Asignacion)
+      .createQueryBuilder('asignacion')
       .where({ idPaciente })
-      .andWhere('control.estado = :estado', { estado: 'ACTIVO' })
+      .andWhere('asignacion.estado = :estado', { estado: 'ACTIVO' })
       .getOne()
   }
 

@@ -120,9 +120,9 @@ export class UsuariosRegistradosRepository {
         }
       )
       .innerJoinAndSelect(
-        'usuarioRol.controlPacientes',
-        'controlPacientes',
-        'controlPacientes.estado = :estado',
+        'usuarioRol.asignacionPacientes',
+        'asignacionPacientes',
+        'asignacionPacientes.estado = :estado',
         {
           estado: RolEstado.ACTIVE,
         }
@@ -150,7 +150,7 @@ export class UsuariosRegistradosRepository {
         'persona.tipoDocumento',
         'persona.telefono',
       ])
-      .where('controlPacientes.idMedico = :idMedico', { idMedico })
+      .where('asignacionPacientes.idMedico = :idMedico', { idMedico })
       .andWhere('usuarioRol.estado = :estado', {
         estado: UsuarioRolEstado.ACTIVE,
       })
@@ -213,7 +213,7 @@ export class UsuariosRegistradosRepository {
     const { limite, saltar, filtro, orden, sentido } = params
 
     // Query base para reutilizar
-    const baseQuery = this.dataSource
+    const query = this.dataSource
       .getRepository(UsuarioRol)
       .createQueryBuilder('usuarioRol')
       .innerJoin(
@@ -237,17 +237,45 @@ export class UsuariosRegistradosRepository {
       .where('usuarioRol.estado = :estadoUsuarioRol', {
         estadoUsuarioRol: UsuarioRolEstado.ACTIVE,
       })
+      .select([
+        'usuario.id',
+        'usuario.usuario',
+        'usuario.correoElectronico',
+        'usuario.estado',
+        'usuario.ciudadaniaDigital',
+        'usuario.fechaCreacion',
+        'usuarioRol.id',
+        'usuarioRol.estado',
+        'usuarioRol.idAsignacion',
+        'rol.id',
+        'rol.rol',
+        'rol.nombre',
+        'persona.nroDocumento',
+        'persona.nombres',
+        'persona.primerApellido',
+        'persona.segundoApellido',
+        'persona.fechaNacimiento',
+        'persona.tipoDocumento',
+        'persona.telefono',
+      ])
+      .addSelect(
+        'CASE WHEN usuarioRol.idAsignacion IS NULL THEN 0 ELSE 1 END',
+        'asignado'
+      )
+      .take(limite)
+      .skip(saltar)
+      .orderBy('asignado', 'ASC')
 
     // Aplicar omitir IDs si corresponde
     if (idPacientesOmitir && idPacientesOmitir.length > 0) {
-      baseQuery.andWhere('usuarioRol.id NOT IN (:...idPacientesOmitir)', {
+      query.andWhere('usuarioRol.id NOT IN (:...idPacientesOmitir)', {
         idPacientesOmitir,
       })
     }
 
     // Filtros de búsqueda
     if (filtro) {
-      baseQuery.andWhere(
+      query.andWhere(
         new Brackets((qb) => {
           qb.orWhere('usuario.usuario ilike :filtro', { filtro: `%${filtro}%` })
             .orWhere('persona.nroDocumento ilike :filtro', {
@@ -264,72 +292,32 @@ export class UsuariosRegistradosRepository {
       )
     }
 
-    // -------- 1. Obtener total sin paginación --------
-    const total = await baseQuery.getCount()
-
-    // -------- 2. Obtener datos paginados --------
-    const datosQuery = baseQuery
-      .clone() // <- CLONAMOS la base para evitar conflictos
-      // .leftJoinAndSelect('usuarioRol.rol', 'rol')
-      // .leftJoinAndSelect('usuario.persona', 'persona')
-      .addSelect((subQuery) => {
-        return subQuery
-          .select('COUNT(control.id_paciente)', 'totalConsultasPaciente')
-          .from(`${process.env.DB_SCHEMA}.control`, 'control')
-          .where('control.id_paciente = usuarioRol.id')
-      }, 'totalConsultasPaciente')
-      .addSelect([
-        'usuario.id',
-        'usuario.usuario',
-        'usuario.correoElectronico',
-        'usuario.estado',
-        'usuario.ciudadaniaDigital',
-        'usuario.fechaCreacion',
-        'usuarioRol.id',
-        'usuarioRol.estado',
-        'rol.id',
-        'rol.rol',
-        'rol.nombre',
-        'persona.nroDocumento',
-        'persona.nombres',
-        'persona.primerApellido',
-        'persona.segundoApellido',
-        'persona.fechaNacimiento',
-        'persona.tipoDocumento',
-        'persona.telefono',
-      ])
-      .take(limite)
-      .skip(saltar)
-
     // Ordenamiento dinámico
     switch (orden) {
       case 'nroDocumento':
-        datosQuery.addOrderBy('persona.nroDocumento', sentido)
+        query.addOrderBy('persona.nroDocumento', sentido)
         break
       case 'nombres':
-        datosQuery.addOrderBy('persona.nombres', sentido)
+        query.addOrderBy('persona.nombres', sentido)
         break
       case 'usuario':
-        datosQuery.addOrderBy('usuario.usuario', sentido)
+        query.addOrderBy('usuario.usuario', sentido)
         break
       case 'rol':
-        datosQuery.addOrderBy('rol.rol', sentido)
+        query.addOrderBy('rol.rol', sentido)
         break
       case 'estado':
-        datosQuery.addOrderBy('usuario.estado', sentido)
+        query.addOrderBy('usuario.estado', sentido)
         break
       default:
-        datosQuery.addOrderBy('usuario.id', 'ASC')
+        query.addOrderBy('usuario.id', 'ASC')
     }
 
-    // Orden adicional por totalConsultasPaciente si quieres:
-    datosQuery.addOrderBy('"totalConsultasPaciente"', 'ASC')
+    console.log('------------------------------------')
 
-    // Obtener los datos
-    const usuarios = await datosQuery.getRawMany()
+    console.log(query.getSql())
 
-    // Retornar resultado
-    return [usuarios, total]
+    return await query.getManyAndCount()
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {

@@ -10,7 +10,7 @@ import { ListarUsuariosRegistradosDto } from '../dto/usuarios-registrados.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 
-@ApiTags('Consultas')
+@ApiTags('Usuarios Registrados')
 @ApiBearerAuth()
 @Controller('usuarios-registrados')
 @UseGuards(JwtAuthGuard, CasbinGuard)

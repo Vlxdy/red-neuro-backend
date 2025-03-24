@@ -2,14 +2,14 @@ import { BaseService } from '@/common/base/base-service'
 import { Inject, Injectable } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { UsuariosRegistradosService } from '@/application/usuarios-registrado/service/usuarios-registrados.service'
-import { ControlRepository } from '../repository/control.repository'
-import { ControlEstado } from '../constant'
+import { AsignacionRepository } from '../repository/asignacion.repository'
+import { AsignacionEstado } from '../constant'
 
 @Injectable()
-export class ControlService extends BaseService {
+export class AsignacionService extends BaseService {
   constructor(
-    @Inject(ControlRepository)
-    private controlRepositorio: ControlRepository,
+    @Inject(AsignacionRepository)
+    private asignacionRepositorio: AsignacionRepository,
     private usuariosRegistradosService: UsuariosRegistradosService
   ) {
     super()
@@ -81,7 +81,7 @@ export class ControlService extends BaseService {
           transaccion: nuevaTransaccion,
         })
       }
-      return await this.controlRepositorio.runTransaction(op)
+      return await this.asignacionRepositorio.runTransaction(op)
     }
 
     const medico = await this.usuariosRegistradosService.obtenerMedico(
@@ -95,20 +95,20 @@ export class ControlService extends BaseService {
         transaccion
       )
 
-      const control = await this.controlRepositorio.buscarPorPaciente(
+      const asignacion = await this.asignacionRepositorio.buscarPorPaciente(
         idPaciente,
         transaccion
       )
-      if (control) {
-        if (control.idMedico !== idMedico) {
-          await this.controlRepositorio.actualizar({
-            id: control.id,
-            datosDto: { estado: ControlEstado.INACTIVO },
+      if (asignacion) {
+        if (asignacion.idMedico !== idMedico) {
+          await this.asignacionRepositorio.actualizar({
+            id: asignacion.id,
+            datosDto: { estado: AsignacionEstado.INACTIVO },
             usuarioAuditoria,
           })
         }
       }
-      await this.controlRepositorio.crear({
+      await this.asignacionRepositorio.crear({
         idMedico: medico.id,
         idPaciente: paciente.id,
         usuarioAuditoria,

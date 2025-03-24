@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { ParametroModule } from './parametro/parametro.module'
 import { ConsultasModule } from './consultas/consultas.module'
 import { UsuariosRegistradosModule } from './usuarios-registrado/usuarios-registrados.module'
-import { ControlModule } from './control/control.module'
+import { AsignacionModule } from './asignacion/asignacion.module'
 
 @Module({
   imports: [
@@ -10,7 +10,7 @@ import { ControlModule } from './control/control.module'
     ApplicationModule,
     ConsultasModule,
     UsuariosRegistradosModule,
-    ControlModule,
+    AsignacionModule,
   ],
 })
 export class ApplicationModule {}

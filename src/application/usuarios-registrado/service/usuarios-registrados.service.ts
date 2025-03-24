@@ -8,8 +8,6 @@ import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { UsuariosRegistradosRepository } from '../repository/usuarios-registrados.repository'
 import { UsuariosRegistradosResponse } from '../dto/usuarios-registrados.dto'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
-import { Persona } from '@/core/usuario/entity/persona.entity'
-import { Usuario } from '@/core/usuario/entity/usuario.entity'
 
 interface UsuarioRolResponse {
   id: string
@@ -85,7 +83,6 @@ export class UsuariosRegistradosService extends BaseService {
         idMedico,
         params
       )
-
     return [this.formatearUsuarioRolRespuesta(usuariosRol), total]
   }
 
@@ -96,95 +93,76 @@ export class UsuariosRegistradosService extends BaseService {
     params: PaginacionQueryDto
     idMedico: string
   }) {
-    const filtro = new PaginacionQueryDto()
-    const [usuariosPaciente] =
-      await this.usuarioRegistradoRepositorio.listarPacientesPorMedico(
-        idMedico,
-        filtro,
-        true
-      )
-
-    const idPacientesAsignados = usuariosPaciente.map(
-      (usuarioRol) => usuarioRol.id
-    )
-    // TODO: corregir limite de obtencion de datos
     const [uduarios, total] =
       await this.usuarioRegistradoRepositorio.listarPacientesPorAsignar({
-        idPacientesOmitir: [idMedico, ...idPacientesAsignados],
+        idPacientesOmitir: [idMedico],
         params,
       })
 
-    const inicio = params.saltar
-    const fin = inicio + params.limite
-    return [
-      this.formatearUsuarioRolRespuesta(
-        this.convertirRawUsuarioRol(uduarios.slice(inicio, fin))
-      ),
-      total,
-    ]
+    return [this.formatearUsuarioRolRespuesta(uduarios), total]
   }
 
-  convertirRawUsuarioRol(usuarioRoles: any[]): UsuarioRol[] {
-    return usuarioRoles.map((usuarioRol) => {
-      const persona = new Persona({
-        estado: usuarioRol.persona__estado,
-        transaccion: usuarioRol.persona__transaccion,
-        usuarioCreacion: usuarioRol.persona__usuario_creacion,
-        fechaCreacion: usuarioRol.persona__fecha_creacion,
-        usuarioModificacion: usuarioRol.persona__usuario_modificacion,
-        fechaModificacion: usuarioRol.persona__fecha_modificacion,
-        id: usuarioRol.persona_id,
-        uuidCiudadano: usuarioRol.persona_uuid_ciudadano,
-        nombres: usuarioRol.persona_nombres,
-        primerApellido: usuarioRol.persona_primer_apellido,
-        segundoApellido: usuarioRol.persona_segundo_apellido,
-        tipoDocumento: usuarioRol.persona_tipo_documento,
-        tipoDocumentoOtro: usuarioRol.persona_tipo_documento_otro,
-        nroDocumento: usuarioRol.persona_nro_documento,
-        fechaNacimiento: usuarioRol.persona_fecha_nacimiento,
-        telefono: usuarioRol.persona_telefono,
-        genero: usuarioRol.persona_genero,
-        observacion: usuarioRol.persona_observacion,
-      })
-      const usuario = new Usuario({
-        estado: usuarioRol.usuario__estado,
-        transaccion: usuarioRol.usuario__transaccion,
-        usuarioCreacion: usuarioRol.usuario__usuario_creacion,
-        fechaCreacion: usuarioRol.usuario__fecha_creacion,
-        usuarioModificacion: usuarioRol.usuario__usuario_modificacion,
-        fechaModificacion: usuarioRol.usuario__fecha_modificacion,
-        id: usuarioRol.usuario_id,
-        usuario: usuarioRol.usuario_usuario,
-        // contrasena: usuarioRol.usuario_contrasena,
-        ciudadaniaDigital: usuarioRol.usuario_ciudadania_digital,
-        correoElectronico: usuarioRol.usuario_correo_electronico,
-        intentos: usuarioRol.usuario_intentos,
-        codigoDesbloqueo: usuarioRol.usuario_codigo_desbloqueo,
-        codigoRecuperacion: usuarioRol.usuario_codigo_recuperacion,
-        codigoTransaccion: usuarioRol.usuario_codigo_transaccion,
-        codigoActivacion: usuarioRol.usuario_codigo_activacion,
-        fechaBloqueo: usuarioRol.usuario_fecha_bloqueo,
-        urlFoto: usuarioRol.usuario_url_foto,
-        persona,
-      })
+  // convertirRawUsuarioRol(usuarioRoles: any[]): UsuarioRol[] {
+  //   return usuarioRoles.map((usuarioRol) => {
+  //     const persona = new Persona({
+  //       estado: usuarioRol.persona__estado,
+  //       transaccion: usuarioRol.persona__transaccion,
+  //       usuarioCreacion: usuarioRol.persona__usuario_creacion,
+  //       fechaCreacion: usuarioRol.persona__fecha_creacion,
+  //       usuarioModificacion: usuarioRol.persona__usuario_modificacion,
+  //       fechaModificacion: usuarioRol.persona__fecha_modificacion,
+  //       id: usuarioRol.persona_id,
+  //       uuidCiudadano: usuarioRol.persona_uuid_ciudadano,
+  //       nombres: usuarioRol.persona_nombres,
+  //       primerApellido: usuarioRol.persona_primer_apellido,
+  //       segundoApellido: usuarioRol.persona_segundo_apellido,
+  //       tipoDocumento: usuarioRol.persona_tipo_documento,
+  //       tipoDocumentoOtro: usuarioRol.persona_tipo_documento_otro,
+  //       nroDocumento: usuarioRol.persona_nro_documento,
+  //       fechaNacimiento: usuarioRol.persona_fecha_nacimiento,
+  //       telefono: usuarioRol.persona_telefono,
+  //       genero: usuarioRol.persona_genero,
+  //       observacion: usuarioRol.persona_observacion,
+  //     })
+  //     const usuario = new Usuario({
+  //       estado: usuarioRol.usuario__estado,
+  //       transaccion: usuarioRol.usuario__transaccion,
+  //       usuarioCreacion: usuarioRol.usuario__usuario_creacion,
+  //       fechaCreacion: usuarioRol.usuario__fecha_creacion,
+  //       usuarioModificacion: usuarioRol.usuario__usuario_modificacion,
+  //       fechaModificacion: usuarioRol.usuario__fecha_modificacion,
+  //       id: usuarioRol.usuario_id,
+  //       usuario: usuarioRol.usuario_usuario,
+  //       // contrasena: usuarioRol.usuario_contrasena,
+  //       ciudadaniaDigital: usuarioRol.usuario_ciudadania_digital,
+  //       correoElectronico: usuarioRol.usuario_correo_electronico,
+  //       intentos: usuarioRol.usuario_intentos,
+  //       codigoDesbloqueo: usuarioRol.usuario_codigo_desbloqueo,
+  //       codigoRecuperacion: usuarioRol.usuario_codigo_recuperacion,
+  //       codigoTransaccion: usuarioRol.usuario_codigo_transaccion,
+  //       codigoActivacion: usuarioRol.usuario_codigo_activacion,
+  //       fechaBloqueo: usuarioRol.usuario_fecha_bloqueo,
+  //       urlFoto: usuarioRol.usuario_url_foto,
+  //       persona,
+  //     })
 
-      return new UsuarioRol({
-        id: usuarioRol.id,
-        estado: usuarioRol._estado,
-        usuario,
+  //     return new UsuarioRol({
+  //       id: usuarioRol.id,
+  //       estado: usuarioRol._estado,
+  //       usuario,
 
-        // id: usuarioRol.id,
-        // nombres: usuarioRol.persona.nombres,
-        // primerApellido: usuarioRol.persona.primerApellido,
-        // segundoApellido: usuarioRol.persona.segundoApellido,
-        // nroDocumento: usuarioRol.persona.nroDocumento,
-        // tipoDocumento: usuarioRol.persona.tipoDocumento,
-        // genero: usuarioRol.persona.genero,
-        // correoElectronico: usuarioRol.correoElectronico,
-        // estado: usuarioRol.estado,
-      })
-    })
-  }
+  //       // id: usuarioRol.id,
+  //       // nombres: usuarioRol.persona.nombres,
+  //       // primerApellido: usuarioRol.persona.primerApellido,
+  //       // segundoApellido: usuarioRol.persona.segundoApellido,
+  //       // nroDocumento: usuarioRol.persona.nroDocumento,
+  //       // tipoDocumento: usuarioRol.persona.tipoDocumento,
+  //       // genero: usuarioRol.persona.genero,
+  //       // correoElectronico: usuarioRol.correoElectronico,
+  //       // estado: usuarioRol.estado,
+  //     })
+  //   })
+  // }
   formatearUsuarioRolRespuesta(
     usuariosRol: UsuarioRol[]
   ): Array<UsuarioRolResponse> {

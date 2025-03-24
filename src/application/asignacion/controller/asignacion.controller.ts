@@ -4,24 +4,24 @@ import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { CrearControlDto } from '../dto/control.dto'
-import { ControlService } from '../service/control.service'
+import { AsignacionService } from '../service/asignacion.service'
+import { CrearAsignacionDto } from '../dto/asignacion.dto'
 
-@ApiTags('control')
+@ApiTags('Asignacion')
 @ApiBearerAuth()
-@Controller('control')
+@Controller('asignacion')
 @UseGuards(JwtAuthGuard, CasbinGuard)
-export class ControlController extends BaseController {
-  constructor(private seguimientoService: ControlService) {
+export class AsignacionController extends BaseController {
+  constructor(private asignacionService: AsignacionService) {
     super()
   }
 
   @ApiOperation({ summary: 'API para asignar pacientes a medico' })
   @Post()
-  async crearControl(@Body() data: CrearControlDto, @Req() req: Request) {
+  async crearControl(@Body() data: CrearAsignacionDto, @Req() req: Request) {
     const usuarioAuditoria = this.getUser(req)
     const { idMedico, idPacientes } = data
-    const respuesta = await this.seguimientoService.crearControles({
+    const respuesta = await this.asignacionService.crearControles({
       idMedico,
       idPacientes,
       usuarioAuditoria,

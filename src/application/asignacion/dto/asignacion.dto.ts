@@ -25,7 +25,7 @@ class IsNumericStringConstraint implements ValidatorConstraintInterface {
   }
 }
 
-export class CrearControlDto {
+export class CrearAsignacionDto {
   @ApiProperty({
     description: 'Clave foránea que referencia al medico idRolUsuario',
     example: '2',
