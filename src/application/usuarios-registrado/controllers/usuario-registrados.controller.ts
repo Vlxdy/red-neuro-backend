@@ -6,7 +6,10 @@ import { BaseController } from '@/common/base'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UsuariosRegistradosService } from '../service/usuarios-registrados.service'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
-import { ListarUsuariosRegistradosDto } from '../dto/usuarios-registrados.dto'
+import {
+  ListarUsuariosRegistradosDto,
+  PacientesAsignadosDto,
+} from '../dto/usuarios-registrados.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 
@@ -21,7 +24,7 @@ export class UsuariosRegistradosController extends BaseController {
   @ApiOperation({ summary: 'Listar pacientes asignados a un medico' })
   @Get('pacientes-asignados')
   async asignarPacienteAMedico(
-    @Query() paginacionQueryDto: PaginacionQueryDto,
+    @Query() paginacionQueryDto: PacientesAsignadosDto,
     @Req() req: Request
   ) {
     const idUsuarioRol = this.getUsuarioRol(req)

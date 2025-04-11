@@ -192,6 +192,13 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/usuarios-registrados/pacientes-asignados/:id': {
         [RolEnum.NUTRICIONISTA]: 'GET',
       },
+      // citas
+      '/api/citas': {
+        [RolEnum.NUTRICIONISTA]: 'GET|POST',
+      },
+      '/api/citas/:id': {
+        [RolEnum.NUTRICIONISTA]: 'PATCH|GET',
+      },
     }
 
     const registrarCasbin = async (

@@ -1,0 +1,47 @@
+import { BaseService } from '@/common/base/base-service'
+import { Inject, Injectable } from '@nestjs/common'
+import { EntityManager } from 'typeorm'
+import { UsuariosRegistradosService } from '@/application/usuarios-registrado/service/usuarios-registrados.service'
+import { CitasRepository } from '../repository/citas.repository'
+import { CrearCitaDto } from '../dto/citas.dto'
+
+@Injectable()
+export class CitasService extends BaseService {
+  constructor(
+    @Inject(CitasRepository)
+    private citasRepositorio: CitasRepository,
+    private usuariosRegistradosService: UsuariosRegistradosService
+  ) {
+    super()
+  }
+
+  async crearCita(
+    data: CrearCitaDto,
+    usuarioAuditoria: string,
+    transaccion?: EntityManager
+  ): Promise<{ id: string }> {
+    if (!transaccion) {
+      const op = async (nuevaTransaccion: EntityManager) => {
+        return await this.crearCita(data, usuarioAuditoria, nuevaTransaccion)
+      }
+
+      return await this.citasRepositorio.runTransaction(op)
+    }
+
+    await this.usuariosRegistradosService.obtenerMedico(
+      data.idMedico,
+      transaccion
+    )
+    await this.usuariosRegistradosService.obtenerPaciente(
+      data.idPaciente,
+      transaccion
+    )
+
+    const asignacion = await this.citasRepositorio.crear({
+      data,
+      usuarioAuditoria,
+      transaccion,
+    })
+    return { id: asignacion.id }
+  }
+}

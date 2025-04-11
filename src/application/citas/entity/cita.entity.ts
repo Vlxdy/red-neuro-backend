@@ -11,23 +11,45 @@ import {
 import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
-import { ConsultasEstado } from '../constant'
+import { CitasEstado } from '../constant'
 
 dotenv.config()
 
-@Check(UtilService.buildStatusCheck(ConsultasEstado))
-@Entity({ name: 'consultas', schema: process.env.DB_SCHEMA })
-export class Consultas extends AuditoriaEntity {
+@Check(UtilService.buildStatusCheck(CitasEstado))
+@Entity({ name: 'citas', schema: process.env.DB_SCHEMA })
+export class Cita extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla Consultas',
+    comment: 'Clave primaria de la tabla Citas',
   })
   id: string
 
-  constructor(data?: Partial<Consultas>) {
-    super(data)
-  }
+  @Column({
+    name: 'fecha_inicio',
+    type: 'timestamp without time zone',
+    nullable: true,
+    comment: 'Fecha y hora de inicio de la cita',
+  })
+  fechaInicio?: Date | null
+
+  @Column({
+    name: 'fecha_fin',
+    type: 'timestamp without time zone',
+    nullable: true,
+    comment: 'Fecha y hora de fin de la cita',
+  })
+  fechaFin?: Date | null
+
+  @Column({
+    name: 'detalle',
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    comment: 'Descripción de la cita',
+  })
+  detalle: string
+  // relaciones
 
   @Column({
     name: 'id_medico',
@@ -37,7 +59,7 @@ export class Consultas extends AuditoriaEntity {
   })
   idMedico: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.consultaMedicos, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.citasMedico, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
@@ -51,7 +73,7 @@ export class Consultas extends AuditoriaEntity {
   })
   idPaciente: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.consultaPacientes, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.citasPaciente, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
@@ -59,6 +81,10 @@ export class Consultas extends AuditoriaEntity {
 
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || ConsultasEstado.ACTIVO
+    this.estado = this.estado || CitasEstado.ACTIVO
+  }
+
+  constructor(data?: Partial<Cita>) {
+    super(data)
   }
 }

@@ -6,7 +6,10 @@ import { RolEnum } from '@/core/authorization/rol.enum'
 import { Messages } from '@/common/constants/response-messages'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { UsuariosRegistradosRepository } from '../repository/usuarios-registrados.repository'
-import { UsuariosRegistradosResponse } from '../dto/usuarios-registrados.dto'
+import {
+  PacientesAsignadosDto,
+  UsuariosRegistradosResponse,
+} from '../dto/usuarios-registrados.dto'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
 interface UsuarioRolResponse {
@@ -75,13 +78,15 @@ export class UsuariosRegistradosService extends BaseService {
     return [usuariosResponse, usuarios[1]]
   }
   async listarPacientePorMedico(
-    params: PaginacionQueryDto,
+    params: PacientesAsignadosDto,
     idMedico: string
   ): Promise<[UsuariosRegistradosResponse[], number]> {
+    const { todos } = params
     const [usuariosRol, total] =
       await this.usuarioRegistradoRepositorio.listarPacientesPorMedico(
         idMedico,
-        params
+        params,
+        todos
       )
     return [this.formatearUsuarioRolRespuesta(usuariosRol), total]
   }

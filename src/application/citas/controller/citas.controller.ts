@@ -4,26 +4,23 @@ import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { ConsultasService } from '../service/consultas.service'
-import { CrearConsultaDto } from '../dto/consultas.dto'
+import { CitasService } from '../service/citas.service'
+import { CrearCitaDto } from '../dto/citas.dto'
 
-@ApiTags('Consultas')
+@ApiTags('Citas')
 @ApiBearerAuth()
-@Controller('consultas')
+@Controller('citas')
 @UseGuards(JwtAuthGuard, CasbinGuard)
-export class ConsultasController extends BaseController {
-  constructor(private consultasService: ConsultasService) {
+export class CitasController extends BaseController {
+  constructor(private citasService: CitasService) {
     super()
   }
 
   @ApiOperation({ summary: 'API para asignar medicos a los pacientes' })
   @Post()
-  async crearConsulta(@Body() data: CrearConsultaDto, @Req() req: Request) {
+  async crearCita(@Body() data: CrearCitaDto, @Req() req: Request) {
     const usuarioAuditoria = this.getUser(req)
-    const respuesta = await this.consultasService.crearConsulta(
-      data,
-      usuarioAuditoria
-    )
+    const respuesta = await this.citasService.crearCita(data, usuarioAuditoria)
     return this.successCreate(respuesta)
   }
 }

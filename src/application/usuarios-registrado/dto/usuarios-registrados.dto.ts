@@ -1,3 +1,4 @@
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { IsEnum, IsNotEmpty } from '@/common/validation'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { ApiProperty } from '@nestjs/swagger'
@@ -23,4 +24,8 @@ export interface UsuariosRegistradosResponse {
   correoElectronico?: string | null
   estado: string
   // especialidad: string
+}
+
+export interface PacientesAsignadosDto extends PaginacionQueryDto {
+  todos?: boolean
 }

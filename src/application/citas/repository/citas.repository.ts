@@ -1,15 +1,16 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
-import { Consultas } from '../entity/consultas.entity'
+import { Cita } from '../entity/cita.entity'
+import { CrearCitaDto } from '../dto/citas.dto'
 
 @Injectable()
-export class ConsultasRepository {
+export class CitasRepository {
   constructor(private dataSource: DataSource) {}
 
   async buscarPorId(id: string) {
     return await this.dataSource
-      .getRepository(Consultas)
-      .createQueryBuilder('consultas')
+      .getRepository(Cita)
+      .createQueryBuilder('citas')
       .where({ id })
       .getOne()
   }
@@ -20,33 +21,35 @@ export class ConsultasRepository {
     usuarioAuditoria,
   }: {
     id: string
-    datosDto: Partial<Consultas>
+    datosDto: Partial<Cita>
     usuarioAuditoria: string
   }) {
-    const datosActualizar = new Consultas({
+    const datosActualizar = new Cita({
       ...datosDto,
       usuarioModificacion: usuarioAuditoria,
     })
-    return await this.dataSource
-      .getRepository(Consultas)
-      .update(id, datosActualizar)
+    return await this.dataSource.getRepository(Cita).update(id, datosActualizar)
   }
 
   async crear({
-    idMedico,
-    idPaciente,
+    data,
     usuarioAuditoria,
+    transaccion,
   }: {
-    idMedico: string
-    idPaciente: string
+    data: CrearCitaDto
     usuarioAuditoria: string
+    transaccion: EntityManager
   }) {
-    const consultas = new Consultas({
+    const { idMedico, idPaciente, detalle, fechaFin, fechaInicio } = data
+    const consultas = new Cita({
       idMedico,
       idPaciente,
+      detalle,
+      fechaFin,
+      fechaInicio,
       usuarioCreacion: usuarioAuditoria,
     })
-    return await this.dataSource.getRepository(Consultas).save(consultas)
+    return await transaccion.getRepository(Cita).save(consultas)
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {
