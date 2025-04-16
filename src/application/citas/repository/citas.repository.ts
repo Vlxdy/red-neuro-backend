@@ -7,8 +7,8 @@ import { CrearCitaDto } from '../dto/citas.dto'
 export class CitasRepository {
   constructor(private dataSource: DataSource) {}
 
-  async buscarPorId(id: string) {
-    return await this.dataSource
+  async buscarPorId(id: string, transaccion?: EntityManager) {
+    return await (transaccion || this.dataSource)
       .getRepository(Cita)
       .createQueryBuilder('citas')
       .where({ id })

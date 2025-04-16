@@ -1,5 +1,5 @@
 import { BaseService } from '@/common/base/base-service'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { UsuariosRegistradosService } from '@/application/usuarios-registrado/service/usuarios-registrados.service'
 import { CitasRepository } from '../repository/citas.repository'
@@ -43,5 +43,13 @@ export class CitasService extends BaseService {
       transaccion,
     })
     return { id: asignacion.id }
+  }
+
+  async buscarPorId(id: string, transaccion?: EntityManager) {
+    const cita = await this.citasRepositorio.buscarPorId(id, transaccion)
+    if (!cita) {
+      throw new NotFoundException('Cita no encontrada')
+    }
+    return cita
   }
 }

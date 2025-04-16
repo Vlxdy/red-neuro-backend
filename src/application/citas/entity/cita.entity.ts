@@ -6,12 +6,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { CitasEstado } from '../constant'
+import { EvaluacionNutricional } from '@/application/citas/entity/evaluacion.entity'
 
 dotenv.config()
 
@@ -78,6 +80,9 @@ export class Cita extends AuditoriaEntity {
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
   paciente: UsuarioRol
+
+  @OneToMany(() => EvaluacionNutricional, (evalucacion) => evalucacion.cita)
+  evaluacion: EvaluacionNutricional[]
 
   @BeforeInsert()
   insertarEstado() {
