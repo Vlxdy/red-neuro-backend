@@ -16,28 +16,32 @@ export class CitasService extends BaseService {
   }
 
   async crearCita(
+    idMedico: string,
     data: CrearCitaDto,
     usuarioAuditoria: string,
     transaccion?: EntityManager
   ): Promise<{ id: string }> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.crearCita(data, usuarioAuditoria, nuevaTransaccion)
+        return await this.crearCita(
+          idMedico,
+          data,
+          usuarioAuditoria,
+          nuevaTransaccion
+        )
       }
 
       return await this.citasRepositorio.runTransaction(op)
     }
 
-    await this.usuariosRegistradosService.obtenerMedico(
-      data.idMedico,
-      transaccion
-    )
+    await this.usuariosRegistradosService.obtenerMedico(idMedico, transaccion)
     await this.usuariosRegistradosService.obtenerPaciente(
       data.idPaciente,
       transaccion
     )
 
     const asignacion = await this.citasRepositorio.crear({
+      idMedico,
       data,
       usuarioAuditoria,
       transaccion,

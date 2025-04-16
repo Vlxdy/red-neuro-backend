@@ -7,13 +7,13 @@ import {
 import { ApiProperty } from '@nestjs/swagger'
 
 export class CrearCitaDto {
-  @ApiProperty({
-    description: 'Clave foránea que referencia al medico idRolUsuario',
-    example: '2',
-  })
-  @IsNotEmpty()
-  @IsNumberString()
-  idMedico: string
+  // @ApiProperty({
+  //   description: 'Clave foránea que referencia al medico idRolUsuario',
+  //   example: '2',
+  // })
+  // @IsNotEmpty()
+  // @IsNumberString()
+  // idMedico: string
 
   @ApiProperty({
     description: 'Clave foránea que referencia al paciente idRolUsuario',

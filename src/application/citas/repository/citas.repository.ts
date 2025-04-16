@@ -32,15 +32,17 @@ export class CitasRepository {
   }
 
   async crear({
+    idMedico,
     data,
     usuarioAuditoria,
     transaccion,
   }: {
+    idMedico: string
     data: CrearCitaDto
     usuarioAuditoria: string
     transaccion: EntityManager
   }) {
-    const { idMedico, idPaciente, detalle, fechaFin, fechaInicio } = data
+    const { idPaciente, detalle, fechaFin, fechaInicio } = data
     const consultas = new Cita({
       idMedico,
       idPaciente,

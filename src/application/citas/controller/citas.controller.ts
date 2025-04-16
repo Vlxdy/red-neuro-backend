@@ -26,7 +26,12 @@ export class CitasController extends BaseController {
   @Post()
   async crearCita(@Body() data: CrearCitaDto, @Req() req: Request) {
     const usuarioAuditoria = this.getUser(req)
-    const respuesta = await this.citasService.crearCita(data, usuarioAuditoria)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const respuesta = await this.citasService.crearCita(
+      idUsuarioRol,
+      data,
+      usuarioAuditoria
+    )
     return this.successCreate(respuesta)
   }
 
