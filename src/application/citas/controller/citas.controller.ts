@@ -1,4 +1,12 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { BaseController } from '@/common/base'
@@ -9,6 +17,7 @@ import { CrearCitaDto } from '../dto/citas.dto'
 import { EvaluacionService } from '../service/evaluacion.service'
 import { CrearEvaluacionDto } from '../dto/evaluacion.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
+import { Request } from 'express'
 
 @ApiTags('Citas')
 @ApiBearerAuth()
@@ -49,6 +58,18 @@ export class CitasController extends BaseController {
       data,
       usuarioAuditoria
     )
+    return this.successCreate(respuesta)
+  }
+
+  @ApiOperation({ summary: 'API para listar citas medicas de un paciente' })
+  @Get()
+  async listarCitas(@Req() req: Request) {
+    const idRol = this.getRol(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const respuesta = await this.citasService.listarCitas({
+      idUsuarioRol,
+      idRol,
+    })
     return this.successCreate(respuesta)
   }
 }

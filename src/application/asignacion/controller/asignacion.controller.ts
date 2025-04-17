@@ -6,6 +6,7 @@ import { BaseController } from '@/common/base'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AsignacionService } from '../service/asignacion.service'
 import { CrearAsignacionDto } from '../dto/asignacion.dto'
+import { Request } from 'express'
 
 @ApiTags('Asignacion')
 @ApiBearerAuth()

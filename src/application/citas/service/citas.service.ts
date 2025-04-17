@@ -1,9 +1,16 @@
 import { BaseService } from '@/common/base/base-service'
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { UsuariosRegistradosService } from '@/application/usuarios-registrado/service/usuarios-registrados.service'
 import { CitasRepository } from '../repository/citas.repository'
 import { CrearCitaDto } from '../dto/citas.dto'
+import { RolEnumId } from '@/core/authorization/rol.enum'
+import { Cita } from '../entity/cita.entity'
 
 @Injectable()
 export class CitasService extends BaseService {
@@ -13,6 +20,30 @@ export class CitasService extends BaseService {
     private usuariosRegistradosService: UsuariosRegistradosService
   ) {
     super()
+  }
+
+  async listarCitas({
+    idUsuarioRol,
+    idRol,
+  }: {
+    idUsuarioRol: string
+    idRol: string
+  }) {
+    if (idRol === RolEnumId.PACIENTE) {
+      const [citas, cantidad] = await this.citasRepositorio.listarPorPaciente({
+        idUsuarioRol,
+      })
+      return [this.formatarCitas(citas), cantidad]
+    } else if (idRol === RolEnumId.NUTRICIONISTA) {
+      const [citas, cantidad] =
+        await this.citasRepositorio.listarPorNutricionista({
+          idUsuarioRol,
+        })
+      return [this.formatarCitas(citas), cantidad]
+    }
+    throw new ForbiddenException(
+      'No tiene permiso para acceder a esta información'
+    )
   }
 
   async crearCita(
@@ -55,5 +86,39 @@ export class CitasService extends BaseService {
       throw new NotFoundException('Cita no encontrada')
     }
     return cita
+  }
+
+  formatarCitas(citas: Cita[]) {
+    return citas.map((cita) => this.formatarRespuestaCita(cita))
+  }
+
+  formatarRespuestaCita(cita: Cita) {
+    return {
+      id: cita.id,
+      detalle: cita.detalle,
+      fechaInicio: cita.fechaInicio,
+      fechaFin: cita.fechaFin,
+      estado: cita.estado,
+      paciente: cita.paciente
+        ? {
+            id: cita.paciente.id,
+            nombres: cita.paciente.usuario.persona.nombres,
+            urlFoto: cita.paciente.usuario.urlFoto,
+            primerApellido: cita.paciente.usuario.persona.primerApellido,
+            segundoApellido: cita.paciente.usuario.persona.segundoApellido,
+            nroDocumento: cita.paciente.usuario.persona.nroDocumento,
+          }
+        : null,
+      medico: cita.medico
+        ? {
+            id: cita.medico.id,
+            nombres: cita.medico.usuario.persona.nombres,
+            urlFoto: cita.medico.usuario.urlFoto,
+            primerApellido: cita.medico.usuario.persona.primerApellido,
+            segundoApellido: cita.medico.usuario.persona.segundoApellido,
+            nroDocumento: cita.medico.usuario.persona.nroDocumento,
+          }
+        : null,
+    }
   }
 }
