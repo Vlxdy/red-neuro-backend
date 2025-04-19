@@ -197,7 +197,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.NUTRICIONISTA]: 'GET|POST',
       },
       '/api/citas/:id': {
-        [RolEnum.NUTRICIONISTA]: 'PATCH|GET',
+        [RolEnum.NUTRICIONISTA]: 'PATCH|GET|DELETE',
       },
     }
 

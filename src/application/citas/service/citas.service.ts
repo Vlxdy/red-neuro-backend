@@ -8,7 +8,11 @@ import {
 import { EntityManager } from 'typeorm'
 import { UsuariosRegistradosService } from '@/application/usuarios-registrado/service/usuarios-registrados.service'
 import { CitasRepository } from '../repository/citas.repository'
-import { CrearCitaDto } from '../dto/citas.dto'
+import {
+  ActualizarCitaDto,
+  CrearCitaDto,
+  RespuestaCita,
+} from '../dto/citas.dto'
 import { RolEnumId } from '@/core/authorization/rol.enum'
 import { Cita } from '../entity/cita.entity'
 
@@ -80,6 +84,65 @@ export class CitasService extends BaseService {
     return { id: asignacion.id }
   }
 
+  async actualizarCita({
+    idCita,
+    data,
+    idMedico,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    idCita: string
+    idMedico: string
+    data: ActualizarCitaDto
+    usuarioAuditoria: string
+    transaccion?: EntityManager
+  }) {
+    if (!transaccion) {
+      const op = async (nuevaTransaccion: EntityManager) => {
+        return await this.actualizarCita({
+          idCita,
+          data,
+          idMedico,
+          usuarioAuditoria,
+          transaccion: nuevaTransaccion,
+        })
+      }
+
+      return await this.citasRepositorio.runTransaction(op)
+    }
+
+    const cita = await this.citasRepositorio.buscarPorId(idCita, transaccion)
+    if (!cita) {
+      throw new NotFoundException('Cita no encontrada')
+    }
+    if (idMedico !== cita.idMedico) {
+      throw new ForbiddenException(
+        'No tiene permiso para acceder a esta información'
+      )
+    }
+
+    const { idPaciente, detalle, fechaFin, fechaInicio } = data
+
+    if (idPaciente) {
+      await this.usuariosRegistradosService.obtenerPaciente(
+        idPaciente,
+        transaccion
+      )
+    }
+
+    const citaUpdate = await this.citasRepositorio.actualizar({
+      datosDto: {
+        idPaciente,
+        detalle,
+        fechaFin,
+        fechaInicio,
+      },
+      id: idCita,
+      usuarioAuditoria,
+    })
+    return citaUpdate
+  }
+
   async buscarPorId(id: string, transaccion?: EntityManager) {
     const cita = await this.citasRepositorio.buscarPorId(id, transaccion)
     if (!cita) {
@@ -92,7 +155,7 @@ export class CitasService extends BaseService {
     return citas.map((cita) => this.formatarRespuestaCita(cita))
   }
 
-  formatarRespuestaCita(cita: Cita) {
+  formatarRespuestaCita(cita: Cita): RespuestaCita {
     return {
       id: cita.id,
       detalle: cita.detalle,

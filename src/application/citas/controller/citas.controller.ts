@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -13,7 +14,7 @@ import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { CitasService } from '../service/citas.service'
-import { CrearCitaDto } from '../dto/citas.dto'
+import { ActualizarCitaDto, CrearCitaDto } from '../dto/citas.dto'
 import { EvaluacionService } from '../service/evaluacion.service'
 import { CrearEvaluacionDto } from '../dto/evaluacion.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
@@ -69,6 +70,25 @@ export class CitasController extends BaseController {
     const respuesta = await this.citasService.listarCitas({
       idUsuarioRol,
       idRol,
+    })
+    return this.successListRows(respuesta as any)
+  }
+
+  @ApiOperation({ summary: 'API para crear una evaluación nutricional' })
+  @Patch(':id')
+  async actualizarCita(
+    @Body() data: ActualizarCitaDto,
+    @Req() req: Request,
+    @Param() param: ParamIdDto
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const { id: idCita } = param
+    const respuesta = await this.citasService.actualizarCita({
+      data,
+      idCita,
+      idMedico: idUsuarioRol,
+      usuarioAuditoria,
     })
     return this.successCreate(respuesta)
   }
