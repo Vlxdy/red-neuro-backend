@@ -17,6 +17,7 @@ import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Asignacion } from '@/application/asignacion/entity/asignados.entity'
 import { Cita } from '@/application/citas/entity/cita.entity'
+import { PlanAlimentario } from '@/application/planes-alimentarios/entity'
 
 dotenv.config()
 
@@ -65,6 +66,15 @@ export class UsuarioRol extends AuditoriaEntity {
 
   @OneToMany(() => Asignacion, (asignacion) => asignacion.paciente)
   asignacionPacientes: Asignacion[]
+
+  @OneToMany(() => PlanAlimentario, (planAlimentario) => planAlimentario.medico)
+  planAlimentarioMedicos: PlanAlimentario[]
+
+  @OneToMany(
+    () => PlanAlimentario,
+    (planAlimentario) => planAlimentario.paciente
+  )
+  planAlimentarioPacientes: PlanAlimentario[]
 
   @Column({
     name: 'id_asignacion',
