@@ -4,3 +4,9 @@ export enum RolEnum {
   ADMINISTRADOR = 'ADMINISTRADOR',
   TODOS = '*',
 }
+
+export enum RolEnumId {
+  ADMINISTRADOR = '1',
+  NUTRICIONISTA = '2',
+  PACIENTE = '3',
+}

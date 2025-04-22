@@ -7,20 +7,19 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
     const frontendRoutes: CasbinValue = {
       '/admin/usuarios': {
         [RolEnum.ADMINISTRADOR]: 'read|update|create|delete',
-        [RolEnum.NUTRICIONISTA]: 'read',
       },
-      '/admin/parametros': {
-        [RolEnum.ADMINISTRADOR]: 'read|update|create',
-        [RolEnum.NUTRICIONISTA]: 'read',
-      },
+      // '/admin/parametros': {
+      //   [RolEnum.ADMINISTRADOR]: 'read|update|create',
+      //   [RolEnum.NUTRICIONISTA]: 'read',
+      // },
 
-      '/admin/modulos': {
-        [RolEnum.ADMINISTRADOR]: 'read|update|create',
-      },
+      // '/admin/modulos': {
+      //   [RolEnum.ADMINISTRADOR]: 'read|update|create',
+      // },
 
-      '/admin/politicas': {
-        [RolEnum.ADMINISTRADOR]: 'create|read|update|delete',
-      },
+      // '/admin/politicas': {
+      //   [RolEnum.ADMINISTRADOR]: 'create|read|update|delete',
+      // },
 
       '/admin/perfil': {
         [RolEnum.ADMINISTRADOR]: 'read|update',
@@ -33,8 +32,23 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.NUTRICIONISTA]: 'read',
         [RolEnum.PACIENTE]: 'read',
       },
-      '/admin/roles': {
+      // '/admin/roles': {
+      //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      // },
+      // '/admin/nutricionistas': {
+      //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      // },
+      '/admin/nutricionistas': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      },
+      '/admin/pacientes': {
+        [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      },
+      '/admin/citas-nutricionista': {
+        [RolEnum.NUTRICIONISTA]: 'read|create|update|delete',
+      },
+      '/admin/pacientes-asignados': {
+        [RolEnum.NUTRICIONISTA]: 'read|create|update|delete',
       },
     }
 
@@ -141,6 +155,49 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
 
       '/api/usuarios/cuenta/contrasena': {
         [RolEnum.TODOS]: 'PATCH',
+      },
+
+      // consultas
+      '/api/consultas': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+      },
+      // seguimiento
+      '/api/seguimiento': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+      },
+      // usuario registrados
+      '/api/usuarios-registrados/:rol': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      // usuario registrados
+      '/api/usuarios-registrados/medicos/:id/pacientes': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      '/api/usuarios-registrados/medicos/:id/pacientes-asignar': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      '/api/usuarios-registrados/medicos/:id/seguimiento': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/asignacion': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/usuarios-registrados/pacientes': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      // Pacientes asignados
+      '/api/usuarios-registrados/pacientes-asignados': {
+        [RolEnum.NUTRICIONISTA]: 'GET',
+      },
+      '/api/usuarios-registrados/pacientes-asignados/:id': {
+        [RolEnum.NUTRICIONISTA]: 'GET',
+      },
+      // citas
+      '/api/citas': {
+        [RolEnum.NUTRICIONISTA]: 'GET|POST',
+      },
+      '/api/citas/:id': {
+        [RolEnum.NUTRICIONISTA]: 'PATCH|GET|DELETE',
       },
     }
 

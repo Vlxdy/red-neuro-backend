@@ -5,6 +5,8 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { Rol } from './rol.entity'
@@ -13,6 +15,8 @@ import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
+import { Asignacion } from '@/application/asignacion/entity/asignados.entity'
+import { Cita } from '@/application/citas/entity/cita.entity'
 
 dotenv.config()
 
@@ -49,6 +53,30 @@ export class UsuarioRol extends AuditoriaEntity {
   @ManyToOne(() => Usuario, (usuario) => usuario.usuarioRol)
   @JoinColumn({ name: 'id_usuario', referencedColumnName: 'id' })
   usuario: Usuario
+
+  @OneToMany(() => Cita, (cita) => cita.paciente)
+  citasPaciente: Cita[]
+
+  @OneToMany(() => Cita, (cita) => cita.medico)
+  citasMedico: Cita[]
+
+  @OneToMany(() => Asignacion, (asignacion) => asignacion.medico)
+  asignacionMedicos: Asignacion[]
+
+  @OneToMany(() => Asignacion, (asignacion) => asignacion.paciente)
+  asignacionPacientes: Asignacion[]
+
+  @Column({
+    name: 'id_asignacion',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Clave foránea que referencia la tabla de asignacion',
+  })
+  idAsignacion: string
+
+  @OneToOne(() => Asignacion, (asignado) => asignado.pacienteAsignado)
+  @JoinColumn({ name: 'id_asignacion' })
+  asignacion: Asignacion
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)

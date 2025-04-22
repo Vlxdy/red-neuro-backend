@@ -41,7 +41,7 @@ export class Persona extends AuditoriaEntity {
     nullable: true,
     comment: 'Nombre de la persona',
   })
-  nombres?: string | null
+  nombres: string
 
   @Column({
     name: 'primer_apellido',

@@ -95,6 +95,7 @@ export class RefreshTokensService extends BaseService {
       roles,
       idRol: rol.idRol,
       rol: rol.rol,
+      idUsuarioRol: rol.idUsuarioRol,
     }
     const data = {
       access_token: this.jwtService.sign(payload),

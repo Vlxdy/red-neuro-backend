@@ -50,16 +50,6 @@ export class modulo1611497480901 implements MigrationInterface {
         },
         subMenus: [
           {
-            nombre: 'usuarios',
-            url: '/admin/usuarios',
-            label: 'Usuarios',
-            propiedades: {
-              icono: 'manage_accounts',
-              descripcion: 'Control de usuarios del sistema',
-              orden: 1,
-            },
-          },
-          {
             nombre: 'parametros',
             url: '/admin/parametros',
             label: 'Parámetros',
@@ -97,6 +87,78 @@ export class modulo1611497480901 implements MigrationInterface {
               icono: 'admin_panel_settings',
               descripcion: 'Control de roles para los usuarios',
               orden: 5,
+            },
+          },
+        ],
+      },
+      {
+        nombre: 'organizacion',
+        url: '/organizacion',
+        label: 'Organización',
+        propiedades: {
+          descripcion: 'Sección de configuraciones',
+          orden: 3,
+        },
+        subMenus: [
+          {
+            nombre: 'usuarios',
+            url: '/admin/usuarios',
+            label: 'Usuarios',
+            propiedades: {
+              icono: 'manage_accounts',
+              descripcion: 'Control de usuarios del sistema',
+              orden: 1,
+            },
+          },
+          {
+            nombre: 'nutricionistas',
+            url: '/admin/nutricionistas',
+            label: 'Nutricionistas',
+            propiedades: {
+              icono: 'assignment',
+              descripcion: 'Nutricionistas generales del sistema',
+              orden: 2,
+            },
+          },
+          {
+            nombre: 'pacientes',
+            url: '/admin/pacientes',
+            label: 'Pacientes',
+            propiedades: {
+              icono: 'supervisor_account',
+              descripcion: 'Pacientes generales del sistema',
+              orden: 3,
+            },
+          },
+        ],
+      },
+      {
+        nombre: 'seguimiento',
+        url: '/seguimiento',
+        label: 'Seguimiento',
+        propiedades: {
+          descripcion: 'Sección de configuraciones',
+          orden: 3,
+        },
+        subMenus: [
+          {
+            nombre: 'pacisntes-asignados',
+            url: '/admin/pacientes-asignados',
+            label: 'Pacientes asignados',
+            propiedades: {
+              icono: 'assignment_ind',
+              descripcion: 'Pacientes asignados al nutricionista',
+              orden: 1,
+            },
+          },
+          {
+            nombre: 'citas',
+            url: '/admin/citas-nutricionista',
+            label: 'Citas programadas',
+            propiedades: {
+              icono: 'event',
+              descripcion: 'Citas programadas por el nutricionista',
+              orden: 2,
             },
           },
         ],
