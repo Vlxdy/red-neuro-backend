@@ -15,9 +15,9 @@ import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
-import { Asignacion } from '@/application/asignacion/entity/asignados.entity'
-import { Cita } from '@/application/citas/entity/cita.entity'
+import { Asignacion } from '@/application/gestion-pacientes/entities/asignados.entity'
 import { PlanAlimentario } from '@/application/planes-alimentarios/entity'
+import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
 
 dotenv.config()
 

@@ -169,35 +169,32 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/usuarios-registrados/:rol': {
         [RolEnum.ADMINISTRADOR]: 'GET',
       },
-      // usuario registrados
-      '/api/usuarios-registrados/medicos/:id/pacientes': {
-        [RolEnum.ADMINISTRADOR]: 'GET',
-      },
-      '/api/usuarios-registrados/medicos/:id/pacientes-asignar': {
-        [RolEnum.ADMINISTRADOR]: 'GET',
-      },
-      '/api/usuarios-registrados/medicos/:id/seguimiento': {
-        [RolEnum.ADMINISTRADOR]: 'POST',
-      },
+
+      // Asignaciones (Pacientes asignados a medicos)
       '/api/asignacion': {
         [RolEnum.ADMINISTRADOR]: 'POST',
       },
-      '/api/usuarios-registrados/pacientes': {
+      // Medicos
+      '/api/medicos/:id/pacientes-por-asignar': {
         [RolEnum.ADMINISTRADOR]: 'GET',
       },
-      // Pacientes asignados
-      '/api/usuarios-registrados/pacientes-asignados': {
+      '/api/medicos/:id/pacientes': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      // Pacientes
+      '/api/pacientes/asignados': {
         [RolEnum.NUTRICIONISTA]: 'GET',
       },
-      '/api/usuarios-registrados/pacientes-asignados/:id': {
-        [RolEnum.NUTRICIONISTA]: 'GET',
-      },
+
       // citas
       '/api/citas': {
         [RolEnum.NUTRICIONISTA]: 'GET|POST',
       },
       '/api/citas/:id': {
         [RolEnum.NUTRICIONISTA]: 'PATCH|GET|DELETE',
+      },
+      '/api/citas/:id/evaluacion': {
+        [RolEnum.NUTRICIONISTA]: 'POST',
       },
     }
 
