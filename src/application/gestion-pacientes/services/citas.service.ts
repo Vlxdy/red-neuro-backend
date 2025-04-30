@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
-import { CitasRepository } from '../../gestion-pacientes/entities/citas.repository'
+import { CitasRepository } from '../repositories/citas.repository'
 import {
   ActualizarCitaDto,
   CrearCitaDto,

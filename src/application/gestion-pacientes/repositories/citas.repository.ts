@@ -1,7 +1,7 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { CrearCitaDto } from '../dto/citas.dto'
-import { Cita } from './cita.entity'
+import { Cita } from '../entities/cita.entity'
 
 @Injectable()
 export class CitasRepository {

@@ -1,7 +1,7 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { CrearEvaluacionDto } from '../dto/evaluacion.dto'
-import { EvaluacionNutricional } from './evaluacion.entity'
+import { EvaluacionNutricional } from '../entities/evaluacion.entity'
 
 @Injectable()
 export class EvaluacionRepository {
