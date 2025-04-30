@@ -14,3 +14,4 @@ ALTER ROLE postgres SET TIMEZONE TO 'America/La_Paz';
 CREATE SCHEMA proyecto;
 CREATE SCHEMA usuarios;
 CREATE SCHEMA parametricas;
+CREATE SCHEMA historicos;

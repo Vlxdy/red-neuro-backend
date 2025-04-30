@@ -14,6 +14,7 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { CitasEstado } from '../constant'
 import { EvaluacionNutricional } from './evaluacion.entity'
+import { CitaHistorico } from './cita-historico.entity'
 
 dotenv.config()
 
@@ -83,6 +84,9 @@ export class Cita extends AuditoriaEntity {
 
   @OneToMany(() => EvaluacionNutricional, (evalucacion) => evalucacion.cita)
   evaluacion: EvaluacionNutricional[]
+
+  @OneToMany(() => CitaHistorico, (citaHistorico) => citaHistorico.cita)
+  historicos: CitaHistorico[]
 
   @BeforeInsert()
   insertarEstado() {
