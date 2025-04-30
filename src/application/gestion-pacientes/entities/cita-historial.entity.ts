@@ -16,8 +16,8 @@ import { CitasEstado } from '../constant'
 dotenv.config()
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
-@Entity({ name: 'citas_hitoricos', schema: process.env.DB_SCHEMA_HISTORICOS })
-export class CitaHistorico extends AuditoriaEntity {
+@Entity({ name: 'historial_citas', schema: process.env.DB_SCHEMA_HISTORICOS })
+export class HistorialCita extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
@@ -33,7 +33,7 @@ export class CitaHistorico extends AuditoriaEntity {
   })
   idCita: string
 
-  @ManyToOne(() => Cita, (cita) => cita.historicos, {
+  @ManyToOne(() => Cita, (cita) => cita.historial, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_cita', referencedColumnName: 'id' })
@@ -44,7 +44,7 @@ export class CitaHistorico extends AuditoriaEntity {
     this.estado = this.estado || CitasEstado.PENDIENTE
   }
 
-  constructor(data?: Partial<CitaHistorico>) {
+  constructor(data?: Partial<HistorialCita>) {
     super(data)
   }
 }
