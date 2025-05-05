@@ -16,6 +16,7 @@ import {
 import { RolEnumId } from '@/core/authorization/rol.enum'
 import { MedicosService } from './medicos.service'
 import { Cita } from '../entities/cita.entity'
+import { CitasEstado } from '../constant'
 
 @Injectable()
 export class CitasService extends BaseService {
@@ -120,7 +121,7 @@ export class CitasService extends BaseService {
       )
     }
 
-    const { idPaciente, detalle, fechaFin, fechaInicio } = data
+    const { idPaciente, detalle, fechaFin, fechaInicio, estado } = data
 
     if (idPaciente) {
       await this.pacientesService.obtenerPaciente(idPaciente, transaccion)
@@ -130,11 +131,13 @@ export class CitasService extends BaseService {
       datosDto: {
         idPaciente,
         detalle,
+        estado,
         fechaFin,
         fechaInicio,
       },
       id: idCita,
       usuarioAuditoria,
+      transaccion,
     })
     return citaUpdate
   }
@@ -145,6 +148,48 @@ export class CitasService extends BaseService {
       throw new NotFoundException('Cita no encontrada')
     }
     return cita
+  }
+
+  async eliminarCita({
+    id,
+    idMedico,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    id: string
+    idMedico: string
+    usuarioAuditoria: string
+    transaccion?: EntityManager
+  }): Promise<void> {
+    if (!transaccion) {
+      const op = async (nuevaTransaccion: EntityManager) => {
+        return await this.eliminarCita({
+          id,
+          idMedico,
+          usuarioAuditoria,
+          transaccion: nuevaTransaccion,
+        })
+      }
+
+      return await this.citasRepositorio.runTransaction(op)
+    }
+
+    const cita = await this.citasRepositorio.buscarPorId(id, transaccion)
+    if (!cita) {
+      throw new NotFoundException('Cita no encontrada')
+    }
+    if (idMedico !== cita.idMedico) {
+      throw new ForbiddenException(
+        'No tiene permiso para acceder a esta información'
+      )
+    }
+    await this.citasRepositorio.actualizar({
+      datosDto: {
+        estado: CitasEstado.INACTIVO,
+      },
+      id,
+      usuarioAuditoria: idMedico,
+    })
   }
 
   formatarCitas(citas: Cita[]) {

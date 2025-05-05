@@ -2,6 +2,7 @@ import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { CrearCitaDto } from '../dto/citas.dto'
 import { Cita } from '../entities/cita.entity'
+import { CitasEstado } from '../constant'
 
 @Injectable()
 export class CitasRepository {
@@ -19,16 +20,20 @@ export class CitasRepository {
     id,
     datosDto,
     usuarioAuditoria,
+    transaccion,
   }: {
     id: string
     datosDto: Partial<Cita>
     usuarioAuditoria: string
+    transaccion?: EntityManager
   }) {
     const datosActualizar = new Cita({
       ...datosDto,
       usuarioModificacion: usuarioAuditoria,
     })
-    return await this.dataSource.getRepository(Cita).update(id, datosActualizar)
+    return await (transaccion || this.dataSource)
+      .getRepository(Cita)
+      .update(id, datosActualizar)
   }
 
   async crear({
@@ -76,6 +81,7 @@ export class CitasRepository {
         'persona.nroDocumento',
       ])
       .where({ idPaciente: idUsuarioRol })
+      .andWhere('citas.estado != :estado', { estado: CitasEstado.INACTIVO })
       .getManyAndCount()
   }
 
@@ -101,6 +107,7 @@ export class CitasRepository {
         'persona.nroDocumento',
       ])
       .where({ idMedico: idUsuarioRol })
+      .andWhere('citas.estado != :estado', { estado: CitasEstado.INACTIVO })
       .getManyAndCount()
   }
 

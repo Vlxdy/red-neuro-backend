@@ -1,11 +1,13 @@
 import {
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsNumberString,
   IsOptional,
   IsString,
 } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
+import { CitasEstado } from '../constant'
 
 export class CrearCitaDto {
   // @ApiProperty({
@@ -85,6 +87,16 @@ export class ActualizarCitaDto {
   @IsString()
   @IsOptional()
   detalle?: string
+
+  @ApiProperty({
+    description: 'Estado de la cita',
+    example: 'PENDIENTE',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsEnum(CitasEstado)
+  @IsOptional()
+  estado?: CitasEstado
 }
 
 export interface RespuestaCita {

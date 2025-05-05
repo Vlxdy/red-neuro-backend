@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -91,5 +92,19 @@ export class CitasController extends BaseController {
       usuarioAuditoria,
     })
     return this.successCreate(respuesta)
+  }
+
+  @ApiOperation({ summary: 'API para eliminar una cita' })
+  @Delete(':id')
+  async eliminarCita(@Param() param: ParamIdDto, @Req() req: Request) {
+    const usuarioAuditoria = this.getUser(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const { id: idCita } = param
+    const respuesta = await this.citasService.eliminarCita({
+      id: idCita,
+      idMedico: idUsuarioRol,
+      usuarioAuditoria,
+    })
+    return this.successDelete(respuesta)
   }
 }
