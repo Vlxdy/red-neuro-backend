@@ -14,7 +14,7 @@ import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ActualizarCitaDto, CrearCitaDto } from '../dto/citas.dto'
-import { CrearEvaluacionDto } from '../dto/evaluacion.dto'
+import { CrearEvaluacionDto } from '../../historial-medico/dtos/evaluacion.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CitasService } from '../services/citas.service'

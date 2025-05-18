@@ -1,6 +1,6 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
-import { CrearEvaluacionDto } from '../../gestion-pacientes/dto/evaluacion.dto'
+import { CrearEvaluacionDto } from '../dtos/evaluacion.dto'
 import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 
 @Injectable()
@@ -44,11 +44,10 @@ export class EvaluacionNutricionalRepository {
     usuarioAuditoria: string
     transaccion: EntityManager
   }) {
-    const { diagnostico, fecha, imc, peso, talla } = data
+    const { diagnostico, imc, peso, talla } = data
     const consultas = new EvaluacionNutricional({
       idHistorialMedico,
       diagnostico,
-      fecha,
       imc,
       peso,
       talla,

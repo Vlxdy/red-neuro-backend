@@ -26,14 +26,6 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   id: string
 
   @Column({
-    name: 'fecha',
-    type: 'timestamp without time zone',
-    nullable: true,
-    comment: 'Fecha y hora de inicio de la cita',
-  })
-  fecha?: Date | null
-
-  @Column({
     name: 'peso',
     type: 'numeric',
     precision: 5,

@@ -1,7 +1,7 @@
 import { BaseService } from '@/common/base/base-service'
 import { Injectable } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
-import { CrearEvaluacionDto } from '../../gestion-pacientes/dto/evaluacion.dto'
+import { CrearEvaluacionDto } from '../dtos/evaluacion.dto'
 import { EvaluacionNutricionalRepository } from '../entities/evaluacion-nutricional.repository'
 
 @Injectable()

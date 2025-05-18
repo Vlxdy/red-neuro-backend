@@ -10,6 +10,7 @@ import {
 } from '@/common/validation'
 import { ApiProperty } from '@nestjs/swagger'
 import { Validate } from 'class-validator'
+import { CrearEvaluacionDto } from './evaluacion.dto'
 
 export class ArchivoAdjuntoDto {
   @ApiProperty({
@@ -168,4 +169,14 @@ export class CrearHistorialMedicoDto {
   @ArrayMinSize(1)
   @Validate(ExamenesSolicitadosDto, { each: true })
   examenes: Array<ExamenesSolicitadosDto>
+
+  @ApiProperty({
+    description: 'Evaluaciones nutricionales del paciente',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
+  @Validate(CrearEvaluacionDto, { each: true })
+  evaluacionesNutricionales: Array<CrearEvaluacionDto>
 }

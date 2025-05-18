@@ -7,6 +7,7 @@ import { MedicosService } from '@/application/gestion-pacientes/services/medicos
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
 import { ArchivoAdjuntoService } from './archivo-adjunto.service'
 import { ExamenSolicitadoService } from './examen-solicitado.service'
+import { EvaluacionNutricionalService } from './evaluacion-nutricional.service'
 
 @Injectable()
 export class HistorialMedicoService extends BaseService {
@@ -15,7 +16,8 @@ export class HistorialMedicoService extends BaseService {
     private readonly medicosService: MedicosService,
     private readonly pacienteService: PacientesService,
     private readonly archivoAdjuntoRepository: ArchivoAdjuntoService,
-    private readonly examenSolicitadoService: ExamenSolicitadoService
+    private readonly examenSolicitadoService: ExamenSolicitadoService,
+    private readonly evaluacionNutricionalService: EvaluacionNutricionalService
   ) {
     super()
   }
@@ -62,7 +64,7 @@ export class HistorialMedicoService extends BaseService {
         transaccion,
       })
 
-    const { archivos, examenes } = data
+    const { archivos, examenes, evaluacionesNutricionales } = data
 
     if (archivos) {
       for (const archivo of archivos) {
@@ -82,6 +84,16 @@ export class HistorialMedicoService extends BaseService {
           usuarioAuditoria,
           transaccion,
         })
+      }
+    }
+    if (evaluacionesNutricionales) {
+      for (const evaluacion of evaluacionesNutricionales) {
+        await this.evaluacionNutricionalService.crearEvaluacion(
+          historialMedico.id,
+          evaluacion,
+          usuarioAuditoria,
+          transaccion
+        )
       }
     }
   }
