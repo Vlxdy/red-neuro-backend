@@ -9,10 +9,15 @@ export class FileService {
 
   constructor(private configService: ConfigService) {
     const configuredPath = this.configService.get<string>('STORAGE_NFS_PATH')
+
     if (!configuredPath) {
       throw new Error('STORAGE_NFS_PATH no está definido en la configuración')
     }
-    this.storagePath = configuredPath
+
+    // Asegura que la ruta sea absoluta
+    this.storagePath = path.isAbsolute(configuredPath)
+      ? configuredPath
+      : path.resolve(configuredPath)
   }
 
   async getProfilePhotoPath(filename: string): Promise<string | null> {
@@ -22,8 +27,9 @@ export class FileService {
       'profile-photos',
       filename
     )
+
     try {
-      await fs.access(filePath)
+      await fs.access(filePath) // Verifica que el archivo existe
       return filePath
     } catch {
       return null
