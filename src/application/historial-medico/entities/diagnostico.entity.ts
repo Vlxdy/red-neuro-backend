@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  BeforeInsert,
+} from 'typeorm'
 import { HistorialMedico } from './historial-medico.entity'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
+import { Status } from '@/common/constants'
 // TODO: Revisar si esn ecesario usar esta entidad
 @Entity({ name: 'diagnosticos', schema: process.env.DB_SCHEMA })
 export class Diagnostico extends AuditoriaEntity {
@@ -18,5 +25,9 @@ export class Diagnostico extends AuditoriaEntity {
 
   constructor(data?: Partial<Diagnostico>) {
     super(data)
+  }
+  @BeforeInsert()
+  insertarEstado() {
+    this.estado = this.estado || Status.ACTIVE
   }
 }

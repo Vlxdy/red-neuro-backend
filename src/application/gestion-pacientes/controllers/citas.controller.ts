@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
-import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
@@ -19,16 +18,20 @@ import { CrearEvaluacionDto } from '../dto/evaluacion.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CitasService } from '../services/citas.service'
-import { EvaluacionService } from '../services/evaluacion.service'
+import { HistorialMedicoService } from '@/application/historial-medico/services/historial-medico.service'
+import { CrearHistorialMedicoDto } from '@/application/historial-medico/dtos/historial-medico.dto'
+import { EvaluacionNutricionalService } from '@/application/historial-medico/services/evaluacion-nutricional.service'
 
 @ApiTags('Citas')
 @ApiBearerAuth()
 @Controller('citas')
-@UseGuards(JwtAuthGuard, CasbinGuard)
+// @UseGuards(JwtAuthGuard, CasbinGuard)
+@UseGuards(JwtAuthGuard)
 export class CitasController extends BaseController {
   constructor(
     private citasService: CitasService,
-    private evaluacionService: EvaluacionService
+    private evaluacionService: EvaluacionNutricionalService,
+    private readonly historialMedicoService: HistorialMedicoService
   ) {
     super()
   }
@@ -106,5 +109,23 @@ export class CitasController extends BaseController {
       usuarioAuditoria,
     })
     return this.successDelete(respuesta)
+  }
+
+  @ApiOperation({ summary: 'API para crear historial médico' })
+  @Post(':id/historial-medico')
+  async crearHistorialMedico(
+    @Body() data: CrearHistorialMedicoDto,
+    @Param() param: ParamIdDto,
+    @Req() req: Request
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const { id: idCita } = param
+    const respuesta = await this.historialMedicoService.crearHistorialMedico({
+      idCita,
+      idMedico: this.getUsuarioRol(req),
+      data,
+      usuarioAuditoria,
+    })
+    return this.successCreate(respuesta)
   }
 }

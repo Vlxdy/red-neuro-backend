@@ -4,9 +4,11 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm'
 import { HistorialMedico } from './historial-medico.entity'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
+import { Status } from '@/common/constants'
 
 @Entity({ name: 'examenes_solicitados', schema: process.env.DB_SCHEMA })
 export class ExamenSolicitado extends AuditoriaEntity {
@@ -47,5 +49,9 @@ export class ExamenSolicitado extends AuditoriaEntity {
 
   constructor(data?: Partial<ExamenSolicitado>) {
     super(data)
+  }
+  @BeforeInsert()
+  insertarEstado() {
+    this.estado = this.estado || Status.ACTIVE
   }
 }

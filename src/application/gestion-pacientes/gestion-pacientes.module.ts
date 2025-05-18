@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { PacientesController } from './controllers/pacientes.controller'
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
 import { MedicosService } from './services/medicos.service'
@@ -8,23 +8,21 @@ import { AsignacionRepository } from './repositories/asignacion.repository'
 import { AsignacionService } from './services/asignacion.service'
 import { CitasRepository } from './repositories/citas.repository'
 import { CitasService } from './services/citas.service'
-import { EvaluacionService } from './services/evaluacion.service'
-import { EvaluacionRepository } from './repositories/evaluacion.repository'
 import { MedicosController } from './controllers/medicos.controller'
 import { AsignacionesController } from './controllers/asignacion.controller'
 import { CitasController } from './controllers/citas.controller'
 import { UsuariosRegistradosController } from './controllers/usuarios-registrados.controller'
-import { EvaluacionesController } from './controllers/evaluacion.controller'
 import { UsuariosRegistradosService } from './services/usuarios-registrados.service'
+import { HistorialMedicoModule } from '../historial-medico/historial-medico.module'
 
 @Module({
+  imports: [forwardRef(() => HistorialMedicoModule)],
   controllers: [
     PacientesController,
     MedicosController,
     AsignacionesController,
     CitasController,
     UsuariosRegistradosController,
-    EvaluacionesController,
   ],
   providers: [
     PacientesService,
@@ -36,8 +34,6 @@ import { UsuariosRegistradosService } from './services/usuarios-registrados.serv
     AsignacionService,
     CitasRepository,
     CitasService,
-    EvaluacionService,
-    EvaluacionRepository,
   ],
   exports: [PacientesService, MedicosService],
 })

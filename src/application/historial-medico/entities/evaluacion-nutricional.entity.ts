@@ -4,13 +4,14 @@ import {
   Check,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
-import { EvaluacionNutricionalEstado } from '../constant'
-import { Cita } from './cita.entity'
+import { EvaluacionNutricionalEstado } from '../../gestion-pacientes/constant'
+import { HistorialMedico } from './historial-medico.entity'
 
 dotenv.config()
 
@@ -47,6 +48,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
     type: 'numeric',
     precision: 4,
     scale: 2,
+    nullable: true,
     comment: 'Talla del paciente',
   })
   talla?: number
@@ -97,18 +99,30 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   // @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
   // paciente: UsuarioRol
 
+  // @Column({
+  //   name: 'id_cita',
+  //   type: 'bigint',
+  //   nullable: false,
+  //   comment: 'Clave foránea que referencia a la cita',
+  // })
+  // idCita: string
+
+  // @ManyToOne(() => Cita, (cita) => cita.evaluacion, {
+  //   onDelete: 'CASCADE',
+  // })
+  // cita: Cita
+
   @Column({
-    name: 'id_cita',
+    name: 'id_historial_medico',
     type: 'bigint',
     nullable: false,
-    comment: 'Clave foránea que referencia a la cita',
+    comment: 'Identificador del historial médico asociado',
   })
-  idCita: string
+  idHistorialMedico: string
 
-  @ManyToOne(() => Cita, (cita) => cita.evaluacion, {
-    onDelete: 'CASCADE',
-  })
-  cita: Cita
+  @ManyToOne(() => HistorialMedico, (historial) => historial.archivos)
+  @JoinColumn({ name: 'id_historial_medico' })
+  historialMedico: HistorialMedico
 
   @BeforeInsert()
   insertarEstado() {

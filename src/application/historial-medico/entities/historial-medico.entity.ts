@@ -8,11 +8,14 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm'
 import { Diagnostico } from './diagnostico.entity'
 import { ExamenSolicitado } from './examen-solicitado.entity'
 import { TratamientoRecetado } from './tratamiento-recetado.entity'
 import { ArchivoAdjunto } from './archivos-adjunto.entity'
+import { Status } from '@/common/constants'
+import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 
 @Entity({ name: 'historial_medico', schema: process.env.DB_SCHEMA })
 export class HistorialMedico extends AuditoriaEntity {
@@ -26,7 +29,7 @@ export class HistorialMedico extends AuditoriaEntity {
   @Column({
     name: 'motivo_consulta',
     type: 'text',
-    nullable: false,
+    nullable: true,
     comment: 'Motivo de la consulta médica',
   })
   motivoConsulta: string
@@ -50,7 +53,7 @@ export class HistorialMedico extends AuditoriaEntity {
   @Column({
     name: 'sintomas',
     type: 'text',
-    nullable: false,
+    nullable: true,
     comment: 'Descripción de los síntomas del paciente',
   })
   sintomas: string
@@ -134,5 +137,16 @@ export class HistorialMedico extends AuditoriaEntity {
 
   constructor(data?: Partial<HistorialMedico>) {
     super(data)
+  }
+
+  @OneToMany(
+    () => EvaluacionNutricional,
+    (evalucacionNutricional) => evalucacionNutricional.historialMedico
+  )
+  evaluacionNutricional: EvaluacionNutricional[]
+
+  @BeforeInsert()
+  insertarEstado() {
+    this.estado = this.estado || Status.ACTIVE
   }
 }

@@ -1,10 +1,10 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
-import { CrearEvaluacionDto } from '../dto/evaluacion.dto'
-import { EvaluacionNutricional } from '../entities/evaluacion.entity'
+import { CrearEvaluacionDto } from '../../gestion-pacientes/dto/evaluacion.dto'
+import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 
 @Injectable()
-export class EvaluacionRepository {
+export class EvaluacionNutricionalRepository {
   constructor(private dataSource: DataSource) {}
 
   async buscarPorId(id: string) {
@@ -34,19 +34,19 @@ export class EvaluacionRepository {
   }
 
   async crear({
-    idCita,
+    idHistorialMedico,
     data,
     usuarioAuditoria,
     transaccion,
   }: {
-    idCita: string
+    idHistorialMedico: string
     data: CrearEvaluacionDto
     usuarioAuditoria: string
     transaccion: EntityManager
   }) {
     const { diagnostico, fecha, imc, peso, talla } = data
     const consultas = new EvaluacionNutricional({
-      idCita,
+      idHistorialMedico,
       diagnostico,
       fecha,
       imc,

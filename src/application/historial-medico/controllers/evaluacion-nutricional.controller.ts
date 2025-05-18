@@ -4,14 +4,14 @@ import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { EvaluacionService } from '../services/evaluacion.service'
+import { EvaluacionNutricionalService } from '../services/evaluacion-nutricional.service'
 
 @ApiTags('Evaluaciones')
 @ApiBearerAuth()
 @Controller('evaluaciones')
 @UseGuards(JwtAuthGuard, CasbinGuard)
 export class EvaluacionesController extends BaseController {
-  constructor(private citasService: EvaluacionService) {
+  constructor(private citasService: EvaluacionNutricionalService) {
     super()
   }
 

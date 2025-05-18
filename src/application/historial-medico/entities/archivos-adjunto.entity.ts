@@ -4,9 +4,11 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm'
 import { HistorialMedico } from './historial-medico.entity'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
+import { Status } from '@/common/constants'
 
 @Entity({ name: 'archivos_adjuntos', schema: process.env.DB_SCHEMA })
 export class ArchivoAdjunto extends AuditoriaEntity {
@@ -28,7 +30,7 @@ export class ArchivoAdjunto extends AuditoriaEntity {
   @Column({
     name: 'codigo',
     type: 'text',
-    nullable: false,
+    nullable: true,
     comment: 'Código único del archivo adjunto',
   })
   codigo: string
@@ -40,6 +42,14 @@ export class ArchivoAdjunto extends AuditoriaEntity {
     comment: 'Tipo de archivo adjunto (ejemplo: imagen, documento)',
   })
   tipoArchivo: string
+
+  @Column({
+    name: 'contenido_base64',
+    type: 'text',
+    nullable: true,
+    comment: 'Contenido del archivo en formato base64',
+  })
+  contenidoBase64: string // sin prefijo: solo el base64 puro
 
   @Column({
     name: 'id_historial_medico',
@@ -55,5 +65,9 @@ export class ArchivoAdjunto extends AuditoriaEntity {
 
   constructor(data?: Partial<ArchivoAdjunto>) {
     super(data)
+  }
+  @BeforeInsert()
+  insertarEstado() {
+    this.estado = this.estado || Status.ACTIVE
   }
 }
