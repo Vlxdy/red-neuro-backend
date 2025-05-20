@@ -11,12 +11,12 @@ export class ArchivoAdjuntoService extends BaseService {
   }
 
   async crearArchivo({
-    idHistorialMedico,
+    idHistoriaClinica,
     data,
     usuarioAuditoria,
     transaccion,
   }: {
-    idHistorialMedico: string
+    idHistoriaClinica: string
     data: ArchivoAdjuntoDto
     usuarioAuditoria: string
     transaccion?: EntityManager
@@ -24,7 +24,7 @@ export class ArchivoAdjuntoService extends BaseService {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
         return await this.crearArchivo({
-          idHistorialMedico,
+          idHistoriaClinica,
           data,
           usuarioAuditoria,
           transaccion: nuevaTransaccion,
@@ -34,7 +34,7 @@ export class ArchivoAdjuntoService extends BaseService {
     }
 
     const archivoAdjunto = await this.archivoRepository.crearArchivo({
-      idHistorialMedico,
+      idHistoriaClinica,
       data,
       usuarioAuditoria,
       transaccion,

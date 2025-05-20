@@ -6,11 +6,14 @@ import {
   JoinColumn,
   BeforeInsert,
 } from 'typeorm'
-import { HistorialMedico } from './historial-medico.entity'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Status } from '@/common/constants'
+import { HistoriaClinica } from './historia-clinica.entity'
 
-@Entity({ name: 'archivos_adjuntos', schema: process.env.DB_SCHEMA })
+@Entity({
+  name: 'archivos_adjuntos',
+  schema: process.env.DB_SCHEMA_HISTORIA_CLINICA,
+})
 export class ArchivoAdjunto extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
@@ -52,16 +55,16 @@ export class ArchivoAdjunto extends AuditoriaEntity {
   contenidoBase64: string // sin prefijo: solo el base64 puro
 
   @Column({
-    name: 'id_historial_medico',
+    name: 'id_historia_clinica',
     type: 'bigint',
     nullable: false,
-    comment: 'Identificador del historial médico asociado',
+    comment: 'Identificador del historia clínica asociado',
   })
-  idHistorialMedico: string
+  idHistoriaClinica: string
 
-  @ManyToOne(() => HistorialMedico, (historial) => historial.archivos)
-  @JoinColumn({ name: 'id_historial_medico' })
-  historialMedico: HistorialMedico
+  @ManyToOne(() => HistoriaClinica, (historial) => historial.archivos)
+  @JoinColumn({ name: 'id_historia_clinica' })
+  historiaClinica: HistoriaClinica
 
   constructor(data?: Partial<ArchivoAdjunto>) {
     super(data)

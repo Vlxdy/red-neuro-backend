@@ -14,13 +14,13 @@ import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ActualizarCitaDto, CrearCitaDto } from '../dto/citas.dto'
-import { CrearEvaluacionDto } from '../../historial-medico/dtos/evaluacion.dto'
+import { CrearEvaluacionDto } from '../../historia-clinica/dtos/evaluacion.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CitasService } from '../services/citas.service'
-import { HistorialMedicoService } from '@/application/historial-medico/services/historial-medico.service'
-import { CrearHistorialMedicoDto } from '@/application/historial-medico/dtos/historial-medico.dto'
-import { EvaluacionNutricionalService } from '@/application/historial-medico/services/evaluacion-nutricional.service'
+import { HistorialMedicoService } from '@/application/historia-clinica/services/historial-medico.service'
+import { CrearHistorialMedicoDto } from '@/application/historia-clinica/dtos/historial-medico.dto'
+import { EvaluacionNutricionalService } from '@/application/historia-clinica/services/evaluacion-nutricional.service'
 
 @ApiTags('Citas')
 @ApiBearerAuth()

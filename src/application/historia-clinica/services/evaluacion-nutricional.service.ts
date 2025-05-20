@@ -2,7 +2,7 @@ import { BaseService } from '@/common/base/base-service'
 import { Injectable } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { CrearEvaluacionDto } from '../dtos/evaluacion.dto'
-import { EvaluacionNutricionalRepository } from '../entities/evaluacion-nutricional.repository'
+import { EvaluacionNutricionalRepository } from '../repositories/evaluacion-nutricional.repository'
 
 @Injectable()
 export class EvaluacionNutricionalService extends BaseService {
@@ -13,7 +13,7 @@ export class EvaluacionNutricionalService extends BaseService {
   }
 
   async crearEvaluacion(
-    idHistorialMedico: string,
+    idHistoriaClinica: string,
     data: CrearEvaluacionDto,
     usuarioAuditoria: string,
     transaccion?: EntityManager
@@ -21,7 +21,7 @@ export class EvaluacionNutricionalService extends BaseService {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
         return await this.crearEvaluacion(
-          idHistorialMedico,
+          idHistoriaClinica,
           data,
           usuarioAuditoria,
           nuevaTransaccion
@@ -32,7 +32,7 @@ export class EvaluacionNutricionalService extends BaseService {
     }
 
     const evaluacion = await this.evaluacionNutricionalRepositorio.crear({
-      idHistorialMedico,
+      idHistoriaClinica,
       data,
       usuarioAuditoria,
       transaccion,

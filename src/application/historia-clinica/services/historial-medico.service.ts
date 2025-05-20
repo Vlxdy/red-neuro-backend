@@ -6,7 +6,6 @@ import { HistorialMedicoRepository } from '../repositories/historial-medico.repo
 import { MedicosService } from '@/application/gestion-pacientes/services/medicos.service'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
 import { ArchivoAdjuntoService } from './archivo-adjunto.service'
-import { ExamenSolicitadoService } from './examen-solicitado.service'
 import { EvaluacionNutricionalService } from './evaluacion-nutricional.service'
 
 @Injectable()
@@ -16,7 +15,6 @@ export class HistorialMedicoService extends BaseService {
     private readonly medicosService: MedicosService,
     private readonly pacienteService: PacientesService,
     private readonly archivoAdjuntoRepository: ArchivoAdjuntoService,
-    private readonly examenSolicitadoService: ExamenSolicitadoService,
     private readonly evaluacionNutricionalService: EvaluacionNutricionalService
   ) {
     super()
@@ -58,34 +56,25 @@ export class HistorialMedicoService extends BaseService {
     const historialMedico =
       await this.historialMedicoRepository.crearHistorialMedico({
         idMedico,
-        idCita,
+
         data,
         usuarioAuditoria,
         transaccion,
       })
 
-    const { archivos, examenes, evaluacionesNutricionales } = data
+    const { archivos, evaluacionesNutricionales } = data
 
     if (archivos) {
       for (const archivo of archivos) {
         await this.archivoAdjuntoRepository.crearArchivo({
-          idHistorialMedico: historialMedico.id,
+          idHistoriaClinica: historialMedico.id,
           data: archivo,
           usuarioAuditoria,
           transaccion,
         })
       }
     }
-    if (examenes) {
-      for (const examen of examenes) {
-        await this.examenSolicitadoService.crearExamenSolicitado({
-          idHistorialMedico: historialMedico.id,
-          data: examen,
-          usuarioAuditoria,
-          transaccion,
-        })
-      }
-    }
+
     if (evaluacionesNutricionales) {
       for (const evaluacion of evaluacionesNutricionales) {
         await this.evaluacionNutricionalService.crearEvaluacion(

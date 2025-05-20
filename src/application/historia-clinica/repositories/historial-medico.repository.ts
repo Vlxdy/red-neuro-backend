@@ -1,7 +1,7 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
-import { HistorialMedico } from '../entities/historial-medico.entity'
 import { CrearHistorialMedicoDto } from '../dtos/historial-medico.dto'
+import { HistoriaClinica } from '../entities/historia-clinica.entity'
 
 @Injectable()
 export class HistorialMedicoRepository {
@@ -9,43 +9,31 @@ export class HistorialMedicoRepository {
 
   async crearHistorialMedico({
     idMedico,
-    idCita,
     usuarioAuditoria,
     data,
     transaccion,
   }: {
     idMedico: string
-    idCita: string
     data: CrearHistorialMedicoDto
     usuarioAuditoria: string
     transaccion: EntityManager
   }) {
-    const {
-      sintomas,
-      observaciones,
-      evaluacionFisica,
-      idPaciente,
-      motivoConsulta,
-    } = data
-    const historialMedico = new HistorialMedico({
+    const { observaciones, idPaciente } = data
+    const historialMedico = new HistoriaClinica({
       idPaciente,
       idMedico,
-      idCita,
-      sintomas,
       observaciones,
-      evaluacionFisica,
-      motivoConsulta,
       usuarioCreacion: usuarioAuditoria,
     })
     return await transaccion
-      .getRepository(HistorialMedico)
+      .getRepository(HistoriaClinica)
       .save(historialMedico)
   }
 
   async buscarPorId(id: string, transaccion?: EntityManager) {
     return await (transaccion || this.dataSource)
-      .getRepository(HistorialMedico)
-      .createQueryBuilder('historialMedico')
+      .getRepository(HistoriaClinica)
+      .createQueryBuilder('historiaClinica')
       .where({ id })
       .getOne()
   }

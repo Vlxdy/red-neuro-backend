@@ -13,7 +13,7 @@ import { AsignacionesController } from './controllers/asignacion.controller'
 import { CitasController } from './controllers/citas.controller'
 import { UsuariosRegistradosController } from './controllers/usuarios-registrados.controller'
 import { UsuariosRegistradosService } from './services/usuarios-registrados.service'
-import { HistorialMedicoModule } from '../historial-medico/historial-medico.module'
+import { HistorialMedicoModule } from '../historia-clinica/historial-medico.module'
 
 @Module({
   imports: [forwardRef(() => HistorialMedicoModule)],

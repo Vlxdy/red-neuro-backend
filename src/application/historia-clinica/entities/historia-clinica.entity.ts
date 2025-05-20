@@ -1,4 +1,3 @@
-import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import {
@@ -10,29 +9,22 @@ import {
   JoinColumn,
   BeforeInsert,
 } from 'typeorm'
-import { Diagnostico } from './diagnostico.entity'
-import { ExamenSolicitado } from './examen-solicitado.entity'
-import { TratamientoRecetado } from './tratamiento-recetado.entity'
 import { ArchivoAdjunto } from './archivos-adjunto.entity'
 import { Status } from '@/common/constants'
 import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
+import { Antecedente } from './antecedente.entity'
 
-@Entity({ name: 'historial_medico', schema: process.env.DB_SCHEMA })
-export class HistorialMedico extends AuditoriaEntity {
+@Entity({
+  name: 'historia_clinica',
+  schema: process.env.DB_SCHEMA_HISTORIA_CLINICA,
+})
+export class HistoriaClinica extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
     comment: 'Identificador único del historial médico',
   })
   id: string
-
-  @Column({
-    name: 'motivo_consulta',
-    type: 'text',
-    nullable: true,
-    comment: 'Motivo de la consulta médica',
-  })
-  motivoConsulta: string
 
   @Column({
     name: 'antecedentes_personales',
@@ -51,22 +43,6 @@ export class HistorialMedico extends AuditoriaEntity {
   antecedentesFamiliares: string
 
   @Column({
-    name: 'sintomas',
-    type: 'text',
-    nullable: true,
-    comment: 'Descripción de los síntomas del paciente',
-  })
-  sintomas: string
-
-  @Column({
-    name: 'evaluacion_fisica',
-    type: 'text',
-    nullable: true,
-    comment: 'Resultados de la evaluación física del paciente',
-  })
-  evaluacionFisica: string
-
-  @Column({
     name: 'observaciones',
     type: 'text',
     nullable: true,
@@ -74,34 +50,8 @@ export class HistorialMedico extends AuditoriaEntity {
   })
   observaciones: string
 
-  @OneToMany(() => Diagnostico, (d) => d.historialMedico, { cascade: true })
-  diagnosticos: Diagnostico[]
-
-  @OneToMany(() => ExamenSolicitado, (e) => e.historialMedico, {
-    cascade: true,
-  })
-  examenes: ExamenSolicitado[]
-
-  @OneToMany(() => TratamientoRecetado, (t) => t.historialMedico, {
-    cascade: true,
-  })
-  tratamientos: TratamientoRecetado[]
-
-  @OneToMany(() => ArchivoAdjunto, (a) => a.historialMedico, { cascade: true })
+  @OneToMany(() => ArchivoAdjunto, (a) => a.historiaClinica, { cascade: true })
   archivos: ArchivoAdjunto[]
-
-  @Column({
-    name: 'id_cita',
-    type: 'bigint',
-    nullable: false,
-    comment: 'Clave foránea que referencia a la cita',
-  })
-  idCita: string
-  @ManyToOne(() => Cita, (cita) => cita.historialMedico, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'id_cita', referencedColumnName: 'id' })
-  cita: Cita
 
   @Column({
     name: 'id_paciente',
@@ -111,7 +61,7 @@ export class HistorialMedico extends AuditoriaEntity {
   })
   idPaciente: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.historialMedico, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.historiaClinica, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
@@ -127,7 +77,7 @@ export class HistorialMedico extends AuditoriaEntity {
 
   @ManyToOne(
     () => UsuarioRol,
-    (usuarioRol) => usuarioRol.historialMedicoMedicos,
+    (usuarioRol) => usuarioRol.historiaClinicaMedico,
     {
       onDelete: 'CASCADE',
     }
@@ -135,15 +85,18 @@ export class HistorialMedico extends AuditoriaEntity {
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
   medico: UsuarioRol
 
-  constructor(data?: Partial<HistorialMedico>) {
+  constructor(data?: Partial<HistoriaClinica>) {
     super(data)
   }
 
   @OneToMany(
     () => EvaluacionNutricional,
-    (evalucacionNutricional) => evalucacionNutricional.historialMedico
+    (evalucacionNutricional) => evalucacionNutricional.historiaClinica
   )
   evaluacionNutricional: EvaluacionNutricional[]
+
+  @OneToMany(() => Antecedente, (antecedente) => antecedente.historiaClinica)
+  antecedente: Antecedente[]
 
   @BeforeInsert()
   insertarEstado() {
