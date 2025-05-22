@@ -13,6 +13,7 @@ import { ArchivoAdjunto } from './archivos-adjunto.entity'
 import { Status } from '@/common/constants'
 import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 import { Antecedente } from './antecedente.entity'
+import { Comentario } from '@/application/planes-alimentarios/entity/comentario.entity'
 
 @Entity({
   name: 'historia_clinica',
@@ -94,6 +95,11 @@ export class HistoriaClinica extends AuditoriaEntity {
     (evalucacionNutricional) => evalucacionNutricional.historiaClinica
   )
   evaluacionNutricional: EvaluacionNutricional[]
+
+  @OneToMany(() => Comentario, (comentario) => comentario.historiaClinica, {
+    cascade: true,
+  })
+  comentarios: Comentario[]
 
   @OneToMany(() => Antecedente, (antecedente) => antecedente.historiaClinica)
   antecedente: Antecedente[]
