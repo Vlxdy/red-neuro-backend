@@ -6,7 +6,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { Rol } from './rol.entity'
@@ -15,8 +14,10 @@ import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
-import { Asignacion } from '@/application/asignacion/entity/asignados.entity'
-import { Cita } from '@/application/citas/entity/cita.entity'
+import { Asignacion } from '@/application/gestion-pacientes/entities/asignados.entity'
+import { PlanAlimentario } from '@/application/planes-alimentarios/entity'
+import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
+import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
 
 dotenv.config()
 
@@ -66,17 +67,23 @@ export class UsuarioRol extends AuditoriaEntity {
   @OneToMany(() => Asignacion, (asignacion) => asignacion.paciente)
   asignacionPacientes: Asignacion[]
 
-  @Column({
-    name: 'id_asignacion',
-    type: 'bigint',
-    nullable: true,
-    comment: 'Clave foránea que referencia la tabla de asignacion',
-  })
-  idAsignacion: string
+  @OneToMany(() => PlanAlimentario, (planAlimentario) => planAlimentario.medico)
+  planAlimentarioMedicos: PlanAlimentario[]
 
-  @OneToOne(() => Asignacion, (asignado) => asignado.pacienteAsignado)
-  @JoinColumn({ name: 'id_asignacion' })
-  asignacion: Asignacion
+  @OneToMany(
+    () => HistoriaClinica,
+    (historiaClinica) => historiaClinica.paciente
+  )
+  historiaClinica: HistoriaClinica[]
+
+  @OneToMany(() => HistoriaClinica, (historiaClinica) => historiaClinica.medico)
+  historiaClinicaMedico: HistoriaClinica[]
+
+  @OneToMany(
+    () => PlanAlimentario,
+    (planAlimentario) => planAlimentario.paciente
+  )
+  planAlimentarioPacientes: PlanAlimentario[]
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)
