@@ -17,7 +17,7 @@ import { AsignacionEstado } from '../constant'
 dotenv.config()
 
 @Check(UtilService.buildStatusCheck(AsignacionEstado))
-@Entity({ name: 'asignados', schema: process.env.DB_SCHEMA })
+@Entity({ name: 'asignados', schema: process.env.DB_SCHEMA_USUARIOS })
 export class Asignacion extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',

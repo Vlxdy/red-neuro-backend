@@ -246,7 +246,7 @@ export class UsuariosRegistradosRepository {
         'usuario.fechaCreacion',
         'usuarioRol.id',
         'usuarioRol.estado',
-        'usuarioRol.idAsignacion',
+        // 'usuarioRol.idAsignacion',
         'rol.id',
         'rol.rol',
         'rol.nombre',
@@ -258,13 +258,13 @@ export class UsuariosRegistradosRepository {
         'persona.tipoDocumento',
         'persona.telefono',
       ])
-      .addSelect(
-        'CASE WHEN usuarioRol.idAsignacion IS NULL THEN 0 ELSE 1 END',
-        'asignado'
-      )
+      // .addSelect(
+      //   'CASE WHEN usuarioRol.idAsignacion IS NULL THEN 0 ELSE 1 END',
+      //   'asignado'
+      // )
       .take(limite)
       .skip(saltar)
-      .orderBy('asignado', 'ASC')
+    // .orderBy('asignado', 'ASC')
 
     // Aplicar omitir IDs si corresponde
     if (idPacientesOmitir && idPacientesOmitir.length > 0) {

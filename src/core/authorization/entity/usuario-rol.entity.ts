@@ -6,7 +6,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { Rol } from './rol.entity'
@@ -85,18 +84,6 @@ export class UsuarioRol extends AuditoriaEntity {
     (planAlimentario) => planAlimentario.paciente
   )
   planAlimentarioPacientes: PlanAlimentario[]
-
-  @Column({
-    name: 'id_asignacion',
-    type: 'bigint',
-    nullable: true,
-    comment: 'Clave foránea que referencia la tabla de asignacion',
-  })
-  idAsignacion: string
-
-  @OneToOne(() => Asignacion, (asignado) => asignado.pacienteAsignado)
-  @JoinColumn({ name: 'id_asignacion' })
-  asignacion: Asignacion
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)
