@@ -8,6 +8,7 @@ import {
   OneToMany,
   JoinColumn,
   BeforeInsert,
+  OneToOne,
 } from 'typeorm'
 import { ArchivoAdjunto } from './archivos-adjunto.entity'
 import { Status } from '@/common/constants'
@@ -62,7 +63,7 @@ export class HistoriaClinica extends AuditoriaEntity {
   })
   idPaciente: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.historiaClinica, {
+  @OneToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.historiaClinica, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
