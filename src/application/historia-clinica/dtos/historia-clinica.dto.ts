@@ -61,7 +61,7 @@ export class ExamenesSolicitadosDto {
   instrucciones: string
 }
 
-export class CrearHistorialMedicoDto {
+export class CrearHistoriaClinicaDto {
   @ApiProperty({
     description: 'Clave foránea que referencia al medico idRolUsuario',
     example: '2',

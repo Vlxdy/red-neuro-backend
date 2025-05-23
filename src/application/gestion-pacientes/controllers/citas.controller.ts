@@ -18,9 +18,9 @@ import { CrearEvaluacionDto } from '../../historia-clinica/dtos/evaluacion.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CitasService } from '../services/citas.service'
-import { HistorialMedicoService } from '@/application/historia-clinica/services/historial-medico.service'
-import { CrearHistorialMedicoDto } from '@/application/historia-clinica/dtos/historial-medico.dto'
 import { EvaluacionNutricionalService } from '@/application/historia-clinica/services/evaluacion-nutricional.service'
+import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
+import { CrearHistoriaClinicaDto } from '@/application/historia-clinica/dtos/historia-clinica.dto'
 
 @ApiTags('Citas')
 @ApiBearerAuth()
@@ -31,7 +31,7 @@ export class CitasController extends BaseController {
   constructor(
     private citasService: CitasService,
     private evaluacionService: EvaluacionNutricionalService,
-    private readonly historialMedicoService: HistorialMedicoService
+    private readonly historiaClinicaService: HistoriaClinicaService
   ) {
     super()
   }
@@ -113,14 +113,14 @@ export class CitasController extends BaseController {
 
   @ApiOperation({ summary: 'API para crear historial médico' })
   @Post(':id/historial-medico')
-  async crearHistorialMedico(
-    @Body() data: CrearHistorialMedicoDto,
+  async crearHistoriaClinica(
+    @Body() data: CrearHistoriaClinicaDto,
     @Param() param: ParamIdDto,
     @Req() req: Request
   ) {
     const usuarioAuditoria = this.getUser(req)
     const { id: idCita } = param
-    const respuesta = await this.historialMedicoService.crearHistorialMedico({
+    const respuesta = await this.historiaClinicaService.crearHistoriaClinica({
       idCita,
       idMedico: this.getUsuarioRol(req),
       data,

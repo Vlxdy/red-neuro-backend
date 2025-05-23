@@ -1,17 +1,17 @@
 import { BaseService } from '@/common/base/base-service'
 import { Injectable } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
-import { CrearHistorialMedicoDto } from '../dtos/historial-medico.dto'
-import { HistorialMedicoRepository } from '../repositories/historial-medico.repository'
+import { CrearHistoriaClinicaDto } from '../dtos/historia-clinica.dto'
 import { MedicosService } from '@/application/gestion-pacientes/services/medicos.service'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
 import { ArchivoAdjuntoService } from './archivo-adjunto.service'
 import { EvaluacionNutricionalService } from './evaluacion-nutricional.service'
+import { HistoriaClinicaRepository } from '../repositories/historia-clinica.repository'
 
 @Injectable()
-export class HistorialMedicoService extends BaseService {
+export class HistoriaClinicaService extends BaseService {
   constructor(
-    private readonly historialMedicoRepository: HistorialMedicoRepository,
+    private readonly historiaClinicaRepository: HistoriaClinicaRepository,
     private readonly medicosService: MedicosService,
     private readonly pacienteService: PacientesService,
     private readonly archivoAdjuntoRepository: ArchivoAdjuntoService,
@@ -20,7 +20,7 @@ export class HistorialMedicoService extends BaseService {
     super()
   }
 
-  async crearHistorialMedico({
+  async crearHistoriaClinica({
     idMedico,
     idCita,
     data,
@@ -29,13 +29,13 @@ export class HistorialMedicoService extends BaseService {
   }: {
     idMedico: string
     idCita: string
-    data: CrearHistorialMedicoDto
+    data: CrearHistoriaClinicaDto
     usuarioAuditoria: string
     transaccion?: EntityManager
   }) {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.crearHistorialMedico({
+        return await this.crearHistoriaClinica({
           idMedico,
           idCita,
           data,
@@ -43,7 +43,7 @@ export class HistorialMedicoService extends BaseService {
           transaccion: nuevaTransaccion,
         })
       }
-      return await this.historialMedicoRepository.runTransaction(op)
+      return await this.historiaClinicaRepository.runTransaction(op)
     }
 
     // Verificar si el médico existe
@@ -53,8 +53,8 @@ export class HistorialMedicoService extends BaseService {
     await this.pacienteService.obtenerPaciente(data.idPaciente, transaccion)
 
     // Crear el historial médico
-    const historialMedico =
-      await this.historialMedicoRepository.crearHistorialMedico({
+    const historiaClinica =
+      await this.historiaClinicaRepository.crearHistoriaClinica({
         idMedico,
 
         data,
@@ -67,7 +67,7 @@ export class HistorialMedicoService extends BaseService {
     if (archivos) {
       for (const archivo of archivos) {
         await this.archivoAdjuntoRepository.crearArchivo({
-          idHistoriaClinica: historialMedico.id,
+          idHistoriaClinica: historiaClinica.id,
           data: archivo,
           usuarioAuditoria,
           transaccion,
@@ -78,7 +78,7 @@ export class HistorialMedicoService extends BaseService {
     if (evaluacionesNutricionales) {
       for (const evaluacion of evaluacionesNutricionales) {
         await this.evaluacionNutricionalService.crearEvaluacion(
-          historialMedico.id,
+          historiaClinica.id,
           evaluacion,
           usuarioAuditoria,
           transaccion
@@ -87,14 +87,14 @@ export class HistorialMedicoService extends BaseService {
     }
   }
 
-  async obtenerHistorialMedico(id: string, transaccion?: EntityManager) {
-    const historialMedico = await this.historialMedicoRepository.buscarPorId(
+  async obtenerHistoriaClinica(id: string, transaccion?: EntityManager) {
+    const historiaClinica = await this.historiaClinicaRepository.buscarPorId(
       id,
       transaccion
     )
-    if (!historialMedico) {
+    if (!historiaClinica) {
       throw new Error('Historial médico no encontrado')
     }
-    return historialMedico
+    return historiaClinica
   }
 }
