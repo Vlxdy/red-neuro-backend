@@ -11,12 +11,13 @@ import { CitasRepository } from '../repositories/citas.repository'
 import {
   ActualizarCitaDto,
   CrearCitaDto,
-  RespuestaCita,
 } from '../../gestion-pacientes/dto/citas.dto'
 import { RolEnumId } from '@/core/authorization/rol.enum'
 import { MedicosService } from './medicos.service'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado } from '../constant'
+import { CitaResponse } from '@/common/types/data-response.type'
+import { formatearUsuarioRolRespuesta } from '../utils/formateos'
 
 @Injectable()
 export class CitasService extends BaseService {
@@ -196,33 +197,15 @@ export class CitasService extends BaseService {
     return citas.map((cita) => this.formatarRespuestaCita(cita))
   }
 
-  formatarRespuestaCita(cita: Cita): RespuestaCita {
+  formatarRespuestaCita(cita: Cita): CitaResponse {
     return {
       id: cita.id,
       detalle: cita.detalle,
       fechaInicio: cita.fechaInicio,
       fechaFin: cita.fechaFin,
       estado: cita.estado,
-      paciente: cita.paciente
-        ? {
-            id: cita.paciente.id,
-            nombres: cita.paciente.usuario.persona.nombres,
-            urlFoto: cita.paciente.usuario.urlFoto,
-            primerApellido: cita.paciente.usuario.persona.primerApellido,
-            segundoApellido: cita.paciente.usuario.persona.segundoApellido,
-            nroDocumento: cita.paciente.usuario.persona.nroDocumento,
-          }
-        : null,
-      medico: cita.medico
-        ? {
-            id: cita.medico.id,
-            nombres: cita.medico.usuario.persona.nombres,
-            urlFoto: cita.medico.usuario.urlFoto,
-            primerApellido: cita.medico.usuario.persona.primerApellido,
-            segundoApellido: cita.medico.usuario.persona.segundoApellido,
-            nroDocumento: cita.medico.usuario.persona.nroDocumento,
-          }
-        : null,
+      paciente: formatearUsuarioRolRespuesta(cita.paciente),
+      medico: cita.medico ? formatearUsuarioRolRespuesta(cita.medico) : null,
     }
   }
 }
