@@ -14,7 +14,7 @@ import { ArchivoAdjunto } from './archivos-adjunto.entity'
 import { Status } from '@/common/constants'
 import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 import { Antecedente } from './antecedente.entity'
-import { Comentario } from '@/application/planes-alimentarios/entity/comentario.entity'
+import { Comentario } from '@/application/historia-clinica/entities/comentario.entity'
 
 @Entity({
   name: 'historia_clinica',

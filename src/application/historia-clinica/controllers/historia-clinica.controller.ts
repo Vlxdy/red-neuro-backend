@@ -18,6 +18,8 @@ import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CrearEvaluacionDto } from '../dtos/evaluacion.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { ComentarioService } from '../services/comentario.service'
+import { CrearComentarioDto } from '../dtos/comentario.dto'
 
 @ApiTags('Historia clinica')
 @ApiBearerAuth()
@@ -27,7 +29,8 @@ import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 export class HistoriaClinicaController extends BaseController {
   constructor(
     private historiaClinicaService: HistoriaClinicaService,
-    private evaluacionNutricionalService: EvaluacionNutricionalService
+    private evaluacionNutricionalService: EvaluacionNutricionalService,
+    private comentarioService: ComentarioService
   ) {
     super()
   }
@@ -74,5 +77,35 @@ export class HistoriaClinicaController extends BaseController {
         }
       )
     return this.successListRows(respuesta as any)
+  }
+
+  @Get(':id/comentarios')
+  async listarComentarios(
+    @Param() params: ParamIdDto,
+    @Query() paginacionQueryDto: PaginacionQueryDto
+  ) {
+    const { id: idHistoriaClinica } = params
+    const result = await this.comentarioService.listarPorRecurso(
+      paginacionQueryDto,
+      idHistoriaClinica
+    )
+    return this.successListRows(result)
+  }
+
+  @Post(':id/comentarios')
+  async crearComentario(
+    @Req() req: Request,
+    @Body() comentarioDto: CrearComentarioDto,
+    @Param() params: ParamIdDto
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const { id: idHistoriaClinica } = params
+    const result = await this.comentarioService.crear({
+      idUsuarioRol: this.getUsuarioRol(req),
+      comentarioDto,
+      idHistoriaClinica,
+      usuarioAuditoria,
+    })
+    return this.successCreate(result)
   }
 }
