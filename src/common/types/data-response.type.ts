@@ -8,6 +8,7 @@ export interface UsuarioRolResponse {
   genero?: string | null
   correoElectronico?: string | null
   urlFoto?: string | null
+  fechaNacimiento?: Date | null
   estado: string
 }
 
