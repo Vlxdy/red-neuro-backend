@@ -29,22 +29,6 @@ export class HistoriaClinica extends AuditoriaEntity {
   id: string
 
   @Column({
-    name: 'antecedentes_personales',
-    type: 'text',
-    nullable: true,
-    comment: 'Antecedentes personales del paciente',
-  })
-  antecedentesPersonales: string
-
-  @Column({
-    name: 'antecedentes_familiares',
-    type: 'text',
-    nullable: true,
-    comment: 'Antecedentes familiares del paciente',
-  })
-  antecedentesFamiliares: string
-
-  @Column({
     name: 'observaciones',
     type: 'text',
     nullable: true,

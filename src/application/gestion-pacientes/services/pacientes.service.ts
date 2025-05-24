@@ -11,7 +11,7 @@ import {
   PacientesAsignadosDto,
   UsuariosRegistradosResponse,
 } from '../dto/usuarios-registrados.dto'
-import { formatearUsuarioRolRespuesta } from '../utils/formateos'
+import { formatearUsuariosRolesRespuesta } from '../utils/formateos'
 
 @Injectable()
 export class PacientesService extends BaseService {
@@ -46,7 +46,7 @@ export class PacientesService extends BaseService {
         params,
         todos
       )
-    return [formatearUsuarioRolRespuesta(usuariosRol), total]
+    return [formatearUsuariosRolesRespuesta(usuariosRol), total]
   }
 
   async listarPacientesPorAsignar({
@@ -62,6 +62,6 @@ export class PacientesService extends BaseService {
         params,
       })
 
-    return [formatearUsuarioRolRespuesta(uduarios), total]
+    return [formatearUsuariosRolesRespuesta(uduarios), total]
   }
 }

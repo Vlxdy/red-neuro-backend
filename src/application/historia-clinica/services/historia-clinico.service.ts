@@ -6,6 +6,9 @@ import { PacientesService } from '@/application/gestion-pacientes/services/pacie
 import { ArchivoAdjuntoService } from './archivo-adjunto.service'
 import { EvaluacionNutricionalService } from './evaluacion-nutricional.service'
 import { HistoriaClinicaRepository } from '../repositories/historia-clinica.repository'
+import { HistoriaClinica } from '../entities/historia-clinica.entity'
+import { formatearUsuarioRolRespuesta } from '@/application/gestion-pacientes/utils/formateos'
+import { HistoriaClinicaResponse } from '@/common/types/data-response.type'
 
 @Injectable()
 export class HistoriaClinicaService extends BaseService {
@@ -95,6 +98,27 @@ export class HistoriaClinicaService extends BaseService {
     return historiaClinica
   }
 
+  async obtenerHistoriaClinicaPorPacienteCompleto({
+    idPaciente,
+    // idMedico,
+  }: {
+    idPaciente: string
+    // TODO: Validar acceso
+    // idMedico: string
+  }) {
+    await this.pacienteService.obtenerPaciente(idPaciente)
+    const historiaClinica =
+      await this.historiaClinicaRepository.buscarPorPacienteCompleto(
+        idPaciente
+        // idMedico
+      )
+    if (!historiaClinica) {
+      throw new Error('Historial médico no encontrado')
+    }
+
+    return this.formatearHistoriaClinica(historiaClinica)
+  }
+
   async buscarPorPaciente(idPaciente: string, transaccion?: EntityManager) {
     const historiaClinica =
       await this.historiaClinicaRepository.buscarPorPaciente(
@@ -102,5 +126,23 @@ export class HistoriaClinicaService extends BaseService {
         transaccion
       )
     return historiaClinica
+  }
+
+  formatearHistoriaClinica(
+    historiaClinica: HistoriaClinica
+  ): HistoriaClinicaResponse {
+    const { paciente, medico } = historiaClinica
+    const historiaClinicaFormateada: HistoriaClinicaResponse = {
+      estado: historiaClinica.estado,
+      id: historiaClinica.id,
+      idMedico: historiaClinica.idMedico,
+      idPaciente: historiaClinica.idPaciente,
+      observaciones: historiaClinica.observaciones,
+      // archivos: await this.archivoAdjuntoRepository.formatearArchivos(archivos),
+      // evaluacionNutricional:
+      paciente: formatearUsuarioRolRespuesta(paciente),
+      medico: medico ? formatearUsuarioRolRespuesta(medico) : undefined,
+    }
+    return historiaClinicaFormateada
   }
 }

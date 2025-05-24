@@ -45,6 +45,34 @@ export class HistoriaClinicaRepository {
       .getOne()
   }
 
+  async buscarPorPacienteCompleto(
+    idPaciente: string,
+    transaccion?: EntityManager
+  ) {
+    return await (transaccion || this.dataSource)
+      .getRepository(HistoriaClinica)
+      .createQueryBuilder('historiaClinica')
+      .where({ idPaciente })
+      .andWhere('historiaClinica.estado = :estado', {
+        estado: 'ACTIVO',
+      })
+      // .leftJoinAndSelect('historiaClinica.archivosAdjuntos', 'archivos')
+      .leftJoinAndSelect(
+        'historiaClinica.evaluacionNutricional',
+        'evaluacionNutricional'
+      )
+      .leftJoinAndSelect('historiaClinica.paciente', 'paciente')
+      .leftJoinAndSelect('paciente.usuario', 'usuarioPaciente')
+      .leftJoinAndSelect('usuarioPaciente.persona', 'personaMedico')
+      // .leftJoinAndSelect('paciente.persona', 'personaPaciente')
+      .leftJoinAndSelect('historiaClinica.medico', 'medico')
+      .leftJoinAndSelect('medico.usuario', 'usuarioMedico')
+      .leftJoinAndSelect('usuarioMedico.persona', 'personaUsuarioMedico')
+      // .leftJoinAndSelect('usuarioMedico.persona', 'personaUsuarioMedico')
+      // .leftJoinAndSelect('medico.persona', 'personaMedico')
+      .getOne()
+  }
+
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {
     return await this.dataSource.manager.transaction<T>(op)
   }
