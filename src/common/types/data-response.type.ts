@@ -11,7 +11,7 @@ export interface UsuarioRolResponse {
   estado: string
 }
 
-export class HistoriaClinicaResponse {
+export interface HistoriaClinicaResponse {
   id: string
   idPaciente: string
   idMedico: string
