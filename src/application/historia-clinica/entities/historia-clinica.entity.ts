@@ -36,9 +36,6 @@ export class HistoriaClinica extends AuditoriaEntity {
   })
   observaciones: string
 
-  @OneToMany(() => ArchivoAdjunto, (a) => a.historiaClinica, { cascade: true })
-  archivos: ArchivoAdjunto[]
-
   @Column({
     name: 'id_paciente',
     type: 'bigint',
@@ -88,6 +85,9 @@ export class HistoriaClinica extends AuditoriaEntity {
 
   @OneToMany(() => Antecedente, (antecedente) => antecedente.historiaClinica)
   antecedente: Antecedente[]
+
+  @OneToMany(() => ArchivoAdjunto, (a) => a.historiaClinica, { cascade: true })
+  archivos: ArchivoAdjunto[]
 
   @BeforeInsert()
   insertarEstado() {

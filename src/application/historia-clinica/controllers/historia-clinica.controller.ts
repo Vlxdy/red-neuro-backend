@@ -1,9 +1,13 @@
-import { Controller, UseGuards } from '@nestjs/common'
+import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { HistoriaClinicaService } from '../services/historia-clinico.service'
+import { EvaluacionNutricionalService } from '../services/evaluacion-nutricional.service'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
+import { Request } from 'express'
+import { CrearEvaluacionDto } from '../dtos/evaluacion.dto'
 
 @ApiTags('Historia clinica')
 @ApiBearerAuth()
@@ -11,7 +15,10 @@ import { HistoriaClinicaService } from '../services/historia-clinico.service'
 // @UseGuards(JwtAuthGuard, CasbinGuard)
 @UseGuards(JwtAuthGuard)
 export class HistoriaClinicaController extends BaseController {
-  constructor(private historiaClinicaService: HistoriaClinicaService) {
+  constructor(
+    private historiaClinicaService: HistoriaClinicaService,
+    private evaluacionNutricionalService: EvaluacionNutricionalService
+  ) {
     super()
   }
 
@@ -22,4 +29,21 @@ export class HistoriaClinicaController extends BaseController {
   //   const respuesta = await this.citasService.crearCita(data, usuarioAuditoria)
   //   return this.successCreate(respuesta)
   // }
+  @Post(':id/evaluacion-nutricional')
+  async crearEvaluacionNutricional(
+    @Param() params: ParamIdDto,
+    @Req() req: Request,
+    @Body() data: CrearEvaluacionDto
+  ) {
+    const { id } = params
+    const usuarioAuditoria = this.getUser(req)
+    const idMedico = this.getUsuarioRol(req)
+    const respuesta = await this.evaluacionNutricionalService.crearEvaluacion({
+      idHistoriaClinica: id,
+      data,
+      usuarioAuditoria,
+      idMedico,
+    })
+    return this.successCreate(respuesta)
+  }
 }

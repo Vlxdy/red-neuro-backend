@@ -7,6 +7,7 @@ import { EvaluacionNutricionalRepository } from './repositories/evaluacion-nutri
 import { EvaluacionNutricionalService } from './services/evaluacion-nutricional.service'
 import { HistoriaClinicaService } from './services/historia-clinico.service'
 import { HistoriaClinicaRepository } from './repositories/historia-clinica.repository'
+import { HistoriaClinicaController } from './controllers/historia-clinica.controller'
 
 @Module({
   imports: [forwardRef(() => GestionPacientesModule)],
@@ -23,6 +24,6 @@ import { HistoriaClinicaRepository } from './repositories/historia-clinica.repos
     HistoriaClinicaService,
     ArchivoAdjuntoService,
   ],
-  controllers: [EvaluacionesController],
+  controllers: [EvaluacionesController, HistoriaClinicaController],
 })
 export class HistoriaClinicaModule {}

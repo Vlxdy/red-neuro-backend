@@ -14,7 +14,6 @@ import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ActualizarCitaDto, CrearCitaDto } from '../dto/citas.dto'
-import { CrearEvaluacionDto } from '../../historia-clinica/dtos/evaluacion.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CitasService } from '../services/citas.service'
@@ -48,22 +47,24 @@ export class CitasController extends BaseController {
     return this.successCreate(respuesta)
   }
 
-  @ApiOperation({ summary: 'API para crear una evaluación nutricional' })
-  @Post(':id/evaluacion')
-  async crearEvaluacion(
-    @Body() data: CrearEvaluacionDto,
-    @Req() req: Request,
-    @Param() param: ParamIdDto
-  ) {
-    const usuarioAuditoria = this.getUser(req)
-    const { id: idCita } = param
-    const respuesta = await this.evaluacionService.crearEvaluacion(
-      idCita,
-      data,
-      usuarioAuditoria
-    )
-    return this.successCreate(respuesta)
-  }
+  // @ApiOperation({ summary: 'API para crear una evaluación nutricional' })
+  // @Post(':id/evaluacion')
+  // async crearEvaluacion(
+  //   @Body() data: CrearEvaluacionDto,
+  //   @Req() req: Request,
+  //   @Param() param: ParamIdDto
+  // ) {
+  //   const usuarioAuditoria = this.getUser(req)
+  //   const idMedico = this.getUsuarioRol(req)
+  //   const { id: idCita } = param
+  //   const respuesta = await this.evaluacionService.crearEvaluacion({
+  //     idCita,
+  //     data,
+  //     idMedico,
+  //     usuarioAuditoria,
+  //   })
+  //   return this.successCreate(respuesta)
+  // }
 
   @ApiOperation({ summary: 'API para listar citas medicas de un paciente' })
   @Get()

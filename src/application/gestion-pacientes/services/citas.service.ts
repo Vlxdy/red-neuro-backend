@@ -54,6 +54,23 @@ export class CitasService extends BaseService {
     )
   }
 
+  async listarCitasPorPaciente({
+    idPaciente,
+    estado,
+    transaccion,
+  }: {
+    idPaciente: string
+    estado?: CitasEstado
+    transaccion?: EntityManager
+  }) {
+    const [citas] = await this.citasRepositorio.listarPorPaciente({
+      idUsuarioRol: idPaciente,
+      estado,
+      transaccion,
+    })
+    return citas
+  }
+
   async crearCita(
     idMedico: string,
     data: CrearCitaDto,

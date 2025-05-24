@@ -3,8 +3,6 @@ import { Injectable } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { MedicosService } from '@/application/gestion-pacientes/services/medicos.service'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
-import { ArchivoAdjuntoService } from './archivo-adjunto.service'
-import { EvaluacionNutricionalService } from './evaluacion-nutricional.service'
 import { HistoriaClinicaRepository } from '../repositories/historia-clinica.repository'
 import { HistoriaClinica } from '../entities/historia-clinica.entity'
 import { formatearUsuarioRolRespuesta } from '@/application/gestion-pacientes/utils/formateos'
@@ -15,9 +13,7 @@ export class HistoriaClinicaService extends BaseService {
   constructor(
     private readonly historiaClinicaRepository: HistoriaClinicaRepository,
     private readonly medicosService: MedicosService,
-    private readonly pacienteService: PacientesService,
-    private readonly archivoAdjuntoRepository: ArchivoAdjuntoService,
-    private readonly evaluacionNutricionalService: EvaluacionNutricionalService
+    private readonly pacienteService: PacientesService
   ) {
     super()
   }
@@ -93,7 +89,7 @@ export class HistoriaClinicaService extends BaseService {
       transaccion
     )
     if (!historiaClinica) {
-      throw new Error('Historial médico no encontrado')
+      throw new Error('Historia clinica no encontrado')
     }
     return historiaClinica
   }

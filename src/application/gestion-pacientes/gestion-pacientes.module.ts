@@ -35,6 +35,6 @@ import { HistoriaClinicaModule } from '../historia-clinica/historia-clinica.modu
     CitasRepository,
     CitasService,
   ],
-  exports: [PacientesService, MedicosService],
+  exports: [PacientesService, MedicosService, CitasService],
 })
 export class GestionPacientesModule {}
