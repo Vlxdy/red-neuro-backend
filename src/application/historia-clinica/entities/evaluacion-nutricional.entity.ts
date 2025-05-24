@@ -36,7 +36,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
     nullable: true,
     comment: 'Peso del paciente',
   })
-  peso?: number
+  peso: number
 
   @Column({
     name: 'talla',
@@ -46,7 +46,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
     nullable: true,
     comment: 'Talla del paciente',
   })
-  talla?: number
+  talla: number
 
   @Column({
     name: 'imc',
@@ -56,7 +56,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
     nullable: true,
     comment: 'Indice de masa corporal del paciente',
   })
-  imc?: number
+  imc: number
 
   // Hábitos alimentarios
 

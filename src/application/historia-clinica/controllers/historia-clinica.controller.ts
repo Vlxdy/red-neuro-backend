@@ -1,4 +1,13 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { BaseController } from '@/common/base'
 
@@ -8,6 +17,7 @@ import { EvaluacionNutricionalService } from '../services/evaluacion-nutricional
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CrearEvaluacionDto } from '../dtos/evaluacion.dto'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @ApiTags('Historia clinica')
 @ApiBearerAuth()
@@ -45,5 +55,24 @@ export class HistoriaClinicaController extends BaseController {
       idMedico,
     })
     return this.successCreate(respuesta)
+  }
+
+  @Get(':id/evaluacion-nutricional')
+  async listarEvaluacionesNutricinales(
+    @Param() params: ParamIdDto,
+    // @Req() req: Request,
+    @Query() paginacion: PaginacionQueryDto
+  ) {
+    const { id: idHistoriaClinica } = params
+    // const usuarioAuditoria = this.getUser(req)
+    // const idMedico = this.getUsuarioRol(req)
+    const respuesta =
+      await this.evaluacionNutricionalService.listarEvaluacionesPorHistoriaClinica(
+        {
+          idHistoriaClinica,
+          paginacion,
+        }
+      )
+    return this.successListRows(respuesta as any)
   }
 }

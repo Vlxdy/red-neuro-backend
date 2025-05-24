@@ -6,6 +6,9 @@ import { EvaluacionNutricionalRepository } from '../repositories/evaluacion-nutr
 import { HistoriaClinicaService } from './historia-clinico.service'
 import { CitasService } from '@/application/gestion-pacientes/services/citas.service'
 import { CitasEstado } from '@/application/gestion-pacientes/constant'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { EvaluacionNutricional } from '../entities/evaluacion-nutricional.entity'
+import { EvaluacionNutricionalResponde } from '@/common/types/data-response.type'
 
 @Injectable()
 export class EvaluacionNutricionalService extends BaseService {
@@ -73,8 +76,6 @@ export class EvaluacionNutricionalService extends BaseService {
       estado: CitasEstado.PENDIENTE,
       transaccion,
     })
-    console.log(citas)
-    console.log(historiaClinica)
 
     if (citas.length > 0) {
       await this.citasService.actualizarCita({
@@ -91,5 +92,48 @@ export class EvaluacionNutricionalService extends BaseService {
       })
     }
     return { id: evaluacion.id }
+  }
+
+  async listarEvaluacionesPorHistoriaClinica({
+    idHistoriaClinica,
+    paginacion,
+  }: {
+    idHistoriaClinica: string
+    paginacion: PaginacionQueryDto
+  }) {
+    const [evalucaciones, numero] =
+      await this.evaluacionNutricionalRepositorio.buscarPorHistoriaClinica(
+        idHistoriaClinica,
+        paginacion
+      )
+
+    return [this.formatearEvaluaciones(evalucaciones), numero]
+  }
+
+  formatearEvaluaciones(
+    evaluaciones: EvaluacionNutricional[]
+  ): Array<EvaluacionNutricionalResponde> {
+    return evaluaciones.map((evaluacion) => {
+      const { archivos } = evaluacion
+      return {
+        id: evaluacion.id,
+        peso: evaluacion.peso,
+        talla: evaluacion.talla,
+        imc: evaluacion.imc,
+        requerimientoCalorico: evaluacion.requerimientoCalorico,
+        diagnostico: evaluacion.diagnostico,
+        idHistoriaClinica: evaluacion.idHistoriaClinica,
+        fechaCreacion: evaluacion.fechaCreacion,
+        archivos: archivos.map((archivo) => ({
+          id: archivo.id,
+          nombreArchivo: archivo.nombreArchivo,
+          codigo: archivo.codigo || null,
+          tipoArchivo: archivo.tipoArchivo,
+          contenidoBase64: archivo.contenidoBase64 || null,
+          idHistoriaClinica: archivo.idHistoriaClinica,
+          idEvaluacionNutricional: archivo.idEvaluacionNutricional,
+        })),
+      }
+    })
   }
 }

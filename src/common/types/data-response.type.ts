@@ -31,3 +31,24 @@ export interface CitaResponse {
   paciente: UsuarioRolResponse | null
   medico: UsuarioRolResponse | null
 }
+
+export interface EvaluacionNutricionalResponde {
+  id: string
+  peso: number
+  talla: number
+  imc: number
+  requerimientoCalorico: number
+  diagnostico: string
+  idHistoriaClinica: string
+  archivos?: ArchivoAdjuntoResponse[] | null
+  fechaCreacion: Date
+}
+export interface ArchivoAdjuntoResponse {
+  id: string
+  nombreArchivo: string
+  codigo: string | null
+  tipoArchivo: string
+  contenidoBase64: string | null // sin prefijo: solo el base64 puro
+  idHistoriaClinica: string
+  idEvaluacionNutricional: string
+}
