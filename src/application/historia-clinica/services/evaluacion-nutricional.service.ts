@@ -123,7 +123,7 @@ export class EvaluacionNutricionalService extends BaseService {
       const { archivos } = evaluacion
       return {
         id: evaluacion.id,
-        masaCorporal: evaluacion.masaCorporal,
+        peso: evaluacion.peso,
         pesoObjetivo: evaluacion.pesoObjetivo,
         pesoCompeticion: evaluacion.pesoCompeticion,
         estatura: evaluacion.estatura,
@@ -172,7 +172,7 @@ export class EvaluacionNutricionalService extends BaseService {
     dto: CreateEvaluacionAntropometricaDto,
     historiaClinica: HistoriaClinica
   ) {
-    const peso = dto.masaCorporal
+    const peso = dto.peso
     const talla = dto.estatura
     const cintura = dto.cintura
     const caderas = dto.caderas

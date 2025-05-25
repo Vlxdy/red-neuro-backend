@@ -69,7 +69,7 @@ export class CreateEvaluacionAntropometricaDto {
   @IsNumber()
   @Min(1)
   @Max(500)
-  masaCorporal?: number
+  peso?: number
 
   @ApiPropertyOptional({ example: 68, description: 'Peso en competición (kg)' })
   @IsOptional()

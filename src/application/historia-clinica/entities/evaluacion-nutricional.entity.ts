@@ -38,15 +38,15 @@ export class EvaluacionNutricional extends AuditoriaEntity {
 
   // Medidas básicas
   @Column('numeric', {
-    precision: 6,
+    precision: 10,
     scale: 2,
     nullable: true,
-    comment: 'Masa corporal actual (kg)',
+    comment: 'Peso corporal (kg)',
   })
-  masaCorporal?: number
+  peso?: number
 
   @Column('numeric', {
-    precision: 6,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Peso en competición (kg)',
@@ -54,7 +54,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   pesoCompeticion?: number
 
   @Column('numeric', {
-    precision: 6,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Peso objetivo (kg)',
@@ -62,7 +62,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   pesoObjetivo?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Estatura de pie (cm)',
@@ -70,7 +70,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   estatura?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Envergadura (cm)',
@@ -78,7 +78,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   envergadura?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Estatura sentada (cm)',
@@ -87,7 +87,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
 
   // Pliegues
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Pliegue tricipital (mm)',
@@ -95,7 +95,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   triceps?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Pliegue subescapular (mm)',
@@ -103,7 +103,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   subescapular?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Pliegue de bíceps (mm)',
@@ -111,7 +111,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   biceps?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Pliegue en cresta ilíaca (mm)',
@@ -119,7 +119,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   crestaIliaca?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Pliegue supra espinal (mm)',
@@ -127,7 +127,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   supraEspinal?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Pliegue abdominal (mm)',
@@ -135,7 +135,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   abdominal?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Pliegue en muslo (mm)',
@@ -143,7 +143,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   muslo?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Pliegue en pierna (mm)',
@@ -152,7 +152,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
 
   // Perímetros
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Perímetro del brazo relajado (cm)',
@@ -160,7 +160,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   brazoRelajado?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Perímetro del brazo contraído (cm)',
@@ -168,7 +168,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   brazoFlexContraido?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Perímetro de cintura (cm)',
@@ -176,7 +176,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   cintura?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Perímetro de caderas (cm)',
@@ -184,7 +184,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   caderas?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Perímetro del muslo medio (cm)',
@@ -192,7 +192,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   musloMedio?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Perímetro de pierna (cm)',
@@ -201,7 +201,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
 
   // Diámetros
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Diámetro del húmero (cm)',
@@ -209,7 +209,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   humero?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Diámetro biestiloideo (cm)',
@@ -217,7 +217,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   biEstiloideo?: number
 
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Diámetro del fémur (cm)',
@@ -229,7 +229,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   @Column({
     name: 'requerimiento_calorico',
     type: 'numeric',
-    precision: 7,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Requerimiento calórico del paciente',
@@ -246,7 +246,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
 
   // Cálculos automáticos
   @Column('numeric', {
-    precision: 5,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Índice de masa corporal (IMC)',
@@ -254,7 +254,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   imc?: number | null
 
   @Column('numeric', {
-    precision: 6,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Masa grasa estimada (kg)',
@@ -262,7 +262,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   masaGrasa?: number | null
 
   @Column('numeric', {
-    precision: 6,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Masa libre de grasa estimada (kg)',
@@ -270,7 +270,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   masaLibreGrasa?: number | null
 
   @Column('numeric', {
-    precision: 4,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Relación cintura/cadera',
@@ -278,7 +278,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   relacionCinturaCadera?: number | null
 
   @Column('numeric', {
-    precision: 6,
+    precision: 10,
     scale: 2,
     nullable: true,
     comment: 'Peso residual (kg)',
