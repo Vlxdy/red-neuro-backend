@@ -11,8 +11,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { UtilService } from '../../../common/lib/util.service'
-import { Usuario } from 'src/core/usuario/entity/usuario.entity'
 import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
+import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
 export const ComentarioEstado = {
   ACTIVE: Status.ACTIVE,
@@ -20,7 +20,7 @@ export const ComentarioEstado = {
 }
 
 @Check(UtilService.buildStatusCheck(ComentarioEstado))
-@Entity({ name: 'comentarios', schema: process.env.DB_SCHEMA_PROYECTOS })
+@Entity({ name: 'comentarios', schema: process.env.DB_SCHEMA_HISTORIA_CLINICA })
 export class Comentario extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
@@ -53,9 +53,16 @@ export class Comentario extends AuditoriaEntity {
   @JoinColumn({ name: 'id_historia_clinica', referencedColumnName: 'id' })
   historiaClinica: HistoriaClinica
 
-  @ManyToOne(() => Usuario)
-  @JoinColumn({ name: '_usuario_creacion', referencedColumnName: 'id' })
-  usuario: Usuario
+  @Column({
+    name: 'id_usuario_rol',
+    type: 'bigint',
+    nullable: false,
+  })
+  idUsuarioRol: string
+
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.comentarios)
+  @JoinColumn({ name: 'id_usuario_rol', referencedColumnName: 'id' })
+  usuarioRol: UsuarioRol
 
   // Replyes
   @Column({

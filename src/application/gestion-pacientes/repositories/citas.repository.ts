@@ -59,8 +59,16 @@ export class CitasRepository {
     return await transaccion.getRepository(Cita).save(consultas)
   }
 
-  async listarPorPaciente({ idUsuarioRol }: { idUsuarioRol: string }) {
-    return await this.dataSource
+  async listarPorPaciente({
+    idUsuarioRol,
+    estado,
+    transaccion,
+  }: {
+    idUsuarioRol: string
+    estado?: CitasEstado
+    transaccion?: EntityManager
+  }) {
+    const query = (transaccion || this.dataSource)
       .getRepository(Cita)
       .createQueryBuilder('citas')
       .leftJoinAndSelect('citas.medico', 'medico')
@@ -82,7 +90,10 @@ export class CitasRepository {
       ])
       .where({ idPaciente: idUsuarioRol })
       .andWhere('citas.estado != :estado', { estado: CitasEstado.INACTIVO })
-      .getManyAndCount()
+    if (estado) {
+      query.andWhere('citas.estado = :estados', { estados: estado })
+    }
+    return await query.getManyAndCount()
   }
 
   async listarPorNutricionista({ idUsuarioRol }: { idUsuarioRol: string }) {

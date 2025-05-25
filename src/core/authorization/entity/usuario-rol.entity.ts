@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { Rol } from './rol.entity'
@@ -18,6 +19,7 @@ import { Asignacion } from '@/application/gestion-pacientes/entities/asignados.e
 import { PlanAlimentario } from '@/application/planes-alimentarios/entity'
 import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
 import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
+import { Comentario } from '@/application/historia-clinica/entities/comentario.entity'
 
 dotenv.config()
 
@@ -70,7 +72,7 @@ export class UsuarioRol extends AuditoriaEntity {
   @OneToMany(() => PlanAlimentario, (planAlimentario) => planAlimentario.medico)
   planAlimentarioMedicos: PlanAlimentario[]
 
-  @OneToMany(
+  @OneToOne(
     () => HistoriaClinica,
     (historiaClinica) => historiaClinica.paciente
   )
@@ -84,6 +86,9 @@ export class UsuarioRol extends AuditoriaEntity {
     (planAlimentario) => planAlimentario.paciente
   )
   planAlimentarioPacientes: PlanAlimentario[]
+
+  @OneToMany(() => Comentario, (comentario) => comentario.usuarioRol)
+  comentarios: Comentario[]
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)

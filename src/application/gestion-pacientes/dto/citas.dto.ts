@@ -98,22 +98,3 @@ export class ActualizarCitaDto {
   @IsOptional()
   estado?: CitasEstado
 }
-
-export interface RespuestaCita {
-  id: string
-  detalle: string
-  fechaInicio: Date | null | undefined
-  fechaFin: Date | null | undefined
-  estado: string
-  paciente: DatosUsuario | null
-  medico: DatosUsuario | null
-}
-
-interface DatosUsuario {
-  id: string
-  nombres: string
-  urlFoto: string | null | undefined
-  primerApellido: string | null | undefined
-  segundoApellido: string | null | undefined
-  nroDocumento: string
-}

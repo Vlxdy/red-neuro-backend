@@ -8,12 +8,13 @@ import {
   OneToMany,
   JoinColumn,
   BeforeInsert,
+  OneToOne,
 } from 'typeorm'
 import { ArchivoAdjunto } from './archivos-adjunto.entity'
 import { Status } from '@/common/constants'
 import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 import { Antecedente } from './antecedente.entity'
-import { Comentario } from '@/application/planes-alimentarios/entity/comentario.entity'
+import { Comentario } from '@/application/historia-clinica/entities/comentario.entity'
 
 @Entity({
   name: 'historia_clinica',
@@ -28,31 +29,12 @@ export class HistoriaClinica extends AuditoriaEntity {
   id: string
 
   @Column({
-    name: 'antecedentes_personales',
-    type: 'text',
-    nullable: true,
-    comment: 'Antecedentes personales del paciente',
-  })
-  antecedentesPersonales: string
-
-  @Column({
-    name: 'antecedentes_familiares',
-    type: 'text',
-    nullable: true,
-    comment: 'Antecedentes familiares del paciente',
-  })
-  antecedentesFamiliares: string
-
-  @Column({
     name: 'observaciones',
     type: 'text',
     nullable: true,
     comment: 'Observaciones adicionales del médico',
   })
   observaciones: string
-
-  @OneToMany(() => ArchivoAdjunto, (a) => a.historiaClinica, { cascade: true })
-  archivos: ArchivoAdjunto[]
 
   @Column({
     name: 'id_paciente',
@@ -62,7 +44,7 @@ export class HistoriaClinica extends AuditoriaEntity {
   })
   idPaciente: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.historiaClinica, {
+  @OneToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.historiaClinica, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
@@ -103,6 +85,9 @@ export class HistoriaClinica extends AuditoriaEntity {
 
   @OneToMany(() => Antecedente, (antecedente) => antecedente.historiaClinica)
   antecedente: Antecedente[]
+
+  @OneToMany(() => ArchivoAdjunto, (a) => a.historiaClinica, { cascade: true })
+  archivos: ArchivoAdjunto[]
 
   @BeforeInsert()
   insertarEstado() {

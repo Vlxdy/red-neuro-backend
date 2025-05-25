@@ -2,6 +2,7 @@ import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { CrearEvaluacionDto } from '../dtos/evaluacion.dto'
 import { EvaluacionNutricional } from '../entities/evaluacion-nutricional.entity'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @Injectable()
 export class EvaluacionNutricionalRepository {
@@ -51,11 +52,35 @@ export class EvaluacionNutricionalRepository {
       imc,
       peso,
       talla,
+      requerimientoCalorico: data.requerimientoCalorico,
       usuarioCreacion: usuarioAuditoria,
     })
     return await transaccion
       .getRepository(EvaluacionNutricional)
       .save(consultas)
+  }
+  async buscarPorHistoriaClinica(
+    idHistoriaClinica: string,
+    paginacion: PaginacionQueryDto
+  ): Promise<[EvaluacionNutricional[], number]> {
+    const { limite, saltar, filtro } = paginacion
+    const query = this.dataSource
+      .getRepository(EvaluacionNutricional)
+      .createQueryBuilder('evaluacion')
+      .leftJoinAndSelect('evaluacion.archivos', 'archivos')
+      .select(['evaluacion', 'archivos'])
+      .where({ idHistoriaClinica })
+      .orderBy('evaluacion.id', 'DESC')
+      .take(limite)
+      .skip(saltar)
+
+    if (filtro && filtro.trim() !== '') {
+      query.andWhere('evaluacion.diagnostico ILIKE :filtro', {
+        filtro: `%${filtro}%`,
+      })
+    }
+
+    return await query.getManyAndCount()
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {

@@ -5,6 +5,7 @@ import { PacientesService } from '@/application/gestion-pacientes/services/pacie
 import { AsignacionRepository } from '../repositories/asignacion.repository'
 import { AsignacionEstado } from '../constant'
 import { MedicosService } from './medicos.service'
+import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
 
 @Injectable()
 export class AsignacionService extends BaseService {
@@ -12,7 +13,8 @@ export class AsignacionService extends BaseService {
     @Inject(AsignacionRepository)
     private asignacionRepositorio: AsignacionRepository,
     private medicosService: MedicosService,
-    private pacientesService: PacientesService
+    private pacientesService: PacientesService,
+    private historiaClinicaService: HistoriaClinicaService
   ) {
     super()
   }
@@ -101,6 +103,21 @@ export class AsignacionService extends BaseService {
         idPaciente,
         transaccion
       )
+      const historiaClinica =
+        await this.historiaClinicaService.buscarPorPaciente(
+          idPaciente,
+          transaccion
+        )
+
+      if (!historiaClinica) {
+        await this.historiaClinicaService.crearHistoriaClinica({
+          idMedico: medico.id,
+          idPaciente,
+          usuarioAuditoria,
+          transaccion,
+        })
+      }
+
       if (asignacion) {
         if (asignacion.idMedico !== idMedico) {
           await this.asignacionRepositorio.actualizar({
@@ -109,13 +126,14 @@ export class AsignacionService extends BaseService {
             usuarioAuditoria,
           })
         }
+      } else {
+        await this.asignacionRepositorio.crear({
+          idMedico: medico.id,
+          idPaciente: paciente.id,
+          usuarioAuditoria,
+          transaccion,
+        })
       }
-      await this.asignacionRepositorio.crear({
-        idMedico: medico.id,
-        idPaciente: paciente.id,
-        usuarioAuditoria,
-        transaccion,
-      })
     }
   }
 }

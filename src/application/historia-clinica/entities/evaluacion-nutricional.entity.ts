@@ -4,12 +4,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { EvaluacionNutricionalEstado } from '../../gestion-pacientes/constant'
 import { HistoriaClinica } from './historia-clinica.entity'
+import { ArchivoAdjunto } from './archivos-adjunto.entity'
 
 dotenv.config()
 
@@ -29,22 +31,22 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   @Column({
     name: 'peso',
     type: 'numeric',
-    precision: 5,
+    precision: 6,
     scale: 2,
     nullable: true,
     comment: 'Peso del paciente',
   })
-  peso?: number
+  peso: number
 
   @Column({
     name: 'talla',
     type: 'numeric',
-    precision: 4,
+    precision: 5,
     scale: 2,
     nullable: true,
     comment: 'Talla del paciente',
   })
-  talla?: number
+  talla: number
 
   @Column({
     name: 'imc',
@@ -54,22 +56,14 @@ export class EvaluacionNutricional extends AuditoriaEntity {
     nullable: true,
     comment: 'Indice de masa corporal del paciente',
   })
-  imc?: number
+  imc: number
 
   // Hábitos alimentarios
 
   @Column({
-    name: 'habitos_alimentarios',
-    type: 'text',
-    nullable: true,
-    comment: 'Hábitos alimentarios del paciente',
-  })
-  habitos_alimentarios: string
-
-  @Column({
     name: 'requerimiento_calorico',
     type: 'numeric',
-    precision: 5,
+    precision: 7,
     scale: 2,
     nullable: true,
     comment: 'Requerimiento calórico del paciente',
@@ -98,6 +92,11 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   )
   @JoinColumn({ name: 'id_historia_clinica' })
   historiaClinica: HistoriaClinica
+
+  @OneToMany(() => ArchivoAdjunto, (a) => a.evaluacionNutricional, {
+    cascade: true,
+  })
+  archivos: ArchivoAdjunto[]
 
   @BeforeInsert()
   insertarEstado() {
