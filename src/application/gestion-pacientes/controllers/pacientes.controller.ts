@@ -1,9 +1,17 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { PacientesService } from '../services/pacientes.service'
 import { PacientesAsignadosDto } from '../dto/usuarios-registrados.dto'
 import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
@@ -13,7 +21,7 @@ import { ParamIdDto } from '@/common/dto/params-id.dto'
 @ApiBearerAuth()
 @Controller('pacientes')
 // @UseGuards(JwtAuthGuard, CasbinGuard)
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class PacientesController extends BaseController {
   constructor(
     private pacientesService: PacientesService,
@@ -52,5 +60,24 @@ export class PacientesController extends BaseController {
         }
       )
     return this.success(historiaClinica)
+  }
+
+  @Get(':id/reporte')
+  async obtenerReporteDePaciente(
+    @Param() params: ParamIdDto,
+    @Req() req: Request,
+    @Res() response: Response
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const idMedico = '3' //this.getUsuarioRol(req)
+    const { id: idPaciente } = params
+    console.log('esto esta en idMedico', idMedico)
+    const reportePdf = await this.pacientesService.ReportePaciente(
+      idMedico,
+      idPaciente
+    )
+    response.setHeader('Content-Type', 'application/pdf')
+    reportePdf.pipe(response)
+    reportePdf.end()
   }
 }

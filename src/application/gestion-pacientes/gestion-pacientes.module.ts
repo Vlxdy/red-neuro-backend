@@ -20,6 +20,7 @@ import { CitasService } from './services/citas.service'
 import { MedicosService } from './services/medicos.service'
 import { PacientesService } from './services/pacientes.service'
 import { UsuariosRegistradosService } from './services/usuarios-registrados.service'
+import { PrinterService } from '@/printer/printer.service'
 
 @Module({
   imports: [forwardRef(() => HistoriaClinicaModule)],
@@ -46,6 +47,7 @@ import { UsuariosRegistradosService } from './services/usuarios-registrados.serv
     PlanNutricionalRepository,
     AlimentoService,
     AlimentoRepository,
+    PrinterService,
   ],
   exports: [PacientesService, MedicosService, CitasService],
 })
