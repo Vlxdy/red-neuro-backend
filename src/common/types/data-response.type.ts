@@ -37,9 +37,11 @@ export interface EvaluacionNutricionalResponde {
 
   idHistoriaClinica: string
   archivos?: ArchivoAdjuntoResponse[] | null
-  fechaCreacion: Date
+  fechaCreacion: Date | string
 
-  masaCorporal?: number | null
+  estado: string
+
+  peso?: number | null
 
   pesoCompeticion?: number | null
 

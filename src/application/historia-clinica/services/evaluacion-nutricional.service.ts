@@ -121,7 +121,7 @@ export class EvaluacionNutricionalService extends BaseService {
   ): Array<EvaluacionNutricionalResponde> {
     return evaluaciones.map((evaluacion) => {
       const { archivos } = evaluacion
-      return {
+      const formateado: EvaluacionNutricionalResponde = {
         id: evaluacion.id,
         peso: evaluacion.peso,
         pesoObjetivo: evaluacion.pesoObjetivo,
@@ -141,7 +141,6 @@ export class EvaluacionNutricionalService extends BaseService {
         masaGrasa: evaluacion.masaGrasa,
         masaLibreGrasa: evaluacion.masaLibreGrasa,
         estado: evaluacion.estado,
-        fechaEvaluacion: evaluacion.fechaCreacion,
         imc: evaluacion.imc,
         requerimientoCalorico: evaluacion.requerimientoCalorico,
         diagnostico: evaluacion.diagnostico,
@@ -157,6 +156,7 @@ export class EvaluacionNutricionalService extends BaseService {
           idEvaluacionNutricional: archivo.idEvaluacionNutricional,
         })),
       }
+      return formateado
     })
   }
   calcularEdad(
