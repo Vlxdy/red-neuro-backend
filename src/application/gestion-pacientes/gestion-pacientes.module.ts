@@ -14,6 +14,7 @@ import { CitasController } from './controllers/citas.controller'
 import { UsuariosRegistradosController } from './controllers/usuarios-registrados.controller'
 import { UsuariosRegistradosService } from './services/usuarios-registrados.service'
 import { HistoriaClinicaModule } from '../historia-clinica/historia-clinica.module'
+import { PrinterService } from '@/printer/printer.service'
 
 @Module({
   imports: [forwardRef(() => HistoriaClinicaModule)],
@@ -34,6 +35,7 @@ import { HistoriaClinicaModule } from '../historia-clinica/historia-clinica.modu
     AsignacionService,
     CitasRepository,
     CitasService,
+    PrinterService,
   ],
   exports: [PacientesService, MedicosService, CitasService],
 })

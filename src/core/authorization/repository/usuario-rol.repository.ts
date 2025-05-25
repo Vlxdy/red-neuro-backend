@@ -39,6 +39,7 @@ export class UsuarioRolRepository {
           estado: UsuarioEstado.ACTIVE,
         }
       )
+      .innerJoinAndSelect('usuario.persona', 'persona')
       .getOne()
   }
 
