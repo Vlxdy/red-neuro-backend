@@ -1,4 +1,8 @@
+import { PlanNutricional } from '@/application/planes-alimentarios/entity/plan-nutricional.entity'
+import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UtilService } from '@/common/lib/util.service'
+import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import dotenv from 'dotenv'
 import {
   BeforeInsert,
   Check,
@@ -6,12 +10,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import dotenv from 'dotenv'
-import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { AsignacionEstado } from '../constant'
 
 dotenv.config()
@@ -62,6 +64,10 @@ export class Asignacion extends AuditoriaEntity {
     cascade: true,
   })
   pacienteAsignado: UsuarioRol
+
+  @OneToMany(() => PlanNutricional, (plan) => plan.paciente)
+  planesNutricionales: PlanNutricional[]
+
   @BeforeInsert()
   insertarEstado() {
     this.estado = this.estado || AsignacionEstado.ACTIVO

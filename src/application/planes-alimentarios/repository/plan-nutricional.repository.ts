@@ -1,0 +1,157 @@
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { Injectable } from '@nestjs/common'
+import { Brackets, DataSource, EntityManager } from 'typeorm'
+import { PlanNutricionalEstado } from '../constant'
+import { PlanNutricional } from '../entity/plan-nutricional.entity'
+
+@Injectable()
+export class PlanNutricionalRepository {
+  constructor(private dataSource: DataSource) {}
+
+  async crear(plan: PlanNutricional, transaccion?: EntityManager) {
+    return await (transaccion || this.dataSource)
+      .getRepository(PlanNutricional)
+      .save(plan)
+  }
+
+  async actualizar(
+    id: string,
+    data: Partial<PlanNutricional>,
+    usuario: string
+  ) {
+    const datosActualizar = new PlanNutricional({
+      ...data,
+      usuarioModificacion: usuario,
+    })
+    return await this.dataSource
+      .getRepository(PlanNutricional)
+      .update(id, datosActualizar)
+  }
+
+  async inactivar(id: string, usuario: string) {
+    return await this.dataSource.getRepository(PlanNutricional).update(id, {
+      estado: PlanNutricionalEstado.INACTIVO,
+      usuarioModificacion: usuario,
+    })
+  }
+
+  async buscarPorId(id: string) {
+    return await this.dataSource
+      .getRepository(PlanNutricional)
+      .createQueryBuilder('plan')
+      .where({ id })
+      .getOne()
+  }
+
+  async listarTodos(paginacionQueryDto: PaginacionQueryDto) {
+    const { limite, saltar, filtro, orden, sentido } = paginacionQueryDto
+
+    const query = this.dataSource
+      .getRepository(PlanNutricional)
+      .createQueryBuilder('plan')
+      .select([
+        'plan.id',
+        'plan.fecha',
+        'plan.plan',
+        'plan.recomendaciones',
+        'plan.idPaciente',
+        'plan.estado',
+        'plan.fechaCreacion',
+      ])
+      .take(limite)
+      .skip(saltar)
+      .where({ estado: PlanNutricionalEstado.ACTIVO })
+
+    if (orden) {
+      switch (orden) {
+        case 'fecha':
+          query.addOrderBy('plan.fecha', sentido)
+          break
+        case 'estado':
+          query.addOrderBy('plan.estado', sentido)
+          break
+        default:
+          query.addOrderBy('plan.id', 'ASC')
+      }
+    }
+
+    if (filtro) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.orWhere('plan.recomendaciones ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+          qb.orWhere('plan.fecha ilike :filtro', { filtro: `%${filtro}%` })
+        })
+      )
+    }
+
+    return await query.getManyAndCount()
+  }
+
+  async listarPorIdPaciente(
+    idPaciente: string,
+    paginacionQueryDto: PaginacionQueryDto
+  ) {
+    const { limite, saltar, filtro, orden, sentido } = paginacionQueryDto
+
+    const query = this.dataSource
+      .getRepository(PlanNutricional)
+      .createQueryBuilder('plan')
+      .select([
+        'plan.id',
+        'plan.fecha',
+        'plan.plan',
+        'plan.recomendaciones',
+        'plan.estado',
+        'plan.fechaCreacion',
+      ])
+      .where('plan.idPaciente = :idPaciente', { idPaciente })
+      .andWhere('plan.estado = :estado', {
+        estado: PlanNutricionalEstado.ACTIVO,
+      })
+      .take(limite)
+      .skip(saltar)
+
+    if (filtro) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.orWhere('plan.recomendaciones ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+          qb.orWhere('plan.fecha ilike :filtro', { filtro: `%${filtro}%` })
+        })
+      )
+    }
+
+    switch (orden) {
+      case 'fecha':
+        query.addOrderBy('plan.fecha', sentido)
+        break
+      case 'estado':
+        query.addOrderBy('plan.estado', sentido)
+        break
+      default:
+        query.addOrderBy('plan.id', 'DESC')
+    }
+
+    return await query.getManyAndCount()
+  }
+
+  async crearConTransaccion(
+    data: Partial<PlanNutricional>,
+    usuario: string,
+    transaction: EntityManager
+  ) {
+    const repo = transaction.getRepository(PlanNutricional)
+    const plan = new PlanNutricional({
+      ...data,
+      usuarioCreacion: usuario,
+    })
+    return await repo.save(plan)
+  }
+
+  async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {
+    return await this.dataSource.manager.transaction<T>(op)
+  }
+}

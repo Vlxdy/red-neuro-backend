@@ -9,3 +9,12 @@ export enum DetallePlanEstado {
   ACTIVO = Status.ACTIVE,
   INACTIVO = Status.INACTIVE,
 }
+
+export enum PlanNutricionalEstado {
+  ACTIVO = Status.ACTIVE,
+  INACTIVO = Status.INACTIVE,
+}
+export enum AlimentoEstado {
+  ACTIVO = Status.ACTIVE,
+  INACTIVO = Status.INACTIVE,
+}

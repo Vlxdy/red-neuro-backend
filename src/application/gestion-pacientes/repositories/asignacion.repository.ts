@@ -1,5 +1,5 @@
-import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
+import { DataSource, EntityManager } from 'typeorm'
 import { Asignacion } from '../entities/asignados.entity'
 
 @Injectable()
@@ -58,6 +58,18 @@ export class AsignacionRepository {
       .getRepository(Asignacion)
       .createQueryBuilder('asignacion')
       .where({ idPaciente })
+      .andWhere('asignacion.estado = :estado', { estado: 'ACTIVO' })
+      .getOne()
+  }
+
+  async buscarPacientePorIdUsuarioRol(
+    idUsuarioRol: string,
+    transaccion?: EntityManager
+  ) {
+    return await (transaccion || this.dataSource)
+      .getRepository(Asignacion)
+      .createQueryBuilder('asignacion')
+      .where({ idPaciente: idUsuarioRol })
       .andWhere('asignacion.estado = :estado', { estado: 'ACTIVO' })
       .getOne()
   }
