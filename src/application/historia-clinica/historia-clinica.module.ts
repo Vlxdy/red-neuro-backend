@@ -11,6 +11,8 @@ import { HistoriaClinicaController } from './controllers/historia-clinica.contro
 import { ComentarioController } from './controllers/comentario.controller'
 import { ComentarioRepository } from './repositories/comentario.repository'
 import { ComentarioService } from './services/comentario.service'
+import { AntecedenteRepository } from './repositories/antecedentes.repository'
+import { AntecedenteService } from './services/antecedentes.service'
 
 @Module({
   imports: [forwardRef(() => GestionPacientesModule)],
@@ -23,6 +25,8 @@ import { ComentarioService } from './services/comentario.service'
     EvaluacionNutricionalService,
     ComentarioRepository,
     ComentarioService,
+    AntecedenteRepository,
+    AntecedenteService,
   ],
   exports: [
     EvaluacionNutricionalService,

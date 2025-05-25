@@ -10,6 +10,7 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Status } from '@/common/constants'
 import { HistoriaClinica } from './historia-clinica.entity'
 import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
+import { Antecedente } from './antecedente.entity'
 
 @Entity({
   name: 'archivos_adjuntos',
@@ -81,6 +82,18 @@ export class ArchivoAdjunto extends AuditoriaEntity {
   )
   @JoinColumn({ name: 'id_evaluacion_nutricional' })
   evaluacionNutricional: HistoriaClinica
+
+  @Column({
+    name: 'id_antecedente',
+    type: 'bigint',
+    nullable: false,
+    comment: 'Identificador del antecedente asociado',
+  })
+  idAntecedente: string
+
+  @ManyToOne(() => Antecedente, (antecedente) => antecedente.archivos)
+  @JoinColumn({ name: 'id_antecedente' })
+  antecedente: Antecedente
 
   constructor(data?: Partial<ArchivoAdjunto>) {
     super(data)

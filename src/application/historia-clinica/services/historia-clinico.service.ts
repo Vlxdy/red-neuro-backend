@@ -7,13 +7,15 @@ import { HistoriaClinicaRepository } from '../repositories/historia-clinica.repo
 import { HistoriaClinica } from '../entities/historia-clinica.entity'
 import { formatearUsuarioRolRespuesta } from '@/application/gestion-pacientes/utils/formateos'
 import { HistoriaClinicaResponse } from '@/common/types/data-response.type'
+import { AntecedenteService } from './antecedentes.service'
 
 @Injectable()
 export class HistoriaClinicaService extends BaseService {
   constructor(
     private readonly historiaClinicaRepository: HistoriaClinicaRepository,
     private readonly medicosService: MedicosService,
-    private readonly pacienteService: PacientesService
+    private readonly pacienteService: PacientesService,
+    private readonly antecedenteService: AntecedenteService
   ) {
     super()
   }
@@ -112,7 +114,18 @@ export class HistoriaClinicaService extends BaseService {
       throw new Error('Historial médico no encontrado')
     }
 
-    return this.formatearHistoriaClinica(historiaClinica)
+    const antecedente =
+      await this.antecedenteService.buscarAntecedentePorHistoriaClinica(
+        historiaClinica.id
+      )
+
+    const historiaClinicaFormateada =
+      this.formatearHistoriaClinica(historiaClinica)
+
+    return {
+      ...historiaClinicaFormateada,
+      antecedente,
+    }
   }
 
   async buscarPorPaciente(idPaciente: string, transaccion?: EntityManager) {

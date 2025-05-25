@@ -5,10 +5,12 @@ import {
   ManyToOne,
   JoinColumn,
   BeforeInsert,
+  OneToMany,
 } from 'typeorm'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Status } from '@/common/constants'
 import { HistoriaClinica } from './historia-clinica.entity'
+import { ArchivoAdjunto } from './archivos-adjunto.entity'
 
 @Entity({
   name: 'antecedentes',
@@ -22,37 +24,102 @@ export class Antecedente extends AuditoriaEntity {
   })
   id: string
 
-  @Column({
-    name: 'tipo',
-    type: 'text',
-    nullable: false,
-    comment: 'Tipo de antecedente (ejemplo: personal, familiar)',
-  })
-  tipo: string
+  // Datos clínicos familiares
+  @Column({ type: 'text', nullable: true, comment: 'Antecedentes familiares' })
+  antecedentesFamiliares?: string
 
   @Column({
-    name: 'parentesco',
+    type: 'boolean',
+    default: false,
+    comment: '¿Tiene enfermedad diagnosticada?',
+  })
+  enfermedadDiagnosticada: boolean
+
+  @Column({
     type: 'text',
     nullable: true,
-    comment: 'Parentesco del antecedente (si aplica)',
+    comment: 'Descripción de la enfermedad',
   })
-  parentesco: string
+  descripcionEnfermedad?: string
+
+  @Column({ type: 'boolean', default: false, comment: '¿Sigue tratamiento?' })
+  sigueTratamiento: boolean
 
   @Column({
-    name: 'enfermedad',
-    type: 'text',
-    nullable: false,
-    comment: 'Nombre de la enfermedad o condición del antecedente',
-  })
-  enfermedad: string
-
-  @Column({
-    name: 'observaciones',
     type: 'text',
     nullable: true,
-    comment: 'Observaciones adicionales sobre el antecedente',
+    comment: 'Descripción del tratamiento',
   })
-  observaciones: string
+  descripcionTratamiento?: string
+
+  @Column({ type: 'boolean', default: false, comment: '¿Ha tenido cirugía?' })
+  tieneCirugia: boolean
+
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Descripción de la cirugía',
+  })
+  descripcionCirugia?: string
+
+  // Gastrointestinal
+  @Column({ type: 'boolean', default: false, comment: '¿Tiene estreñimiento?' })
+  tieneEstrenimiento: boolean
+
+  @Column({ type: 'boolean', default: false, comment: '¿Tiene diarrea?' })
+  tieneDiarrea: boolean
+
+  @Column({ type: 'boolean', default: false, comment: '¿Tiene náuseas?' })
+  tieneNauseas: boolean
+
+  @Column({ type: 'boolean', default: false, comment: '¿Tiene vómitos?' })
+  tieneVomitos: boolean
+
+  @Column({ type: 'text', nullable: true, comment: 'Frecuencia de evacuación' })
+  frecuenciaEvacuacion?: string
+
+  @Column({ type: 'text', nullable: true, comment: 'Tipo de deposición' })
+  tipoDeposicion?: string
+
+  // Alergias e intolerancias
+  @Column({ type: 'text', nullable: true, comment: 'Alergias alimentarias' })
+  alergias?: string
+
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Intolerancias alimentarias',
+  })
+  intolerancias?: string
+
+  // Datos ginecológicos
+  @Column({
+    type: 'date',
+    nullable: true,
+    comment: 'Fecha de última menstruación',
+  })
+  fechaUltimaMenstruacion?: Date | string
+
+  @Column({
+    type: 'boolean',
+    nullable: true,
+    comment: '¿Menstruación regular?',
+  })
+  menstruacionRegular?: boolean
+
+  @Column({ type: 'text', nullable: true, comment: 'Método anticonceptivo' })
+  metodoAnticonceptivo?: string
+
+  @Column({ type: 'boolean', nullable: true, comment: '¿Presenta cólicos?' })
+  colicos?: boolean
+
+  // Dietas anteriores
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Dietas anteriores, tipos y resultados',
+  })
+  dietasAnteriores?: string
 
   @Column({
     name: 'id_historia_clinica',
@@ -65,6 +132,13 @@ export class Antecedente extends AuditoriaEntity {
   @ManyToOne(() => HistoriaClinica, (historial) => historial.antecedente)
   @JoinColumn({ name: 'id_historia_clinica' })
   historiaClinica: HistoriaClinica
+
+  @OneToMany(
+    () => ArchivoAdjunto,
+    (archivoAdjunto) => archivoAdjunto.antecedente,
+    { cascade: true }
+  )
+  archivos: ArchivoAdjunto[]
 
   constructor(data?: Partial<Antecedente>) {
     super(data)

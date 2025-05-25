@@ -105,3 +105,60 @@ export interface ArchivoAdjuntoResponse {
   idHistoriaClinica: string
   idEvaluacionNutricional: string
 }
+
+export interface AntecedenteResponse {
+  antecedentesFamiliares?: string
+
+  enfermedadDiagnosticada: boolean
+
+  descripcionEnfermedad?: string
+
+  sigueTratamiento: boolean
+
+  descripcionTratamiento?: string
+
+  tieneCirugia: boolean
+
+  descripcionCirugia?: string
+
+  // DATOS GASTROINTESTINALES
+
+  tieneEstrenimiento: boolean
+
+  tieneDiarrea: boolean
+
+  tieneNauseas: boolean
+
+  tieneVomitos: boolean
+
+  frecuenciaEvacuacion?: string
+
+  tipoDeposicion?: string
+
+  // ALERGIAS E INTOLERANCIAS
+
+  alergias?: string
+
+  intolerancias?: string
+
+  // DATOS GINECOLÓGICOS
+
+  fechaUltimaMenstruacion?: string
+
+  menstruacionRegular?: boolean
+
+  metodoAnticonceptivo?: string
+
+  colicos?: boolean
+
+  // DIETAS ANTERIORES
+
+  dietasAnteriores?: string
+
+  id: string
+  fechaCreacion: Date
+  idHistoriaClinica: string
+  estado: string
+
+  archivos?: ArchivoAdjuntoResponse[] | null
+}
