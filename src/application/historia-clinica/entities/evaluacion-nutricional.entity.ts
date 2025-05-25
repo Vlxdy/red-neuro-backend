@@ -28,35 +28,201 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   id: string
 
   //  Medidas antropométricas
+
   @Column({
-    name: 'peso',
-    type: 'numeric',
+    type: 'int',
+    nullable: true,
+    comment: 'Día del ciclo menstrual en el que se encuentra la paciente',
+  })
+  diaMenstruacion?: number
+
+  // Medidas básicas
+  @Column('numeric', {
     precision: 6,
     scale: 2,
     nullable: true,
-    comment: 'Peso del paciente',
+    comment: 'Masa corporal actual (kg)',
   })
-  peso: number
+  masaCorporal?: number
 
-  @Column({
-    name: 'talla',
-    type: 'numeric',
+  @Column('numeric', {
+    precision: 6,
+    scale: 2,
+    nullable: true,
+    comment: 'Peso en competición (kg)',
+  })
+  pesoCompeticion?: number
+
+  @Column('numeric', {
+    precision: 6,
+    scale: 2,
+    nullable: true,
+    comment: 'Peso objetivo (kg)',
+  })
+  pesoObjetivo?: number
+
+  @Column('numeric', {
     precision: 5,
     scale: 2,
     nullable: true,
-    comment: 'Talla del paciente',
+    comment: 'Estatura de pie (cm)',
   })
-  talla: number
+  estatura?: number
 
-  @Column({
-    name: 'imc',
-    type: 'numeric',
+  @Column('numeric', {
     precision: 5,
     scale: 2,
     nullable: true,
-    comment: 'Indice de masa corporal del paciente',
+    comment: 'Envergadura (cm)',
   })
-  imc: number
+  envergadura?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Estatura sentada (cm)',
+  })
+  estaturaSentada?: number
+
+  // Pliegues
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Pliegue tricipital (mm)',
+  })
+  triceps?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Pliegue subescapular (mm)',
+  })
+  subescapular?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Pliegue de bíceps (mm)',
+  })
+  biceps?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Pliegue en cresta ilíaca (mm)',
+  })
+  crestaIliaca?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Pliegue supra espinal (mm)',
+  })
+  supraEspinal?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Pliegue abdominal (mm)',
+  })
+  abdominal?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Pliegue en muslo (mm)',
+  })
+  muslo?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Pliegue en pierna (mm)',
+  })
+  pierna?: number
+
+  // Perímetros
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Perímetro del brazo relajado (cm)',
+  })
+  brazoRelajado?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Perímetro del brazo contraído (cm)',
+  })
+  brazoFlexContraido?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Perímetro de cintura (cm)',
+  })
+  cintura?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Perímetro de caderas (cm)',
+  })
+  caderas?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Perímetro del muslo medio (cm)',
+  })
+  musloMedio?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Perímetro de pierna (cm)',
+  })
+  piernaPerimetro?: number
+
+  // Diámetros
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Diámetro del húmero (cm)',
+  })
+  humero?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Diámetro biestiloideo (cm)',
+  })
+  biEstiloideo?: number
+
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Diámetro del fémur (cm)',
+  })
+  femur?: number
 
   // Hábitos alimentarios
 
@@ -77,6 +243,47 @@ export class EvaluacionNutricional extends AuditoriaEntity {
     comment: 'Diagnóstico del paciente',
   })
   diagnostico: string
+
+  // Cálculos automáticos
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Índice de masa corporal (IMC)',
+  })
+  imc?: number | null
+
+  @Column('numeric', {
+    precision: 6,
+    scale: 2,
+    nullable: true,
+    comment: 'Masa grasa estimada (kg)',
+  })
+  masaGrasa?: number | null
+
+  @Column('numeric', {
+    precision: 6,
+    scale: 2,
+    nullable: true,
+    comment: 'Masa libre de grasa estimada (kg)',
+  })
+  masaLibreGrasa?: number | null
+
+  @Column('numeric', {
+    precision: 4,
+    scale: 2,
+    nullable: true,
+    comment: 'Relación cintura/cadera',
+  })
+  relacionCinturaCadera?: number | null
+
+  @Column('numeric', {
+    precision: 6,
+    scale: 2,
+    nullable: true,
+    comment: 'Peso residual (kg)',
+  })
+  pesoResidual?: number | null
 
   @Column({
     name: 'id_historia_clinica',

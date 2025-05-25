@@ -16,7 +16,7 @@ import { HistoriaClinicaService } from '../services/historia-clinico.service'
 import { EvaluacionNutricionalService } from '../services/evaluacion-nutricional.service'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
-import { CrearEvaluacionDto } from '../dtos/evaluacion.dto'
+import { CreateEvaluacionAntropometricaDto } from '../dtos/evaluacion.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { ComentarioService } from '../services/comentario.service'
 import { CrearComentarioDto } from '../dtos/comentario.dto'
@@ -46,7 +46,7 @@ export class HistoriaClinicaController extends BaseController {
   async crearEvaluacionNutricional(
     @Param() params: ParamIdDto,
     @Req() req: Request,
-    @Body() data: CrearEvaluacionDto
+    @Body() data: CreateEvaluacionAntropometricaDto
   ) {
     const { id } = params
     const usuarioAuditoria = this.getUser(req)

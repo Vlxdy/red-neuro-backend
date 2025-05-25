@@ -34,14 +34,65 @@ export interface CitaResponse {
 
 export interface EvaluacionNutricionalResponde {
   id: string
-  peso: number
-  talla: number
-  imc: number
-  requerimientoCalorico: number
-  diagnostico: string
+
   idHistoriaClinica: string
   archivos?: ArchivoAdjuntoResponse[] | null
   fechaCreacion: Date
+
+  masaCorporal?: number | null
+
+  pesoCompeticion?: number | null
+
+  pesoObjetivo?: number | null
+
+  estatura?: number | null
+
+  envergadura?: number | null
+  estaturaSentada?: number | null
+
+  triceps?: number | null
+
+  subescapular?: number | null
+
+  biceps?: number | null
+
+  crestaIliaca?: number | null
+
+  supraEspinal?: number | null
+
+  abdominal?: number | null
+
+  muslo?: number | null
+
+  pierna?: number | null
+
+  brazoRelajado?: number | null
+
+  brazoFlexContraido?: number | null
+
+  cintura?: number | null
+
+  caderas?: number | null
+
+  musloMedio?: number | null
+
+  piernaPerimetro?: number | null
+
+  humero?: number | null
+
+  biEstiloideo?: number | null
+
+  femur?: number | null
+
+  requerimientoCalorico?: number | null
+
+  diagnostico?: string
+
+  imc?: number | null
+  masaGrasa?: number | null
+  masaLibreGrasa?: number | null
+  relacionCinturaCadera?: number | null
+  pesoResidual?: number | null
 }
 export interface ArchivoAdjuntoResponse {
   id: string

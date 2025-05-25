@@ -31,6 +31,9 @@ export class HistoriaClinicaRepository {
     return await (transaccion || this.dataSource)
       .getRepository(HistoriaClinica)
       .createQueryBuilder('historiaClinica')
+      .leftJoinAndSelect('historiaClinica.paciente', 'paciente')
+      .leftJoinAndSelect('paciente.usuario', 'usuarioPaciente')
+      .leftJoinAndSelect('usuarioPaciente.persona', 'personaPaciente')
       .where({ id })
       .getOne()
   }
