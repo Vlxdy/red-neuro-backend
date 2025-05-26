@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common'
@@ -14,6 +16,7 @@ import { JwtAuthGuard } from 'src/core/authentication/guards/jwt-auth.guard'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ComentarioService } from '../services/comentario.service'
 import { CrearComentarioDto } from '../dtos/comentario.dto'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @ApiTags('Comentarios')
 @ApiBearerAuth()
@@ -67,5 +70,18 @@ export class ComentarioController extends BaseController {
       idUsuarioRol: this.getUsuarioRol(req),
     })
     return this.successCreate(result)
+  }
+
+  @Get()
+  async listarComentarios(
+    @Req() req: Request,
+    @Query() paginacionQueryDto: PaginacionQueryDto
+  ) {
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const result = await this.comentarioService.listarComentariosPaciente({
+      idPaciente: idUsuarioRol,
+      paginacionQueryDto,
+    })
+    return this.success(result)
   }
 }

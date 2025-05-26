@@ -6,12 +6,16 @@ import { Status } from '../../../common/constants'
 import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
 import { ComentarioRepository } from '../repositories/comentario.repository'
 import { CrearComentarioDto } from '../dtos/comentario.dto'
+import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
+import { HistoriaClinicaService } from './historia-clinico.service'
 
 @Injectable()
 export class ComentarioService extends BaseService {
   constructor(
     @Inject(ComentarioRepository)
-    private comentarioRepositorio: ComentarioRepository
+    private comentarioRepositorio: ComentarioRepository,
+    private readonly pacienteService: PacientesService,
+    private readonly historiaClinicaService: HistoriaClinicaService
   ) {
     super()
   }
@@ -152,5 +156,24 @@ export class ComentarioService extends BaseService {
       throw new NotFoundException(Messages.EXCEPTION_NOT_FOUND)
     }
     return comentario
+  }
+
+  async listarComentariosPaciente({
+    idPaciente,
+    paginacionQueryDto,
+  }: {
+    idPaciente: string
+    paginacionQueryDto: PaginacionQueryDto
+  }) {
+    const paciente = await this.pacienteService.obtenerPaciente(idPaciente)
+
+    const historiasClinicas =
+      await this.historiaClinicaService.buscarPorPaciente(paciente.id)
+    if (!historiasClinicas) {
+      throw new NotFoundException(
+        'No se encontraron historias clínicas para el paciente'
+      )
+    }
+    return await this.listarPorRecurso(paginacionQueryDto, historiasClinicas.id)
   }
 }
