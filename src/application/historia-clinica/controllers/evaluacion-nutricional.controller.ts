@@ -1,13 +1,16 @@
-import { Controller, UseGuards } from '@nestjs/common'
+import { Body, Controller, Param, Patch, Req, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { EvaluacionNutricionalService } from '../services/evaluacion-nutricional.service'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
+import { Request } from 'express'
+import { ActualizarEvaluacionAntropometricaDto } from '../dtos/evaluacion.dto'
 
 @ApiTags('Evaluaciones')
 @ApiBearerAuth()
-@Controller('evaluaciones-nutricionales')
+@Controller('evaluacion-nutricional')
 // @UseGuards(JwtAuthGuard, CasbinGuard)
 @UseGuards(JwtAuthGuard)
 export class EvaluacionesController extends BaseController {
@@ -15,6 +18,23 @@ export class EvaluacionesController extends BaseController {
     private evaluacionesNutricionalesService: EvaluacionNutricionalService
   ) {
     super()
+  }
+
+  @Patch(':id')
+  async modificarEvalucacion(
+    @Param() params: ParamIdDto,
+    @Req() req: Request,
+    @Body() data: ActualizarEvaluacionAntropometricaDto
+  ) {
+    const { id } = params
+    const usuarioAuditoria = this.getUser(req)
+    const respuesta =
+      await this.evaluacionesNutricionalesService.modificarEvaluacion({
+        idEvaluacionNutricional: id,
+        data,
+        usuarioAuditoria,
+      })
+    return this.successCreate(respuesta)
   }
 
   // @ApiOperation({

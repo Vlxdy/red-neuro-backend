@@ -1,7 +1,10 @@
 import { BaseService } from '@/common/base/base-service'
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
-import { CreateEvaluacionAntropometricaDto } from '../dtos/evaluacion.dto'
+import {
+  ActualizarEvaluacionAntropometricaDto,
+  CreateEvaluacionAntropometricaDto,
+} from '../dtos/evaluacion.dto'
 import { EvaluacionNutricionalRepository } from '../repositories/evaluacion-nutricional.repository'
 import { HistoriaClinicaService } from './historia-clinico.service'
 import { CitasService } from '@/application/gestion-pacientes/services/citas.service'
@@ -114,6 +117,77 @@ export class EvaluacionNutricionalService extends BaseService {
       )
 
     return [this.formatearEvaluaciones(evalucaciones), numero]
+  }
+
+  async modificarEvaluacion({
+    idEvaluacionNutricional,
+    data,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    idEvaluacionNutricional: string
+    data: ActualizarEvaluacionAntropometricaDto
+    usuarioAuditoria: string
+    transaccion?: EntityManager
+  }) {
+    if (!transaccion) {
+      const op = async (nuevaTransaccion: EntityManager) => {
+        return await this.modificarEvaluacion({
+          idEvaluacionNutricional,
+          data,
+          usuarioAuditoria,
+          transaccion: nuevaTransaccion,
+        })
+      }
+
+      return await this.evaluacionNutricionalRepositorio.runTransaction(op)
+    }
+    const evaluacion = await this.evaluacionNutricionalRepositorio.buscarPorId(
+      idEvaluacionNutricional
+    )
+    if (!evaluacion) {
+      throw new NotFoundException('Evaluación nutricional no encontrada')
+    }
+    const historiaClinica =
+      await this.historiaClinicaService.obtenerHistoriaClinica(
+        evaluacion.idHistoriaClinica,
+        transaccion
+      )
+    await this.evaluacionNutricionalRepositorio.actualizar({
+      id: idEvaluacionNutricional,
+      datosDto: data,
+      usuarioAuditoria,
+      transaccion: transaccion,
+    })
+
+    const evaluacionActualizada =
+      await this.evaluacionNutricionalRepositorio.buscarPorId(
+        idEvaluacionNutricional
+      )
+    const {
+      imc,
+      masaGrasa,
+      masaLibreGrasa,
+      relacionCinturaCadera,
+      pesoResidual,
+    } = this.calcularValoresDerivados(
+      {
+        ...evaluacionActualizada,
+      },
+      historiaClinica
+    )
+    await this.evaluacionNutricionalRepositorio.actualizar({
+      id: idEvaluacionNutricional,
+      datosDto: {
+        imc,
+        masaGrasa,
+        masaLibreGrasa,
+        relacionCinturaCadera,
+        pesoResidual,
+      },
+      usuarioAuditoria,
+      transaccion: transaccion,
+    })
   }
 
   formatearEvaluaciones(

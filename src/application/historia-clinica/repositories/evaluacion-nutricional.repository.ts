@@ -20,16 +20,18 @@ export class EvaluacionNutricionalRepository {
     id,
     datosDto,
     usuarioAuditoria,
+    transaccion,
   }: {
     id: string
     datosDto: Partial<EvaluacionNutricional>
     usuarioAuditoria: string
+    transaccion: EntityManager
   }) {
     const datosActualizar = new EvaluacionNutricional({
       ...datosDto,
       usuarioModificacion: usuarioAuditoria,
     })
-    return await this.dataSource
+    return await transaccion
       .getRepository(EvaluacionNutricional)
       .update(id, datosActualizar)
   }
