@@ -41,6 +41,8 @@ export class CitasService extends BaseService {
       const [citas, cantidad] = await this.citasRepositorio.listarPorPaciente({
         idUsuarioRol,
       })
+      console.log('citas====================', citas)
+
       return [this.formatarCitas(citas), cantidad]
     } else if (idRol === RolEnumId.NUTRICIONISTA) {
       const [citas, cantidad] =

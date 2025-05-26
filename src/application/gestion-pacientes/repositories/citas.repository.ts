@@ -74,6 +74,10 @@ export class CitasRepository {
       .leftJoinAndSelect('citas.medico', 'medico')
       .leftJoinAndSelect('medico.usuario', 'usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
+
+      .leftJoinAndSelect('citas.paciente', 'paciente')
+      .leftJoinAndSelect('paciente.usuario', 'usuarioPaciente')
+      .leftJoinAndSelect('usuarioPaciente.persona', 'personaPaciente')
       .select([
         'citas.id',
         'citas.detalle',
@@ -81,12 +85,20 @@ export class CitasRepository {
         'citas.fechaFin',
         'citas.estado',
         'medico.id',
+        'paciente.id',
         'usuario.id',
         'usuario.urlFoto',
         'persona.nombres',
         'persona.primerApellido',
         'persona.segundoApellido',
         'persona.nroDocumento',
+        // paciente
+        'usuarioPaciente.id',
+        'usuarioPaciente.urlFoto',
+        'personaPaciente.nombres',
+        'personaPaciente.primerApellido',
+        'personaPaciente.segundoApellido',
+        'personaPaciente.nroDocumento',
       ])
       .where({ idPaciente: idUsuarioRol })
       .andWhere('citas.estado != :estado', { estado: CitasEstado.INACTIVO })
