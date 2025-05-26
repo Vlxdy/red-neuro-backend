@@ -39,6 +39,79 @@ export class modulo1611497480901 implements MigrationInterface {
           },
         ],
       },
+      {
+        nombre: 'Mi salud',
+        url: '/mi-salud',
+        label: 'Mi salud',
+        propiedades: {
+          descripcion: 'Sección de salud',
+          orden: 1,
+        },
+        subMenus: [
+          {
+            nombre: 'Plan nutricional',
+            url: '/admin/plan-nutricional',
+            label: 'Plan nutricional',
+            propiedades: {
+              icono: 'restaurant_menu',
+              descripcion: 'Plan nutricional del paciente',
+              orden: 1,
+            },
+          },
+          {
+            nombre: 'Lista de compras',
+            url: '/admin/lista-compras',
+            label: 'Lista de compras',
+            propiedades: {
+              icono: 'shopping_bag',
+              descripcion: 'Lista de compras',
+              orden: 2,
+            },
+          },
+          {
+            nombre: 'Mis actividades',
+            url: '/admin/mi-actividad',
+            label: 'Mis actividades',
+            propiedades: {
+              icono: 'directions_run',
+              descripcion: 'Actividades de salud',
+              orden: 3,
+            },
+          },
+          {
+            nombre: 'recomendaciones',
+            url: '/admin/recomendaciones',
+            label: 'Recomendaciones',
+            propiedades: {
+              icono: 'tips_and_updates',
+              descripcion: 'Recomendaciones para mis pacientes',
+              orden: 4,
+            },
+          },
+        ],
+      },
+      {
+        nombre: 'Seguimiento-Paciente',
+        url: '/seguimiento-paciente',
+        label: 'Seguimiento',
+        propiedades: {
+          descripcion: 'Sección de seguimiento',
+          orden: 2,
+        },
+        subMenus: [
+          {
+            nombre: 'mi-seguimiento',
+            url: '/admin/mi-seguimiento',
+            label: 'Mi seguimiento',
+            propiedades: {
+              icono: 'monitor_heart',
+              descripcion: 'Seguimiento de mis pacientes',
+              orden: 1,
+            },
+          },
+        ],
+      },
+
       // MENU SECCION CONFIGURACIONES
       {
         nombre: 'configuraciones',

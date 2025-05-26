@@ -50,6 +50,22 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/admin/pacientes-asignados': {
         [RolEnum.NUTRICIONISTA]: 'read|create|update|delete',
       },
+
+      '/admin/mi-seguimiento': {
+        [RolEnum.PACIENTE]: 'read|create|update|delete',
+      },
+      '/admin/plan-nutricional': {
+        [RolEnum.PACIENTE]: 'read|create|update|delete',
+      },
+      '/admin/lista-compras': {
+        [RolEnum.PACIENTE]: 'read|create|update|delete',
+      },
+      '/admin/mi-actividad': {
+        [RolEnum.PACIENTE]: 'read|create|update|delete',
+      },
+      '/admin/recomendaciones': {
+        [RolEnum.PACIENTE]: 'read|create|update|delete',
+      },
     }
 
     const backendRoutes: CasbinValue = {
