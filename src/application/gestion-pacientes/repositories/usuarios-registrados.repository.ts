@@ -222,7 +222,14 @@ export class UsuariosRegistradosRepository {
         estado: RolEstado.ACTIVE,
       })
       .leftJoinAndSelect('usuario.persona', 'persona')
-
+      .innerJoinAndSelect(
+        'usuarioRol.asignacionPacientes',
+        'asignacionPacientes',
+        'asignacionPacientes.estado = :estado',
+        {
+          estado: RolEstado.ACTIVE,
+        }
+      )
       .select([
         'usuario.id',
         'usuario.usuario',
@@ -241,6 +248,7 @@ export class UsuariosRegistradosRepository {
         'persona.fechaNacimiento',
         'persona.tipoDocumento',
         'persona.telefono',
+        'asignacionPacientes',
       ])
       .where('usuarioRol.estado = :estado', {
         estado: UsuarioRolEstado.ACTIVE,
