@@ -73,6 +73,14 @@ export class PacientesService extends BaseService {
     return [formatearUsuariosRolesRespuesta(uduarios), total]
   }
 
+  async listarPacientes(
+    params: PaginacionQueryDto
+  ): Promise<[UsuariosRegistradosResponse[], number]> {
+    const [usuariosRol, total] =
+      await this.usuarioRegistradoRepositorio.listarPacientes(params)
+    return [formatearUsuariosRolesRespuesta(usuariosRol), total]
+  }
+
   async ReportePaciente(usuarioAuditoria: string, idPasiente: string) {
     const paciente = await this.obtenerPaciente(idPasiente)
     console.log('esto esta en pacientes', paciente)

@@ -16,6 +16,7 @@ import { PacientesService } from '../services/pacientes.service'
 import { PacientesAsignadosDto } from '../dto/usuarios-registrados.dto'
 import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @ApiTags('Pacientes')
 @ApiBearerAuth()
@@ -42,6 +43,15 @@ export class PacientesController extends BaseController {
       paginacionQueryDto,
       idUsuarioRol
     )
+    return this.successListRows(result as any)
+  }
+
+  @Get()
+  async listarPacientes(@Query() paginacionQueryDto: PaginacionQueryDto) {
+    console.log('paginacionQueryDto', paginacionQueryDto)
+
+    const result =
+      await this.pacientesService.listarPacientes(paginacionQueryDto)
     return this.successListRows(result as any)
   }
 
