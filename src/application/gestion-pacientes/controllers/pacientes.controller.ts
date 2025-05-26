@@ -21,7 +21,7 @@ import { ParamIdDto } from '@/common/dto/params-id.dto'
 @ApiBearerAuth()
 @Controller('pacientes')
 // @UseGuards(JwtAuthGuard, CasbinGuard)
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class PacientesController extends BaseController {
   constructor(
     private pacientesService: PacientesService,

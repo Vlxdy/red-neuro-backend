@@ -1,5 +1,5 @@
 import { BaseService } from '@/common/base/base-service'
-import { Injectable } from '@nestjs/common'
+import { Injectable, PreconditionFailedException } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { MedicosService } from '@/application/gestion-pacientes/services/medicos.service'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
@@ -111,7 +111,7 @@ export class HistoriaClinicaService extends BaseService {
         // idMedico
       )
     if (!historiaClinica) {
-      throw new Error('Historial médico no encontrado')
+      throw new PreconditionFailedException('Historial médico no encontrado')
     }
 
     const antecedente =

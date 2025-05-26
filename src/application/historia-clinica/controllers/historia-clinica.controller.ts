@@ -127,4 +127,16 @@ export class HistoriaClinicaController extends BaseController {
     })
     return this.successCreate(result)
   }
+
+  @Get()
+  async obtenerHistoriasClinica(@Req() req: Request) {
+    const idPaciente = this.getUsuarioRol(req)
+    const historiasClinicas =
+      await this.historiaClinicaService.obtenerHistoriaClinicaPorPacienteCompleto(
+        {
+          idPaciente,
+        }
+      )
+    return this.success(historiasClinicas)
+  }
 }
