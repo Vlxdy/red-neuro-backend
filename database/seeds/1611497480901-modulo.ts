@@ -79,15 +79,25 @@ export class modulo1611497480901 implements MigrationInterface {
             },
           },
           {
-            nombre: 'recomendaciones',
-            url: '/admin/recomendaciones',
-            label: 'Recomendaciones',
+            nombre: 'comunicacion y consultas',
+            url: '/admin/comunicacion',
+            label: 'Comunicación y consultas',
             propiedades: {
-              icono: 'tips_and_updates',
-              descripcion: 'Recomendaciones para mis pacientes',
+              icono: 'chat',
+              descripcion: 'Comunicación con el nutricionista',
               orden: 4,
             },
           },
+          // {
+          //   nombre: 'recomendaciones',
+          //   url: '/admin/recomendaciones',
+          //   label: 'Recomendaciones',
+          //   propiedades: {
+          //     icono: 'tips_and_updates',
+          //     descripcion: 'Recomendaciones para mis pacientes',
+          //     orden: 5,
+          //   },
+          // },
         ],
       },
       {

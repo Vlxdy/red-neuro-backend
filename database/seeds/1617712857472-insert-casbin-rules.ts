@@ -66,6 +66,9 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/admin/recomendaciones': {
         [RolEnum.PACIENTE]: 'read|create|update|delete',
       },
+      '/admin/comunicacion': {
+        [RolEnum.PACIENTE]: 'read|create|update|delete',
+      },
     }
 
     const backendRoutes: CasbinValue = {
