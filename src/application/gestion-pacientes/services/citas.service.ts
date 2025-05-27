@@ -135,11 +135,12 @@ export class CitasService extends BaseService {
     if (!cita) {
       throw new NotFoundException('Cita no encontrada')
     }
-    if (idMedico !== cita.idMedico) {
-      throw new ForbiddenException(
-        'No tiene permiso para acceder a esta información'
-      )
-    }
+    // TODO: verificar si el medico tiene permiso para actualizar la cita
+    // if (idMedico !== cita.idMedico) {
+    //   throw new ForbiddenException(
+    //     'No tiene permiso para acceder a esta información'
+    //   )
+    // }
 
     const { idPaciente, detalle, fechaFin, fechaInicio, estado } = data
 

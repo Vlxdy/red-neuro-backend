@@ -78,16 +78,7 @@ export class modulo1611497480901 implements MigrationInterface {
               orden: 3,
             },
           },
-          {
-            nombre: 'comunicacion y consultas',
-            url: '/admin/comunicacion',
-            label: 'Comunicación y consultas',
-            propiedades: {
-              icono: 'chat',
-              descripcion: 'Comunicación con el nutricionista',
-              orden: 4,
-            },
-          },
+
           // {
           //   nombre: 'recomendaciones',
           //   url: '/admin/recomendaciones',
@@ -117,6 +108,26 @@ export class modulo1611497480901 implements MigrationInterface {
               icono: 'monitor_heart',
               descripcion: 'Seguimiento de mis pacientes',
               orden: 1,
+            },
+          },
+          {
+            nombre: 'comunicacion y consultas',
+            url: '/admin/comunicacion',
+            label: 'Comunicación y consultas',
+            propiedades: {
+              icono: 'chat',
+              descripcion: 'Comunicación con el nutricionista',
+              orden: 2,
+            },
+          },
+          {
+            nombre: 'notificaciones',
+            url: '/admin/notificaciones',
+            label: 'Notificaciones',
+            propiedades: {
+              icono: 'notifications',
+              descripcion: 'Notificaciones del sistema',
+              orden: 3,
             },
           },
         ],
