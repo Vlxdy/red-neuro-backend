@@ -60,19 +60,24 @@ export class NotificacionRepository {
     return await transaction.getRepository(Notificacion).save(nuevaNotificacion)
   }
 
-  async actualizarView(
-    idNotificaciones: Array<string>,
-    idUsuario: string,
-    idUsuarioRol: string,
+  async actualizarView({
+    idNotificaciones,
+    usuarioAuditoria,
+    idPaciente,
+    transaction,
+  }: {
+    idNotificaciones: Array<string>
+    idPaciente: string
+    usuarioAuditoria: string
     transaction: EntityManager
-  ) {
+  }) {
     const query = transaction
       .getRepository(Notificacion)
       .createQueryBuilder()
       .update(Notificacion)
-      .set({ visto: true, usuarioModificacion: idUsuario })
+      .set({ visto: true, usuarioModificacion: usuarioAuditoria })
       .where('id IN (:...idNotificaciones)', { idNotificaciones })
-      .andWhere('idUsuarioRol = :idUsuarioRol', { idUsuarioRol })
+      .andWhere('idPaciente = :idPaciente', { idPaciente })
     return await query.execute()
   }
 

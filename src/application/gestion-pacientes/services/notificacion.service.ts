@@ -130,12 +130,12 @@ export class NotificacionService extends BaseService {
 
     await this.pacienteService.obtenerPaciente(idPaciente, transaction)
 
-    return await this.notificacionRepositorio.actualizarView(
+    return await this.notificacionRepositorio.actualizarView({
       idNotificaciones,
       idPaciente,
       usuarioAuditoria,
-      transaction
-    )
+      transaction,
+    })
   }
   formatearNotificacion(notificacion: Notificacion): NotificacionResponse {
     return {
