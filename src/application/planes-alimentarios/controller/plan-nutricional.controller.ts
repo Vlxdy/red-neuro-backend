@@ -65,6 +65,18 @@ export class PlanNutricionalController extends BaseController {
     return this.success(resultado)
   }
 
+  @Get('/paciente/:idUsuarioRol/fecha/:fecha')
+  async buscarPorFecha(
+    @Param('idUsuarioRol') idUsuarioRol: string,
+    @Param('fecha') fecha: string
+  ) {
+    const resultado = await this.service.buscarPorUsuarioRolYFecha(
+      idUsuarioRol,
+      fecha
+    )
+    return this.success(resultado)
+  }
+
   @Get()
   async listarTodos(@Query() paginacion: PaginacionQueryDto) {
     const resultado = await this.service.listarTodos(paginacion)

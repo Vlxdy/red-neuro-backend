@@ -74,6 +74,35 @@ export class PlanNutricionalService {
     if (!plan) throw new NotFoundException('Plan nutricional no encontrado')
     return plan
   }
+  async buscarPorUsuarioRolYFecha(idUsuarioRol: string, fecha: string) {
+    const paciente =
+      await this.asignacionRepository.buscarPacientePorIdUsuarioRol(
+        idUsuarioRol
+      )
+    if (!paciente) throw new NotFoundException('Paciente no encontrado')
+
+    const planNutricional = await this.repository.buscarPorPacienteYFecha(
+      paciente.id,
+      fecha
+    )
+
+    let planNutricionalDto
+    if (planNutricional) {
+      const existePlanes = planNutricional.plan.length > 0
+      planNutricionalDto = {
+        id: planNutricional.id,
+        fecha: planNutricional.fecha,
+        alimentos: existePlanes
+          ? await this.alimentosService.listarPorIds(planNutricional.plan)
+          : [],
+      }
+    }
+
+    return {
+      encontrado: !!planNutricional,
+      planNutricional: planNutricionalDto,
+    }
+  }
 
   async listarTodos(paginacionQueryDto: PaginacionQueryDto) {
     return await this.repository.listarTodos(paginacionQueryDto)

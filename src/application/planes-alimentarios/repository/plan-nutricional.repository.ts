@@ -43,6 +43,18 @@ export class PlanNutricionalRepository {
       .getOne()
   }
 
+  async buscarPorPacienteYFecha(idPaciente: string, fecha: string) {
+    return await this.dataSource
+      .getRepository(PlanNutricional)
+      .createQueryBuilder('plan')
+      .where({
+        idPaciente,
+        fecha,
+        estado: PlanNutricionalEstado.ACTIVO,
+      })
+      .getOne()
+  }
+
   async listarTodos(paginacionQueryDto: PaginacionQueryDto) {
     const { limite, saltar, filtro, orden, sentido } = paginacionQueryDto
 
