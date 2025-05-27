@@ -46,6 +46,6 @@ export class MedicosController extends BaseController {
       paginacionQueryDto,
       idMedico
     )
-    return this.successListRows(result as any)
+    return this.successListRows(result)
   }
 }

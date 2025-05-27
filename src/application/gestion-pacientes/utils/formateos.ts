@@ -26,5 +26,6 @@ export function formatearUsuarioRolRespuesta(
     estado: usuarioRol.estado,
     urlFoto: usuarioRol.usuario.urlFoto,
     fechaNacimiento: usuarioRol.usuario.persona.fechaNacimiento,
+    telefono: usuarioRol.usuario.persona.telefono,
   }
 }

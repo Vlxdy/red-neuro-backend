@@ -38,13 +38,7 @@ export class UsuariosRegistradosRepository {
         'rol.id',
         'rol.rol',
         'rol.nombre',
-        'persona.nroDocumento',
-        'persona.nombres',
-        'persona.primerApellido',
-        'persona.segundoApellido',
-        'persona.fechaNacimiento',
-        'persona.tipoDocumento',
-        'persona.telefono',
+        'persona',
       ])
       .take(limite)
       .skip(saltar)
@@ -142,13 +136,7 @@ export class UsuariosRegistradosRepository {
         'rol.id',
         'rol.rol',
         'rol.nombre',
-        'persona.nroDocumento',
-        'persona.nombres',
-        'persona.primerApellido',
-        'persona.segundoApellido',
-        'persona.fechaNacimiento',
-        'persona.tipoDocumento',
-        'persona.telefono',
+        'persona',
       ])
       .where('asignacionPacientes.idMedico = :idMedico', { idMedico })
       .andWhere('usuarioRol.estado = :estado', {
@@ -241,13 +229,7 @@ export class UsuariosRegistradosRepository {
         'rol.id',
         'rol.rol',
         'rol.nombre',
-        'persona.nroDocumento',
-        'persona.nombres',
-        'persona.primerApellido',
-        'persona.segundoApellido',
-        'persona.fechaNacimiento',
-        'persona.tipoDocumento',
-        'persona.telefono',
+        'persona',
         'asignacionPacientes',
       ])
       .where('usuarioRol.estado = :estado', {
@@ -351,13 +333,7 @@ export class UsuariosRegistradosRepository {
         'rol.id',
         'rol.rol',
         'rol.nombre',
-        'persona.nroDocumento',
-        'persona.nombres',
-        'persona.primerApellido',
-        'persona.segundoApellido',
-        'persona.fechaNacimiento',
-        'persona.tipoDocumento',
-        'persona.telefono',
+        'persona',
       ])
       // .addSelect(
       //   'CASE WHEN usuarioRol.idAsignacion IS NULL THEN 0 ELSE 1 END',
@@ -413,10 +389,6 @@ export class UsuariosRegistradosRepository {
       default:
         query.addOrderBy('usuario.id', 'ASC')
     }
-
-    console.log('------------------------------------')
-
-    console.log(query.getSql())
 
     return await query.getManyAndCount()
   }
