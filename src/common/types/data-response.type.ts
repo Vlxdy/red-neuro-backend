@@ -171,5 +171,6 @@ export interface NotificacionResponse {
   idCita?: string | null
   idPaciente: string
   idMedico?: string | null
+  fechaCreacion: Date | string
   medico?: UsuarioRolResponse | null
 }

@@ -144,6 +144,7 @@ export class NotificacionService extends BaseService {
       tipo: notificacion.tipo,
       mensaje: notificacion.mensaje,
       visto: notificacion.visto,
+      fechaCreacion: notificacion.fechaCreacion,
       idCita: notificacion.idCita,
       medico: notificacion.medico
         ? formatearUsuarioRolRespuesta(notificacion.medico)
