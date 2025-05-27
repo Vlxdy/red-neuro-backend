@@ -1,8 +1,9 @@
-import { DataSource, EntityManager } from 'typeorm'
+import { Brackets, DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { CrearCitaDto } from '../dto/citas.dto'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado } from '../constant'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @Injectable()
 export class CitasRepository {
@@ -105,6 +106,90 @@ export class CitasRepository {
     if (estado) {
       query.andWhere('citas.estado = :estados', { estados: estado })
     }
+    return await query.getManyAndCount()
+  }
+
+  async listarPorPacientePaginado({
+    idPaciente,
+    paginacion,
+    transaccion,
+  }: {
+    idPaciente: string
+    paginacion: PaginacionQueryDto
+    transaccion?: EntityManager
+  }) {
+    const { limite, saltar, orden, sentido, filtro } = paginacion
+    const query = (transaccion || this.dataSource)
+      .getRepository(Cita)
+      .createQueryBuilder('citas')
+      .leftJoinAndSelect('citas.medico', 'medico')
+      .leftJoinAndSelect('medico.usuario', 'usuario')
+      .leftJoinAndSelect('usuario.persona', 'persona')
+
+      .leftJoinAndSelect('citas.paciente', 'paciente')
+      .leftJoinAndSelect('paciente.usuario', 'usuarioPaciente')
+      .leftJoinAndSelect('usuarioPaciente.persona', 'personaPaciente')
+      .select([
+        'citas.id',
+        'citas.detalle',
+        'citas.fechaInicio',
+        'citas.fechaFin',
+        'citas.estado',
+        'medico.id',
+        'paciente.id',
+        'usuario.id',
+        'usuario.urlFoto',
+        'persona.nombres',
+        'persona.primerApellido',
+        'persona.segundoApellido',
+        'persona.nroDocumento',
+        // paciente
+        'usuarioPaciente.id',
+        'usuarioPaciente.urlFoto',
+        'personaPaciente.nombres',
+        'personaPaciente.primerApellido',
+        'personaPaciente.segundoApellido',
+        'personaPaciente.nroDocumento',
+      ])
+      .take(limite)
+      .skip(saltar)
+      .where({ idPaciente })
+      .andWhere('citas.estado != :estado', { estado: CitasEstado.INACTIVO })
+
+    switch (orden) {
+      case 'detalle':
+        query.addOrderBy('citas.detalle', sentido)
+        break
+      case 'fechaInicio':
+        query.addOrderBy('citas.fechaInicio', sentido)
+        break
+      case 'estado':
+        query.addOrderBy('citas.estado', sentido)
+        break
+      default:
+        query.addOrderBy('usuario.id', 'ASC')
+    }
+
+    if (filtro) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.orWhere('citas.detalle ilike :filtro', { filtro: `%${filtro}%` })
+          qb.orWhere('citas.estado ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+          qb.orWhere('persona.nombres ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+          qb.orWhere('persona.primerApellido ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+          qb.orWhere('persona.segundoApellido ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+        })
+      )
+    }
+
     return await query.getManyAndCount()
   }
 

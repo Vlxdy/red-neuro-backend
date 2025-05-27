@@ -21,6 +21,7 @@ import { formatearUsuarioRolRespuesta } from '../utils/formateos'
 import { NotificacionService } from './notificacion.service'
 import dayjs from 'dayjs'
 import { NotificacionTipo } from '../entities/notificacion.entity'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @Injectable()
 export class CitasService extends BaseService {
@@ -45,15 +46,14 @@ export class CitasService extends BaseService {
       const [citas, cantidad] = await this.citasRepositorio.listarPorPaciente({
         idUsuarioRol,
       })
-      console.log('citas====================', citas)
 
-      return [this.formatarCitas(citas), cantidad]
+      return [this.formatearCitas(citas), cantidad]
     } else if (idRol === RolEnumId.NUTRICIONISTA) {
       const [citas, cantidad] =
         await this.citasRepositorio.listarPorNutricionista({
           idUsuarioRol,
         })
-      return [this.formatarCitas(citas), cantidad]
+      return [this.formatearCitas(citas), cantidad]
     }
     throw new ForbiddenException(
       'No tiene permiso para acceder a esta información'
@@ -281,11 +281,26 @@ export class CitasService extends BaseService {
     }
   }
 
-  formatarCitas(citas: Cita[]) {
-    return citas.map((cita) => this.formatarRespuestaCita(cita))
+  async obtenerCitasPorPacientePaginado({
+    idPaciente,
+    paginacion,
+  }: {
+    idPaciente: string
+    paginacion: PaginacionQueryDto
+  }): Promise<[CitaResponse[], number]> {
+    const [citas, total] =
+      await this.citasRepositorio.listarPorPacientePaginado({
+        idPaciente,
+        paginacion,
+      })
+    return [this.formatearCitas(citas), total]
   }
 
-  formatarRespuestaCita(cita: Cita): CitaResponse {
+  formatearCitas(citas: Cita[]) {
+    return citas.map((cita) => this.formatearRespuestaCita(cita))
+  }
+
+  formatearRespuestaCita(cita: Cita): CitaResponse {
     return {
       id: cita.id,
       detalle: cita.detalle,

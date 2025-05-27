@@ -17,6 +17,7 @@ import { PacientesAsignadosDto } from '../dto/usuarios-registrados.dto'
 import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { CitasService } from '../services/citas.service'
 
 @ApiTags('Pacientes')
 @ApiBearerAuth()
@@ -26,7 +27,8 @@ import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 export class PacientesController extends BaseController {
   constructor(
     private pacientesService: PacientesService,
-    private readonly historiaClinicaService: HistoriaClinicaService
+    private readonly historiaClinicaService: HistoriaClinicaService,
+    private readonly citasService: CitasService
   ) {
     super()
   }
@@ -89,5 +91,19 @@ export class PacientesController extends BaseController {
     response.setHeader('Content-Type', 'application/pdf')
     reportePdf.pipe(response)
     reportePdf.end()
+  }
+
+  @Get(':id/citas')
+  async obtenerCitasPorPaciente(
+    @Param() params: ParamIdDto,
+    @Query() query: PaginacionQueryDto
+  ) {
+    const { id: idPaciente } = params
+
+    const citas = await this.citasService.obtenerCitasPorPacientePaginado({
+      idPaciente,
+      paginacion: query,
+    })
+    return this.successListRows(citas)
   }
 }
