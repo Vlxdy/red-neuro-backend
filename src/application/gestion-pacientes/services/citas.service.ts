@@ -18,6 +18,9 @@ import { Cita } from '../entities/cita.entity'
 import { CitasEstado } from '../constant'
 import { CitaResponse } from '@/common/types/data-response.type'
 import { formatearUsuarioRolRespuesta } from '../utils/formateos'
+import { NotificacionService } from './notificacion.service'
+import dayjs from 'dayjs'
+import { NotificacionTipo } from '../entities/notificacion.entity'
 
 @Injectable()
 export class CitasService extends BaseService {
@@ -25,7 +28,8 @@ export class CitasService extends BaseService {
     @Inject(CitasRepository)
     private citasRepositorio: CitasRepository,
     private medicosService: MedicosService,
-    private pacientesService: PacientesService
+    private pacientesService: PacientesService,
+    private notificacionService: NotificacionService
   ) {
     super()
   }
@@ -211,6 +215,70 @@ export class CitasService extends BaseService {
       id,
       usuarioAuditoria: idMedico,
     })
+  }
+
+  async revisarCita(usuarioAuditoria: string, transaccion?: EntityManager) {
+    if (!transaccion) {
+      const op = async (nuevaTransaccion: EntityManager) => {
+        return await this.revisarCita(usuarioAuditoria, nuevaTransaccion)
+      }
+      return await this.citasRepositorio.runTransaction(op)
+    }
+    const citas = await this.citasRepositorio.listarCitasPendientes(transaccion)
+    const ahora = dayjs()
+    this.logger.info(`Revisando ${citas.length} citas pendientes`)
+    const pasadas: Cita[] = []
+    const proximas: Cita[] = []
+    for (const cita of citas) {
+      const fechaCita = dayjs(cita.fechaInicio)
+      if (fechaCita.isBefore(ahora)) {
+        pasadas.push(cita)
+      } else if (fechaCita.diff(ahora, 'hour') <= 48) {
+        proximas.push(cita)
+      }
+    }
+    this.logger.info(`Citas pasadas: ${pasadas.length},`)
+    if (pasadas.length > 0) {
+      this.logger.info(
+        `Hay ${pasadas.length} citas pasadas que no han sido atendidas`
+      )
+      for (const cita of pasadas) {
+        await this.notificacionService.crear({
+          idPaciente: cita.idPaciente,
+          idMedico: cita.idMedico,
+          tipo: NotificacionTipo.CITA_NO_ASISTIO,
+          mensaje: `La cita programada para el ${dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')} no ha sido atendida, por favor, comuníquese con el médico para reprogramar.`,
+          transaction: transaccion,
+          usuarioAuditoria: usuarioAuditoria,
+        })
+        await this.actualizarCita({
+          idCita: cita.id,
+          data: { estado: CitasEstado.NO_ASISTIO },
+          usuarioAuditoria: cita.idMedico,
+          idMedico: cita.idMedico,
+        })
+      }
+    }
+    if (proximas.length > 0) {
+      this.logger.info(
+        `Hay ${proximas.length} citas próximas que deben ser notificadas`
+      )
+      for (const cita of proximas) {
+        const notificacion = cita.notificacion.find(
+          (notificacion) =>
+            notificacion.tipo === NotificacionTipo.CITA_PROXIMAMENTE
+        )
+        if (!notificacion)
+          await this.notificacionService.crear({
+            idPaciente: cita.idPaciente,
+            idMedico: cita.idMedico,
+            usuarioAuditoria: usuarioAuditoria,
+            tipo: NotificacionTipo.CITA_PROXIMAMENTE,
+            mensaje: `La cita programada para el ${dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')} está próxima, por favor, tome en cuenta la fecha y hora.`,
+            transaction: transaccion,
+          })
+      }
+    }
   }
 
   formatarCitas(citas: Cita[]) {

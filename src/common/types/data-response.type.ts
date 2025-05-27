@@ -162,3 +162,14 @@ export interface AntecedenteResponse {
 
   archivos?: ArchivoAdjuntoResponse[] | null
 }
+
+export interface NotificacionResponse {
+  id: string
+  tipo: string
+  mensaje: string
+  visto?: boolean
+  idCita?: string | null
+  idPaciente: string
+  idMedico?: string | null
+  medico?: UsuarioRolResponse | null
+}

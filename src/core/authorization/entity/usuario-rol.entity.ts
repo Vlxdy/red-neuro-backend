@@ -20,6 +20,7 @@ import { PlanAlimentario } from '@/application/planes-alimentarios/entity'
 import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
 import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
 import { Comentario } from '@/application/historia-clinica/entities/comentario.entity'
+import { Notificacion } from '@/application/gestion-pacientes/entities/notificacion.entity'
 
 dotenv.config()
 
@@ -77,6 +78,12 @@ export class UsuarioRol extends AuditoriaEntity {
     (historiaClinica) => historiaClinica.paciente
   )
   historiaClinica: HistoriaClinica[]
+
+  @OneToMany(() => Notificacion, (notificacion) => notificacion.paciente)
+  notificacion: Notificacion[]
+
+  @OneToMany(() => Notificacion, (notificacion) => notificacion.medico)
+  notificacionMedico: Notificacion[]
 
   @OneToMany(() => HistoriaClinica, (historiaClinica) => historiaClinica.medico)
   historiaClinicaMedico: HistoriaClinica[]

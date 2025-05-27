@@ -14,6 +14,7 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { CitasEstado } from '../constant'
 import { HistorialCita } from './cita-historial.entity'
+import { Notificacion } from './notificacion.entity'
 
 dotenv.config()
 
@@ -83,6 +84,9 @@ export class Cita extends AuditoriaEntity {
 
   @OneToMany(() => HistorialCita, (historialCita) => historialCita.cita)
   historial: HistorialCita[]
+
+  @OneToMany(() => Notificacion, (notificacion) => notificacion.cita)
+  notificacion: Notificacion[]
 
   @BeforeInsert()
   insertarEstado() {

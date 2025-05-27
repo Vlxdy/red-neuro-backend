@@ -134,6 +134,18 @@ export class CitasRepository {
       .getManyAndCount()
   }
 
+  async listarCitasPendientes(transaccion?: EntityManager) {
+    return await (transaccion || this.dataSource)
+      .getRepository(Cita)
+      .createQueryBuilder('citas')
+      .leftJoinAndSelect('citas.paciente', 'paciente')
+      .leftJoinAndSelect('citas.notificacion', 'notificacion')
+      .where('citas.estado = :estado', {
+        estado: CitasEstado.PENDIENTE,
+      })
+      .getMany()
+  }
+
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {
     return await this.dataSource.manager.transaction<T>(op)
   }

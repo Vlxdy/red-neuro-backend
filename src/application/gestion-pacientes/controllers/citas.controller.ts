@@ -110,6 +110,12 @@ export class CitasController extends BaseController {
     })
     return this.successDelete(respuesta)
   }
+  @ApiOperation({ summary: 'API para activar el cron de citas' })
+  @Get('/cron-activar')
+  async activarCitasCron() {
+    const respuesta = await this.citasService.revisarCita('0')
+    return this.successCreate(respuesta)
+  }
 
   // @ApiOperation({ summary: 'API para crear historial médico' })
   // @Post(':id/historial-medico')

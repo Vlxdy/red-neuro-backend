@@ -21,6 +21,9 @@ import { MedicosService } from './services/medicos.service'
 import { PacientesService } from './services/pacientes.service'
 import { UsuariosRegistradosService } from './services/usuarios-registrados.service'
 import { PrinterService } from '@/printer/printer.service'
+import { NotificacionController } from './controllers/notificaciones.controller'
+import { NotificacionRepository } from './repositories/notificacion.repository'
+import { NotificacionService } from './services/notificacion.service'
 
 @Module({
   imports: [forwardRef(() => HistoriaClinicaModule)],
@@ -32,6 +35,7 @@ import { PrinterService } from '@/printer/printer.service'
     UsuariosRegistradosController,
     PlanNutricionalController,
     AlimentoController,
+    NotificacionController,
   ],
   providers: [
     PacientesService,
@@ -48,6 +52,8 @@ import { PrinterService } from '@/printer/printer.service'
     AlimentoService,
     AlimentoRepository,
     PrinterService,
+    NotificacionRepository,
+    NotificacionService,
   ],
   exports: [PacientesService, MedicosService, CitasService],
 })
