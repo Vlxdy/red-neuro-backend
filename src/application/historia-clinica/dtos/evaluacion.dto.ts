@@ -63,6 +63,26 @@ export class CrearEvaluacionDto {
 }
 
 export class CreateEvaluacionAntropometricaDto {
+  // Si viene de una cita medica, se puede incluir el id de la cita
+  @ApiPropertyOptional({
+    example: '1234567890',
+    description: 'ID de la cita médica asociada a la evaluación',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1, { message: 'El ID de la cita no puede estar vacío.' })
+  idCita?: string
+
+  // si queremos forzar la fecha de la evaluación
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Indica si se debe forzar la fecha de la evaluación',
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsOptional()
+  forzarFecha?: boolean
+
   // Medidas básicas
   @ApiProperty({ example: 70.5, description: 'Masa corporal (kg)' })
   @Type(() => Number)

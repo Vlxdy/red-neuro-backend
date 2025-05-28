@@ -12,6 +12,7 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { EvaluacionNutricionalEstado } from '../../gestion-pacientes/constant'
 import { HistoriaClinica } from './historia-clinica.entity'
 import { ArchivoAdjunto } from './archivos-adjunto.entity'
+import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
 
 dotenv.config()
 
@@ -299,6 +300,21 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   )
   @JoinColumn({ name: 'id_historia_clinica' })
   historiaClinica: HistoriaClinica
+
+  @Column({
+    name: 'id_cita',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Identificador de la cita asociada a la evaluación nutricional',
+  })
+  idCita?: string
+
+  @ManyToOne(() => Cita, (cita) => cita.evaluacionesNutricionales, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_cita' })
+  cita?: Cita
 
   @OneToMany(() => ArchivoAdjunto, (a) => a.evaluacionNutricional, {
     cascade: true,

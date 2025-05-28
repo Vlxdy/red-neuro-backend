@@ -15,6 +15,7 @@ import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { CitasEstado } from '../constant'
 import { HistorialCita } from './cita-historial.entity'
 import { Notificacion } from './notificacion.entity'
+import { EvaluacionNutricional } from '@/application/historia-clinica/entities/evaluacion-nutricional.entity'
 
 dotenv.config()
 
@@ -87,6 +88,9 @@ export class Cita extends AuditoriaEntity {
 
   @OneToMany(() => Notificacion, (notificacion) => notificacion.cita)
   notificacion: Notificacion[]
+
+  @OneToMany(() => EvaluacionNutricional, (evaluacion) => evaluacion.cita)
+  evaluacionesNutricionales: EvaluacionNutricional[]
 
   @BeforeInsert()
   insertarEstado() {

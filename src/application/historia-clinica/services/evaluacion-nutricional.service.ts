@@ -8,12 +8,12 @@ import {
 import { EvaluacionNutricionalRepository } from '../repositories/evaluacion-nutricional.repository'
 import { HistoriaClinicaService } from './historia-clinico.service'
 import { CitasService } from '@/application/gestion-pacientes/services/citas.service'
-import { CitasEstado } from '@/application/gestion-pacientes/constant'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { EvaluacionNutricional } from '../entities/evaluacion-nutricional.entity'
 import { EvaluacionNutricionalResponde } from '@/common/types/data-response.type'
 import { HistoriaClinica } from '../entities/historia-clinica.entity'
 import dayjs from 'dayjs'
+import { CitasEstado } from '@/application/gestion-pacientes/constant'
 
 @Injectable()
 export class EvaluacionNutricionalService extends BaseService {
@@ -52,6 +52,8 @@ export class EvaluacionNutricionalService extends BaseService {
       return await this.evaluacionNutricionalRepositorio.runTransaction(op)
     }
 
+    const { forzarFecha, idCita, ...restData } = data
+    let idCitaRecuperado: string
     const historiaClinica =
       await this.historiaClinicaService.obtenerHistoriaClinica(
         idHistoriaClinica,
@@ -64,42 +66,56 @@ export class EvaluacionNutricionalService extends BaseService {
       masaLibreGrasa,
       relacionCinturaCadera,
       pesoResidual,
-    } = this.calcularValoresDerivados(data, historiaClinica)
+    } = this.calcularValoresDerivados(restData, historiaClinica)
 
+    if (!idCita) {
+      const citaCreate = await this.citasService.crearCita(
+        idMedico,
+        {
+          idPaciente: historiaClinica.idPaciente,
+          detalle: 'Evaluación nutricional',
+          fechaInicio: dayjs().toDate(),
+          fechaFin: dayjs().add(30, 'minute').toDate(),
+        },
+        usuarioAuditoria,
+        transaccion
+      )
+      idCitaRecuperado = citaCreate.id
+    } else {
+      idCitaRecuperado = idCita
+    }
+    const cita = await this.citasService.buscarPorId(
+      idCitaRecuperado,
+      transaccion
+    )
     const evaluacion = await this.evaluacionNutricionalRepositorio.crear({
       idHistoriaClinica,
       data: {
-        ...data,
+        ...restData,
         imc,
         masaGrasa,
         masaLibreGrasa,
         relacionCinturaCadera,
         pesoResidual,
       },
+      idCita: idCitaRecuperado,
+      fechaCreacion: forzarFecha ? dayjs(cita.fechaInicio).toDate() : undefined,
       usuarioAuditoria,
       transaccion,
     })
 
-    const citas = await this.citasService.listarCitasPorPaciente({
-      idPaciente: historiaClinica.idPaciente,
-      estado: CitasEstado.PENDIENTE,
+    await this.citasService.actualizarCita({
+      idCita: cita.id,
+      data: {
+        estado: CitasEstado.CONCLUIDA,
+      },
+      idMedico: historiaClinica.idMedico,
+      // datosDto: {
+      //   estado: CitasEstado.CANCELADA,
+      // },
+      usuarioAuditoria,
       transaccion,
     })
-
-    if (citas.length > 0) {
-      await this.citasService.actualizarCita({
-        idCita: citas[0].id,
-        data: {
-          estado: CitasEstado.CONCLUIDA,
-        },
-        idMedico: historiaClinica.idMedico,
-        // datosDto: {
-        //   estado: CitasEstado.CANCELADA,
-        // },
-        usuarioAuditoria,
-        transaccion,
-      })
-    }
     return { id: evaluacion.id }
   }
 

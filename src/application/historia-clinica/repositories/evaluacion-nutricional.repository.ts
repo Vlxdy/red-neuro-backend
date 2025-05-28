@@ -39,12 +39,16 @@ export class EvaluacionNutricionalRepository {
   async crear({
     idHistoriaClinica,
     data,
+    idCita,
     usuarioAuditoria,
+    fechaCreacion,
     transaccion,
   }: {
     idHistoriaClinica: string
     data: CreateEvaluacionAntropometricaDto
     usuarioAuditoria: string
+    fechaCreacion?: Date
+    idCita?: string
     transaccion: EntityManager
   }) {
     const { diagnostico } = data
@@ -53,6 +57,8 @@ export class EvaluacionNutricionalRepository {
       diagnostico,
       requerimientoCalorico: data.requerimientoCalorico,
       usuarioCreacion: usuarioAuditoria,
+      idCita,
+      fechaCreacion,
       ...data,
     })
     return await transaccion
