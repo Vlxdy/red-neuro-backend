@@ -167,7 +167,8 @@ export class CitasRepository {
         query.addOrderBy('citas.estado', sentido)
         break
       default:
-        query.addOrderBy('usuario.id', 'ASC')
+        query.addOrderBy('citas.id', 'DESC')
+        break
     }
 
     if (filtro) {
