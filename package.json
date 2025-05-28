@@ -47,7 +47,8 @@
     "pretest": "npm run check-node-version",
     "preinstall": "mkdir -p node_modules && touch ./node_modules/.metadata_never_index",
     "postinstall": "npm run check-node-version",
-    "release": "commit-and-tag-version"
+    "release": "commit-and-tag-version",
+    "data:fake": "ts-node -r tsconfig-paths/register scripts/data-fake/poblar.ts"
   },
   "dependencies": {
     "@elartedelcodigo/check-node-version": "1.1.7",
