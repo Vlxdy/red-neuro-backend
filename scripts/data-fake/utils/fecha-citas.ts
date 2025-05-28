@@ -18,39 +18,68 @@ export function generarCitasSinSolapamiento(
 
   for (let semana = 0; semana < 5; semana++) {
     const semanaInicio = base.add(semana, 'week')
-
-    // Generar todas las combinaciones posibles: 5 días x 10 horas
-    const slots: { inicio: dayjs.Dayjs; fin: dayjs.Dayjs }[] = []
-
-    for (let dia = 0; dia < 10; dia++) {
-      for (let h = 8; h <= 17; h++) {
-        const inicio = semanaInicio.add(dia, 'day').hour(h).minute(0).second(0)
-        const fin = inicio.minute(59)
-        slots.push({ inicio, fin })
-      }
-    }
-
-    // Barajamos los slots para distribuir aleatoriamente
-    shuffle(slots)
-
     let citaAgendada = false
-    for (const slot of slots) {
+
+    // 1. Intento inicial aleatorio
+    for (let intento = 0; intento < 5; intento++) {
+      const dia = Math.floor(Math.random() * 5) // lunes a viernes
+      const hora = Math.floor(Math.random() * 10) + 8 // 8 a 17
+
+      const inicio = semanaInicio.add(dia, 'day').hour(hora).minute(0).second(0)
+      const fin = inicio.minute(59)
+
       const conflicto = citasExistentes.concat(nuevasCitas).some((cita) => {
         const inicioExistente = dayjs(cita.inicio)
         const finExistente = dayjs(cita.fin)
-        return (
-          slot.inicio.isBefore(finExistente) &&
-          slot.fin.isAfter(inicioExistente)
-        )
+        return inicio.isBefore(finExistente) && fin.isAfter(inicioExistente)
       })
 
       if (!conflicto) {
         nuevasCitas.push({
-          inicio: slot.inicio.format('YYYY-MM-DD HH:mm'),
-          fin: slot.fin.format('YYYY-MM-DD HH:mm'),
+          inicio: inicio.format('YYYY-MM-DD HH:mm'),
+          fin: fin.format('YYYY-MM-DD HH:mm'),
         })
         citaAgendada = true
         break
+      }
+    }
+
+    // 2. Si no pudo agendar aleatoriamente, intentar por fuerza bruta
+    if (!citaAgendada) {
+      const slots: { inicio: dayjs.Dayjs; fin: dayjs.Dayjs }[] = []
+
+      for (let dia = 0; dia < 5; dia++) {
+        for (let h = 8; h <= 17; h++) {
+          const inicio = semanaInicio
+            .add(dia, 'day')
+            .hour(h)
+            .minute(0)
+            .second(0)
+          const fin = inicio.minute(59)
+          slots.push({ inicio, fin })
+        }
+      }
+
+      shuffle(slots)
+
+      for (const slot of slots) {
+        const conflicto = citasExistentes.concat(nuevasCitas).some((cita) => {
+          const inicioExistente = dayjs(cita.inicio)
+          const finExistente = dayjs(cita.fin)
+          return (
+            slot.inicio.isBefore(finExistente) &&
+            slot.fin.isAfter(inicioExistente)
+          )
+        })
+
+        if (!conflicto) {
+          nuevasCitas.push({
+            inicio: slot.inicio.format('YYYY-MM-DD HH:mm'),
+            fin: slot.fin.format('YYYY-MM-DD HH:mm'),
+          })
+          citaAgendada = true
+          break
+        }
       }
     }
 

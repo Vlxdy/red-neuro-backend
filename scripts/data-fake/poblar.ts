@@ -59,7 +59,7 @@ async function main() {
 
   log('🔄 ====== GENERANDO CITAS PARA PACIENTES ASIGNADOS ======')
   const citas = await generarCitas({
-    fechaBase: dayjs().toString(),
+    fechaBase: dayjs().add(-1, 'month').toString(),
     pacientes: pacientesPorAsignar,
   })
   if (!citas || citas.length === 0) {
