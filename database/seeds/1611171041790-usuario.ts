@@ -15,13 +15,14 @@ export class usuario1611171041790 implements MigrationInterface {
         usuario: 'ADMINISTRADOR',
         correoElectonico: '9270815@yopmail.com',
         persona: {
-          nombres: 'YASMIN',
-          primerApellido: 'RODRIGUEZ',
-          segundoApellido: 'ROMERO',
+          nombres: 'FELIPA HERMINIA',
+          primerApellido: 'MONTERO',
+          segundoApellido: 'RAMOS',
           tipoDocumento: TipoDocumento.CI,
           nroDocumento: '9270815',
           fechaNacimiento: '2001-12-16',
           genero: Genero.FEMENINO,
+          telefono: '65451899',
         },
       },
       {
@@ -29,13 +30,14 @@ export class usuario1611171041790 implements MigrationInterface {
         usuario: 'NUTRICIONISTA',
         correoElectonico: '1765251@yopmail.com',
         persona: {
-          nombres: 'ALBANO',
-          primerApellido: 'ROJAS',
-          segundoApellido: 'AGUADA',
+          nombres: 'ALEJANDRA',
+          primerApellido: 'ZEBALLOS',
+          segundoApellido: 'CUTIPA',
           tipoDocumento: TipoDocumento.CI,
           nroDocumento: '1765251',
           fechaNacimiento: '1967-05-28',
-          genero: Genero.MASCULINO,
+          genero: Genero.FEMENINO,
+          telefono: '75451899',
         },
       },
       {
@@ -43,13 +45,14 @@ export class usuario1611171041790 implements MigrationInterface {
         usuario: 'PACIENTE',
         correoElectonico: '6114767@yopmail.com',
         persona: {
-          nombres: 'JESUS',
-          primerApellido: 'ROJAS',
-          segundoApellido: 'ZABALA',
+          nombres: 'DANIEL PABLO',
+          primerApellido: 'FLORES',
+          segundoApellido: 'TICONA',
           tipoDocumento: TipoDocumento.CI,
           nroDocumento: '6114767',
           fechaNacimiento: '2009-02-28',
           genero: Genero.MASCULINO,
+          telefono: '60051899',
         },
       },
       {
@@ -57,13 +60,14 @@ export class usuario1611171041790 implements MigrationInterface {
         usuario: 'USUARIO',
         correoElectonico: '6752344@yopmail.com',
         persona: {
-          nombres: 'HANS',
+          nombres: 'MIGUEL RENZO',
           primerApellido: 'MAMANI',
           segundoApellido: 'CRUZ',
           tipoDocumento: TipoDocumento.CI,
           nroDocumento: '6752344',
           fechaNacimiento: '1992-03-14',
           genero: Genero.MASCULINO,
+          telefono: '75450009',
         },
       },
     ]
@@ -82,6 +86,7 @@ export class usuario1611171041790 implements MigrationInterface {
         tipoDocumento: item.persona.tipoDocumento,
         estado: 'ACTIVO',
         transaccion: 'SEEDS',
+        telefono: item.persona.telefono,
         usuarioCreacion: USUARIO_SISTEMA,
       })
       const personaResult = await queryRunner.manager.save(persona)

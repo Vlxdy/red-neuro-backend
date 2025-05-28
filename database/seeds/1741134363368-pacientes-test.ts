@@ -138,339 +138,19 @@ const ApellidosPaceños = [
 ]
 const nombresPaceños: Array<{ nombre: string; genero: Genero }> = [
   {
-    nombre: 'Ana María',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Anastacia',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Laura Daniela',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Tatiana',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Alejo',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Carlos Eduardo',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Hilaria',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Luis Alberto',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Renzo',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Paola Andrea',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Verónica',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Lidia',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Eustaquia',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'María José',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'José Luis',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Felipa',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'María Isabel',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Kevin',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Juan Pablo',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'José Ángel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'José Miguel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Diana',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Juan Carlos',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Samuel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Brayan',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Dayana',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Gregoria',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Pedro Pablo',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Roxana',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Raúl',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Eulogio',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Nataly',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Luis Fernando',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Teófilo',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Nicolasa',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Daniel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Benita',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Gabriela',
-    genero: Genero.FEMENINO,
-  },
-  {
     nombre: 'Esteban',
     genero: Genero.MASCULINO,
   },
   {
-    nombre: 'Jhonny',
+    nombre: 'José',
     genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Freddy',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Ismael',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Pablo',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'María Elena',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Adela',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Andrea',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Mónica',
-    genero: Genero.FEMENINO,
   },
   {
     nombre: 'Paola',
     genero: Genero.FEMENINO,
   },
   {
-    nombre: 'Celestina',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Vanessa',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Tomasa',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Ruperta',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'María Fernanda',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Inés',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Juan José',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Valeria',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Maruja',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Jessica',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Bartolina',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Zenobia',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Miguel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Martín',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Marco Antonio',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Gabriel Eduardo',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Domitila',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Joaquín',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'María',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Fernando',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Lucía',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Álvaro',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Sofía',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Ana Lucía',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Oscar Daniel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Alejandra',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Camila',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Oscar',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Marcelina',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Andrea Paola',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Toribia',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Herminia',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Jorge',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Jhaneth',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Rosenda',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Carlos',
+    nombre: 'Samuel',
     genero: Genero.MASCULINO,
   },
   {
@@ -478,79 +158,31 @@ const nombresPaceños: Array<{ nombre: string; genero: Genero }> = [
     genero: Genero.MASCULINO,
   },
   {
-    nombre: 'Luis',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'María Teresa',
+    nombre: 'Gabriela',
     genero: Genero.FEMENINO,
   },
   {
-    nombre: 'Zenón',
+    nombre: 'Andrés',
     genero: Genero.MASCULINO,
   },
   {
-    nombre: 'Carla',
+    nombre: 'Pedro',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Martín',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Toribia',
     genero: Genero.FEMENINO,
   },
   {
-    nombre: 'Kevin Alexander',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Yesenia',
+    nombre: 'Bartolina',
     genero: Genero.FEMENINO,
   },
   {
-    nombre: 'Miguel Ángel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'José Ángel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Jhoselyn',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Vicente',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Cristian',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Liliana',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Luis Miguel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'José Ángel',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Macario',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Ignacia',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Rosmery',
-    genero: Genero.FEMENINO,
-  },
-  {
-    nombre: 'Clodomiro',
-    genero: Genero.MASCULINO,
-  },
-  {
-    nombre: 'Asunta',
+    nombre: 'Mónica',
     genero: Genero.FEMENINO,
   },
   {
@@ -558,23 +190,274 @@ const nombresPaceños: Array<{ nombre: string; genero: Genero }> = [
     genero: Genero.FEMENINO,
   },
   {
-    nombre: 'Patricia',
+    nombre: 'Vicente',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Freddy',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Ramiro',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Tatiana',
     genero: Genero.FEMENINO,
   },
   {
-    nombre: 'Diana Carolina',
+    nombre: 'Diana',
     genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'María',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Jhoselyn',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Ismael',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Carlos',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Lidia',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Zenón',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Sofía',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Yesenia',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Herminia',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Dayana',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Luis',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Zenobia',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Brayan',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Teófilo',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Domitila',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Liliana',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Nelson',
+    genero: Genero.MASCULINO,
   },
   {
     nombre: 'Édgar',
     genero: Genero.MASCULINO,
   },
   {
+    nombre: 'Carla',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Alejo',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Jhaneth',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Hilaria',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Rosmery',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Óscar',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Nicolasa',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Joaquín',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Fernando',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Cristian',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Alejandra',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Raúl',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Valeria',
+    genero: Genero.FEMENINO,
+  },
+  {
     nombre: 'Ana',
     genero: Genero.FEMENINO,
   },
+  {
+    nombre: 'Verónica',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Jessica',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Jhonny',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Clodomiro',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Rodolfo',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Inés',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Álvaro',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Camila',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Nataly',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Renzo',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Gregoria',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Gabriel',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Felipa',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Eulogio',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Pablo',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Adela',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Roxana',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Jorge',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Kevin',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Víctor',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Andrea',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Daniel',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Lucía',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Oscar',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Miguel',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Juan',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Ignacia',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Macario',
+    genero: Genero.MASCULINO,
+  },
+  {
+    nombre: 'Patricia',
+    genero: Genero.FEMENINO,
+  },
+  {
+    nombre: 'Vanessa',
+    genero: Genero.FEMENINO,
+  },
 ]
-
 // function generarCI(departamento = 'LP') {
 //   // Los departamentos válidos para agregar al final
 //   const sufijos = ['LP', 'CB', 'SC', 'OR', 'PT', 'TJ', 'CH', 'BE', 'PA']
