@@ -15,6 +15,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { AsignacionEstado } from '../constant'
+import { CarritoCompra } from '@/application/planes-alimentarios/entity/carrito-compra.entity'
 
 dotenv.config()
 
@@ -67,6 +68,9 @@ export class Asignacion extends AuditoriaEntity {
 
   @OneToMany(() => PlanNutricional, (plan) => plan.paciente)
   planesNutricionales: PlanNutricional[]
+
+  @OneToMany(() => CarritoCompra, (carrito) => carrito.paciente)
+  carritosCompras: CarritoCompra[]
 
   @BeforeInsert()
   insertarEstado() {

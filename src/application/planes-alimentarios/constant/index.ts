@@ -18,3 +18,8 @@ export enum AlimentoEstado {
   ACTIVO = Status.ACTIVE,
   INACTIVO = Status.INACTIVE,
 }
+
+export enum CarritoComprasEstado {
+  ACTIVO = Status.ACTIVE,
+  INACTIVO = Status.INACTIVE,
+}

@@ -24,6 +24,9 @@ import { PrinterService } from '@/printer/printer.service'
 import { NotificacionController } from './controllers/notificaciones.controller'
 import { NotificacionRepository } from './repositories/notificacion.repository'
 import { NotificacionService } from './services/notificacion.service'
+import { CarritoCompraController } from '../planes-alimentarios/controller/carrito-compras.controller'
+import { CarritoCompraRepository } from '../planes-alimentarios/repository/carrito-compra.repository'
+import { CarritoCompraService } from '../planes-alimentarios/service/carrito-compra.service'
 
 @Module({
   imports: [forwardRef(() => HistoriaClinicaModule)],
@@ -34,6 +37,7 @@ import { NotificacionService } from './services/notificacion.service'
     CitasController,
     UsuariosRegistradosController,
     PlanNutricionalController,
+    CarritoCompraController,
     AlimentoController,
     NotificacionController,
   ],
@@ -49,6 +53,8 @@ import { NotificacionService } from './services/notificacion.service'
     CitasService,
     PlanNutricionalService,
     PlanNutricionalRepository,
+    CarritoCompraService,
+    CarritoCompraRepository,
     AlimentoService,
     AlimentoRepository,
     PrinterService,
