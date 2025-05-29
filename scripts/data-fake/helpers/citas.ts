@@ -48,6 +48,10 @@ type CitaGenerada = {
   detalle: string
   id: string
 }
+export type PacienteCitasGeneradas = {
+  paciente: UsuarioRolResponse
+  citas: Array<CitaGenerada>
+}
 export async function generarCitas({
   pacientes,
   fechaBase,
@@ -56,10 +60,7 @@ export async function generarCitas({
   pacientes: UsuarioRolResponse[]
 }) {
   const citasGeneradas: Cita[] = []
-  const respuesta: Array<{
-    paciente: UsuarioRolResponse
-    citas: Array<CitaGenerada>
-  }> = []
+  const respuesta: Array<PacienteCitasGeneradas> = []
   for await (const paciente of pacientes) {
     const citas = generarCitasSinSolapamiento(fechaBase, citasGeneradas)
     const citasConPaciente: CitaGenerada[] = []
@@ -92,5 +93,5 @@ export async function generarCitas({
     })
   }
 
-  return citasGeneradas
+  return respuesta
 }

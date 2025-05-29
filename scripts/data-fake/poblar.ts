@@ -1,5 +1,5 @@
 // import { Usuario } from '@/core/usuario/entity/usuario.entity'
-import AppDataSource from 'ormconfig-default'
+// import AppDataSource from 'ormconfig-default'
 import { loginYConfigurarToken } from './helpers/loginAdmin'
 import {
   asignarPacientes,
@@ -11,9 +11,10 @@ import { log } from 'console'
 import { loginYConfigurarTokenNutriologo } from './helpers/loginNutriologo'
 import dayjs from 'dayjs'
 import { generarCitas } from './helpers/citas'
+import { generarEvaluacionNutricional } from './helpers/evaluacion'
 
 async function main() {
-  await AppDataSource.initialize()
+  // await AppDataSource.initialize()
 
   log('🔄 ====== OBTENIENDO EL TOKEN DEL USUARIO ADMINISTRADOR ======')
 
@@ -58,17 +59,21 @@ async function main() {
   log('✅ Token JWT de nutricionista configurado correctamente')
 
   log('🔄 ====== GENERANDO CITAS PARA PACIENTES ASIGNADOS ======')
-  const citas = await generarCitas({
+  const pacientesCitaGenerada = await generarCitas({
     fechaBase: dayjs().add(-1, 'month').toString(),
     pacientes: pacientesPorAsignar,
   })
-  if (!citas || citas.length === 0) {
+  if (!pacientesCitaGenerada || pacientesCitaGenerada.length === 0) {
     console.error('❌ No se generaron citas para los pacientes asignados')
     return
   }
-  log('✅ Citas generadas correctamente:', citas.length)
+  log('✅ Citas generadas correctamente:', pacientesCitaGenerada.length)
 
-  await AppDataSource.destroy()
+  log('🔄 ===== CREANDO EVALUCACIONES NUTRICIONALES ======')
+  await generarEvaluacionNutricional({
+    pacientesCitasGeneradas: pacientesCitaGenerada,
+  })
+  // await AppDataSource.destroy()
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 main()
