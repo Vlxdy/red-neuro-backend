@@ -11,6 +11,7 @@ import { PlanNutricional } from '../entity/plan-nutricional.entity'
 import { AlimentoPlanNutricionalRepository } from '../repository/alimento-plan-nutricional.repository'
 import { PlanNutricionalRepository } from '../repository/plan-nutricional.repository'
 import { AlimentoService } from './alimento.service'
+import dayjs from 'dayjs'
 
 @Injectable()
 export class PlanNutricionalService {
@@ -36,7 +37,7 @@ export class PlanNutricionalService {
 
     const plan = new PlanNutricional()
     plan.idPaciente = paciente.id
-    plan.fecha = data.fecha
+    plan.fecha = dayjs(data.fecha).format('YYYY-MM-DD')
     plan.usuarioCreacion = usuario
     // plan.plan = data.alimentos
 
