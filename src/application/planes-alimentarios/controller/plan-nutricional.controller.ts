@@ -14,7 +14,10 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { Request } from 'express'
-import { CrearPlanNutricionalDto } from '../dto/plan-nutricional.dto'
+import {
+  ActualizarPlanNutricionalDto,
+  CrearPlanNutricionalDto,
+} from '../dto/plan-nutricional.dto'
 import { PlanNutricionalService } from '../service/plan-nutricional.service'
 
 @Controller('planes-nutricionales')
@@ -44,7 +47,7 @@ export class PlanNutricionalController extends BaseController {
   @Patch(':id')
   async actualizar(
     @Param('id') id: string,
-    @Body() data: Partial<CrearPlanNutricionalDto>,
+    @Body() data: ActualizarPlanNutricionalDto,
     @Req() req: Request
   ) {
     const usuario = this.getUser(req)

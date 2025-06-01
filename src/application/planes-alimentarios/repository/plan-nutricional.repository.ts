@@ -1,7 +1,10 @@
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { Injectable } from '@nestjs/common'
 import { Brackets, DataSource, EntityManager } from 'typeorm'
-import { PlanNutricionalEstado } from '../constant'
+import {
+  AlimentoPlanNutricionalEstado,
+  PlanNutricionalEstado,
+} from '../constant'
 import { PlanNutricional } from '../entity/plan-nutricional.entity'
 
 @Injectable()
@@ -47,6 +50,15 @@ export class PlanNutricionalRepository {
     return await this.dataSource
       .getRepository(PlanNutricional)
       .createQueryBuilder('plan')
+      .leftJoinAndSelect(
+        'plan.alimentosPlanNutricional',
+        'alimentoPlanNutricional',
+        'alimentoPlanNutricional.estado =:estadoAlimento',
+        {
+          estadoAlimento: AlimentoPlanNutricionalEstado.ACTIVO,
+        }
+      )
+      .leftJoinAndSelect('alimentoPlanNutricional.alimento', 'alimento')
       .where({
         idPaciente,
         fecha,
@@ -110,14 +122,15 @@ export class PlanNutricionalRepository {
     const query = this.dataSource
       .getRepository(PlanNutricional)
       .createQueryBuilder('plan')
-      .select([
-        'plan.id',
-        'plan.fecha',
-        'plan.plan',
-        'plan.recomendaciones',
-        'plan.estado',
-        'plan.fechaCreacion',
-      ])
+      .leftJoinAndSelect(
+        'plan.alimentosPlanNutricional',
+        'alimentoPlanNutricional',
+        'alimentoPlanNutricional.estado =:estadoAlimento',
+        {
+          estadoAlimento: AlimentoPlanNutricionalEstado.ACTIVO,
+        }
+      )
+      .leftJoinAndSelect('alimentoPlanNutricional.alimento', 'alimento')
       .where('plan.idPaciente = :idPaciente', { idPaciente })
       .andWhere('plan.estado = :estado', {
         estado: PlanNutricionalEstado.ACTIVO,
@@ -144,7 +157,7 @@ export class PlanNutricionalRepository {
         query.addOrderBy('plan.estado', sentido)
         break
       default:
-        query.addOrderBy('plan.id', 'DESC')
+        query.addOrderBy('plan.fecha', 'DESC')
     }
 
     return await query.getManyAndCount()

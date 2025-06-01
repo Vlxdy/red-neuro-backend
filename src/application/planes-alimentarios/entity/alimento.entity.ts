@@ -6,9 +6,11 @@ import {
   Check,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import { AlimentoEstado } from '../constant'
+import { AlimentoEstado, CategoriaAlimento, UnidadMedida } from '../constant'
+import { AlimentoPlanNutricional } from './alimento-plan-nutricional.entity'
 
 export enum TipoAlimento {
   DESAYUNO = 'DESAYUNO',
@@ -57,48 +59,57 @@ export class Alimento extends AuditoriaEntity {
   })
   descripcion: string
 
-  @Column({
-    type: 'enum',
-    enum: TipoAlimento,
-    nullable: false,
-    comment: 'Tipo de comida (ej. desayuno, almuerzo, etc.)',
-  })
-  tipo: TipoAlimento
+  @Column('decimal', { precision: 10, scale: 2 })
+  cantidadReferencial: number
 
   @Column({
-    type: 'integer',
+    type: 'enum',
+    enum: CategoriaAlimento,
     nullable: false,
-    comment: 'Cantidad de calorías',
+    comment: 'Tipo de alimento',
   })
+  categoria: CategoriaAlimento
+
+  @Column({
+    type: 'enum',
+    enum: UnidadMedida,
+    nullable: false,
+    comment: 'unidad de medida',
+  })
+  unidadMedida: UnidadMedida
+
+  @Column('decimal', { precision: 10, scale: 2 })
   calorias: number
 
   @Column({
-    type: 'integer',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
     nullable: false,
     comment: 'Cantidad de grasa (gramos)',
   })
   grasa: number
 
   @Column({
-    type: 'integer',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
     nullable: false,
     comment: 'Cantidad de carbohidratos (gramos)',
   })
   carbohidratos: number
 
   @Column({
-    type: 'integer',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
     nullable: false,
     comment: 'Cantidad de proteínas (gramos)',
   })
   proteinas: number
 
-  @Column({
-    type: 'text',
-    nullable: true,
-    comment: 'Receta en formato HTML',
-  })
-  receta: string
+  @OneToMany(() => AlimentoPlanNutricional, (apn) => apn.alimento)
+  alimentosPlanNutricional: AlimentoPlanNutricional[]
 
   constructor(data?: Partial<Alimento>) {
     super(data)

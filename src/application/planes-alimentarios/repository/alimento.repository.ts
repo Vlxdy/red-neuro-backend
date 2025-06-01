@@ -37,20 +37,21 @@ export class AlimentoRepository {
         'alimento.id',
         'alimento.nombre',
         'alimento.descripcion',
-        'alimento.tipo',
+        'alimento.categoria',
+        'alimento.unidadMedida',
+        'alimento.cantidadReferencial',
         'alimento.calorias',
         'alimento.grasa',
         'alimento.carbohidratos',
         'alimento.proteinas',
         'alimento.urlImage',
-        'alimento.receta',
       ])
       .take(limite)
       .skip(saltar)
 
-    if (tipo) {
-      query.where('alimento.tipo = :tipo', { tipo })
-    }
+    // if (tipo) {
+    //   query.where('alimento.tipo = :tipo', { tipo })
+    // }
 
     if (filtro) {
       query.andWhere(

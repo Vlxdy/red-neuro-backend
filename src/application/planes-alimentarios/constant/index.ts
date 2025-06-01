@@ -23,3 +23,35 @@ export enum CarritoComprasEstado {
   ACTIVO = Status.ACTIVE,
   INACTIVO = Status.INACTIVE,
 }
+
+export enum AlimentoPlanNutricionalEstado {
+  ACTIVO = Status.ACTIVE,
+  INACTIVO = Status.INACTIVE,
+}
+
+export enum CategoriaAlimento {
+  PROTEINA_ANIMAL = 'PROTEÍNA ANIMAL',
+  CEREAL = 'CEREAL',
+  LACTEO = 'LÁCTEO',
+  LEGUMBRE = 'LEGUMBRE',
+  VERDURA = 'VERDURA',
+  FRUTA = 'FRUTA',
+  GRASA_SALUDABLE = 'GRASA SALUDABLE',
+  FRUTA_SECA = 'FRUTA SECA',
+  BEBIDA = 'BEBIDA',
+  ENDULZANTE = 'ENDULZANTE',
+  CONDIMENTO = 'CONDIMENTO',
+}
+
+export enum UnidadMedida {
+  G = 'g',
+  ML = 'ml',
+  UNIDAD = 'unidad',
+  TAZA = 'taza',
+  REBANADA = 'rebanada',
+  CUCHARADITA = 'cucharadita',
+  HOJA = 'hoja',
+  SOBRE = 'sobre',
+  DIENTE = 'diente',
+  PIZCA = 'pizca',
+}
