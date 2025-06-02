@@ -45,7 +45,7 @@ export class PacientesController extends BaseController {
       paginacionQueryDto,
       idUsuarioRol
     )
-    return this.successListRows(result as any)
+    return this.successListRows(result)
   }
 
   @Get()

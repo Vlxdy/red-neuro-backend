@@ -142,7 +142,7 @@ export class UsuariosRegistradosRepository {
       .andWhere('usuarioRol.estado = :estado', {
         estado: UsuarioRolEstado.ACTIVE,
       })
-    if (todo) {
+    if (!todo) {
       query.take(limite).skip(saltar)
     }
 

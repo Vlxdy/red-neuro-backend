@@ -13,7 +13,7 @@ export class ListarUsuariosRegistradosDto {
   rol: RolEnum
 }
 
-export interface UsuariosRegistradosResponse {
+export class UsuariosRegistradosResponse {
   id: string
   nombres: string
   primerApellido?: string | null
@@ -26,6 +26,6 @@ export interface UsuariosRegistradosResponse {
   // especialidad: string
 }
 
-export interface PacientesAsignadosDto extends PaginacionQueryDto {
+export class PacientesAsignadosDto extends PaginacionQueryDto {
   todos?: boolean
 }
