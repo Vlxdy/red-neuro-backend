@@ -45,3 +45,21 @@ export class CrearAsignacionDto {
   @Validate(IsNumericStringConstraint, { each: true })
   idPacientes: Array<string>
 }
+
+export class ModificarAsignacionDto {
+  @ApiProperty({
+    description: 'Clave foránea que referencia al medico idRolUsuario',
+    example: '2',
+  })
+  @IsNotEmpty()
+  @IsNumberString()
+  idMedico: string
+
+  @ApiProperty({
+    description: 'Clave foránea que referencia a los pacientes',
+    example: '3',
+  })
+  @IsNotEmpty()
+  @IsNumberString()
+  idPaciente: string
+}

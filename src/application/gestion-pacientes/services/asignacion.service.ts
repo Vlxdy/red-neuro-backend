@@ -1,5 +1,5 @@
 import { BaseService } from '@/common/base/base-service'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, PreconditionFailedException } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
 import { AsignacionRepository } from '../repositories/asignacion.repository'
@@ -125,6 +125,12 @@ export class AsignacionService extends BaseService {
             datosDto: { estado: AsignacionEstado.INACTIVO },
             usuarioAuditoria,
           })
+        } else {
+          await this.asignacionRepositorio.actualizar({
+            id: asignacion.id,
+            datosDto: { estado: AsignacionEstado.ACTIVO },
+            usuarioAuditoria,
+          })
         }
       } else {
         await this.asignacionRepositorio.crear({
@@ -134,6 +140,48 @@ export class AsignacionService extends BaseService {
           transaccion,
         })
       }
+    }
+  }
+  async eliminarAsignacion({
+    idMedico,
+    idPaciente,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    idMedico: string
+    idPaciente: string
+    usuarioAuditoria: string
+    transaccion?: EntityManager
+  }) {
+    if (!transaccion) {
+      const op = async (nuevaTransaccion: EntityManager) => {
+        return await this.eliminarAsignacion({
+          idMedico,
+          idPaciente,
+          usuarioAuditoria,
+          transaccion: nuevaTransaccion,
+        })
+      }
+      return await this.asignacionRepositorio.runTransaction(op)
+    }
+
+    const asignacion = await this.asignacionRepositorio.buscarPorPaciente(
+      idPaciente,
+      transaccion
+    )
+
+    if (!asignacion || asignacion.idMedico !== idMedico) {
+      throw new PreconditionFailedException(
+        'No existe una asignación activa para el paciente con el médico especificado.'
+      )
+    }
+
+    if (asignacion) {
+      await this.asignacionRepositorio.actualizar({
+        id: asignacion.id,
+        datosDto: { estado: AsignacionEstado.INACTIVO },
+        usuarioAuditoria,
+      })
     }
   }
 }
