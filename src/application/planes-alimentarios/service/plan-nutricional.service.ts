@@ -230,4 +230,54 @@ export class PlanNutricionalService {
 
     return [planesNutricionales, resultado[1]]
   }
+
+  async listarPorIdPacienteEntreFechas(
+    idUsuarioRol: string,
+    fechaInicio?: string,
+    fechaFin?: string
+  ) {
+    //NOTE: Cambiar por el idPaciente
+    const paciente =
+      await this.asignacionRepository.buscarPacientePorIdUsuarioRol(
+        idUsuarioRol
+      )
+    if (!paciente) throw new NotFoundException('Paciente no encontrado')
+    const resultado = await this.repository.listarPorIdPacienteEntreFechas(
+      paciente.id,
+      fechaInicio,
+      fechaFin
+    )
+
+    const planesNutricionales = resultado.map((planNutricional) => {
+      return planNutricional.alimentosPlanNutricional.map((apn) => ({
+        id: apn.id,
+        cantidad: Number(apn.cantidad),
+        estado: apn.estado,
+        tipo: apn.tipo,
+        nombre: apn.alimento.nombre,
+        categoria: apn.alimento.categoria,
+        unidadMedida: apn.alimento.unidadMedida,
+        calorias: apn.alimento.calorias,
+        cantidadReferencial: apn.alimento.cantidadReferencial,
+        idAlimento: apn.alimento.id,
+      }))
+    })
+
+    const alimentosNutricionales = planesNutricionales.flat()
+
+    const alimentosDto: any[] = []
+
+    alimentosNutricionales.forEach((alimento) => {
+      const alimentoExistente = alimentosDto.find(
+        (a) => a.idAlimento === alimento.idAlimento
+      )
+      if (alimentoExistente) {
+        alimentoExistente.cantidad += alimento.cantidad
+      } else {
+        alimentosDto.push(alimento)
+      }
+    })
+
+    return alimentosDto
+  }
 }

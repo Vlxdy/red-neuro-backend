@@ -163,6 +163,38 @@ export class PlanNutricionalRepository {
     return await query.getManyAndCount()
   }
 
+  async listarPorIdPacienteEntreFechas(
+    idPaciente: string,
+    fechaInicio?: string, // formato: 'YYYY-MM-DD'
+    fechaFin?: string // formato: 'YYYY-MM-DD'
+  ) {
+    const query = this.dataSource
+      .getRepository(PlanNutricional)
+      .createQueryBuilder('plan')
+      .leftJoinAndSelect(
+        'plan.alimentosPlanNutricional',
+        'alimentoPlanNutricional',
+        'alimentoPlanNutricional.estado =:estadoAlimento',
+        {
+          estadoAlimento: AlimentoPlanNutricionalEstado.ACTIVO,
+        }
+      )
+      .leftJoinAndSelect('alimentoPlanNutricional.alimento', 'alimento')
+      .where('plan.idPaciente = :idPaciente', { idPaciente })
+      .andWhere('plan.estado = :estado', {
+        estado: PlanNutricionalEstado.ACTIVO,
+      })
+
+    if (fechaInicio && fechaFin) {
+      query.andWhere('plan.fecha BETWEEN :fechaInicio AND :fechaFin', {
+        fechaInicio,
+        fechaFin,
+      })
+    }
+
+    return await query.getMany()
+  }
+
   async crearConTransaccion(
     data: Partial<PlanNutricional>,
     usuario: string,

@@ -1,5 +1,8 @@
 import { BaseController } from '@/common/base'
-import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import {
+  PaginacionQueryDto,
+  RangoFechasQueryDto,
+} from '@/common/dto/paginacion-query.dto'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import {
   Body,
@@ -96,5 +99,18 @@ export class PlanNutricionalController extends BaseController {
       paginacion
     )
     return this.successListRows(resultado)
+  }
+
+  @Get('/paciente/:idUsuarioRol/carrito-compras')
+  async listarPorPacienteEntreFechas(
+    @Param('idUsuarioRol') idUsuarioRol: string,
+    @Query() { desde, hasta }: RangoFechasQueryDto
+  ) {
+    const resultado = await this.service.listarPorIdPacienteEntreFechas(
+      idUsuarioRol,
+      desde,
+      hasta
+    )
+    return this.successList(resultado)
   }
 }
