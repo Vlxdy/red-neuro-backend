@@ -1,10 +1,10 @@
 {
-  "name": "agetic-nestjs-base-backend",
+  "name": "alimenta-backend",
   "version": "1.12.0",
-  "description": "Backend base con Nest.js, TypeORM y TypeScript",
-  "author": "agetic@agetic.gob.bo",
+  "description": "Alimenta Backend",
+  "author": "Vladimir Copa Fabián <vcopafabian@gmail.com>",
   "private": true,
-  "license": "LPG-Bolivia",
+  "license": "MIT",
   "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "nest build",
@@ -69,7 +69,6 @@
     "cls-rtracer": "2.6.3",
     "connect-typeorm": "2.0.0",
     "cookie-parser": "1.4.7",
-    "csurf": "1.10.0",
     "dayjs": "1.11.13",
     "dotenv": "16.4.7",
     "ejs": "3.1.10",
