@@ -216,7 +216,7 @@ export class modulo1611497480901 implements MigrationInterface {
           },
           {
             nombre: 'pacientes',
-            url: '/admin/pacientes',
+            url: '/admin/pacientes-admin',
             label: 'Pacientes',
             propiedades: {
               icono: 'supervisor_account',
