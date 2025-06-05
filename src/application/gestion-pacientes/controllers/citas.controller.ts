@@ -17,20 +17,14 @@ import { ActualizarCitaDto, CrearCitaDto } from '../dto/citas.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CitasService } from '../services/citas.service'
-import { EvaluacionNutricionalService } from '@/application/historia-clinica/services/evaluacion-nutricional.service'
-import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 @ApiTags('Citas')
 @ApiBearerAuth()
 @Controller('citas')
-// @UseGuards(JwtAuthGuard, CasbinGuard)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CasbinGuard)
 export class CitasController extends BaseController {
-  constructor(
-    private citasService: CitasService,
-    private evaluacionService: EvaluacionNutricionalService,
-    private readonly historiaClinicaService: HistoriaClinicaService
-  ) {
+  constructor(private citasService: CitasService) {
     super()
   }
 
@@ -39,32 +33,13 @@ export class CitasController extends BaseController {
   async crearCita(@Body() data: CrearCitaDto, @Req() req: Request) {
     const usuarioAuditoria = this.getUser(req)
     const idUsuarioRol = this.getUsuarioRol(req)
-    const respuesta = await this.citasService.crearCita(
-      idUsuarioRol,
+    const respuesta = await this.citasService.crearCita({
       data,
-      usuarioAuditoria
-    )
+      idMedico: idUsuarioRol,
+      usuarioAuditoria,
+    })
     return this.successCreate(respuesta)
   }
-
-  // @ApiOperation({ summary: 'API para crear una evaluación nutricional' })
-  // @Post(':id/evaluacion')
-  // async crearEvaluacion(
-  //   @Body() data: CrearEvaluacionDto,
-  //   @Req() req: Request,
-  //   @Param() param: ParamIdDto
-  // ) {
-  //   const usuarioAuditoria = this.getUser(req)
-  //   const idMedico = this.getUsuarioRol(req)
-  //   const { id: idCita } = param
-  //   const respuesta = await this.evaluacionService.crearEvaluacion({
-  //     idCita,
-  //     data,
-  //     idMedico,
-  //     usuarioAuditoria,
-  //   })
-  //   return this.successCreate(respuesta)
-  // }
 
   @ApiOperation({ summary: 'API para listar citas medicas de un paciente' })
   @Get()
@@ -116,22 +91,4 @@ export class CitasController extends BaseController {
     const respuesta = await this.citasService.revisarCita('0')
     return this.successCreate(respuesta)
   }
-
-  // @ApiOperation({ summary: 'API para crear historial médico' })
-  // @Post(':id/historial-medico')
-  // async crearHistoriaClinica(
-  //   @Body() data: CrearHistoriaClinicaDto,
-  //   @Param() param: ParamIdDto,
-  //   @Req() req: Request
-  // ) {
-  //   const usuarioAuditoria = this.getUser(req)
-  //   const { id: idCita } = param
-  //   const respuesta = await this.historiaClinicaService.crearHistoriaClinica({
-  //     idCita,
-  //     idMedico: this.getUsuarioRol(req),
-  //     data,
-  //     usuarioAuditoria,
-  //   })
-  //   return this.successCreate(respuesta)
-  // }
 }

@@ -18,12 +18,12 @@ import { HistoriaClinicaService } from '@/application/historia-clinica/services/
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { CitasService } from '../services/citas.service'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 @ApiTags('Pacientes')
 @ApiBearerAuth()
 @Controller('pacientes')
-// @UseGuards(JwtAuthGuard, CasbinGuard)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CasbinGuard)
 export class PacientesController extends BaseController {
   constructor(
     private pacientesService: PacientesService,
@@ -67,9 +67,7 @@ export class PacientesController extends BaseController {
     const { id: idPaciente } = params
     const historiaClinica =
       await this.historiaClinicaService.obtenerHistoriaClinicaPorPacienteCompleto(
-        {
-          idPaciente,
-        }
+        { idPaciente }
       )
     return this.success(historiaClinica)
   }

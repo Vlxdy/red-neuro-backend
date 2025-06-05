@@ -14,12 +14,12 @@ import { PaginacionQueryDto } from 'src/common/dto/paginacion-query.dto'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { NotificacionService } from '../services/notificacion.service'
 import { UpdateNotificacionDto } from '../dto/notificacion.dto'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 @ApiTags('Notificaciones')
 @ApiBearerAuth()
 @Controller('notificacion')
-// @UseGuards(JwtAuthGuard, CasbinGuard)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CasbinGuard)
 export class NotificacionController extends BaseController {
   constructor(private notificacionService: NotificacionService) {
     super()

@@ -8,6 +8,29 @@ import { MedicosService } from './medicos.service'
 import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
 
 @Injectable()
+/**
+ * Servicio encargado de gestionar la asignación de pacientes a médicos,
+ * así como la creación y actualización de controles y la validación de asignaciones.
+ *
+ * @remarks
+ * Utiliza repositorios y servicios relacionados para manejar la lógica de negocio
+ * asociada a la asignación de pacientes, asegurando la integridad de los datos
+ * mediante transacciones cuando es necesario.
+ *
+ * @example
+ * ```typescript
+ * // Para crear controles de asignación de pacientes a un médico:
+ * await asignacionService.crearControles({
+ *   idMedico: 'medico123',
+ *   idPacientes: ['paciente1', 'paciente2'],
+ *   usuarioAuditoria: 'admin'
+ * });
+ * ```
+ *
+ * @help
+ * Utiliza este servicio para asignar, validar o eliminar la relación entre médicos y pacientes.
+ * Si tienes dudas sobre el uso de algún método, consulta la documentación específica de cada función.
+ */
 export class AsignacionService extends BaseService {
   constructor(
     @Inject(AsignacionRepository)
@@ -18,54 +41,7 @@ export class AsignacionService extends BaseService {
   ) {
     super()
   }
-
-  // async crearControl(
-  //   data: CrearControlDto,
-  //   usuarioAuditoria: string,
-  //   transaccion?: EntityManager
-  // ): Promise<{ id: string }> {
-  //   if (!transaccion) {
-  //     const op = async (nuevaTransaccion: EntityManager) => {
-  //       return await this.crearControl(data, usuarioAuditoria, nuevaTransaccion)
-  //     }
-
-  //     return await this.controlRepositorio.runTransaction(op)
-  //   }
-
-  //   const medico = await this.usuariosRegistradosService.obtenerMedico(
-  //     data.idMedico,
-  //     transaccion
-  //   )
-  //   const paciente = await this.usuariosRegistradosService.obtenerPaciente(
-  //     data.idPaciente,
-  //     transaccion
-  //   )
-
-  //   const control = await this.controlRepositorio.buscarPorPaciente(
-  //     data.idPaciente,
-  //     transaccion
-  //   )
-  //   if (control) {
-  //     if (control.idMedico !== data.idMedico) {
-  //       await this.controlRepositorio.actualizar({
-  //         id: control.id,
-  //         datosDto: { estado: ControlEstado.INACTIVO },
-  //         usuarioAuditoria,
-  //       })
-  //     } else {
-  //       return { id: control.id }
-  //     }
-  //   }
-  //   const controlSave = await this.controlRepositorio.crear({
-  //     idMedico: medico.id,
-  //     idPaciente: paciente.id,
-  //     usuarioAuditoria,
-  //     transaccion,
-  //   })
-  //   return { id: controlSave.id }
-  // }
-
-  async crearControles({
+  async crearAsignaciones({
     idMedico,
     idPacientes,
     usuarioAuditoria,
@@ -78,7 +54,7 @@ export class AsignacionService extends BaseService {
   }) {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.crearControles({
+        return await this.crearAsignaciones({
           idMedico,
           idPacientes,
           usuarioAuditoria,
@@ -182,6 +158,43 @@ export class AsignacionService extends BaseService {
         datosDto: { estado: AsignacionEstado.INACTIVO },
         usuarioAuditoria,
       })
+    }
+  }
+  async verificarAsignacion({
+    idMedico,
+    idPaciente,
+    transaccion,
+  }: {
+    idMedico: string
+    idPaciente: string
+    transaccion?: EntityManager
+  }): Promise<boolean> {
+    const asignacion = await this.asignacionRepositorio.buscarPorPaciente(
+      idPaciente,
+      transaccion
+    )
+
+    return !!asignacion && asignacion.idMedico === idMedico
+  }
+
+  async validarAsignacion({
+    idMedico,
+    idPaciente,
+    transaccion,
+  }: {
+    idMedico: string
+    idPaciente: string
+    transaccion?: EntityManager
+  }): Promise<void> {
+    const verificar = await this.verificarAsignacion({
+      idMedico,
+      idPaciente,
+      transaccion,
+    })
+    if (!verificar) {
+      throw new PreconditionFailedException(
+        'El paciente no está asignado al médico especificado.'
+      )
     }
   }
 }

@@ -63,6 +63,6 @@ import { UsuariosRegistradosService } from './services/usuarios-registrados.serv
     NotificacionRepository,
     NotificacionService,
   ],
-  exports: [PacientesService, MedicosService, CitasService],
+  exports: [PacientesService, MedicosService, CitasService, AsignacionService],
 })
 export class GestionPacientesModule {}
