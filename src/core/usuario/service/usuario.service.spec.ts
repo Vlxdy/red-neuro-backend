@@ -16,7 +16,6 @@ import { AuthorizationService } from '@/core/authorization/controller/authorizat
 import { RolRepository } from '@/core/authorization/repository/rol.repository'
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
 import { MensajeriaModule } from '@/core/external-services/mensajeria/mensajeria.module'
-import { SegipService } from '@/core/external-services/iop/segip/segip.service'
 
 const resUsuarioList = {
   id: '1e9215f2-47cd-45e4-a593-4289413503e0',
@@ -204,12 +203,6 @@ describe('UsuarioService', () => {
           provide: MensajeriaService,
           useValue: {
             sendEmail: jest.fn(() => ({ finalizado: true })),
-          },
-        },
-        {
-          provide: SegipService,
-          useValue: {
-            contrastar: jest.fn(() => ({ finalizado: true })),
           },
         },
         {

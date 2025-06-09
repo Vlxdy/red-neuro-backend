@@ -36,7 +36,6 @@ export class UsuarioRepository {
         'usuario.usuario',
         'usuario.correoElectronico',
         'usuario.estado',
-        'usuario.ciudadaniaDigital',
         'usuario.fechaCreacion',
         'usuarioRol',
         'rol.id',
@@ -155,7 +154,6 @@ export class UsuarioRepository {
         'usuario.usuario',
         'usuario.correoElectronico',
         'usuario.estado',
-        'usuario.ciudadaniaDigital',
         'usuario.fechaCreacion',
         'usuarioRol',
         'rol.id',
@@ -214,7 +212,6 @@ export class UsuarioRepository {
         'usuario.contrasena',
         'usuario.correoElectronico',
         'usuario.estado',
-        'usuario.ciudadaniaDigital',
         'usuario.urlFoto',
         'persona.nombres',
         'persona.primerApellido',
@@ -286,7 +283,6 @@ export class UsuarioRepository {
         contrasena:
           usuarioDto?.contrasena ??
           (await TextService.encrypt(TextService.generateUuid())),
-        ciudadaniaDigital: usuarioDto?.ciudadaniaDigital ?? false,
         usuarioCreacion: usuarioAuditoria,
       })
     )
@@ -315,7 +311,6 @@ export class UsuarioRepository {
       codigoTransaccion: usuarioDto.codigoTransaccion,
       codigoActivacion: usuarioDto.codigoActivacion,
       usuarioModificacion: usuarioAuditoria,
-      ciudadaniaDigital: usuarioDto.ciudadaniaDigital || undefined,
       urlFoto: usuarioDto.urlFoto,
     })
     return await repo.update(idUsuario, datosActualizar)

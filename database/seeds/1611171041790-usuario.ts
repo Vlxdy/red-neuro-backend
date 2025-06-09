@@ -91,7 +91,6 @@ export class usuario1611171041790 implements MigrationInterface {
       })
       const personaResult = await queryRunner.manager.save(persona)
       const usuario = new Usuario({
-        ciudadaniaDigital: false,
         contrasena: pass,
         intentos: 0,
         usuario: item.usuario,

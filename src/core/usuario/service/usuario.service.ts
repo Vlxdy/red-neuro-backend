@@ -472,7 +472,6 @@ export class UsuarioService extends BaseService {
         {
           estado: UsuarioEstado.ACTIVE,
           correoElectronico: otrosDatos?.correoElectronico,
-          ciudadaniaDigital: true,
         },
         usuarioAuditoria,
         transaction
@@ -517,7 +516,6 @@ export class UsuarioService extends BaseService {
       persona.primerApellido = personaCiudadania.primerApellido
       persona.segundoApellido = personaCiudadania.segundoApellido
       persona.telefono = personaCiudadania.telefono
-      persona.uuidCiudadano = personaCiudadania.uuidCiudadano
 
       const usuario = await this.usuarioRepositorio.verificarExisteUsuarioPorCI(
         persona.nroDocumento,
@@ -547,7 +545,6 @@ export class UsuarioService extends BaseService {
           usuario: personaCiudadania.nroDocumento,
           estado: UsuarioEstado.ACTIVE,
           correoElectronico: otrosDatos?.correoElectronico,
-          ciudadaniaDigital: true,
         },
         usuarioAuditoria,
         transaction
@@ -1029,7 +1026,6 @@ export class UsuarioService extends BaseService {
     return {
       id: usuario.id,
       usuario: usuario.usuario,
-      ciudadaniaDigital: usuario.ciudadaniaDigital,
       correoElectronico: usuario.correoElectronico,
       urlFoto: usuario.urlFoto,
       estado: usuario.estado,

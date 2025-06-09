@@ -4,7 +4,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   NombreApellido,
   NroDocumento,
   ValidateIf,
@@ -26,17 +25,20 @@ export class PersonaDto {
   @ApiProperty({ example: 'MARIELA' })
   @IsNotEmpty()
   @NombreApellido()
+  @Transform(({ value }) => value?.trim().toUpperCase())
   nombres: string
 
   @ApiProperty({ example: 'ALCAZAR' })
   @IsString()
   @ValidateIf((o) => !o.segundoApellido)
   @NombreApellido()
+  @Transform(({ value }) => value?.trim().toUpperCase())
   primerApellido?: string
 
   @ApiProperty({ example: 'ALMARAZ' })
   @ValidateIf((o) => !o.primerApellido)
   @NombreApellido()
+  @Transform(({ value }) => value?.trim().toUpperCase())
   segundoApellido?: string
 
   @ApiProperty({ example: '2002-05-04' })
@@ -48,9 +50,4 @@ export class PersonaDto {
   @IsNumberString()
   @Validate(IsNumberInRangeConstraint, [60000000, 79999999])
   telefono?: string | null
-
-  @ApiProperty({ example: '32f26897-cd66-4d1e-9feb-b785994f6a86 ' })
-  @IsOptional()
-  @IsUUID()
-  uuidCiudadano?: string | null
 }
