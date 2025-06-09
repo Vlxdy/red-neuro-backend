@@ -1,16 +1,11 @@
 import apiAdmin from './loginAdmin'
 import type { AxiosInstance } from 'axios'
-export async function getNutricionistasPorFiltro(
-  filtro: string,
-  pagina = 1,
-  limite = 10
-) {
+export async function getNutricionistasPorFiltro(pagina = 1, limite = 10) {
   try {
     const res = await apiAdmin.get('/usuarios-registrados/NUTRICIONISTA', {
       params: {
         pagina,
         limite,
-        filtro,
       },
     })
 

@@ -332,7 +332,6 @@ describe('UsuarioService', () => {
     const usuarioDto = new CrearUsuarioCiudadaniaDto()
     usuarioDto.usuario = '7878787'
     usuarioDto.roles = ['d5de12df-3cc3-5a58-a742-be24030482d8']
-    usuarioDto.ciudadaniaDigital = true
 
     const usuarioAuditoria = TextService.generateUuid()
     const usuario = await service.crearConCiudadania(
@@ -349,7 +348,6 @@ describe('UsuarioService', () => {
     const usuarioDto = new CrearUsuarioCiudadaniaDto()
     usuarioDto.usuario = '7878787'
     usuarioDto.roles = ['d5de12df-3cc3-5a58-a742-be24030482d8']
-    usuarioDto.ciudadaniaDigital = true
 
     const usuarioAuditoria = TextService.generateUuid()
 

@@ -12,6 +12,8 @@ import { loginYConfigurarTokenNutriologo } from './helpers/loginNutriologo'
 import dayjs from 'dayjs'
 import { generarCitas } from './helpers/citas'
 import { generarEvaluacionNutricional } from './helpers/evaluacion'
+import { personasFake } from './data/usuarios.fake'
+import { crearArmarUsuario } from './helpers/usuarios'
 
 async function main() {
   // await AppDataSource.initialize()
@@ -20,9 +22,27 @@ async function main() {
 
   await loginYConfigurarToken('ADMINISTRADOR', '123')
   log('✅ Token JWT configurado correctamente')
+
+  log('🔄 ====== REGISTRAR NUTRICIONISTAS ======')
+
+  const NUTRICIONISTA1 = personasFake[0]
+  await crearArmarUsuario(NUTRICIONISTA1, ['2'])
+
+  log('✅ Nutricionista 1 registrado correctamente:', NUTRICIONISTA1.usuario)
+  const NUTRICIONISTA2 = personasFake[1]
+  await crearArmarUsuario(NUTRICIONISTA2, ['2'])
+  log('✅ Nutricionista 2 registrado correctamente:', NUTRICIONISTA2.usuario)
+
+  log('🔄 ====== REGISTRAR PACIENTES ======')
+
+  for (let index = 2; index < personasFake.length; index++) {
+    const element = personasFake[index]
+    await crearArmarUsuario(element, ['3'])
+  }
+
   log('🔄 ====== OBTENIENDO NUTRICIONISTAS POR FILTRO ======')
   const obtenerNutricionistas: UsuarioRolResponse[] =
-    await getNutricionistasPorFiltro('1765251')
+    await getNutricionistasPorFiltro()
 
   const medico = obtenerNutricionistas[0]
   if (!medico) {

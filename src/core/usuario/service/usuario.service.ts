@@ -97,9 +97,9 @@ export class UsuarioService extends BaseService {
     }
 
     // Constrastación SEGIP
-    const { roles } = usuarioDto
+    const { roles, contrasena } = usuarioDto
 
-    const contrasena = TextService.generateShortRandomText()
+    // const contrasena = TextService.generateShortRandomText()
     const datosCorreo = {
       correo: usuarioDto.correoElectronico,
       asunto: Messages.SUBJECT_EMAIL_ACCOUNT_ACTIVE,
@@ -883,7 +883,7 @@ export class UsuarioService extends BaseService {
         )
       }
 
-      const { correoElectronico, roles, ciudadaniaDigital } = usuarioDto
+      const { correoElectronico, roles } = usuarioDto
       // 2. verificar que el email no este registrado
 
       if (
@@ -910,16 +910,6 @@ export class UsuarioService extends BaseService {
       if (roles.length > 0) {
         // realizar reglas de roles
         await this.actualizarRoles(id, roles, usuarioAuditoria, transaction)
-      }
-
-      if (ciudadaniaDigital) {
-        await this.usuarioRepositorio.actualizar(
-          id,
-          {
-            ciudadaniaDigital: ciudadaniaDigital,
-          },
-          usuarioAuditoria
-        )
       }
 
       return { id: usuario.id }

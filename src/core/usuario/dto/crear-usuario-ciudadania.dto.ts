@@ -16,9 +16,5 @@ export class CrearUsuarioCiudadaniaDto {
   @IsNotEmpty()
   roles: Array<string>
 
-  @ApiProperty({ example: false })
-  @Transform(() => true)
-  ciudadaniaDigital?: boolean = true
-
   usuarioCreacion?: string
 }
