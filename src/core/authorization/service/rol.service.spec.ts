@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { RolService } from './rol.service'
 import { RolRepository } from '../repository/rol.repository'
+import { UsuarioRolRepository } from '../repository/usuario-rol.repository'
 
 const resRolesList = {
   id: '1e9215f2-47cd-45e4-a593-4289413503e0',
@@ -18,6 +19,10 @@ describe('RolService', () => {
           useValue: {
             listar: jest.fn(() => [resRolesList]),
           },
+        },
+        {
+          provide: UsuarioRolRepository,
+          useValue: {},
         },
       ],
     }).compile()

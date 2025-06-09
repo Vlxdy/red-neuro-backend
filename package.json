@@ -179,7 +179,8 @@
     "collectCoverage": true,
     "testResultsProcessor": "jest-sonar-reporter",
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/../src/$1"
+      "^@/(.*)$": "<rootDir>/$1",
+      "^src/(.*)$": "<rootDir>/$1"
     }
   },
   "jest-junit": {

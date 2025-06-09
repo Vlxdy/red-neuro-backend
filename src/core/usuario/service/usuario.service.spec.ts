@@ -16,6 +16,7 @@ import { AuthorizationService } from '@/core/authorization/controller/authorizat
 import { RolRepository } from '@/core/authorization/repository/rol.repository'
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
 import { MensajeriaModule } from '@/core/external-services/mensajeria/mensajeria.module'
+import { FileValidationService } from '@/common/lib/file-validation.service'
 
 const resUsuarioList = {
   id: '1e9215f2-47cd-45e4-a593-4289413503e0',
@@ -217,6 +218,15 @@ describe('UsuarioService', () => {
         },
         {
           provide: RolRepository,
+          useValue: {},
+        },
+        {
+          provide: 'FileValidationService',
+          useValue: {},
+        },
+        // Add this if UsuarioService expects FileValidationService as a class, not a string token
+        {
+          provide: FileValidationService,
           useValue: {},
         },
       ],
