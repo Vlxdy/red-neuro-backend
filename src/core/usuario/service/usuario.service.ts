@@ -146,7 +146,7 @@ export class UsuarioService extends BaseService {
       this.logger.error(error, mensaje)
     })
 
-    return crearResult
+    return { id: crearResult.id, estado: crearResult.estado }
   }
 
   async crearCuenta(usuarioDto: CrearUsuarioCuentaDto) {
