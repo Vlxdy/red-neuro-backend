@@ -18,8 +18,8 @@ export class MensajeriaService extends BaseService {
     return nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
+        user: this.config.mailUser,
+        pass: this.config.mailPass,
       },
     })
   }
@@ -51,6 +51,7 @@ export class MensajeriaService extends BaseService {
             to: dto.para,
             subject: dto.asunto,
             text: dto.mensaje,
+            html: dto.mensaje,
           },
           (error, info) => {
             if (error) return reject(error)
