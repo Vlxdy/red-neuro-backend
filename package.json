@@ -84,6 +84,7 @@
     "jsdom": "25.0.1",
     "nanoid": "3.3.8",
     "nest-authz": "2.11.0",
+    "nodemailer": "^7.0.3",
     "openid-client": "5.6.5",
     "pako": "2.1.0",
     "passport": "0.7.0",

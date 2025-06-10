@@ -248,11 +248,11 @@ export class UsuarioService extends BaseService {
 
       if (usuarioNuevo.correoElectronico) {
         await this.mensajeriaService
-          .sendEmail(
-            usuarioNuevo.correoElectronico,
-            Messages.NEW_USER_ACCOUNT_VERIFY,
-            template
-          )
+          .enviarCorreo({
+            para: usuarioNuevo.correoElectronico,
+            asunto: Messages.NEW_USER_ACCOUNT_VERIFY,
+            mensaje: template,
+          })
           .catch((err) => {
             const mensaje = `Falló al enviar el correo de activación de cuenta`
             this.logger.error(err, mensaje)
@@ -320,11 +320,11 @@ export class UsuarioService extends BaseService {
 
     if (usuario.correoElectronico) {
       await this.mensajeriaService
-        .sendEmail(
-          usuario.correoElectronico,
-          Messages.SUBJECT_EMAIL_ACCOUNT_LOCKED,
-          template
-        )
+        .enviarCorreo({
+          para: usuario.correoElectronico,
+          asunto: Messages.SUBJECT_EMAIL_ACCOUNT_LOCKED,
+          mensaje: template,
+        })
         .catch((err) => {
           const mensaje = `Falló al enviar el correo de recuperación de cuenta`
           this.logger.error(err, mensaje)
@@ -661,11 +661,11 @@ export class UsuarioService extends BaseService {
       contrasena
     )
 
-    const result = await this.mensajeriaService.sendEmail(
-      datosCorreo.correo,
-      datosCorreo.asunto,
-      template
-    )
+    const result = await this.mensajeriaService.enviarCorreo({
+      para: datosCorreo.correo,
+      asunto: datosCorreo.asunto,
+      mensaje: template,
+    })
     return result.finalizado
   }
 
@@ -804,11 +804,11 @@ export class UsuarioService extends BaseService {
 
       if (usuario.correoElectronico) {
         await this.mensajeriaService
-          .sendEmail(
-            usuario.correoElectronico,
-            Messages.NEW_USER_ACCOUNT_VERIFY,
-            template
-          )
+          .enviarCorreo({
+            para: usuario.correoElectronico,
+            asunto: Messages.NEW_USER_ACCOUNT_VERIFY,
+            mensaje: template,
+          })
           .catch((error) => {
             const mensaje = `Ocurrió un error al enviar el correo electrónico de activación de cuenta`
             this.logger.error(error, mensaje)

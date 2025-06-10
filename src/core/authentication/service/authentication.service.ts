@@ -61,16 +61,18 @@ export class AuthenticationService extends BaseService {
       urlDesbloqueo.toString()
     )
 
-    await this.mensajeriaService
-      .sendEmail(
-        usuario.correoElectronico ?? '',
-        Messages.SUBJECT_EMAIL_ACCOUNT_LOCKED,
-        template
-      )
-      .catch((err) => {
-        const mensaje = `Falló al enviar el correo de desbloqueo de cuenta`
-        this.logger.error(err, mensaje)
-      })
+    if (usuario.correoElectronico) {
+      await this.mensajeriaService
+        .enviarCorreo({
+          para: usuario.correoElectronico,
+          asunto: Messages.SUBJECT_EMAIL_ACCOUNT_LOCKED,
+          mensaje: template,
+        })
+        .catch((err) => {
+          const mensaje = `Falló al enviar el correo de desbloqueo de cuenta`
+          this.logger.error(err, mensaje)
+        })
+    }
 
     return true
   }
