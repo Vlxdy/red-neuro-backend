@@ -8,7 +8,6 @@ import { detallesCita, obtenerElementoAleatorio } from './detalles_cita'
 interface CrearCitaParams {
   detalle: string
   fechaInicio: string // ISO con zona horaria, ej: "2025-05-28T01:00:00-04:00"
-  fechaFin: string
   idPaciente: string
   api?: AxiosInstance
 }
@@ -18,10 +17,13 @@ export async function crearCita({
   fechaInicio,
   idPaciente,
   api = defaultApi,
-}: CrearCitaParams) {
+}: CrearCitaParams): Promise<string> {
+  // Explicitly define return type as string
+  const inicio = dayjs(fechaInicio)
+  const fin = inicio.add(1, 'hour') // Assuming all appointments are 1 hour long
+
   try {
-    const inicio = dayjs(fechaInicio)
-    const fin = inicio.add(1, 'hour')
+    // No logging here to keep console clean for individual successful creations
     const res = await api.post('/citas', {
       detalle,
       fechaInicio: inicio.toISOString(),
@@ -29,19 +31,23 @@ export async function crearCita({
       idPaciente,
     })
 
-    if (res?.data?.datos) {
-      console.log('✅ Cita creada correctamente:', res.data)
+    if (res?.data?.datos?.id) {
+      // Return the ID on success, no console.log here
       return res.data.datos.id as string
     }
-    throw new Error('No se recibió datos de la cita creada en la respuesta.')
-  } catch (err) {
+    // If we get a response but no ID, it's still an issue
+    throw new Error('No se recibió el ID de la cita creada en la respuesta.')
+  } catch (err: any) {
+    // Type 'err' as 'any' or 'unknown'
+    const errorMessage =
+      err.response?.data?.message || err.message || 'Error desconocido'
     console.error(
-      '❌ Error al crear la cita:',
-      err.response?.data || err.message
+      `       ❌ Error al crear cita para paciente ${idPaciente} (${dayjs(fechaInicio).format('DD/MM HH:mm')}): ${errorMessage}`
     )
-    throw err
+    throw err // Re-throw to propagate the error up to `generarCitas`
   }
 }
+
 type Cita = { inicio: string; fin: string }
 type CitaGenerada = {
   fechaInicio: string
@@ -52,46 +58,87 @@ export type PacienteCitasGeneradas = {
   paciente: UsuarioRolResponse
   citas: Array<CitaGenerada>
 }
+
 export async function generarCitas({
   pacientes,
   fechaBase,
 }: {
   fechaBase: string
   pacientes: UsuarioRolResponse[]
-}) {
-  const citasGeneradas: Cita[] = []
-  const respuesta: Array<PacienteCitasGeneradas> = []
+}): Promise<Array<PacienteCitasGeneradas>> {
+  const allGeneratedCitas: Cita[] = [] // Track all generated citas to prevent overlaps
+  const response: Array<PacienteCitasGeneradas> = []
+  let totalCitasCreated = 0
+
+  console.log(`   Generando citas para ${pacientes.length} pacientes...`)
+
   for await (const paciente of pacientes) {
-    const citas = generarCitasSinSolapamiento(fechaBase, citasGeneradas)
+    const pacienteIdentifier =
+      paciente.nroDocumento || paciente.correoElectronico || paciente.id
+    console.log(
+      `     🔄 Procesando citas para paciente: ${paciente.nombres} ${paciente.primerApellido} (${pacienteIdentifier})`
+    )
+
+    const citasForPaciente = generarCitasSinSolapamiento(
+      fechaBase,
+      allGeneratedCitas
+    )
     const citasConPaciente: CitaGenerada[] = []
-    if (!citas || citas.length === 0) {
+
+    if (!citasForPaciente || citasForPaciente.length === 0) {
       console.warn(
-        `No se generaron citas para el paciente ${paciente.id} ${paciente.nroDocumento}`
+        `     ⚠️ No se pudieron generar bloques de citas sin solapamiento para el paciente ${pacienteIdentifier}.`
       )
-      continue
+      continue // Move to the next patient if no valid slots found
     }
-    citasGeneradas.push(...citas)
-    for await (const cita of citas) {
-      const detalle = obtenerElementoAleatorio<string>(detallesCita) ?? ''
-      const idCita = await crearCita({
-        detalle,
-        fechaInicio: cita.inicio,
-        idPaciente: paciente.id,
-        fechaFin: cita.fin,
-      })
-      if (idCita) {
-        citasConPaciente.push({
-          fechaInicio: cita.inicio,
+
+    // Add newly generated slots to the global tracker
+    allGeneratedCitas.push(...citasForPaciente)
+
+    let citasCountForThisPaciente = 0
+    for await (const cita of citasForPaciente) {
+      const detalle =
+        obtenerElementoAleatorio<string>(detallesCita) ?? 'Consulta general'
+      try {
+        const idCita = await crearCita({
           detalle,
-          id: idCita,
+          fechaInicio: cita.inicio,
+          idPaciente: paciente.id,
+          // fechaFin is calculated internally by crearCita now
         })
+        if (idCita) {
+          citasConPaciente.push({
+            fechaInicio: cita.inicio,
+            detalle,
+            id: idCita,
+          })
+          citasCountForThisPaciente++
+        }
+      } catch (innerError) {
+        // Error already logged by crearCita. We can choose to continue or break for this patient.
+        // For now, we'll continue trying to create other appointments for the same patient.
       }
     }
-    respuesta.push({
+
+    if (citasCountForThisPaciente > 0) {
+      console.log(
+        `     ✅ ${citasCountForThisPaciente} citas creadas para el paciente ${pacienteIdentifier}.`
+      )
+      totalCitasCreated += citasCountForThisPaciente
+    } else {
+      console.warn(
+        `     ⚠️ No se pudo crear ninguna cita para el paciente ${pacienteIdentifier}.`
+      )
+    }
+
+    response.push({
       paciente,
       citas: citasConPaciente,
     })
   }
 
-  return respuesta
+  console.log(
+    `   Finalizada la generación de citas. Total de citas creadas: ${totalCitasCreated}.`
+  )
+  return response
 }

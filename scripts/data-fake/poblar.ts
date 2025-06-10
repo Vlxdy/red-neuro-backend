@@ -1,99 +1,86 @@
-// import { Usuario } from '@/core/usuario/entity/usuario.entity'
-// import AppDataSource from 'ormconfig-default'
-import { loginYConfigurarToken } from './helpers/loginAdmin'
+// src/scripts/main.ts (or original file)
+
 import {
-  asignarPacientes,
-  getNutricionistasPorFiltro,
-  getPacientesPorAsignar,
-} from './helpers/obtener.usuarios'
-import { UsuarioRolResponse } from '@/common/types/data-response.type'
-import { log } from 'console'
-import { loginYConfigurarTokenNutriologo } from './helpers/loginNutriologo'
-import dayjs from 'dayjs'
-import { generarCitas } from './helpers/citas'
-import { generarEvaluacionNutricional } from './helpers/evaluacion'
-import { personasFake } from './data/usuarios.fake'
-import { crearArmarUsuario } from './helpers/usuarios'
+  runStep,
+  step1_authenticateAdmin,
+  step2_registerInitialNutritionists,
+  step3_bulkRegisterPatients,
+  step4_assignPatientsToNutritionist,
+  step5_authenticateNutriologist,
+  step6_generateAppointmentsAndEvaluations,
+} from './populationSteps' // Import your new modular steps
 
 async function main() {
-  // await AppDataSource.initialize()
+  const summary: string[] = [] // To store a summary of each step
+  const separator = '------------------------------------------------------'
 
-  log('🔄 ====== OBTENIENDO EL TOKEN DEL USUARIO ADMINISTRADOR ======')
+  console.log(`\n${separator}`)
+  console.log('🚀 INICIANDO PROCESO DE POBLACIÓN DE BASE DE DATOS 🚀')
+  console.log(`${separator}\n`)
 
-  await loginYConfigurarToken('ADMINISTRADOR', '123')
-  log('✅ Token JWT configurado correctamente')
+  // Define steps as an array of objects
+  const steps = [
+    {
+      number: 1,
+      name: 'AUTENTICACIÓN DEL ADMINISTRADOR',
+      action: step1_authenticateAdmin,
+    },
+    {
+      number: 2,
+      name: 'REGISTRO DE NUTRICIONISTAS INICIALES',
+      action: step2_registerInitialNutritionists,
+    },
+    {
+      number: 3,
+      name: 'REGISTRO MASIVO DE PACIENTES',
+      action: step3_bulkRegisterPatients,
+    },
+    {
+      number: 4,
+      name: 'ASIGNACIÓN DE PACIENTES A NUTRICIONISTA',
+      action: step4_assignPatientsToNutritionist,
+    },
+    {
+      number: 5,
+      name: 'AUTENTICACIÓN DEL NUTRIÓLOGO',
+      action: step5_authenticateNutriologist,
+    },
+    {
+      number: 6,
+      name: 'GENERACIÓN DE CITAS Y EVALUACIONES',
+      action: step6_generateAppointmentsAndEvaluations,
+    },
+    // Add more steps here easily!
+  ]
 
-  log('🔄 ====== REGISTRAR NUTRICIONISTAS ======')
-
-  const NUTRICIONISTA1 = personasFake[0]
-  await crearArmarUsuario(NUTRICIONISTA1, ['2'])
-
-  log('✅ Nutricionista 1 registrado correctamente:', NUTRICIONISTA1.usuario)
-  const NUTRICIONISTA2 = personasFake[1]
-  await crearArmarUsuario(NUTRICIONISTA2, ['2'])
-  log('✅ Nutricionista 2 registrado correctamente:', NUTRICIONISTA2.usuario)
-
-  log('🔄 ====== REGISTRAR PACIENTES ======')
-
-  for (let index = 2; index < personasFake.length; index++) {
-    const element = personasFake[index]
-    await crearArmarUsuario(element, ['3'])
+  for (const step of steps) {
+    const success = await runStep(step.number, step.name, step.action, summary)
+    if (!success) {
+      // If runStep returned false, it means a critical error occurred and the process was aborted
+      // The error message and aborted status are already logged by runStep
+      return
+    }
   }
 
-  log('🔄 ====== OBTENIENDO NUTRICIONISTAS POR FILTRO ======')
-  const obtenerNutricionistas: UsuarioRolResponse[] =
-    await getNutricionistasPorFiltro()
+  // ---
+  // PROCESO FINALIZADO
+  // ---
+  console.log(`\n${separator}`)
+  console.log('🎉 PROCESO DE POBLACIÓN DE BASE DE DATOS FINALIZADO 🎉')
+  console.log(`${separator}`)
 
-  const medico = obtenerNutricionistas[0]
-  if (!medico) {
-    console.error(
-      '❌ No se encontró un nutricionista con el filtro proporcionado'
-    )
-    return
-  }
-  log('✅ Nutricionista obtenido:', medico)
-  log('🔄 ====== OBTENIENDO PACIENTES POR ASIGNAR ======')
-
-  const pacientesPorAsignar: UsuarioRolResponse[] =
-    await getPacientesPorAsignar({
-      limite: 20,
-      idMedico: medico.id,
-    })
-  if (!pacientesPorAsignar || pacientesPorAsignar.length === 0) {
-    console.error(
-      '❌ No se encontraron pacientes por asignar para el nutricionista'
-    )
-    return
-  }
-  log('🔄 ===== ASIGNANDO PACIENTES ======')
-
-  await asignarPacientes({
-    idMedico: medico.id,
-    idPacientes: pacientesPorAsignar.map((paciente) => paciente.id),
+  // ---
+  // RESUMEN FINAL DEL PROCESO
+  // ---
+  console.log(`\n${separator}`)
+  console.log('📊 RESUMEN FINAL DEL PROCESO:')
+  console.log(`${separator}`)
+  summary.forEach((line) => {
+    // No need for index if it's already in the summary line
+    console.log(`   ${line}`) // Indent summary lines for better readability
   })
-
-  log('✅ Pacientes asignados correctamente:', pacientesPorAsignar.length)
-
-  log('🔄 ====== OBTENIENDO TOKEN DE NUTRIOLOGO ======')
-  await loginYConfigurarTokenNutriologo('NUTRICIONISTA', '123')
-  log('✅ Token JWT de nutricionista configurado correctamente')
-
-  log('🔄 ====== GENERANDO CITAS PARA PACIENTES ASIGNADOS ======')
-  const pacientesCitaGenerada = await generarCitas({
-    fechaBase: dayjs().add(-1, 'month').toString(),
-    pacientes: pacientesPorAsignar,
-  })
-  if (!pacientesCitaGenerada || pacientesCitaGenerada.length === 0) {
-    console.error('❌ No se generaron citas para los pacientes asignados')
-    return
-  }
-  log('✅ Citas generadas correctamente:', pacientesCitaGenerada.length)
-
-  log('🔄 ===== CREANDO EVALUCACIONES NUTRICIONALES ======')
-  await generarEvaluacionNutricional({
-    pacientesCitasGeneradas: pacientesCitaGenerada,
-  })
-  // await AppDataSource.destroy()
+  console.log(`${separator}\n`)
 }
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 main()
