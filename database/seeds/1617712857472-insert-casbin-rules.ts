@@ -191,7 +191,10 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.NUTRICIONISTA]: 'GET',
         [RolEnum.PACIENTE]: 'GET',
       },
-      '/api/pacientes/:id/citas': { [RolEnum.ADMINISTRADOR]: 'GET' },
+      '/api/pacientes/:id/citas': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
+      },
       // usuarios registrados
       '/api/usuarios-registrados/:rol': { [RolEnum.ADMINISTRADOR]: 'GET' },
     }
