@@ -9,12 +9,12 @@ import {
   ModificarAsignacionDto,
 } from '../dto/asignacion.dto'
 import { Request } from 'express'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 @ApiTags('Asignacion')
 @ApiBearerAuth()
 @Controller('asignacion')
-// @UseGuards(JwtAuthGuard, CasbinGuard)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CasbinGuard)
 export class AsignacionesController extends BaseController {
   constructor(private asignacionService: AsignacionService) {
     super()
@@ -22,10 +22,10 @@ export class AsignacionesController extends BaseController {
 
   @ApiOperation({ summary: 'API para asignar pacientes a medico' })
   @Post()
-  async crearControl(@Body() data: CrearAsignacionDto, @Req() req: Request) {
+  async crearAsignacion(@Body() data: CrearAsignacionDto, @Req() req: Request) {
     const usuarioAuditoria = this.getUser(req)
     const { idMedico, idPacientes } = data
-    const respuesta = await this.asignacionService.crearControles({
+    const respuesta = await this.asignacionService.crearAsignaciones({
       idMedico,
       idPacientes,
       usuarioAuditoria,

@@ -12,7 +12,5 @@ export class UsuarioDto {
   @CorreoLista()
   correoElectronico: string
 
-  ciudadaniaDigital?: boolean
-
   usuarioCreacion?: string
 }

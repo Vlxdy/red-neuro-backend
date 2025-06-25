@@ -97,9 +97,9 @@ export class UsuarioService extends BaseService {
     }
 
     // Constrastación SEGIP
-    const { roles } = usuarioDto
+    const { roles, contrasena } = usuarioDto
 
-    const contrasena = TextService.generateShortRandomText()
+    // const contrasena = TextService.generateShortRandomText()
     const datosCorreo = {
       correo: usuarioDto.correoElectronico,
       asunto: Messages.SUBJECT_EMAIL_ACCOUNT_ACTIVE,
@@ -146,7 +146,7 @@ export class UsuarioService extends BaseService {
       this.logger.error(error, mensaje)
     })
 
-    return crearResult
+    return { id: crearResult.id, estado: crearResult.estado }
   }
 
   async crearCuenta(usuarioDto: CrearUsuarioCuentaDto) {
@@ -248,11 +248,11 @@ export class UsuarioService extends BaseService {
 
       if (usuarioNuevo.correoElectronico) {
         await this.mensajeriaService
-          .sendEmail(
-            usuarioNuevo.correoElectronico,
-            Messages.NEW_USER_ACCOUNT_VERIFY,
-            template
-          )
+          .enviarCorreo({
+            para: usuarioNuevo.correoElectronico,
+            asunto: Messages.NEW_USER_ACCOUNT_VERIFY,
+            mensaje: template,
+          })
           .catch((err) => {
             const mensaje = `Falló al enviar el correo de activación de cuenta`
             this.logger.error(err, mensaje)
@@ -320,11 +320,11 @@ export class UsuarioService extends BaseService {
 
     if (usuario.correoElectronico) {
       await this.mensajeriaService
-        .sendEmail(
-          usuario.correoElectronico,
-          Messages.SUBJECT_EMAIL_ACCOUNT_LOCKED,
-          template
-        )
+        .enviarCorreo({
+          para: usuario.correoElectronico,
+          asunto: Messages.SUBJECT_EMAIL_ACCOUNT_LOCKED,
+          mensaje: template,
+        })
         .catch((err) => {
           const mensaje = `Falló al enviar el correo de recuperación de cuenta`
           this.logger.error(err, mensaje)
@@ -472,7 +472,6 @@ export class UsuarioService extends BaseService {
         {
           estado: UsuarioEstado.ACTIVE,
           correoElectronico: otrosDatos?.correoElectronico,
-          ciudadaniaDigital: true,
         },
         usuarioAuditoria,
         transaction
@@ -517,7 +516,6 @@ export class UsuarioService extends BaseService {
       persona.primerApellido = personaCiudadania.primerApellido
       persona.segundoApellido = personaCiudadania.segundoApellido
       persona.telefono = personaCiudadania.telefono
-      persona.uuidCiudadano = personaCiudadania.uuidCiudadano
 
       const usuario = await this.usuarioRepositorio.verificarExisteUsuarioPorCI(
         persona.nroDocumento,
@@ -547,7 +545,6 @@ export class UsuarioService extends BaseService {
           usuario: personaCiudadania.nroDocumento,
           estado: UsuarioEstado.ACTIVE,
           correoElectronico: otrosDatos?.correoElectronico,
-          ciudadaniaDigital: true,
         },
         usuarioAuditoria,
         transaction
@@ -664,11 +661,11 @@ export class UsuarioService extends BaseService {
       contrasena
     )
 
-    const result = await this.mensajeriaService.sendEmail(
-      datosCorreo.correo,
-      datosCorreo.asunto,
-      template
-    )
+    const result = await this.mensajeriaService.enviarCorreo({
+      para: datosCorreo.correo,
+      asunto: datosCorreo.asunto,
+      mensaje: template,
+    })
     return result.finalizado
   }
 
@@ -807,11 +804,11 @@ export class UsuarioService extends BaseService {
 
       if (usuario.correoElectronico) {
         await this.mensajeriaService
-          .sendEmail(
-            usuario.correoElectronico,
-            Messages.NEW_USER_ACCOUNT_VERIFY,
-            template
-          )
+          .enviarCorreo({
+            para: usuario.correoElectronico,
+            asunto: Messages.NEW_USER_ACCOUNT_VERIFY,
+            mensaje: template,
+          })
           .catch((error) => {
             const mensaje = `Ocurrió un error al enviar el correo electrónico de activación de cuenta`
             this.logger.error(error, mensaje)
@@ -886,7 +883,7 @@ export class UsuarioService extends BaseService {
         )
       }
 
-      const { correoElectronico, roles, ciudadaniaDigital } = usuarioDto
+      const { correoElectronico, roles } = usuarioDto
       // 2. verificar que el email no este registrado
 
       if (
@@ -913,16 +910,6 @@ export class UsuarioService extends BaseService {
       if (roles.length > 0) {
         // realizar reglas de roles
         await this.actualizarRoles(id, roles, usuarioAuditoria, transaction)
-      }
-
-      if (ciudadaniaDigital) {
-        await this.usuarioRepositorio.actualizar(
-          id,
-          {
-            ciudadaniaDigital: ciudadaniaDigital,
-          },
-          usuarioAuditoria
-        )
       }
 
       return { id: usuario.id }
@@ -1029,7 +1016,6 @@ export class UsuarioService extends BaseService {
     return {
       id: usuario.id,
       usuario: usuario.usuario,
-      ciudadaniaDigital: usuario.ciudadaniaDigital,
       correoElectronico: usuario.correoElectronico,
       urlFoto: usuario.urlFoto,
       estado: usuario.estado,

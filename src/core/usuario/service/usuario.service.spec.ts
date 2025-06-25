@@ -16,7 +16,7 @@ import { AuthorizationService } from '@/core/authorization/controller/authorizat
 import { RolRepository } from '@/core/authorization/repository/rol.repository'
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
 import { MensajeriaModule } from '@/core/external-services/mensajeria/mensajeria.module'
-import { SegipService } from '@/core/external-services/iop/segip/segip.service'
+import { FileValidationService } from '@/common/lib/file-validation.service'
 
 const resUsuarioList = {
   id: '1e9215f2-47cd-45e4-a593-4289413503e0',
@@ -207,12 +207,6 @@ describe('UsuarioService', () => {
           },
         },
         {
-          provide: SegipService,
-          useValue: {
-            contrastar: jest.fn(() => ({ finalizado: true })),
-          },
-        },
-        {
           provide: PersonaRepository,
           useValue: {},
         },
@@ -224,6 +218,15 @@ describe('UsuarioService', () => {
         },
         {
           provide: RolRepository,
+          useValue: {},
+        },
+        {
+          provide: 'FileValidationService',
+          useValue: {},
+        },
+        // Add this if UsuarioService expects FileValidationService as a class, not a string token
+        {
+          provide: FileValidationService,
           useValue: {},
         },
       ],
@@ -329,7 +332,6 @@ describe('UsuarioService', () => {
     const usuarioDto = new CrearUsuarioCiudadaniaDto()
     usuarioDto.usuario = '7878787'
     usuarioDto.roles = ['d5de12df-3cc3-5a58-a742-be24030482d8']
-    usuarioDto.ciudadaniaDigital = true
 
     const usuarioAuditoria = TextService.generateUuid()
     const usuario = await service.crearConCiudadania(
@@ -346,7 +348,6 @@ describe('UsuarioService', () => {
     const usuarioDto = new CrearUsuarioCiudadaniaDto()
     usuarioDto.usuario = '7878787'
     usuarioDto.roles = ['d5de12df-3cc3-5a58-a742-be24030482d8']
-    usuarioDto.ciudadaniaDigital = true
 
     const usuarioAuditoria = TextService.generateUuid()
 

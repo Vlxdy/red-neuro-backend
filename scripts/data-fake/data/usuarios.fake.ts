@@ -1,4 +1,4 @@
-type Usuario = {
+export type UsuarioFake = {
   usuario: string
   correoElectronico: string
   persona: {
@@ -13,7 +13,7 @@ type Usuario = {
   }
 }
 
-export const personasFake: Usuario[] = [
+export const personasFake: UsuarioFake[] = [
   {
     usuario: '3398513',
     correoElectronico: 'dayana.Catari513@gmail.com',

@@ -69,17 +69,17 @@ export class EvaluacionNutricionalService extends BaseService {
     } = this.calcularValoresDerivados(restData, historiaClinica)
 
     if (!idCita) {
-      const citaCreate = await this.citasService.crearCita(
+      const citaCreate = await this.citasService.crearCita({
         idMedico,
-        {
+        data: {
           idPaciente: historiaClinica.idPaciente,
           detalle: 'Evaluación nutricional',
           fechaInicio: dayjs().toDate(),
           fechaFin: dayjs().add(30, 'minute').toDate(),
         },
         usuarioAuditoria,
-        transaccion
-      )
+        transaccion,
+      })
       idCitaRecuperado = citaCreate.id
     } else {
       idCitaRecuperado = idCita
@@ -106,9 +106,7 @@ export class EvaluacionNutricionalService extends BaseService {
 
     await this.citasService.actualizarCita({
       idCita: cita.id,
-      data: {
-        estado: CitasEstado.CONCLUIDA,
-      },
+      data: { estado: CitasEstado.CONCLUIDA },
       idMedico: historiaClinica.idMedico,
       // datosDto: {
       //   estado: CitasEstado.CANCELADA,
@@ -187,9 +185,7 @@ export class EvaluacionNutricionalService extends BaseService {
       relacionCinturaCadera,
       pesoResidual,
     } = this.calcularValoresDerivados(
-      {
-        ...evaluacionActualizada,
-      },
+      { ...evaluacionActualizada },
       historiaClinica
     )
     await this.evaluacionNutricionalRepositorio.actualizar({

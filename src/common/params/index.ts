@@ -8,7 +8,6 @@ export const Configurations = {
   BLACK_LIST_EMAILS: [
     '10minutemail.com',
     'fremont.nodebalancer.linode.com',
-    'yopmail.com',
     'cool.fr.nf',
     'jetable.fr.nf',
     'nospam.ze.tc',

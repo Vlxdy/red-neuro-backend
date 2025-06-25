@@ -1,80 +1,158 @@
-import { HttpService } from '@nestjs/axios'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MensajeriaService } from './mensajeria.service'
-import { of } from 'rxjs'
-import { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import { mensajeriaConfig } from './mensajeria.config'
+import * as nodemailer from 'nodemailer'
+import { SentMessageInfo } from 'nodemailer'
 
-const resSendEmail: AxiosResponse = {
-  data: {
-    finalizado: true,
-    datos: {
-      id: '6008588c123718082c2061b8',
-    },
-  },
-  headers: {},
-  status: 201,
-  statusText: '',
-  config: {} as InternalAxiosRequestConfig,
-}
+// Mock de nodemailer para controlar su comportamiento
+jest.mock('nodemailer', () => ({
+  createTransport: jest.fn().mockReturnValue({
+    sendMail: jest.fn(),
+  }),
+}))
 
-const resGetReportEmail: AxiosResponse = {
-  data: {
-    finalizado: true,
-    datos: {
-      id_notificacion: '6008588c123718082c2061b8',
-    },
-  },
-  headers: {},
-  status: 200,
-  statusText: '',
-  config: {} as InternalAxiosRequestConfig,
-}
+const mockMailUser = 'test@gmail.com'
+const mockMailPass = 'testpass'
+const mockMailTimeout = 5
 
 describe('MensajeriaService', () => {
   let service: MensajeriaService
+  let mockSendMail: jest.Mock
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MensajeriaService,
         {
-          provide: HttpService,
+          provide: mensajeriaConfig.KEY,
           useValue: {
-            get: jest.fn(() => of(resGetReportEmail)),
-            post: jest.fn(() => of(resSendEmail)),
+            mailUser: mockMailUser,
+            mailPass: mockMailPass,
+            mailTimeout: mockMailTimeout,
           },
         },
       ],
     }).compile()
 
     service = module.get<MensajeriaService>(MensajeriaService)
+    mockSendMail = (nodemailer.createTransport as jest.Mock)().sendMail
+
+    // Limpiar mocks antes de cada prueba
+    mockSendMail.mockClear()
+    jest.clearAllTimers() // Limpiar temporizadores para pruebas de timeout
+    jest.useFakeTimers() // Usar temporizadores falsos para controlar el tiempo
   })
 
-  it('[sendSms] Debería enviar un sms.', async () => {
-    const response = await service.sendSms('77777777', 'sms fake')
-    expect(response).toHaveProperty('finalizado')
-    expect(response.finalizado).toBe(true)
+  afterEach(() => {
+    jest.useRealTimers() // Volver a usar temporizadores reales después de cada prueba
   })
 
-  it('[sendEmail] Debería enviar un correo.', async () => {
-    const response = await service.sendEmail(
-      'fake@fake.bo',
-      'asunto',
-      'contenido'
-    )
-    expect(response).toHaveProperty('finalizado')
-    expect(response.finalizado).toBe(true)
+  it('debería estar definido', () => {
+    expect(service).toBeDefined()
   })
 
-  it('[getReportSms] Debería obtener el reporte de un sms.', async () => {
-    const response = await service.getReportSms('111111111111')
-    expect(response).toHaveProperty('finalizado')
-    expect(response.finalizado).toBe(true)
-  })
+  describe('enviarCorreo', () => {
+    const dto = {
+      para: 'recipient@example.com',
+      asunto: 'Asunto de Prueba',
+      mensaje: 'Mensaje de Prueba',
+    }
 
-  it('[getReportEmail] Debería obtener el reporte de un correo.', async () => {
-    const response = await service.getReportEmail('22222222222')
-    expect(response).toHaveProperty('finalizado')
-    expect(response.finalizado).toBe(true)
+    it('debería retornar un error si mailUser o mailPass no están configurados', async () => {
+      // Sobrescribir la configuración para esta prueba
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          MensajeriaService,
+          {
+            provide: mensajeriaConfig.KEY,
+            useValue: {
+              mailUser: '',
+              mailPass: '',
+              mailTimeout: mockMailTimeout,
+            },
+          },
+        ],
+      }).compile()
+      const serviceWithoutConfig =
+        module.get<MensajeriaService>(MensajeriaService)
+
+      const result = await serviceWithoutConfig.enviarCorreo(dto)
+
+      expect(result).toEqual({
+        finalizado: false,
+        mensaje: 'Configuración de correo no está completa',
+        error: 'MAIL_USER o MAIL_PASS no están configurados',
+      })
+      expect(mockSendMail).not.toHaveBeenCalled()
+    })
+
+    it('debería enviar un correo exitosamente', async () => {
+      const mockInfo: SentMessageInfo = {
+        messageId: 'abc-123',
+        envelope: {},
+        accepted: [dto.para],
+        rejected: [],
+        pending: [],
+        response: '250 OK',
+      }
+      mockSendMail.mockImplementationOnce((mailOptions, callback) => {
+        callback(null, mockInfo)
+      })
+
+      const result = await service.enviarCorreo(dto)
+
+      expect(mockSendMail).toHaveBeenCalledWith(
+        {
+          from: mockMailUser,
+          to: dto.para,
+          subject: dto.asunto,
+          text: dto.mensaje,
+          html: dto.mensaje,
+        },
+        expect.any(Function)
+      )
+      expect(result).toEqual({
+        finalizado: true,
+        mensaje: 'Correo enviado correctamente',
+        resultado: mockInfo,
+      })
+    })
+
+    it('debería manejar un error al enviar el correo', async () => {
+      const mockError = new Error('Nodemailer falló al enviar')
+      mockSendMail.mockImplementationOnce((mailOptions, callback) => {
+        callback(mockError)
+      })
+
+      const result = await service.enviarCorreo(dto)
+
+      expect(mockSendMail).toHaveBeenCalled()
+      expect(result).toEqual({
+        finalizado: false,
+        mensaje: 'Ocurrió un error al enviar el mensaje por E-MAIL',
+        error: mockError.message,
+      })
+    })
+
+    it('debería lanzar RequestTimeoutException si el envío del correo tarda demasiado', async () => {
+      mockSendMail.mockImplementationOnce(() => {
+        // Simular un retraso largo que excede el tiempo de espera
+        // No llamar al callback inmediatamente
+      })
+
+      const sendPromise = service.enviarCorreo(dto)
+
+      // Avanzar los temporizadores más allá del tiempo de espera
+      jest.advanceTimersByTime(mockMailTimeout * 1000 + 100) // 100ms extra para asegurar el timeout
+
+      const result = await sendPromise
+
+      expect(mockSendMail).toHaveBeenCalled()
+      expect(result).toEqual({
+        finalizado: false,
+        mensaje: 'Ocurrió un error al enviar el mensaje por E-MAIL',
+        error: 'La solicitud está demorando demasiado',
+      })
+    })
   })
 })

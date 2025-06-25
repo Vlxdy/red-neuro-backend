@@ -43,14 +43,6 @@ export class Usuario extends AuditoriaEntity {
   contrasena: string
 
   @Column({
-    name: 'ciudadania_digital',
-    type: 'boolean',
-    default: false,
-    comment: 'índica si el usuario tiene habilitada la ciudadanía digital',
-  })
-  ciudadaniaDigital: boolean
-
-  @Column({
     name: 'correo_electronico',
     type: 'varchar',
     nullable: true,

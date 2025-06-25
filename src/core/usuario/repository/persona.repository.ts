@@ -26,7 +26,6 @@ export class PersonaRepository {
         tipoDocumento: personaDto.tipoDocumento,
         telefono: personaDto?.telefono,
         usuarioCreacion: usuarioAuditoria,
-        uuidCiudadano: personaDto.uuidCiudadano,
       })
     )
   }

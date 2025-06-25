@@ -1,21 +1,10 @@
 import { Module } from '@nestjs/common'
 import { MensajeriaService } from './mensajeria.service'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { HttpModule } from '@nestjs/axios'
+import { ConfigModule } from '@nestjs/config'
+import { mensajeriaConfig } from './mensajeria.config'
 
 @Module({
-  imports: [
-    HttpModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        baseURL: configService.get('MSJ_URL'),
-        headers: {
-          authorization: `Bearer ${configService.get('MSJ_TOKEN')}`,
-        },
-      }),
-    }),
-  ],
+  imports: [ConfigModule.forFeature(mensajeriaConfig)],
   providers: [MensajeriaService],
   exports: [MensajeriaService],
 })

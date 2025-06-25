@@ -32,7 +32,7 @@ export class MedicosController extends BaseController {
       params: paginacionQueryDto,
       idMedico,
     })
-    return this.successListRows(result as any)
+    return this.successListRows(result)
   }
 
   @ApiOperation({ summary: 'API para listar pacientes de un medico' })

@@ -10,31 +10,6 @@ export class usuarioRol1611516017924 implements MigrationInterface {
         rol: '1', //(RolEnum.ADMINISTRADOR),
         usuario: '1', //('ADMINISTRADOR'),
       },
-      {
-        id: '2',
-        rol: '2', // (RolEnum.NUTRICIONISTA),
-        usuario: '2', // ('NUTRICIONISTA'),
-      },
-      {
-        id: '3',
-        rol: '3', // (RolEnum.PACIENTE),
-        usuario: '3', // ('PACIENTE'),
-      },
-      {
-        id: '4',
-        rol: '1', //(RolEnum.ADMINISTRADOR),
-        usuario: '4', // ('ADMINISTRADOR),'),
-      },
-      {
-        id: '5',
-        rol: '2', //(RolEnum.NUTRICIONISTA),
-        usuario: '4', // ('NUTRICIONISTA),'),
-      },
-      {
-        id: '6',
-        rol: '3', //(RolEnum.PACIENTE),
-        usuario: '4', // ('PACIENTE),'),
-      },
     ]
     const usuariosRoles = items.map((item) => {
       return new UsuarioRol({

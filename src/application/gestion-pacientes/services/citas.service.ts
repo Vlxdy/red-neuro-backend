@@ -22,6 +22,7 @@ import { NotificacionService } from './notificacion.service'
 import dayjs from 'dayjs'
 import { NotificacionTipo } from '../entities/notificacion.entity'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { AsignacionService } from './asignacion.service'
 
 @Injectable()
 export class CitasService extends BaseService {
@@ -30,6 +31,7 @@ export class CitasService extends BaseService {
     private citasRepositorio: CitasRepository,
     private medicosService: MedicosService,
     private pacientesService: PacientesService,
+    private asignacionService: AsignacionService,
     private notificacionService: NotificacionService
   ) {
     super()
@@ -50,9 +52,7 @@ export class CitasService extends BaseService {
       return [this.formatearCitas(citas), cantidad]
     } else if (idRol === RolEnumId.NUTRICIONISTA) {
       const [citas, cantidad] =
-        await this.citasRepositorio.listarPorNutricionista({
-          idUsuarioRol,
-        })
+        await this.citasRepositorio.listarPorNutricionista({ idUsuarioRol })
       return [this.formatearCitas(citas), cantidad]
     }
     throw new ForbiddenException(
@@ -77,20 +77,26 @@ export class CitasService extends BaseService {
     return citas
   }
 
-  async crearCita(
-    idMedico: string,
-    data: CrearCitaDto,
-    usuarioAuditoria: string,
+  async crearCita({
+    data,
+    idMedico,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    // idRol: string
+    idMedico: string
+    data: CrearCitaDto
+    usuarioAuditoria: string
     transaccion?: EntityManager
-  ): Promise<{ id: string }> {
+  }): Promise<{ id: string }> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.crearCita(
-          idMedico,
+        return await this.crearCita({
           data,
+          idMedico,
           usuarioAuditoria,
-          nuevaTransaccion
-        )
+          transaccion: nuevaTransaccion,
+        })
       }
 
       return await this.citasRepositorio.runTransaction(op)
@@ -99,13 +105,20 @@ export class CitasService extends BaseService {
     await this.medicosService.obtenerMedico(idMedico, transaccion)
     await this.pacientesService.obtenerPaciente(data.idPaciente, transaccion)
 
-    const asignacion = await this.citasRepositorio.crear({
+    await this.asignacionService.validarAsignacion({
+      idMedico,
+      idPaciente: data.idPaciente,
+      transaccion,
+    })
+
+    const cita = await this.citasRepositorio.crear({
       idMedico,
       data,
       usuarioAuditoria,
       transaccion,
     })
-    return { id: asignacion.id }
+
+    return { id: cita.id }
   }
 
   async actualizarCita({
@@ -153,13 +166,7 @@ export class CitasService extends BaseService {
     }
 
     const citaUpdate = await this.citasRepositorio.actualizar({
-      datosDto: {
-        idPaciente,
-        detalle,
-        estado,
-        fechaFin,
-        fechaInicio,
-      },
+      datosDto: { idPaciente, detalle, estado, fechaFin, fechaInicio },
       id: idCita,
       usuarioAuditoria,
       transaccion,
@@ -209,9 +216,7 @@ export class CitasService extends BaseService {
       )
     }
     await this.citasRepositorio.actualizar({
-      datosDto: {
-        estado: CitasEstado.INACTIVO,
-      },
+      datosDto: { estado: CitasEstado.INACTIVO },
       id,
       usuarioAuditoria: idMedico,
     })

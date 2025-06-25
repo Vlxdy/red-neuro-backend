@@ -59,7 +59,7 @@
     "@nestjs/core": "10.4.13",
     "@nestjs/jwt": "10.2.0",
     "@nestjs/passport": "10.0.3",
-    "@nestjs/platform-express": "10.4.15",
+    "@nestjs/platform-express": "^10.4.19",
     "@nestjs/schedule": "4.1.1",
     "@nestjs/swagger": "8.1.0",
     "@nestjs/typeorm": "10.0.2",
@@ -84,6 +84,7 @@
     "jsdom": "25.0.1",
     "nanoid": "3.3.8",
     "nest-authz": "2.11.0",
+    "nodemailer": "^7.0.3",
     "openid-client": "5.6.5",
     "pako": "2.1.0",
     "passport": "0.7.0",
@@ -179,7 +180,8 @@
     "collectCoverage": true,
     "testResultsProcessor": "jest-sonar-reporter",
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/../src/$1"
+      "^@/(.*)$": "<rootDir>/$1",
+      "^src/(.*)$": "<rootDir>/$1"
     }
   },
   "jest-junit": {
