@@ -8,6 +8,7 @@ import { HistoriaClinica } from '../entities/historia-clinica.entity'
 import { formatearUsuarioRolRespuesta } from '@/application/gestion-pacientes/utils/formateos'
 import { HistoriaClinicaResponse } from '@/common/types/data-response.type'
 import { AntecedenteService } from './antecedentes.service'
+import { EvaluacionNutricionalService } from './evaluacion-nutricional.service'
 
 @Injectable()
 export class HistoriaClinicaService extends BaseService {
@@ -15,7 +16,8 @@ export class HistoriaClinicaService extends BaseService {
     private readonly historiaClinicaRepository: HistoriaClinicaRepository,
     private readonly medicosService: MedicosService,
     private readonly pacienteService: PacientesService,
-    private readonly antecedenteService: AntecedenteService
+    private readonly antecedenteService: AntecedenteService,
+    private readonly evalucacionesNutricionales: EvaluacionNutricionalService
   ) {
     super()
   }
@@ -119,12 +121,17 @@ export class HistoriaClinicaService extends BaseService {
         historiaClinica.id
       )
 
+    const ultimaEvaluacion =
+      await this.evalucacionesNutricionales.ultimaEvaluacion({
+        idHistoriaClinica: historiaClinica.id,
+      })
     const historiaClinicaFormateada =
       this.formatearHistoriaClinica(historiaClinica)
 
     return {
       ...historiaClinicaFormateada,
       antecedente,
+      ultimaEvaluacion,
     }
   }
 

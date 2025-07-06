@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { CreateEvaluacionAntropometricaDto } from '../dtos/evaluacion.dto'
 import { EvaluacionNutricional } from '../entities/evaluacion-nutricional.entity'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { EvaluacionNutricionalEstado } from '@/application/gestion-pacientes/constant'
 
 @Injectable()
 export class EvaluacionNutricionalRepository {
@@ -87,6 +88,21 @@ export class EvaluacionNutricionalRepository {
     }
 
     return await query.getManyAndCount()
+  }
+  async ultimaEvalucacion(
+    idHistoriaClinica: string,
+    transaccion?: EntityManager
+  ) {
+    const query = (transaccion || this.dataSource)
+      .getRepository(EvaluacionNutricional)
+      .createQueryBuilder('evaluacion')
+      .orderBy('evaluacion.id', 'DESC')
+      .where({ idHistoriaClinica })
+      .andWhere({
+        estado: EvaluacionNutricionalEstado.ACTIVO,
+      })
+
+    return await query.getOne()
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {

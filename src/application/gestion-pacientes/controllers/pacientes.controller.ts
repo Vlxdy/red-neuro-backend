@@ -50,8 +50,6 @@ export class PacientesController extends BaseController {
 
   @Get()
   async listarPacientes(@Query() paginacionQueryDto: PaginacionQueryDto) {
-    console.log('paginacionQueryDto', paginacionQueryDto)
-
     const result =
       await this.pacientesService.listarPacientes(paginacionQueryDto)
     return this.successListRows(result as any)
@@ -62,6 +60,7 @@ export class PacientesController extends BaseController {
     @Param() params: ParamIdDto,
     @Req() req: Request
   ) {
+    // TODO: Validar que solo muestre a los medicos que estan autorizados
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const idMedico = this.getUsuarioRol(req)
     const { id: idPaciente } = params

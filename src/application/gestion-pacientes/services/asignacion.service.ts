@@ -1,5 +1,10 @@
 import { BaseService } from '@/common/base/base-service'
-import { Inject, Injectable, PreconditionFailedException } from '@nestjs/common'
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  PreconditionFailedException,
+} from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
 import { AsignacionRepository } from '../repositories/asignacion.repository'
@@ -37,6 +42,7 @@ export class AsignacionService extends BaseService {
     private asignacionRepositorio: AsignacionRepository,
     private medicosService: MedicosService,
     private pacientesService: PacientesService,
+    @Inject(forwardRef(() => HistoriaClinicaService))
     private historiaClinicaService: HistoriaClinicaService
   ) {
     super()

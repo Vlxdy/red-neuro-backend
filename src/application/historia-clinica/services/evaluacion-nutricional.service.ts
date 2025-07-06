@@ -1,5 +1,10 @@
 import { BaseService } from '@/common/base/base-service'
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import {
   ActualizarEvaluacionAntropometricaDto,
@@ -19,6 +24,7 @@ import { CitasEstado } from '@/application/gestion-pacientes/constant'
 export class EvaluacionNutricionalService extends BaseService {
   constructor(
     private evaluacionNutricionalRepositorio: EvaluacionNutricionalRepository,
+    @Inject(forwardRef(() => HistoriaClinicaService))
     private historiaClinicaService: HistoriaClinicaService,
     private citasService: CitasService
   ) {
@@ -202,37 +208,60 @@ export class EvaluacionNutricionalService extends BaseService {
     })
   }
 
+  async ultimaEvaluacion({
+    idHistoriaClinica,
+    transaccion,
+  }: {
+    idHistoriaClinica: string
+    transaccion?: EntityManager
+  }) {
+    const evalucacion =
+      await this.evaluacionNutricionalRepositorio.ultimaEvalucacion(
+        idHistoriaClinica,
+        transaccion
+      )
+
+    return evalucacion ? this.formatearEvaluacion(evalucacion) : null
+  }
+
   formatearEvaluaciones(
     evaluaciones: EvaluacionNutricional[]
   ): Array<EvaluacionNutricionalResponde> {
     return evaluaciones.map((evaluacion) => {
-      const { archivos } = evaluacion
-      const formateado: EvaluacionNutricionalResponde = {
-        id: evaluacion.id,
-        peso: evaluacion.peso,
-        pesoObjetivo: evaluacion.pesoObjetivo,
-        pesoCompeticion: evaluacion.pesoCompeticion,
-        estatura: evaluacion.estatura,
-        envergadura: evaluacion.envergadura,
-        estaturaSentada: evaluacion.estaturaSentada,
-        triceps: evaluacion.triceps,
-        subescapular: evaluacion.subescapular,
-        biceps: evaluacion.biceps,
-        crestaIliaca: evaluacion.crestaIliaca,
-        supraEspinal: evaluacion.supraEspinal,
-        abdominal: evaluacion.abdominal,
-        muslo: evaluacion.muslo,
-        relacionCinturaCadera: evaluacion.relacionCinturaCadera,
-        pesoResidual: evaluacion.pesoResidual,
-        masaGrasa: evaluacion.masaGrasa,
-        masaLibreGrasa: evaluacion.masaLibreGrasa,
-        estado: evaluacion.estado,
-        imc: evaluacion.imc,
-        requerimientoCalorico: evaluacion.requerimientoCalorico,
-        diagnostico: evaluacion.diagnostico,
-        idHistoriaClinica: evaluacion.idHistoriaClinica,
-        fechaCreacion: evaluacion.fechaCreacion,
-        archivos: archivos.map((archivo) => ({
+      return this.formatearEvaluacion(evaluacion)
+    })
+  }
+  formatearEvaluacion(evaluacion: EvaluacionNutricional) {
+    const { archivos } = evaluacion
+    console.log('adasdasdasdasd', archivos)
+
+    const formateado: EvaluacionNutricionalResponde = {
+      id: evaluacion.id,
+      peso: evaluacion.peso,
+      pesoObjetivo: evaluacion.pesoObjetivo,
+      pesoCompeticion: evaluacion.pesoCompeticion,
+      estatura: evaluacion.estatura,
+      envergadura: evaluacion.envergadura,
+      estaturaSentada: evaluacion.estaturaSentada,
+      triceps: evaluacion.triceps,
+      subescapular: evaluacion.subescapular,
+      biceps: evaluacion.biceps,
+      crestaIliaca: evaluacion.crestaIliaca,
+      supraEspinal: evaluacion.supraEspinal,
+      abdominal: evaluacion.abdominal,
+      muslo: evaluacion.muslo,
+      relacionCinturaCadera: evaluacion.relacionCinturaCadera,
+      pesoResidual: evaluacion.pesoResidual,
+      masaGrasa: evaluacion.masaGrasa,
+      masaLibreGrasa: evaluacion.masaLibreGrasa,
+      estado: evaluacion.estado,
+      imc: evaluacion.imc,
+      requerimientoCalorico: evaluacion.requerimientoCalorico,
+      diagnostico: evaluacion.diagnostico,
+      idHistoriaClinica: evaluacion.idHistoriaClinica,
+      fechaCreacion: evaluacion.fechaCreacion,
+      archivos:
+        archivos?.map((archivo) => ({
           id: archivo.id,
           nombreArchivo: archivo.nombreArchivo,
           codigo: archivo.codigo || null,
@@ -240,10 +269,9 @@ export class EvaluacionNutricionalService extends BaseService {
           contenidoBase64: archivo.contenidoBase64 || null,
           idHistoriaClinica: archivo.idHistoriaClinica,
           idEvaluacionNutricional: archivo.idEvaluacionNutricional,
-        })),
-      }
-      return formateado
-    })
+        })) ?? [],
+    }
+    return formateado
   }
   calcularEdad(
     fechaNacimiento: string | Date | undefined | null
