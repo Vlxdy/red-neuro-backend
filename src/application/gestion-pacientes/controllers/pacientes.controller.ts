@@ -80,11 +80,10 @@ export class PacientesController extends BaseController {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const idMedico = '3' //this.getUsuarioRol(req)
     const { id: idPaciente } = params
-    console.log('esto esta en idMedico', idMedico)
-    const reportePdf = await this.pacientesService.ReportePaciente(
-      idMedico,
-      idPaciente
-    )
+    const reportePdf = await this.pacientesService.ReportePaciente({
+      usuarioAuditoria: idMedico,
+      idPaciente,
+    })
     response.setHeader('Content-Type', 'application/pdf')
     reportePdf.pipe(response)
     reportePdf.end()

@@ -51,4 +51,7 @@ export enum Messages {
   // Mensajes de errores de validación
   MEDICO_NOT_FOUND = 'El médico no se encuentra registrado.',
   PACIENTE_NOT_FOUND = 'El paciente no se encuentra registrado.',
+
+  // Mensajes de historias clinicas
+  HISTORIA_CLINICA_NOT_FOUND = 'La historia clínica no se encuentra registrada.',
 }

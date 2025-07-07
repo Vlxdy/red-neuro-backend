@@ -1,5 +1,10 @@
 import { BaseService } from '@/common/base/base-service'
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
 import { RolEnum } from '@/core/authorization/rol.enum'
@@ -19,6 +24,10 @@ import {
   TDocumentDefinitions,
 } from 'pdfmake/interfaces'
 import { DateService } from '@/common/lib/data.service'
+import { EvaluacionNutricionalService } from '@/application/historia-clinica/services/evaluacion-nutricional.service'
+import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
+import { EvaluacionNutricionalResponde } from '@/common/types/data-response.type'
+import dayjs from 'dayjs'
 
 @Injectable()
 export class PacientesService extends BaseService {
@@ -26,7 +35,11 @@ export class PacientesService extends BaseService {
     @Inject(UsuarioRolRepository)
     private usuarioRolRepositorio: UsuarioRolRepository,
     private usuarioRegistradoRepositorio: UsuariosRegistradosRepository,
-    private printerService: PrinterService
+    private printerService: PrinterService,
+    @Inject(forwardRef(() => EvaluacionNutricionalService))
+    private evaluacionesNutricionalesService: EvaluacionNutricionalService,
+    @Inject(forwardRef(() => HistoriaClinicaService))
+    private historiaClinicaService: HistoriaClinicaService
   ) {
     super()
   }
@@ -81,8 +94,13 @@ export class PacientesService extends BaseService {
     return [formatearUsuariosRolesRespuesta(usuariosRol), total]
   }
 
-  async ReportePaciente(usuarioAuditoria: string, idPasiente: string) {
-    const paciente = await this.obtenerPaciente(idPasiente)
+  async ReportePaciente({
+    idPaciente,
+  }: {
+    usuarioAuditoria: string
+    idPaciente: string
+  }) {
+    const paciente = await this.obtenerPaciente(idPaciente)
     console.log('esto esta en pacientes', paciente)
     const personaPaciente = paciente.usuario.persona
 
@@ -95,6 +113,32 @@ export class PacientesService extends BaseService {
     const logo: Content = {
       image: 'public/alimenta/logoAlimenta.jpeg',
       width: 80,
+    }
+
+    const historiaClinica = await this.historiaClinicaService.buscarPorPaciente(
+      paciente.id
+    )
+
+    if (!historiaClinica) {
+      throw new NotFoundException(Messages.HISTORIA_CLINICA_NOT_FOUND)
+    }
+    const ultimaEvaluacion =
+      await this.evaluacionesNutricionalesService.ultimaEvaluacion({
+        idHistoriaClinica: historiaClinica.id,
+      })
+
+    const [evaluacionesNutricionales] =
+      await this.evaluacionesNutricionalesService.listarEvaluacionesPorHistoriaClinica(
+        {
+          idHistoriaClinica: historiaClinica.id,
+          paginacion: new PaginacionQueryDto(),
+        }
+      )
+
+    if (evaluacionesNutricionales.length === 0) {
+      throw new NotFoundException(
+        'No se encontraron evaluaciones nutricionales para este paciente.'
+      )
     }
 
     const infoConsultorio: Content = [
@@ -170,7 +214,14 @@ export class PacientesService extends BaseService {
             ],
           },
           {
-            text: [{ text: 'IMC:', bold: true }, { text: '22.5' }],
+            text: [
+              { text: 'IMC:', bold: true },
+              {
+                text: ultimaEvaluacion
+                  ? String(ultimaEvaluacion.imc)
+                  : 'Sin registrar',
+              },
+            ],
             alignment: 'right',
           },
         ],
@@ -178,7 +229,7 @@ export class PacientesService extends BaseService {
     ]
 
     // Datos de citas clínicas (10 registros ficticios)
-    const citasClinicas = this.generarCitasClinicas(personaPaciente.nombres)
+    const citasClinicas = this.generarEvaluaciones(evaluacionesNutricionales)
     const recomendaciones = this.generarRecomendacionesPorCita()
     const contenido: TDocumentDefinitions = {
       header: header,
@@ -210,22 +261,11 @@ export class PacientesService extends BaseService {
   }
 
   // Método para generar citas clínicas ficticias
-  private generarCitasClinicas(nombrePaciente: string): Content[] {
+  private generarEvaluaciones(
+    evaluaciones: EvaluacionNutricionalResponde[]
+  ): Content[] {
     const citas: Content[] = []
-    const fechas = [
-      '2023-01-15',
-      '2023-02-20',
-      '2023-03-10',
-      '2023-04-05',
-      '2023-05-15',
-      '2023-06-25',
-      '2023-07-30',
-      '2023-08-10',
-      '2023-09-15',
-      '2023-10-20',
-    ]
 
-    // Encabezados de la tabla
     const encabezados = [
       { text: 'Fecha', bold: true },
       { text: 'Peso (kg)', bold: true },
@@ -241,17 +281,18 @@ export class PacientesService extends BaseService {
         body: [
           encabezados,
           // Datos de las citas
-          ...fechas.map((fecha) => {
-            // Generar datos ficticios para cada cita
-            const peso = Math.floor(Math.random() * (80 - 60 + 1)) + 60 // Peso entre 60 y 80 kg
-            const grasaCorporal = Math.floor(Math.random() * (30 - 10 + 1)) + 10 // Grasa corporal entre 10% y 30%
-            const imc = (peso / Math.pow(1.75, 2)).toFixed(2) // Suponiendo una altura de 1.75 m
-            const observaciones = 'Consulta realizada con éxito.'
-
+          ...evaluaciones.map((evaluacion) => {
+            const peso = evaluacion.peso
+            const altura = evaluacion.estatura
+            const imc = evaluacion.imc
+            const observaciones = evaluacion.diagnostico
+            const fecha = dayjs(evaluacion.fechaCreacion).format(
+              'DD/MM/YYYY HH:mm:ss'
+            )
             return [
               { text: fecha },
-              { text: peso.toString() },
-              { text: grasaCorporal.toString() },
+              { text: peso ? String(peso) : 'Sin registrar' },
+              { text: altura ? String(altura) : 'Sin registrar' },
               { text: imc },
               { text: observaciones },
             ]

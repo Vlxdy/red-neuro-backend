@@ -1,5 +1,5 @@
 import { BaseService } from '../../../common/base'
-import { Injectable } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 
 import { PaginacionQueryDto } from 'src/common/dto/paginacion-query.dto'
@@ -29,6 +29,7 @@ export class NotificacionService extends BaseService {
   constructor(
     private notificacionRepositorio: NotificacionRepository,
     // private usuarioRolRepositorio: UsuarioRolRepository,
+    @Inject(forwardRef(() => PacientesService))
     private pacienteService: PacientesService
     // private eventsGateway: EventsGateway
   ) {

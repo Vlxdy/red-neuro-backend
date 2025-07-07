@@ -1,6 +1,7 @@
 import { BaseService } from '@/common/base/base-service'
 import {
   ForbiddenException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
@@ -30,6 +31,7 @@ export class CitasService extends BaseService {
     @Inject(CitasRepository)
     private citasRepositorio: CitasRepository,
     private medicosService: MedicosService,
+    @Inject(forwardRef(() => PacientesService))
     private pacientesService: PacientesService,
     private asignacionService: AsignacionService,
     private notificacionService: NotificacionService

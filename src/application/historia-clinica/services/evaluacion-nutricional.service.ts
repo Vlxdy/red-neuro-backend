@@ -129,7 +129,7 @@ export class EvaluacionNutricionalService extends BaseService {
   }: {
     idHistoriaClinica: string
     paginacion: PaginacionQueryDto
-  }) {
+  }): Promise<[EvaluacionNutricionalResponde[], number]> {
     const [evalucaciones, numero] =
       await this.evaluacionNutricionalRepositorio.buscarPorHistoriaClinica(
         idHistoriaClinica,
@@ -233,7 +233,6 @@ export class EvaluacionNutricionalService extends BaseService {
   }
   formatearEvaluacion(evaluacion: EvaluacionNutricional) {
     const { archivos } = evaluacion
-    console.log('adasdasdasdasd', archivos)
 
     const formateado: EvaluacionNutricionalResponde = {
       id: evaluacion.id,

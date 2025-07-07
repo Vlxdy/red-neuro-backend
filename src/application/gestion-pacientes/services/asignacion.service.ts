@@ -40,7 +40,9 @@ export class AsignacionService extends BaseService {
   constructor(
     @Inject(AsignacionRepository)
     private asignacionRepositorio: AsignacionRepository,
+    @Inject(forwardRef(() => MedicosService))
     private medicosService: MedicosService,
+    @Inject(forwardRef(() => PacientesService))
     private pacientesService: PacientesService,
     @Inject(forwardRef(() => HistoriaClinicaService))
     private historiaClinicaService: HistoriaClinicaService
