@@ -154,6 +154,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/citas': {
         [RolEnum.NUTRICIONISTA]: 'GET|POST',
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.PACIENTE]: 'GET|POST',
       },
       '/api/citas/:id': { [RolEnum.NUTRICIONISTA]: 'PATCH|DELETE' },
       '/api/citas/cron-activar': { [RolEnum.ADMINISTRADOR]: 'GET' },
@@ -175,6 +176,11 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/medicos/:id/pacientes': { [RolEnum.ADMINISTRADOR]: 'GET' },
       // Notificaciones
       '/api/notificaciones': {
+        [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
+        [RolEnum.NUTRICIONISTA]: 'GET|PATCH',
+        [RolEnum.PACIENTE]: 'GET|PATCH',
+      },
+      '/api/notificacion': {
         [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
         [RolEnum.NUTRICIONISTA]: 'GET|PATCH',
         [RolEnum.PACIENTE]: 'GET|PATCH',

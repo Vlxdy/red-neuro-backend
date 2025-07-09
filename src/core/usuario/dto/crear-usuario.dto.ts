@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  MaxLength,
   MinLength,
   ValidateNested,
 } from '@/common/validation'
@@ -19,12 +20,14 @@ export class CrearUsuarioDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
+  @MaxLength(100)
   contrasena: string
 
   @ApiProperty({ example: 'AGEPIC.admin135' })
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
+  @MaxLength(100)
   @RepetirContenido('contrasena', { message: 'Las contraseñas no coinciden' })
   repetirContrasena: string
 
