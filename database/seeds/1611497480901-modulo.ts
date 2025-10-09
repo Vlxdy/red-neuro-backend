@@ -214,34 +214,24 @@ export class modulo1611497480901 implements MigrationInterface {
               orden: 2,
             },
           },
-          {
-            nombre: 'pacientes',
-            url: '/admin/pacientes-admin',
-            label: 'Pacientes',
-            propiedades: {
-              icono: 'supervisor_account',
-              descripcion: 'Pacientes generales del sistema',
-              orden: 3,
-            },
-          },
         ],
       },
       {
-        nombre: 'seguimiento',
-        url: '/seguimiento',
-        label: 'Seguimiento',
+        nombre: 'Pacientes',
+        url: '/pacientes-del-sistema',
+        label: 'Pacientes',
         propiedades: {
-          descripcion: 'Sección de configuraciones',
+          descripcion: 'Sección de pacientes',
           orden: 3,
         },
         subMenus: [
           {
-            nombre: 'pacisntes-asignados',
-            url: '/admin/pacientes-asignados',
-            label: 'Pacientes asignados',
+            nombre: 'lista-pacientes',
+            url: '/admin/pacientes',
+            label: 'Lista de pacientes',
             propiedades: {
               icono: 'assignment_ind',
-              descripcion: 'Pacientes asignados al nutricionista',
+              descripcion: 'Lista de pacientes del asignados',
               orden: 1,
             },
           },

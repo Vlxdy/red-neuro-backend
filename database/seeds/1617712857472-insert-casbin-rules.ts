@@ -41,14 +41,13 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/admin/nutricionistas': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       },
-      '/admin/pacientes-admin': {
+      '/admin/pacientes': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+        [RolEnum.NUTRICIONISTA]: 'read|create|update|delete',
       },
       '/admin/citas-nutricionista': {
         [RolEnum.NUTRICIONISTA]: 'read|create|update|delete',
-      },
-      '/admin/pacientes-asignados': {
-        [RolEnum.NUTRICIONISTA]: 'read|create|update|delete',
+        [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       },
 
       '/admin/mi-seguimiento': {
