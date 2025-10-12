@@ -420,18 +420,26 @@ export class PacientesService extends BaseService {
     const nutricionista =
       await this.usuarioRolRepositorio.buscarPorId(idNutricionista)
 
-    if (!nutricionista || nutricionista.rol.rol !== RolEnum.NUTRICIONISTA) {
+    if (
+      !nutricionista ||
+      !(
+        nutricionista.rol.rol === RolEnum.NUTRICIONISTA ||
+        nutricionista.rol.rol === RolEnum.ADMINISTRADOR
+      )
+    ) {
       throw new ForbiddenException(Messages.EXCEPTION_FORBIDDEN)
     }
 
-    const asignacion =
-      await this.asignacionRepositorio.buscarAsignacionActivaPorMedicoPaciente(
-        idNutricionista,
-        idPaciente
-      )
+    if (nutricionista.rol.rol === RolEnum.NUTRICIONISTA) {
+      const asignacion =
+        await this.asignacionRepositorio.buscarAsignacionActivaPorMedicoPaciente(
+          idNutricionista,
+          idPaciente
+        )
 
-    if (!asignacion) {
-      throw new PreconditionFailedException(Messages.PATIENT_NOT_ASSIGNED)
+      if (!asignacion) {
+        throw new PreconditionFailedException(Messages.PATIENT_NOT_ASSIGNED)
+      }
     }
 
     const op = async (transaccion: EntityManager) => {
