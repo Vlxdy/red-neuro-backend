@@ -1,9 +1,12 @@
 import { BaseService } from '@/common/base/base-service'
 import {
+  BadRequestException,
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
   NotFoundException,
+  PreconditionFailedException,
 } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
@@ -11,6 +14,9 @@ import { RolEnum } from '@/core/authorization/rol.enum'
 import { Messages } from '@/common/constants/response-messages'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { UsuariosRegistradosRepository } from '../repositories/usuarios-registrados.repository'
+import { UsuarioRepository } from '@/core/usuario/repository/usuario.repository'
+import { PersonaRepository } from '@/core/usuario/repository/persona.repository'
+import { AsignacionRepository } from '../repositories/asignacion.repository'
 
 import {
   PacientesAsignadosDto,
@@ -28,6 +34,7 @@ import { EvaluacionNutricionalService } from '@/application/historia-clinica/ser
 import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
 import { EvaluacionNutricionalResponde } from '@/common/types/data-response.type'
 import dayjs from 'dayjs'
+import { ActualizarDatosPersonalesPacienteDto } from '../dto/actualizar-datos-paciente.dto'
 
 @Injectable()
 export class PacientesService extends BaseService {
@@ -36,6 +43,9 @@ export class PacientesService extends BaseService {
     private usuarioRolRepositorio: UsuarioRolRepository,
     private usuarioRegistradoRepositorio: UsuariosRegistradosRepository,
     private printerService: PrinterService,
+    private usuarioRepositorio: UsuarioRepository,
+    private personaRepositorio: PersonaRepository,
+    private asignacionRepositorio: AsignacionRepository,
     @Inject(forwardRef(() => EvaluacionNutricionalService))
     private evaluacionesNutricionalesService: EvaluacionNutricionalService,
     @Inject(forwardRef(() => HistoriaClinicaService))
@@ -383,5 +393,117 @@ export class PacientesService extends BaseService {
       },
       margin: [0, 10],
     }
+  }
+
+  async actualizarDatosPersonalesPaciente({
+    idPaciente,
+    idNutricionista,
+    usuarioAuditoria,
+    datos,
+  }: {
+    idPaciente: string
+    idNutricionista: string
+    usuarioAuditoria: string
+    datos: ActualizarDatosPersonalesPacienteDto
+  }) {
+    const { correoElectronico, telefono, genero } = datos
+
+    if (
+      correoElectronico === undefined &&
+      telefono === undefined &&
+      genero === undefined
+    ) {
+      throw new BadRequestException(Messages.UPDATE_DATA_REQUIRED)
+    }
+
+    const paciente = await this.obtenerPaciente(idPaciente)
+    const nutricionista =
+      await this.usuarioRolRepositorio.buscarPorId(idNutricionista)
+
+    if (!nutricionista || nutricionista.rol.rol !== RolEnum.NUTRICIONISTA) {
+      throw new ForbiddenException(Messages.EXCEPTION_FORBIDDEN)
+    }
+
+    const asignacion =
+      await this.asignacionRepositorio.buscarAsignacionActivaPorMedicoPaciente(
+        idNutricionista,
+        idPaciente
+      )
+
+    if (!asignacion) {
+      throw new PreconditionFailedException(Messages.PATIENT_NOT_ASSIGNED)
+    }
+
+    const op = async (transaccion: EntityManager) => {
+      const usuarioPaciente =
+        await this.usuarioRepositorio.buscarDatosDeContactoDelUsuarioPorId(
+          paciente.usuario.id,
+          transaccion
+        )
+
+      if (!usuarioPaciente || !usuarioPaciente.persona) {
+        throw new NotFoundException(Messages.INVALID_USER)
+      }
+
+      const persona = usuarioPaciente.persona
+
+      if (
+        correoElectronico !== undefined &&
+        correoElectronico !== usuarioPaciente.correoElectronico
+      ) {
+        const existeCorreo =
+          await this.usuarioRepositorio.buscarUsuarioPorCorreo(
+            correoElectronico,
+            transaccion
+          )
+
+        if (existeCorreo) {
+          throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
+        }
+
+        await this.usuarioRepositorio.actualizar(
+          usuarioPaciente.id,
+          { correoElectronico },
+          usuarioAuditoria,
+          transaccion
+        )
+      }
+
+      const datosPersonaActualizar: {
+        telefono?: string
+        genero?: string
+      } = {}
+
+      if (telefono !== undefined && telefono !== persona.telefono) {
+        const existeTelefono =
+          await this.personaRepositorio.buscarPersonaPorTelefono(
+            telefono,
+            transaccion
+          )
+
+        if (existeTelefono) {
+          throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+        }
+
+        datosPersonaActualizar.telefono = telefono
+      }
+
+      if (genero !== undefined && genero !== persona.genero) {
+        datosPersonaActualizar.genero = genero
+      }
+
+      if (Object.keys(datosPersonaActualizar).length > 0) {
+        await this.personaRepositorio.actualizarDatosContacto(
+          usuarioPaciente.idPersona,
+          datosPersonaActualizar,
+          usuarioAuditoria,
+          transaccion
+        )
+      }
+
+      return { id: paciente.usuario.id }
+    }
+
+    return await this.usuarioRepositorio.runTransaction(op)
   }
 }

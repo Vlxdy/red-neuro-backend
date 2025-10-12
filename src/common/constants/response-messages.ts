@@ -40,6 +40,8 @@ export enum Messages {
   EXISTING_USER = 'Ya existe un usuario registrado con el mismo número de documento.',
   EXISTING_EMAIL = 'Ya existe un usuario registrado con el mismo correo electrónico.',
   EXISTING_PHONE = 'Ya existe un usuario registrado con el mismo teléfono.',
+  PATIENT_NOT_ASSIGNED = 'El paciente no está asignado al nutricionista especificado.',
+  UPDATE_DATA_REQUIRED = 'Debe proporcionar al menos un dato para actualizar.',
   NEW_USER_ACCOUNT = '¡Usuario creado exitosamente!',
   NEW_USER_ACCOUNT_VERIFY = 'Activación de cuenta.',
   ACCOUNT_ACTIVED_SUCCESSFULLY = '¡Activación de cuenta exitosa!',

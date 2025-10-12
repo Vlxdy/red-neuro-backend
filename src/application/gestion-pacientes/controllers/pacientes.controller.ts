@@ -1,7 +1,9 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
+  Patch,
   Query,
   Req,
   Res,
@@ -19,6 +21,7 @@ import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { CitasService } from '../services/citas.service'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
+import { ActualizarDatosPersonalesPacienteDto } from '../dto/actualizar-datos-paciente.dto'
 
 @ApiTags('Pacientes')
 @ApiBearerAuth()
@@ -101,5 +104,30 @@ export class PacientesController extends BaseController {
       paginacion: query,
     })
     return this.successListRows(citas)
+  }
+
+  @ApiOperation({
+    summary:
+      'Actualizar los datos de contacto y género de un paciente asignado',
+  })
+  @Patch(':id/datos-personales')
+  async actualizarDatosPersonalesPaciente(
+    @Param() params: ParamIdDto,
+    @Body() body: ActualizarDatosPersonalesPacienteDto,
+    @Req() req: Request
+  ) {
+    const { id: idPaciente } = params
+    const idNutricionista = this.getUsuarioRol(req)
+    const usuarioAuditoria = this.getUser(req)
+
+    const resultado =
+      await this.pacientesService.actualizarDatosPersonalesPaciente({
+        idPaciente,
+        idNutricionista,
+        usuarioAuditoria,
+        datos: body,
+      })
+
+    return this.successUpdate(resultado)
   }
 }

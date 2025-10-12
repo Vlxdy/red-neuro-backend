@@ -49,6 +49,34 @@ export class PersonaRepository {
     return await repo.findOne({ where: { id } })
   }
 
+  async actualizarDatosContacto(
+    id: string,
+    datos: { telefono?: string | null; genero?: string | null },
+    usuarioAuditoria: string,
+    transaction?: EntityManager
+  ) {
+    const datosActualizar: Partial<Persona> = {
+      usuarioModificacion: usuarioAuditoria,
+    }
+
+    if (datos.telefono !== undefined) {
+      datosActualizar.telefono = datos.telefono
+    }
+
+    if (datos.genero !== undefined) {
+      datosActualizar.genero = datos.genero
+    }
+
+    const queryBuilder = transaction
+      ? transaction.createQueryBuilder().update(Persona)
+      : this.dataSource.createQueryBuilder().update(Persona)
+
+    return await queryBuilder
+      .set(datosActualizar)
+      .where('id = :id', { id })
+      .execute()
+  }
+
   async buscarPersonaPorCI(persona: PersonaDto) {
     return await this.dataSource
       .getRepository(Persona)
