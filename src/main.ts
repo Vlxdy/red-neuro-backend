@@ -12,8 +12,8 @@ import { CustomValidationPipe } from '@/common/pipes'
 import { TypeormStore } from 'connect-typeorm'
 import { Session } from '@/core/authentication/entity/session.entity'
 import dotenv from 'dotenv'
+import { writeFileSync } from 'fs'
 import path from 'path'
-
 import {
   SWAGGER_API_CURRENT_VERSION,
   SWAGGER_API_DESCRIPTION,
@@ -125,6 +125,12 @@ function createSwagger(app: INestApplication) {
 
   const document = SwaggerModule.createDocument(app, options)
   SwaggerModule.setup(SWAGGER_API_ROOT, app, document)
+  const outputPath = path.join(process.cwd(), 'swagger.json')
+  writeFileSync(outputPath, JSON.stringify(document, null, 2), {
+    encoding: 'utf8',
+  })
+
+  console.log(`📄 Swagger JSON exportado en: ${outputPath}`)
 }
 
 void bootstrap()

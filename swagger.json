@@ -1,0 +1,4603 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/estado": {
+      "get": {
+        "operationId": "AppController_verificarEstado",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "API para obtener el estado de la aplicación",
+        "tags": [
+          "Estado"
+        ]
+      }
+    },
+    "/autorizacion/politicas": {
+      "post": {
+        "operationId": "AuthorizationController_crearPolitica",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite crear una nueva política de autorización utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PoliticaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para crear una nueva política",
+        "tags": [
+          "Autorización"
+        ]
+      },
+      "patch": {
+        "operationId": "AuthorizationController_actualizarPolitica",
+        "parameters": [
+          {
+            "name": "sujeto",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "ADMINISTRADOR",
+              "type": "string"
+            }
+          },
+          {
+            "name": "objeto",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "/admin/parametros",
+              "type": "string"
+            }
+          },
+          {
+            "name": "accion",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "create|update|delete|read",
+              "type": "string"
+            }
+          },
+          {
+            "name": "app",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "frontend",
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite actualizar una política de autorización existente utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PoliticaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para actualizar una nueva política",
+        "tags": [
+          "Autorización"
+        ]
+      },
+      "get": {
+        "operationId": "AuthorizationController_listarPoliticas",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FiltrosPoliticasDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener el listado de politicas",
+        "tags": [
+          "Autorización"
+        ]
+      },
+      "delete": {
+        "operationId": "AuthorizationController_eliminarPolitica",
+        "parameters": [
+          {
+            "name": "sujeto",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "ADMINISTRADOR",
+              "type": "string"
+            }
+          },
+          {
+            "name": "objeto",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "/admin/parametros",
+              "type": "string"
+            }
+          },
+          {
+            "name": "accion",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "create|update|delete|read",
+              "type": "string"
+            }
+          },
+          {
+            "name": "app",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "frontend",
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para eliminar una política",
+        "tags": [
+          "Autorización"
+        ]
+      }
+    },
+    "/autorizacion/permisos": {
+      "get": {
+        "operationId": "AuthorizationController_obtenerRoles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener las politicas definidas en formato CASBIN",
+        "tags": [
+          "Autorización"
+        ]
+      }
+    },
+    "/autorizacion/roles": {
+      "get": {
+        "operationId": "RolController_listar",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener el listado de Roles",
+        "tags": [
+          "Roles"
+        ]
+      },
+      "post": {
+        "operationId": "RolController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite crear un nuevo rol utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearRolDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para crear un rol",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/autorizacion/roles/todos": {
+      "get": {
+        "operationId": "RolController_listarTodos",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener el listado de todos los Roles",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/autorizacion/roles/{id}": {
+      "patch": {
+        "operationId": "RolController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite actualizar un rol existente utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarRolDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para actualizar un rol",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/autorizacion/roles/{id}/activacion": {
+      "patch": {
+        "operationId": "RolController_activar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para activar un rol",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/autorizacion/roles/{id}/inactivacion": {
+      "patch": {
+        "operationId": "RolController_inactivar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para inactivar un rol",
+        "tags": [
+          "Roles"
+        ]
+      }
+    },
+    "/autorizacion/modulos": {
+      "get": {
+        "operationId": "ModuloController_listar",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener el listado de Módulos",
+        "tags": [
+          "Módulos"
+        ]
+      },
+      "post": {
+        "operationId": "ModuloController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite crear un nuevo módulo utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearModuloDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para crear un Módulo",
+        "tags": [
+          "Módulos"
+        ]
+      },
+      "delete": {
+        "operationId": "ModuloController_eliminar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para eliminar un Módulo",
+        "tags": [
+          "Módulos"
+        ]
+      }
+    },
+    "/autorizacion/modulos/{id}": {
+      "patch": {
+        "operationId": "ModuloController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite actualizar un módulo existente utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarModuloDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para actualizar un Módulo",
+        "tags": [
+          "Módulos"
+        ]
+      }
+    },
+    "/autorizacion/modulos/{id}/activacion": {
+      "patch": {
+        "operationId": "ModuloController_activar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para activar un Módulo",
+        "tags": [
+          "Módulos"
+        ]
+      }
+    },
+    "/autorizacion/modulos/{id}/inactivacion": {
+      "patch": {
+        "operationId": "ModuloController_inactivar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para inactivar un Módulo",
+        "tags": [
+          "Módulos"
+        ]
+      }
+    },
+    "/auth": {
+      "post": {
+        "operationId": "AuthenticationController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Autenticación de usuarios",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "API para autenticación con usuario y contraseña",
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
+    "/cambiarRol": {
+      "patch": {
+        "operationId": "AuthenticationController_changeRol",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambioRolDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
+    "/ciudadania-auth": {
+      "get": {
+        "operationId": "AuthenticationController_loginCiudadania",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "API para autenticación con ciudadania digital",
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
+    "/ciudadania-autorizar": {
+      "get": {
+        "operationId": "AuthenticationController_loginCiudadaniaCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "API para autorización con Ciudadanía Digital",
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
+    "/logout": {
+      "get": {
+        "operationId": "AuthenticationController_salirCiudadania",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para logout digital",
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
+    "/token": {
+      "post": {
+        "operationId": "RefreshTokensController_getAccessToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "API que actualiza el token de acceso usando un refresh token",
+        "tags": [
+          "Refresh Token"
+        ]
+      }
+    },
+    "/{id}": {
+      "delete": {
+        "operationId": "RefreshTokensController_eliminarRefreshToken",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API que elimina el refresh token",
+        "tags": [
+          "Refresh Token"
+        ]
+      }
+    },
+    "/usuarios": {
+      "get": {
+        "operationId": "UsuarioController_listar",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener el listado de usuarios",
+        "tags": [
+          "Usuarios"
+        ]
+      },
+      "post": {
+        "operationId": "UsuarioController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite crear un nuevo usuario utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearUsuarioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para crear un nuevo usuario",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/cuenta/perfil": {
+      "get": {
+        "operationId": "UsuarioController_obtenerPerfil",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtiene la información del perfil del usuario",
+        "tags": [
+          "Usuarios"
+        ]
+      },
+      "patch": {
+        "operationId": "UsuarioController_actualizarPerfil",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarPerfilDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza el perfil del usuario",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/{id}": {
+      "get": {
+        "operationId": "UsuarioController_getUsuarioPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtiene la información de un usuario por su ID",
+        "tags": [
+          "Usuarios"
+        ]
+      },
+      "patch": {
+        "operationId": "UsuarioController_actualizarDatos",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite actualizar los datos de un usuario utilizando los atributos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarUsuarioRolDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza datos de un usuario",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/crear-cuenta": {
+      "post": {
+        "operationId": "UsuarioController_crearUsuario",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearUsuarioCuentaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "API para crear una nueva Cuenta",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/cuenta/foto": {
+      "patch": {
+        "operationId": "UsuarioController_actualizarFotoPerfil",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "foto": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la foto de perfil del usuario",
+        "tags": [
+          "Usuarios"
+        ]
+      },
+      "delete": {
+        "operationId": "UsuarioController_eliminarFotoPerfil",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/recuperar": {
+      "post": {
+        "operationId": "UsuarioController_recuperarCuenta",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite recuperar una cuenta de usuario utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecuperarCuentaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "API para recuperar una Cuenta",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/validar-recuperar": {
+      "post": {
+        "operationId": "UsuarioController_validarRecuperarCuenta",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite validar la recuperación de una cuenta de usuario utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarRecuperarCuentaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "API para validar recuperación una Cuenta",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/cuenta/activacion": {
+      "patch": {
+        "operationId": "UsuarioController_activarCuenta",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite activar una cuenta de usuario utilizando el código de activación proporcionado en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivarCuentaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "API para activar una Cuenta",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/cuenta/nueva-contrasena": {
+      "patch": {
+        "operationId": "UsuarioController_nuevaContrasena",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite establecer una nueva contraseña para una cuenta de usuario utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevaContrasenaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "API para nueva Contraseña",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/cuenta/ciudadania": {
+      "post": {
+        "operationId": "UsuarioController_crearConCiudadania",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearUsuarioCiudadaniaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para crear un nuevo usuario relacionado con Ciudadanía Digital",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/{id}/activacion": {
+      "patch": {
+        "operationId": "UsuarioController_activar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Activa un usuario",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/{id}/inactivacion": {
+      "patch": {
+        "operationId": "UsuarioController_inactivar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Inactiva un usuario",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/cuenta/contrasena": {
+      "patch": {
+        "operationId": "UsuarioController_actualizarContrasena",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite actualizar la contraseña de un usuario autenticado utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarContrasenaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la contrasena de un usuario authenticado",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/{id}/restauracion": {
+      "patch": {
+        "operationId": "UsuarioController_restaurarContrasena",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para restaurar la contraseña de un usuario",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/{id}/reenviar": {
+      "patch": {
+        "operationId": "UsuarioController_reenviarCorreoActivacion",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para reenviar Correo Activación",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/cuenta/desbloqueo": {
+      "get": {
+        "operationId": "UsuarioController_desbloquearCuenta",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ParamUuidDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Desbloquea una cuenta bloqueada por muchos intentos fallidos",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/usuarios/test/codigo/{id}": {
+      "get": {
+        "operationId": "UsuarioController_obtenerCodigo",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/uploads/profile-photos/{filename}": {
+      "get": {
+        "operationId": "FileController_serveProfilePhoto",
+        "parameters": [
+          {
+            "name": "filename",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "File"
+        ]
+      }
+    },
+    "/evaluacion-nutricional/{id}": {
+      "patch": {
+        "operationId": "EvaluacionesController_modificarEvalucacion",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarEvaluacionAntropometricaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Evaluaciones"
+        ]
+      }
+    },
+    "/historia-clinica/{id}/evaluacion-nutricional": {
+      "post": {
+        "operationId": "HistoriaClinicaController_crearEvaluacionNutricional",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEvaluacionAntropometricaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Historia clinica"
+        ]
+      },
+      "get": {
+        "operationId": "HistoriaClinicaController_listarEvaluacionesNutricinales",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Historia clinica"
+        ]
+      }
+    },
+    "/historia-clinica/{id}/comentarios": {
+      "get": {
+        "operationId": "HistoriaClinicaController_listarComentarios",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Historia clinica"
+        ]
+      },
+      "post": {
+        "operationId": "HistoriaClinicaController_crearComentario",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearComentarioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Historia clinica"
+        ]
+      }
+    },
+    "/historia-clinica/{id}/antecedentes": {
+      "post": {
+        "operationId": "HistoriaClinicaController_crearAntecedente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAntecedenteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Historia clinica"
+        ]
+      }
+    },
+    "/historia-clinica": {
+      "get": {
+        "operationId": "HistoriaClinicaController_obtenerHistoriasClinica",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Historia clinica"
+        ]
+      }
+    },
+    "/comentarios/{id}": {
+      "patch": {
+        "operationId": "ComentarioController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearComentarioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Comentarios"
+        ]
+      }
+    },
+    "/comentarios/{id}/inactivar": {
+      "patch": {
+        "operationId": "ComentarioController_inactivar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Comentarios"
+        ]
+      }
+    },
+    "/comentarios/{id}/reply": {
+      "post": {
+        "operationId": "ComentarioController_responderComentario",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearComentarioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Comentarios"
+        ]
+      }
+    },
+    "/comentarios": {
+      "get": {
+        "operationId": "ComentarioController_listarComentarios",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Comentarios"
+        ]
+      }
+    },
+    "/pacientes/asignados": {
+      "get": {
+        "operationId": "PacientesController_asignarPacienteAMedico",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listar pacientes asignados a un medico",
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/pacientes": {
+      "get": {
+        "operationId": "PacientesController_listarPacientes",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/pacientes/{id}/historia-clinica": {
+      "get": {
+        "operationId": "PacientesController_obtenerHistoriaClinica",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/pacientes/{id}/reporte": {
+      "get": {
+        "operationId": "PacientesController_obtenerReporteDePaciente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/pacientes/{id}/citas": {
+      "get": {
+        "operationId": "PacientesController_obtenerCitasPorPaciente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/pacientes/{id}/datos-personales": {
+      "patch": {
+        "operationId": "PacientesController_actualizarDatosPersonalesPaciente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarDatosPersonalesPacienteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualizar los datos de contacto y género de un paciente asignado",
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/medicos/{id}/pacientes-por-asignar": {
+      "get": {
+        "operationId": "MedicosController_listarPacienteParaAsignar",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para listar pacientes que no fueron asignados a un medico especifico",
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/medicos/{id}/pacientes": {
+      "get": {
+        "operationId": "MedicosController_listarPacientePorMedico",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para listar pacientes de un medico",
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/asignacion": {
+      "post": {
+        "operationId": "AsignacionesController_crearAsignacion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearAsignacionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para asignar pacientes a medico",
+        "tags": [
+          "Asignacion"
+        ]
+      }
+    },
+    "/asignacion/eliminar": {
+      "patch": {
+        "operationId": "AsignacionesController_eliminarAsignacion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModificarAsignacionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para eliminar asignacion de paciente a medico",
+        "tags": [
+          "Asignacion"
+        ]
+      }
+    },
+    "/citas": {
+      "post": {
+        "operationId": "CitasController_crearCita",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para asignar medicos a los pacientes",
+        "tags": [
+          "Citas"
+        ]
+      },
+      "get": {
+        "operationId": "CitasController_listarCitas",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para listar citas medicas de un paciente",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/{id}": {
+      "patch": {
+        "operationId": "CitasController_actualizarCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para crear una evaluación nutricional",
+        "tags": [
+          "Citas"
+        ]
+      },
+      "delete": {
+        "operationId": "CitasController_eliminarCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para eliminar una cita",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/cron-activar": {
+      "get": {
+        "operationId": "CitasController_activarCitasCron",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para activar el cron de citas",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/usuarios-registrados/{rol}": {
+      "get": {
+        "operationId": "UsuariosRegistradosController_listar",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rol",
+            "required": true,
+            "in": "path",
+            "description": "Rol de los usuarios",
+            "schema": {
+              "enum": [
+                "PACIENTE",
+                "NUTRICIONISTA",
+                "ADMINISTRADOR",
+                "*"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para listar usuarios por rol",
+        "tags": [
+          "Usuarios Registrados"
+        ]
+      }
+    },
+    "/planes-nutricionales": {
+      "post": {
+        "operationId": "PlanNutricionalController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearPlanNutricionalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      },
+      "get": {
+        "operationId": "PlanNutricionalController_listarTodos",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      }
+    },
+    "/planes-nutricionales/multiple": {
+      "post": {
+        "operationId": "PlanNutricionalController_crearMultiple",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      }
+    },
+    "/planes-nutricionales/{id}": {
+      "patch": {
+        "operationId": "PlanNutricionalController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarPlanNutricionalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      },
+      "get": {
+        "operationId": "PlanNutricionalController_buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      }
+    },
+    "/planes-nutricionales/{id}/inactivar": {
+      "patch": {
+        "operationId": "PlanNutricionalController_inactivar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      }
+    },
+    "/planes-nutricionales/paciente/{idUsuarioRol}/fecha/{fecha}": {
+      "get": {
+        "operationId": "PlanNutricionalController_buscarPorFecha",
+        "parameters": [
+          {
+            "name": "idUsuarioRol",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fecha",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      }
+    },
+    "/planes-nutricionales/paciente/{idUsuarioRol}": {
+      "get": {
+        "operationId": "PlanNutricionalController_listarPorPaciente",
+        "parameters": [
+          {
+            "name": "idUsuarioRol",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      }
+    },
+    "/planes-nutricionales/paciente/{idUsuarioRol}/carrito-compras": {
+      "get": {
+        "operationId": "PlanNutricionalController_listarPorPacienteEntreFechas",
+        "parameters": [
+          {
+            "name": "idUsuarioRol",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "desde",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hasta",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlanNutricional"
+        ]
+      }
+    },
+    "/carrito-compras": {
+      "post": {
+        "operationId": "CarritoCompraController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearCarritoCompraDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CarritoCompra"
+        ]
+      }
+    },
+    "/carrito-compras/{id}": {
+      "patch": {
+        "operationId": "CarritoCompraController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CarritoCompra"
+        ]
+      },
+      "get": {
+        "operationId": "CarritoCompraController_buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CarritoCompra"
+        ]
+      }
+    },
+    "/carrito-compras/{id}/inactivar": {
+      "patch": {
+        "operationId": "CarritoCompraController_inactivar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CarritoCompra"
+        ]
+      }
+    },
+    "/carrito-compras/paciente/{idUsuarioRol}": {
+      "get": {
+        "operationId": "CarritoCompraController_listarPorPaciente",
+        "parameters": [
+          {
+            "name": "idUsuarioRol",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CarritoCompra"
+        ]
+      }
+    },
+    "/alimentos": {
+      "get": {
+        "operationId": "AlimentoController_listarTodos",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Alimento"
+        ]
+      }
+    },
+    "/notificacion": {
+      "get": {
+        "operationId": "NotificacionController_obtenerNotificaciones",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Notificaciones"
+        ]
+      },
+      "patch": {
+        "operationId": "NotificacionController_actualizarNotificaciones",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificacionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Notificaciones"
+        ]
+      }
+    },
+    "/parametros": {
+      "get": {
+        "operationId": "ParametroController_listar",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener el listado de parámetros",
+        "tags": [
+          "Parámetros"
+        ]
+      },
+      "post": {
+        "operationId": "ParametroController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite crear un nuevo parámetro utilizando los datos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearParametroDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para crear un nuevo parámetro",
+        "tags": [
+          "Parámetros"
+        ]
+      }
+    },
+    "/parametros/{grupo}/listado": {
+      "get": {
+        "operationId": "ParametroController_listarPorGrupo",
+        "parameters": [
+          {
+            "name": "grupo",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "TD",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener el listado de parámetros por grupo",
+        "tags": [
+          "Parámetros"
+        ]
+      }
+    },
+    "/parametros/{id}": {
+      "patch": {
+        "operationId": "ParametroController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Esta API permite actualizar un parámetro existente utilizando los atributos proporcionados en el cuerpo de la solicitud.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarParametroDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para actualizar un parámetro",
+        "tags": [
+          "Parámetros"
+        ]
+      }
+    },
+    "/parametros/{id}/activacion": {
+      "patch": {
+        "operationId": "ParametroController_activar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para activar un parámetro",
+        "tags": [
+          "Parámetros"
+        ]
+      }
+    },
+    "/parametros/{id}/inactivacion": {
+      "patch": {
+        "operationId": "ParametroController_inactivar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para inactivar un parámetro",
+        "tags": [
+          "Parámetros"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Backend Base",
+    "description": "Documentación del Proyecto base BACKEND",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://localhost:4500/api/"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "PoliticaDto": {
+        "type": "object",
+        "properties": {
+          "sujeto": {
+            "type": "string",
+            "example": "ADMINISTRADOR"
+          },
+          "objeto": {
+            "type": "string",
+            "example": "/admin/parametros"
+          },
+          "accion": {
+            "type": "string",
+            "example": "create|update|delete|read"
+          },
+          "app": {
+            "type": "string",
+            "example": "frontend"
+          }
+        },
+        "required": [
+          "sujeto",
+          "objeto",
+          "accion",
+          "app"
+        ]
+      },
+      "FiltrosPoliticasDto": {
+        "type": "object",
+        "properties": {
+          "limite": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 50,
+            "default": 10
+          },
+          "pagina": {
+            "type": "number",
+            "minimum": 1,
+            "default": 1
+          },
+          "filtro": {
+            "type": "string"
+          },
+          "ordenRaw": {
+            "type": "string"
+          }
+        }
+      },
+      "CrearRolDto": {
+        "type": "object",
+        "properties": {
+          "rol": {
+            "type": "string",
+            "example": "CONSULTA"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Consulta"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Descripción"
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          }
+        },
+        "required": [
+          "rol",
+          "nombre",
+          "descripcion",
+          "estado"
+        ]
+      },
+      "ActualizarRolDto": {
+        "type": "object",
+        "properties": {
+          "rol": {
+            "type": "string",
+            "example": "ADMINISTRADOR"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Administrador"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Descripción"
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          }
+        },
+        "required": [
+          "rol",
+          "nombre",
+          "descripcion",
+          "estado"
+        ]
+      },
+      "PropiedadesDto": {
+        "type": "object",
+        "properties": {
+          "icono": {
+            "type": "string",
+            "example": "dashboard"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Módulo de estadísticas"
+          },
+          "orden": {
+            "type": "number",
+            "example": 7
+          }
+        },
+        "required": [
+          "icono",
+          "descripcion",
+          "orden"
+        ]
+      },
+      "CrearModuloDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "Estadísticas"
+          },
+          "url": {
+            "type": "string",
+            "example": "/admin/estadisticas"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Estadísticas"
+          },
+          "propiedades": {
+            "$ref": "#/components/schemas/PropiedadesDto"
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          }
+        },
+        "required": [
+          "label",
+          "url",
+          "nombre",
+          "propiedades",
+          "estado"
+        ]
+      },
+      "ActualizarModuloDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "Trámites"
+          },
+          "url": {
+            "type": "string",
+            "example": "/admin/tramites"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Módulo de trámites"
+          },
+          "propiedades": {
+            "$ref": "#/components/schemas/PropiedadesDto"
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          }
+        },
+        "required": [
+          "label",
+          "url",
+          "nombre",
+          "propiedades",
+          "estado"
+        ]
+      },
+      "AuthDto": {
+        "type": "object",
+        "properties": {
+          "usuario": {
+            "type": "string",
+            "example": "ADMINISTRADOR",
+            "description": "Usuario"
+          },
+          "contrasena": {
+            "type": "string",
+            "example": "MTIz",
+            "description": "Contraseña"
+          }
+        },
+        "required": [
+          "usuario",
+          "contrasena"
+        ]
+      },
+      "CambioRolDto": {
+        "type": "object",
+        "properties": {
+          "idRol": {
+            "type": "string",
+            "example": "1"
+          }
+        },
+        "required": [
+          "idRol"
+        ]
+      },
+      "TokenDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": ""
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "PersonaDto": {
+        "type": "object",
+        "properties": {
+          "nroDocumento": {
+            "type": "string",
+            "example": "4192299"
+          },
+          "nombres": {
+            "type": "string",
+            "example": "MARIELA"
+          },
+          "primerApellido": {
+            "type": "string",
+            "example": "ALCAZAR"
+          },
+          "segundoApellido": {
+            "type": "string",
+            "example": "ALMARAZ"
+          },
+          "fechaNacimiento": {
+            "type": "object",
+            "example": "2002-05-04"
+          },
+          "telefono": {
+            "type": "object",
+            "example": "71234567"
+          }
+        },
+        "required": [
+          "nroDocumento",
+          "nombres",
+          "primerApellido",
+          "segundoApellido",
+          "fechaNacimiento",
+          "telefono"
+        ]
+      },
+      "CrearUsuarioDto": {
+        "type": "object",
+        "properties": {
+          "contrasena": {
+            "type": "string",
+            "example": "AGEPIC.admin135"
+          },
+          "repetirContrasena": {
+            "type": "string",
+            "example": "AGEPIC.admin135"
+          },
+          "correoElectronico": {
+            "type": "string",
+            "example": "123456@gmail.com"
+          },
+          "persona": {
+            "$ref": "#/components/schemas/PersonaDto"
+          },
+          "roles": {
+            "example": [
+              "1"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "contrasena",
+          "repetirContrasena",
+          "correoElectronico",
+          "persona",
+          "roles"
+        ]
+      },
+      "CustomPersonaDto": {
+        "type": "object",
+        "properties": {
+          "nroDocumento": {
+            "type": "string",
+            "example": "4192299"
+          },
+          "nombres": {
+            "type": "string",
+            "example": "MARIELA"
+          },
+          "primerApellido": {
+            "type": "string",
+            "example": "ALCAZAR"
+          },
+          "segundoApellido": {
+            "type": "string",
+            "example": "ALMARAZ"
+          },
+          "fechaNacimiento": {
+            "type": "object",
+            "example": "2002-05-04"
+          },
+          "telefono": {
+            "type": "object",
+            "example": "71234567"
+          }
+        },
+        "required": [
+          "nroDocumento",
+          "nombres",
+          "primerApellido",
+          "segundoApellido",
+          "fechaNacimiento",
+          "telefono"
+        ]
+      },
+      "CrearUsuarioCuentaDto": {
+        "type": "object",
+        "properties": {
+          "persona": {
+            "$ref": "#/components/schemas/CustomPersonaDto"
+          },
+          "correoElectronico": {
+            "type": "string",
+            "example": "123456@gmail.com"
+          },
+          "contrasenaNueva": {
+            "type": "string",
+            "example": "AGEPIC.admin135"
+          }
+        },
+        "required": [
+          "persona",
+          "correoElectronico",
+          "contrasenaNueva"
+        ]
+      },
+      "ActualizarPerfilDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RecuperarCuentaDto": {
+        "type": "object",
+        "properties": {
+          "correoElectronico": {
+            "type": "string",
+            "example": "123456@gmail.com"
+          }
+        },
+        "required": [
+          "correoElectronico"
+        ]
+      },
+      "ValidarRecuperarCuentaDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo"
+        ]
+      },
+      "ActivarCuentaDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo"
+        ]
+      },
+      "NuevaContrasenaDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string"
+          },
+          "contrasenaNueva": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "contrasenaNueva"
+        ]
+      },
+      "CrearUsuarioCiudadaniaDto": {
+        "type": "object",
+        "properties": {
+          "usuario": {
+            "type": "string",
+            "example": "123456"
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          },
+          "roles": {
+            "example": [
+              "d5de12df-3cc3-5a58-a742-be24030482d8"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "usuario",
+          "estado",
+          "roles"
+        ]
+      },
+      "ActualizarContrasenaDto": {
+        "type": "object",
+        "properties": {
+          "contrasenaActual": {
+            "type": "string",
+            "example": "contrasena"
+          },
+          "contrasenaNueva": {
+            "type": "string",
+            "example": "contrasena-nueva"
+          }
+        },
+        "required": [
+          "contrasenaActual",
+          "contrasenaNueva"
+        ]
+      },
+      "ActualizarUsuarioRolDto": {
+        "type": "object",
+        "properties": {
+          "persona": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PersonaDto"
+              }
+            ]
+          },
+          "correoElectronico": {
+            "type": "object",
+            "example": "asdfg123@gmail.com"
+          },
+          "roles": {
+            "example": [
+              "3"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "persona",
+          "correoElectronico",
+          "roles"
+        ]
+      },
+      "ParamUuidDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "a9d1a5cc-4590-5c67-a0b2-a4b37b862802"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "ActualizarEvaluacionAntropometricaDto": {
+        "type": "object",
+        "properties": {
+          "peso": {
+            "type": "number",
+            "example": 70.5,
+            "description": "Masa corporal (kg)"
+          },
+          "pesoCompeticion": {
+            "type": "number",
+            "example": 68,
+            "description": "Peso en competición (kg)"
+          },
+          "pesoObjetivo": {
+            "type": "number",
+            "example": 65,
+            "description": "Peso objetivo (kg)"
+          },
+          "estatura": {
+            "type": "number",
+            "example": 170,
+            "description": "Estatura (cm)"
+          },
+          "envergadura": {
+            "type": "number",
+            "example": 175,
+            "description": "Envergadura (cm)"
+          },
+          "estaturaSentada": {
+            "type": "number",
+            "example": 85,
+            "description": "Estatura sentada (cm)"
+          },
+          "triceps": {
+            "type": "number",
+            "example": 12.5,
+            "description": "Pliegue tricipital (mm)"
+          },
+          "subescapular": {
+            "type": "number",
+            "example": 10,
+            "description": "Pliegue subescapular (mm)"
+          },
+          "biceps": {
+            "type": "number",
+            "example": 8,
+            "description": "Pliegue bíceps (mm)"
+          },
+          "crestaIliaca": {
+            "type": "number",
+            "example": 15,
+            "description": "Pliegue cresta ilíaca (mm)"
+          },
+          "supraEspinal": {
+            "type": "number",
+            "example": 14,
+            "description": "Pliegue supraespinal (mm)"
+          },
+          "abdominal": {
+            "type": "number",
+            "example": 18,
+            "description": "Pliegue abdominal (mm)"
+          },
+          "muslo": {
+            "type": "number",
+            "example": 20,
+            "description": "Pliegue muslo (mm)"
+          },
+          "pierna": {
+            "type": "number",
+            "example": 10,
+            "description": "Pliegue pierna (mm)"
+          },
+          "brazoRelajado": {
+            "type": "number",
+            "example": 30.5,
+            "description": "Brazo relajado (cm)"
+          },
+          "brazoFlexContraido": {
+            "type": "number",
+            "example": 32,
+            "description": "Brazo contraído (cm)"
+          },
+          "cintura": {
+            "type": "number",
+            "example": 85,
+            "description": "Cintura (cm)"
+          },
+          "caderas": {
+            "type": "number",
+            "example": 95,
+            "description": "Caderas (cm)"
+          },
+          "musloMedio": {
+            "type": "number",
+            "example": 55,
+            "description": "Muslo medio (cm)"
+          },
+          "piernaPerimetro": {
+            "type": "number",
+            "example": 40,
+            "description": "Pierna (cm)"
+          },
+          "humero": {
+            "type": "number",
+            "example": 7.5,
+            "description": "Diámetro del húmero (cm)"
+          },
+          "biEstiloideo": {
+            "type": "number",
+            "example": 6.8,
+            "description": "Diámetro bi estilóideo (cm)"
+          },
+          "femur": {
+            "type": "number",
+            "example": 9.2,
+            "description": "Diámetro del fémur (cm)"
+          },
+          "requerimientoCalorico": {
+            "type": "number",
+            "example": 2000,
+            "description": "Requerimiento calórico estimado (kcal)"
+          },
+          "diagnostico": {
+            "type": "string",
+            "example": "Paciente con sobrepeso grado I",
+            "description": "Diagnóstico nutricional clínico"
+          }
+        },
+        "required": [
+          "peso"
+        ]
+      },
+      "CreateEvaluacionAntropometricaDto": {
+        "type": "object",
+        "properties": {
+          "idCita": {
+            "type": "string",
+            "example": "1234567890",
+            "description": "ID de la cita médica asociada a la evaluación"
+          },
+          "forzarFecha": {
+            "type": "boolean",
+            "example": true,
+            "description": "Indica si se debe forzar la fecha de la evaluación"
+          },
+          "peso": {
+            "type": "number",
+            "example": 70.5,
+            "description": "Masa corporal (kg)"
+          },
+          "pesoCompeticion": {
+            "type": "number",
+            "example": 68,
+            "description": "Peso en competición (kg)"
+          },
+          "pesoObjetivo": {
+            "type": "number",
+            "example": 65,
+            "description": "Peso objetivo (kg)"
+          },
+          "estatura": {
+            "type": "number",
+            "example": 170,
+            "description": "Estatura (cm)"
+          },
+          "envergadura": {
+            "type": "number",
+            "example": 175,
+            "description": "Envergadura (cm)"
+          },
+          "estaturaSentada": {
+            "type": "number",
+            "example": 85,
+            "description": "Estatura sentada (cm)"
+          },
+          "triceps": {
+            "type": "number",
+            "example": 12.5,
+            "description": "Pliegue tricipital (mm)"
+          },
+          "subescapular": {
+            "type": "number",
+            "example": 10,
+            "description": "Pliegue subescapular (mm)"
+          },
+          "biceps": {
+            "type": "number",
+            "example": 8,
+            "description": "Pliegue bíceps (mm)"
+          },
+          "crestaIliaca": {
+            "type": "number",
+            "example": 15,
+            "description": "Pliegue cresta ilíaca (mm)"
+          },
+          "supraEspinal": {
+            "type": "number",
+            "example": 14,
+            "description": "Pliegue supraespinal (mm)"
+          },
+          "abdominal": {
+            "type": "number",
+            "example": 18,
+            "description": "Pliegue abdominal (mm)"
+          },
+          "muslo": {
+            "type": "number",
+            "example": 20,
+            "description": "Pliegue muslo (mm)"
+          },
+          "pierna": {
+            "type": "number",
+            "example": 10,
+            "description": "Pliegue pierna (mm)"
+          },
+          "brazoRelajado": {
+            "type": "number",
+            "example": 30.5,
+            "description": "Brazo relajado (cm)"
+          },
+          "brazoFlexContraido": {
+            "type": "number",
+            "example": 32,
+            "description": "Brazo contraído (cm)"
+          },
+          "cintura": {
+            "type": "number",
+            "example": 85,
+            "description": "Cintura (cm)"
+          },
+          "caderas": {
+            "type": "number",
+            "example": 95,
+            "description": "Caderas (cm)"
+          },
+          "musloMedio": {
+            "type": "number",
+            "example": 55,
+            "description": "Muslo medio (cm)"
+          },
+          "piernaPerimetro": {
+            "type": "number",
+            "example": 40,
+            "description": "Pierna (cm)"
+          },
+          "humero": {
+            "type": "number",
+            "example": 7.5,
+            "description": "Diámetro del húmero (cm)"
+          },
+          "biEstiloideo": {
+            "type": "number",
+            "example": 6.8,
+            "description": "Diámetro bi estilóideo (cm)"
+          },
+          "femur": {
+            "type": "number",
+            "example": 9.2,
+            "description": "Diámetro del fémur (cm)"
+          },
+          "requerimientoCalorico": {
+            "type": "number",
+            "example": 2000,
+            "description": "Requerimiento calórico estimado (kcal)"
+          },
+          "diagnostico": {
+            "type": "string",
+            "example": "Paciente con sobrepeso grado I",
+            "description": "Diagnóstico nutricional clínico"
+          }
+        },
+        "required": [
+          "peso"
+        ]
+      },
+      "CrearComentarioDto": {
+        "type": "object",
+        "properties": {
+          "contenido": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contenido"
+        ]
+      },
+      "CreateAntecedenteDto": {
+        "type": "object",
+        "properties": {
+          "antecedentesFamiliares": {
+            "type": "string",
+            "description": "Antecedentes patológicos familiares"
+          },
+          "enfermedadDiagnosticada": {
+            "type": "boolean",
+            "description": "¿Tiene enfermedad diagnosticada?"
+          },
+          "descripcionEnfermedad": {
+            "type": "string",
+            "description": "Descripción de la enfermedad diagnosticada"
+          },
+          "sigueTratamiento": {
+            "type": "boolean",
+            "description": "¿Sigue un tratamiento médico?"
+          },
+          "descripcionTratamiento": {
+            "type": "string",
+            "description": "Descripción del tratamiento actual"
+          },
+          "tieneCirugia": {
+            "type": "boolean",
+            "description": "¿Se le ha practicado alguna cirugía?"
+          },
+          "descripcionCirugia": {
+            "type": "string",
+            "description": "Descripción de la cirugía realizada"
+          },
+          "tieneEstrenimiento": {
+            "type": "boolean",
+            "description": "¿Tiene estreñimiento?"
+          },
+          "tieneDiarrea": {
+            "type": "boolean",
+            "description": "¿Tiene diarrea?"
+          },
+          "tieneNauseas": {
+            "type": "boolean",
+            "description": "¿Tiene náuseas?"
+          },
+          "tieneVomitos": {
+            "type": "boolean",
+            "description": "¿Tiene vómitos?"
+          },
+          "frecuenciaEvacuacion": {
+            "type": "string",
+            "description": "Frecuencia de evacuación"
+          },
+          "tipoDeposicion": {
+            "type": "string",
+            "description": "Tipo de deposición"
+          },
+          "alergias": {
+            "type": "string",
+            "description": "Alergias conocidas"
+          },
+          "intolerancias": {
+            "type": "string",
+            "description": "Intolerancias alimentarias"
+          },
+          "fechaUltimaMenstruacion": {
+            "type": "string",
+            "description": "Fecha de última menstruación",
+            "format": "date"
+          },
+          "menstruacionRegular": {
+            "type": "boolean",
+            "description": "¿Menstruación regular?"
+          },
+          "metodoAnticonceptivo": {
+            "type": "string",
+            "description": "Método anticonceptivo utilizado"
+          },
+          "colicos": {
+            "type": "boolean",
+            "description": "¿Presenta cólicos?"
+          },
+          "dietasAnteriores": {
+            "type": "string",
+            "description": "Dietas anteriores, tipos y resultados logrados"
+          }
+        },
+        "required": [
+          "enfermedadDiagnosticada",
+          "sigueTratamiento",
+          "tieneCirugia",
+          "tieneEstrenimiento",
+          "tieneDiarrea",
+          "tieneNauseas",
+          "tieneVomitos"
+        ]
+      },
+      "ActualizarDatosPersonalesPacienteDto": {
+        "type": "object",
+        "properties": {
+          "correoElectronico": {
+            "type": "string",
+            "example": "paciente@example.com"
+          },
+          "telefono": {
+            "type": "string",
+            "example": "71234567"
+          },
+          "genero": {
+            "type": "string",
+            "enum": [
+              "M",
+              "F",
+              "OTRO"
+            ]
+          }
+        }
+      },
+      "CrearAsignacionDto": {
+        "type": "object",
+        "properties": {
+          "idMedico": {
+            "type": "string",
+            "description": "Clave foránea que referencia al medico idRolUsuario",
+            "example": "2"
+          },
+          "idPacientes": {
+            "description": "Clave foránea que referencia a los pacientes",
+            "example": [
+              "3",
+              "5",
+              "7"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "idMedico",
+          "idPacientes"
+        ]
+      },
+      "ModificarAsignacionDto": {
+        "type": "object",
+        "properties": {
+          "idMedico": {
+            "type": "string",
+            "description": "Clave foránea que referencia al medico idRolUsuario",
+            "example": "2"
+          },
+          "idPaciente": {
+            "type": "string",
+            "description": "Clave foránea que referencia a los pacientes",
+            "example": "3"
+          }
+        },
+        "required": [
+          "idMedico",
+          "idPaciente"
+        ]
+      },
+      "CrearCitaDto": {
+        "type": "object",
+        "properties": {
+          "idPaciente": {
+            "type": "string",
+            "description": "Clave foránea que referencia al paciente idRolUsuario",
+            "example": "3"
+          },
+          "fechaInicio": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-10-01T10:00:00Z",
+            "description": "Fecha y hora de inicio de la cita"
+          },
+          "fechaFin": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Fecha y hora de fin de la cita",
+            "example": "2023-10-01T10:00:00Z"
+          },
+          "detalle": {
+            "type": "string",
+            "description": "Descripción de la cita",
+            "example": "Consulta médica general"
+          }
+        },
+        "required": [
+          "idPaciente",
+          "fechaInicio",
+          "fechaFin",
+          "detalle"
+        ]
+      },
+      "ActualizarCitaDto": {
+        "type": "object",
+        "properties": {
+          "idPaciente": {
+            "type": "string",
+            "description": "Clave foránea que referencia al paciente idRolUsuario",
+            "example": "3"
+          },
+          "fechaInicio": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-10-01T10:00:00Z",
+            "description": "Fecha y hora de inicio de la cita"
+          },
+          "fechaFin": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Fecha y hora de fin de la cita",
+            "example": "2023-10-01T10:00:00Z"
+          },
+          "detalle": {
+            "type": "string",
+            "description": "Descripción de la cita",
+            "example": "Consulta médica general"
+          },
+          "estado": {
+            "type": "string",
+            "description": "Estado de la cita",
+            "example": "PENDIENTE"
+          }
+        },
+        "required": [
+          "idPaciente",
+          "fechaInicio",
+          "fechaFin",
+          "detalle",
+          "estado"
+        ]
+      },
+      "CrearPlanNutricionalDto": {
+        "type": "object",
+        "properties": {
+          "fecha": {
+            "type": "string",
+            "example": "Fecha del plan diario"
+          },
+          "idUsuarioRol": {
+            "type": "string",
+            "example": "id usuario rol"
+          }
+        },
+        "required": [
+          "fecha",
+          "idUsuarioRol"
+        ]
+      },
+      "ActualizarPlanNutricionalDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CrearCarritoCompraDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "example": "Nombre del carrito"
+          },
+          "idUsuarioRol": {
+            "type": "string",
+            "example": "id usuario rol"
+          }
+        },
+        "required": [
+          "nombre",
+          "idUsuarioRol"
+        ]
+      },
+      "UpdateNotificacionDto": {
+        "type": "object",
+        "properties": {
+          "idNotificaciones": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "idNotificaciones"
+        ]
+      },
+      "CrearParametroDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "example": "TD-CI"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Cédula de identidad"
+          },
+          "grupo": {
+            "type": "string",
+            "example": "CD"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Cédula de identidad"
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          }
+        },
+        "required": [
+          "codigo",
+          "nombre",
+          "grupo",
+          "descripcion",
+          "estado"
+        ]
+      },
+      "ActualizarParametroDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "example": "TD-CI"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Cédula de identidad"
+          },
+          "grupo": {
+            "type": "string",
+            "example": "CD"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Cédula de identidad"
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          }
+        },
+        "required": [
+          "codigo",
+          "nombre",
+          "grupo",
+          "descripcion",
+          "estado"
+        ]
+      }
+    }
+  }
+}
