@@ -187,6 +187,7 @@ export class UsuarioRepository {
         'usuario.idPersona',
         'persona.id',
         'persona.telefono',
+        'persona.genero',
       ])
       .where('usuario.id = :id', { id })
       .getOne()
