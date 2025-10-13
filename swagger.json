@@ -3718,6 +3718,10 @@
           "telefono": {
             "type": "object",
             "example": "71234567"
+          },
+          "genero": {
+            "type": "object",
+            "example": "F"
           }
         },
         "required": [
@@ -3726,7 +3730,8 @@
           "primerApellido",
           "segundoApellido",
           "fechaNacimiento",
-          "telefono"
+          "telefono",
+          "genero"
         ]
       },
       "CrearUsuarioDto": {
@@ -3791,6 +3796,10 @@
           "telefono": {
             "type": "object",
             "example": "71234567"
+          },
+          "genero": {
+            "type": "object",
+            "example": "F"
           }
         },
         "required": [
@@ -3799,7 +3808,8 @@
           "primerApellido",
           "segundoApellido",
           "fechaNacimiento",
-          "telefono"
+          "telefono",
+          "genero"
         ]
       },
       "CrearUsuarioCuentaDto": {

@@ -50,4 +50,9 @@ export class PersonaDto {
   @IsNumberString()
   @Validate(IsNumberInRangeConstraint, [60000000, 79999999])
   telefono?: string | null
+
+  @ApiProperty({ example: 'F' })
+  @IsOptional()
+  @IsString()
+  genero?: string | null
 }
