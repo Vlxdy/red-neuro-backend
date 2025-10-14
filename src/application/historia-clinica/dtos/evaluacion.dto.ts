@@ -1,486 +1,499 @@
-import { IsNumber, IsOptional, IsString, Max, Min } from '@/common/validation'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { MinLength } from 'class-validator'
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator'
+import { Transform, Type } from 'class-transformer'
 
-export class CrearEvaluacionDto {
-  // @ApiProperty({
-  //   description: 'Peso del paciente (en kilogramos)',
-  //   example: 70,
-  //   minimum: 1,
-  //   maximum: 500,
-  // })
-  // @Type(() => Number)
-  // @IsNumber({ maxDecimalPlaces: 2 })
-  // @Min(1, { message: 'El peso debe ser mayor a 0 kg.' })
-  // @Max(500, { message: 'El peso no puede superar los 500 kg.' })
-  // peso: number
-
-  // @ApiProperty({
-  //   description: 'Talla del paciente en centímetros',
-  //   example: 175,
-  //   minimum: 30,
-  //   maximum: 250,
-  // })
-  // @Type(() => Number)
-  // @IsNumber({ maxDecimalPlaces: 2 })
-  // @Min(30, { message: 'La talla debe ser mayor a 30 cm.' })
-  // @Max(250, { message: 'La talla no puede superar los 250 cm.' })
-  // talla: number
-
-  @ApiProperty({
-    description: 'Requerimiento calórico diario del paciente (en kilocalorías)',
-    example: 2000,
-    minimum: 500,
-    maximum: 10000,
-  })
-  @Type(() => Number)
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(500, {
-    message: 'El requerimiento calórico debe ser al menos 500 kcal.',
-  })
-  @Max(10000, {
-    message: 'El requerimiento calórico no puede exceder los 10000 kcal.',
-  })
-  requerimientoCalorico: number
-
-  // @ApiProperty({
-  //   description: 'Índice de masa corporal del paciente',
-  //   example: 22.86,
-  // })
-  // @IsOptional()
-  // @Type(() => Number)
-  // @IsNumber({ maxDecimalPlaces: 2 })
-  imc?: number
-
-  @ApiProperty({
-    description: 'Diagnóstico del paciente',
-    example: 'Paciente con sobrepeso',
-  })
+export class UpsertAntropometriaDto {
+  @ApiPropertyOptional({ minimum: 30, maximum: 200 })
   @IsOptional()
-  @IsString()
-  diagnostico?: string
+  @Type(() => Number)
+  @IsNumber()
+  @Min(30)
+  @Max(200)
+  circunferenciaCintura?: number
+
+  @ApiPropertyOptional({ minimum: 30, maximum: 200 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(30)
+  @Max(200)
+  circunferenciaCadera?: number
+
+  @ApiPropertyOptional({ minimum: 0.3, maximum: 2.5 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0.3)
+  @Max(2.5)
+  cinturaCaderaRatio?: number
+
+  @ApiPropertyOptional({ minimum: 0, maximum: 50 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @Max(50)
+  pliegueTricipital?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 70 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(70)
+  porcentajeGrasa?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 70 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(70)
+  porcentajeMusculo?: number
+
+  @ApiPropertyOptional({ minimum: 10, maximum: 80 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(10)
+  @Max(80)
+  aguaCorporal?: number
 }
 
-export class CreateEvaluacionAntropometricaDto {
-  // Si viene de una cita medica, se puede incluir el id de la cita
-  @ApiPropertyOptional({
-    example: '1234567890',
-    description: 'ID de la cita médica asociada a la evaluación',
-  })
+export class UpsertBioquimicaDto {
+  @ApiPropertyOptional({ minimum: 40, maximum: 400 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(40)
+  @Max(400)
+  glucosa?: number
+
+  @ApiPropertyOptional({ minimum: 50, maximum: 400 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(50)
+  @Max(400)
+  colesterolTotal?: number
+
+  @ApiPropertyOptional({ minimum: 30, maximum: 1000 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(30)
+  @Max(1000)
+  trigliceridos?: number
+
+  @ApiPropertyOptional({ minimum: 10, maximum: 150 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(10)
+  @Max(150)
+  hdl?: number
+
+  @ApiPropertyOptional({ minimum: 10, maximum: 300 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(10)
+  @Max(300)
+  ldl?: number
+
+  @ApiPropertyOptional({ minimum: 5, maximum: 20 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(5)
+  @Max(20)
+  hemoglobina?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 1000 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(1000)
+  ferritina?: number
+}
+
+export class UpsertDieteticaDto {
+  @ApiPropertyOptional({ minimum: 500, maximum: 6000 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(500)
+  @Max(6000)
+  caloriasTotales?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 12 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  numeroComidasDiarias?: number
+
+  @ApiPropertyOptional({ description: 'Registro alimentario en formato JSON' })
+  @IsOptional()
+  registroAlimentario?: Record<string, any>
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  nivelConsumoAzucar?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  nivelHidratacion?: number
+}
+
+export class UpsertClinicaDto {
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @MinLength(1, { message: 'El ID de la cita no puede estar vacío.' })
-  idCita?: string
+  patologiasPrevias?: string
 
-  // si queremos forzar la fecha de la evaluación
-  @ApiPropertyOptional({
-    example: true,
-    description: 'Indica si se debe forzar la fecha de la evaluación',
-  })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  medicacionActual?: string
+
+  @ApiPropertyOptional()
   @IsOptional()
   @Type(() => Boolean)
+  @IsBoolean()
+  nauseas?: boolean
+
+  @ApiPropertyOptional()
   @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  vomitos?: boolean
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  diarrea?: boolean
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  fatiga?: boolean
+}
+
+export class UpsertPsicosocialDto {
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  nivelMotivacion?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  estresAlimentario?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  ansiedad?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  apoyoFamiliar?: number
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  cumplimientoDieta?: number
+}
+
+export class CreateEvaluacionDto {
+  @ApiProperty({ description: 'Fecha en que se realiza la evaluación' })
+  @IsDateString()
+  fechaEvaluacion: string
+
+  @ApiPropertyOptional({
+    description: 'Peso en kilogramos',
+    minimum: 0.1,
+    maximum: 500,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0.1)
+  @Max(500)
+  peso?: number
+
+  @ApiPropertyOptional({
+    description: 'Talla en metros',
+    minimum: 0.5,
+    maximum: 2.5,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0.5)
+  @Max(2.5)
+  talla?: number
+
+  @ApiPropertyOptional({
+    description: 'Índice de masa corporal',
+    minimum: 1,
+    maximum: 100,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(100)
+  imc?: number
+
+  @ApiPropertyOptional({ description: 'Diagnóstico nutricional' })
+  @IsOptional()
+  @IsString()
+  diagnosticoNutricional?: string
+
+  @ApiPropertyOptional({ description: 'Observaciones adicionales' })
+  @IsOptional()
+  @IsString()
+  observaciones?: string
+
+  @ApiPropertyOptional({ description: 'Datos antropométricos asociados' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertAntropometriaDto)
+  antropometria?: UpsertAntropometriaDto
+
+  @ApiPropertyOptional({ description: 'Resultados bioquímicos asociados' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertBioquimicaDto)
+  bioquimica?: UpsertBioquimicaDto
+
+  @ApiPropertyOptional({ description: 'Hábitos dietéticos asociados' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertDieteticaDto)
+  dietetica?: UpsertDieteticaDto
+
+  @ApiPropertyOptional({ description: 'Evaluación clínica asociada' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertClinicaDto)
+  clinica?: UpsertClinicaDto
+
+  @ApiPropertyOptional({ description: 'Evaluación psicosocial asociada' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertPsicosocialDto)
+  psicosocial?: UpsertPsicosocialDto
+
+  @ApiPropertyOptional({ description: 'Identificador de cita vinculada' })
+  @IsOptional()
+  @IsString()
+  idCita?: string
+
+  @ApiPropertyOptional({ description: 'Permite forzar la fecha de creación' })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
   forzarFecha?: boolean
+}
 
-  // Medidas básicas
-  @ApiProperty({ example: 70.5, description: 'Masa corporal (kg)' })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  @Max(500)
-  peso?: number
-
-  @ApiPropertyOptional({ example: 68, description: 'Peso en competición (kg)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  @Max(500)
-  pesoCompeticion?: number
-
-  @ApiPropertyOptional({ example: 65, description: 'Peso objetivo (kg)' })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  @Max(500)
-  pesoObjetivo?: number
-
-  @ApiPropertyOptional({ example: 170, description: 'Estatura (cm)' })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(30)
-  @Max(250)
-  estatura?: number
-
-  @ApiPropertyOptional({ example: 175, description: 'Envergadura (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(30)
-  @Max(250)
-  envergadura?: number
-
-  @ApiPropertyOptional({ example: 85, description: 'Estatura sentada (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(30)
-  @Max(250)
-  estaturaSentada?: number
-
-  // Pliegues cutáneos
+export class UpdateEvaluacionDto {
   @ApiPropertyOptional({
-    example: 12.5,
-    description: 'Pliegue tricipital (mm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  triceps?: number
-
-  @ApiPropertyOptional({
-    example: 10,
-    description: 'Pliegue subescapular (mm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  subescapular?: number
-
-  @ApiPropertyOptional({ example: 8, description: 'Pliegue bíceps (mm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  biceps?: number
-
-  @ApiPropertyOptional({
-    example: 15,
-    description: 'Pliegue cresta ilíaca (mm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  crestaIliaca?: number
-
-  @ApiPropertyOptional({
-    example: 14,
-    description: 'Pliegue supraespinal (mm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  supraEspinal?: number
-
-  @ApiPropertyOptional({ example: 18, description: 'Pliegue abdominal (mm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  abdominal?: number
-
-  @ApiPropertyOptional({ example: 20, description: 'Pliegue muslo (mm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  muslo?: number
-
-  @ApiPropertyOptional({ example: 10, description: 'Pliegue pierna (mm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  pierna?: number
-
-  // Perímetros
-  @ApiPropertyOptional({ example: 30.5, description: 'Brazo relajado (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  brazoRelajado?: number
-
-  @ApiPropertyOptional({ example: 32, description: 'Brazo contraído (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  brazoFlexContraido?: number
-
-  @ApiPropertyOptional({ example: 85, description: 'Cintura (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(30)
-  @Max(200)
-  cintura?: number
-
-  @ApiPropertyOptional({ example: 95, description: 'Caderas (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  caderas?: number
-
-  @ApiPropertyOptional({ example: 55, description: 'Muslo medio (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  musloMedio?: number
-
-  @ApiPropertyOptional({ example: 40, description: 'Pierna (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  piernaPerimetro?: number
-
-  // Diámetros
-  @ApiPropertyOptional({
-    example: 7.5,
-    description: 'Diámetro del húmero (cm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  humero?: number
-
-  @ApiPropertyOptional({
-    example: 6.8,
-    description: 'Diámetro bi estilóideo (cm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  biEstiloideo?: number
-
-  @ApiPropertyOptional({ example: 9.2, description: 'Diámetro del fémur (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  femur?: number
-
-  // Diagnóstico y requerimiento
-  @ApiPropertyOptional({
-    example: 2000,
-    description: 'Requerimiento calórico estimado (kcal)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(500)
-  @Max(10000)
-  requerimientoCalorico?: number
-
-  @ApiPropertyOptional({
-    example: 'Paciente con sobrepeso grado I',
-    description: 'Diagnóstico nutricional clínico',
+    description: 'Identificador de la historia clínica',
+    example: '1',
   })
   @IsOptional()
   @IsString()
-  @MinLength(5)
-  diagnostico?: string
+  @IsNumberString()
+  historiaClinicaId?: string
 
-  imc?: number | null
-  masaGrasa?: number | null
-  masaLibreGrasa?: number | null
-  relacionCinturaCadera?: number | null
-  pesoResidual?: number | null
-}
-
-export class ActualizarEvaluacionAntropometricaDto {
-  // Medidas básicas
-  @ApiProperty({ example: 70.5, description: 'Masa corporal (kg)' })
-  @Type(() => Number)
+  @ApiPropertyOptional({ description: 'Fecha en que se realiza la evaluación' })
   @IsOptional()
+  @IsDateString()
+  fechaEvaluacion?: string
+
+  @ApiPropertyOptional({
+    description: 'Peso en kilogramos',
+    minimum: 0.1,
+    maximum: 500,
+  })
+  @IsOptional()
+  @Type(() => Number)
   @IsNumber()
-  @Min(1)
+  @Min(0.1)
   @Max(500)
   peso?: number
 
-  @ApiPropertyOptional({ example: 68, description: 'Peso en competición (kg)' })
+  @ApiPropertyOptional({
+    description: 'Talla en metros',
+    minimum: 0.5,
+    maximum: 2.5,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0.5)
+  @Max(2.5)
+  talla?: number
+
+  @ApiPropertyOptional({
+    description: 'Índice de masa corporal',
+    minimum: 1,
+    maximum: 100,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  @Max(500)
-  pesoCompeticion?: number
+  @Max(100)
+  imc?: number
 
-  @ApiPropertyOptional({ example: 65, description: 'Peso objetivo (kg)' })
-  @Type(() => Number)
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(500)
-  pesoObjetivo?: number
-
-  @ApiPropertyOptional({ example: 170, description: 'Estatura (cm)' })
-  @Type(() => Number)
-  @IsOptional()
-  @IsNumber()
-  @Min(30)
-  @Max(250)
-  estatura?: number
-
-  @ApiPropertyOptional({ example: 175, description: 'Envergadura (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(30)
-  @Max(250)
-  envergadura?: number
-
-  @ApiPropertyOptional({ example: 85, description: 'Estatura sentada (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(30)
-  @Max(250)
-  estaturaSentada?: number
-
-  // Pliegues cutáneos
-  @ApiPropertyOptional({
-    example: 12.5,
-    description: 'Pliegue tricipital (mm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  triceps?: number
-
-  @ApiPropertyOptional({
-    example: 10,
-    description: 'Pliegue subescapular (mm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  subescapular?: number
-
-  @ApiPropertyOptional({ example: 8, description: 'Pliegue bíceps (mm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  biceps?: number
-
-  @ApiPropertyOptional({
-    example: 15,
-    description: 'Pliegue cresta ilíaca (mm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  crestaIliaca?: number
-
-  @ApiPropertyOptional({
-    example: 14,
-    description: 'Pliegue supraespinal (mm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  supraEspinal?: number
-
-  @ApiPropertyOptional({ example: 18, description: 'Pliegue abdominal (mm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  abdominal?: number
-
-  @ApiPropertyOptional({ example: 20, description: 'Pliegue muslo (mm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  muslo?: number
-
-  @ApiPropertyOptional({ example: 10, description: 'Pliegue pierna (mm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  pierna?: number
-
-  // Perímetros
-  @ApiPropertyOptional({ example: 30.5, description: 'Brazo relajado (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  brazoRelajado?: number
-
-  @ApiPropertyOptional({ example: 32, description: 'Brazo contraído (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  brazoFlexContraido?: number
-
-  @ApiPropertyOptional({ example: 85, description: 'Cintura (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(30)
-  @Max(200)
-  cintura?: number
-
-  @ApiPropertyOptional({ example: 95, description: 'Caderas (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  caderas?: number
-
-  @ApiPropertyOptional({ example: 55, description: 'Muslo medio (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  musloMedio?: number
-
-  @ApiPropertyOptional({ example: 40, description: 'Pierna (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  piernaPerimetro?: number
-
-  // Diámetros
-  @ApiPropertyOptional({
-    example: 7.5,
-    description: 'Diámetro del húmero (cm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  humero?: number
-
-  @ApiPropertyOptional({
-    example: 6.8,
-    description: 'Diámetro bi estilóideo (cm)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  biEstiloideo?: number
-
-  @ApiPropertyOptional({ example: 9.2, description: 'Diámetro del fémur (cm)' })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  femur?: number
-
-  // Diagnóstico y requerimiento
-  @ApiPropertyOptional({
-    example: 2000,
-    description: 'Requerimiento calórico estimado (kcal)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(500)
-  @Max(10000)
-  requerimientoCalorico?: number
-
-  @ApiPropertyOptional({
-    example: 'Paciente con sobrepeso grado I',
-    description: 'Diagnóstico nutricional clínico',
-  })
+  @ApiPropertyOptional({ description: 'Diagnóstico nutricional' })
   @IsOptional()
   @IsString()
-  @MinLength(5)
-  diagnostico?: string
+  diagnosticoNutricional?: string
 
-  imc?: number | null
-  masaGrasa?: number | null
-  masaLibreGrasa?: number | null
-  relacionCinturaCadera?: number | null
-  pesoResidual?: number | null
+  @ApiPropertyOptional({ description: 'Observaciones adicionales' })
+  @IsOptional()
+  @IsString()
+  observaciones?: string
+
+  @ApiPropertyOptional({ description: 'Datos antropométricos asociados' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertAntropometriaDto)
+  antropometria?: UpsertAntropometriaDto
+
+  @ApiPropertyOptional({ description: 'Resultados bioquímicos asociados' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertBioquimicaDto)
+  bioquimica?: UpsertBioquimicaDto
+
+  @ApiPropertyOptional({ description: 'Hábitos dietéticos asociados' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertDieteticaDto)
+  dietetica?: UpsertDieteticaDto
+
+  @ApiPropertyOptional({ description: 'Evaluación clínica asociada' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertClinicaDto)
+  clinica?: UpsertClinicaDto
+
+  @ApiPropertyOptional({ description: 'Evaluación psicosocial asociada' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpsertPsicosocialDto)
+  psicosocial?: UpsertPsicosocialDto
 }
+
+export const EVALUACION_RELACIONES = [
+  'antropometria',
+  'bioquimica',
+  'dietetica',
+  'clinica',
+  'psicosocial',
+] as const
+
+export type EvaluacionInclude = (typeof EVALUACION_RELACIONES)[number]
+
+export class QueryEvaluacionesDto {
+  @ApiPropertyOptional({ description: 'Identificador de la historia clínica' })
+  @IsOptional()
+  @IsString()
+  @IsNumberString()
+  historiaClinicaId?: string
+
+  @ApiPropertyOptional({ description: 'Fecha inicial para el filtro' })
+  @IsOptional()
+  @IsDateString()
+  fechaDesde?: string
+
+  @ApiPropertyOptional({ description: 'Fecha final para el filtro' })
+  @IsOptional()
+  @IsDateString()
+  fechaHasta?: string
+
+  @ApiPropertyOptional({
+    description: 'Límite de registros por página',
+    default: 25,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  limit?: number
+
+  @ApiPropertyOptional({ description: 'Página solicitada', default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  page?: number
+
+  @ApiPropertyOptional({
+    description: 'Relaciones a cargar',
+    isArray: true,
+    enum: EVALUACION_RELACIONES,
+  })
+  @IsOptional()
+  @IsArray()
+  @Type(() => String)
+  @IsIn(EVALUACION_RELACIONES, { each: true })
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value ? [value] : undefined
+  )
+  include?: EvaluacionInclude[]
+}
+
+export class CrearEvaluacionDto extends CreateEvaluacionDto {}
+
+export class CreateEvaluacionAntropometricaDto extends CreateEvaluacionDto {}
+
+export class ActualizarEvaluacionAntropometricaDto extends UpdateEvaluacionDto {}

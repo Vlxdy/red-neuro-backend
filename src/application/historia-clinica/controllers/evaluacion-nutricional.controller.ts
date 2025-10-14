@@ -1,12 +1,26 @@
-import { Body, Controller, Param, Patch, Req, UseGuards } from '@nestjs/common'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { BaseController } from '@/common/base'
 
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { EvaluacionNutricionalService } from '../services/evaluacion-nutricional.service'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
-import { ActualizarEvaluacionAntropometricaDto } from '../dtos/evaluacion.dto'
+import {
+  ActualizarEvaluacionAntropometricaDto,
+  EvaluacionInclude,
+  QueryEvaluacionesDto,
+} from '../dtos/evaluacion.dto'
 
 @ApiTags('Evaluaciones')
 @ApiBearerAuth()
@@ -18,6 +32,55 @@ export class EvaluacionesController extends BaseController {
     private evaluacionesNutricionalesService: EvaluacionNutricionalService
   ) {
     super()
+  }
+
+  @ApiOperation({ summary: 'Listar evaluaciones nutricionales' })
+  @Get()
+  async listarEvaluaciones(@Query() query: QueryEvaluacionesDto) {
+    if (!query.historiaClinicaId) {
+      throw new BadRequestException(
+        'historiaClinicaId es obligatorio para el listado'
+      )
+    }
+
+    const [evaluaciones, total] =
+      await this.evaluacionesNutricionalesService.listarEvaluacionesPorHistoriaClinica(
+        {
+          idHistoriaClinica: query.historiaClinicaId,
+          paginacion: query,
+        }
+      )
+    return this.successListRows([evaluaciones, total])
+  }
+
+  @ApiOperation({ summary: 'Obtener una evaluación nutricional' })
+  @ApiQuery({
+    name: 'include',
+    required: false,
+    isArray: true,
+    enum: [
+      'antropometria',
+      'bioquimica',
+      'dietetica',
+      'clinica',
+      'psicosocial',
+    ],
+  })
+  @Get(':id')
+  async obtenerEvaluacion(
+    @Param() params: ParamIdDto,
+    @Query('include') include?: EvaluacionInclude[]
+  ) {
+    const relaciones = Array.isArray(include)
+      ? include
+      : include
+        ? [include]
+        : undefined
+    const evaluacion =
+      await this.evaluacionesNutricionalesService.obtenerEvaluacion(params.id, {
+        include: relaciones,
+      })
+    return this.success(evaluacion)
   }
 
   @Patch(':id')
