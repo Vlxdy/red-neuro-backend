@@ -12,6 +12,7 @@ import { EntityManager } from 'typeorm'
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { Messages } from '@/common/constants/response-messages'
+import { QueryEvaluacionesDto } from '@/application/historia-clinica/dtos/evaluacion.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { UsuariosRegistradosRepository } from '../repositories/usuarios-registrados.repository'
 import { UsuarioRepository } from '@/core/usuario/repository/usuario.repository'
@@ -141,7 +142,7 @@ export class PacientesService extends BaseService {
       await this.evaluacionesNutricionalesService.listarEvaluacionesPorHistoriaClinica(
         {
           idHistoriaClinica: historiaClinica.id,
-          paginacion: new PaginacionQueryDto(),
+          paginacion: new QueryEvaluacionesDto(),
         }
       )
 
@@ -293,9 +294,9 @@ export class PacientesService extends BaseService {
           // Datos de las citas
           ...evaluaciones.map((evaluacion) => {
             const peso = evaluacion.peso
-            const altura = evaluacion.estatura
+            const altura = evaluacion.talla
             const imc = evaluacion.imc
-            const observaciones = evaluacion.diagnostico
+            const observaciones = evaluacion.diagnosticoNutricional
             const fecha = dayjs(evaluacion.fechaCreacion).format(
               'DD/MM/YYYY HH:mm:ss'
             )

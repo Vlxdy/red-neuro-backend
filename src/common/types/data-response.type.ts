@@ -33,69 +33,68 @@ export interface CitaResponse {
   medico: UsuarioRolResponse | null
 }
 
+export interface EvaluacionAntropometricaRespuesta {
+  circunferenciaCintura?: number | null
+  circunferenciaCadera?: number | null
+  cinturaCaderaRatio?: number | null
+  pliegueTricipital?: number | null
+  porcentajeGrasa?: number | null
+  porcentajeMusculo?: number | null
+  aguaCorporal?: number | null
+}
+
+export interface EvaluacionBioquimicaRespuesta {
+  glucosa?: number | null
+  colesterolTotal?: number | null
+  trigliceridos?: number | null
+  hdl?: number | null
+  ldl?: number | null
+  hemoglobina?: number | null
+  ferritina?: number | null
+}
+
+export interface EvaluacionDieteticaRespuesta {
+  caloriasTotales?: number | null
+  numeroComidasDiarias?: number | null
+  registroAlimentario?: Record<string, any> | null
+  nivelConsumoAzucar?: number | null
+  nivelHidratacion?: number | null
+}
+
+export interface EvaluacionClinicaRespuesta {
+  patologiasPrevias?: string | null
+  medicacionActual?: string | null
+  nauseas?: boolean | null
+  vomitos?: boolean | null
+  diarrea?: boolean | null
+  fatiga?: boolean | null
+}
+
+export interface EvaluacionPsicosocialRespuesta {
+  nivelMotivacion?: number | null
+  estresAlimentario?: number | null
+  ansiedad?: number | null
+  apoyoFamiliar?: number | null
+  cumplimientoDieta?: number | null
+}
+
 export interface EvaluacionNutricionalResponde {
   id: string
-
   idHistoriaClinica: string
-  archivos?: ArchivoAdjuntoResponse[] | null
-  fechaCreacion: Date | string
-
+  fechaEvaluacion: string
   estado: string
-
+  fechaCreacion: Date | string
   peso?: number | null
-
-  pesoCompeticion?: number | null
-
-  pesoObjetivo?: number | null
-
-  estatura?: number | null
-
-  envergadura?: number | null
-  estaturaSentada?: number | null
-
-  triceps?: number | null
-
-  subescapular?: number | null
-
-  biceps?: number | null
-
-  crestaIliaca?: number | null
-
-  supraEspinal?: number | null
-
-  abdominal?: number | null
-
-  muslo?: number | null
-
-  pierna?: number | null
-
-  brazoRelajado?: number | null
-
-  brazoFlexContraido?: number | null
-
-  cintura?: number | null
-
-  caderas?: number | null
-
-  musloMedio?: number | null
-
-  piernaPerimetro?: number | null
-
-  humero?: number | null
-
-  biEstiloideo?: number | null
-
-  femur?: number | null
-
-  requerimientoCalorico?: number | null
-
-  diagnostico?: string
-
+  talla?: number | null
   imc?: number | null
-  masaGrasa?: number | null
-  masaLibreGrasa?: number | null
-  relacionCinturaCadera?: number | null
-  pesoResidual?: number | null
+  diagnosticoNutricional?: string | null
+  observaciones?: string | null
+  archivos?: ArchivoAdjuntoResponse[] | null
+  antropometria?: EvaluacionAntropometricaRespuesta | null
+  bioquimica?: EvaluacionBioquimicaRespuesta | null
+  dietetica?: EvaluacionDieteticaRespuesta | null
+  clinica?: EvaluacionClinicaRespuesta | null
+  psicosocial?: EvaluacionPsicosocialRespuesta | null
 }
 export interface ArchivoAdjuntoResponse {
   id: string

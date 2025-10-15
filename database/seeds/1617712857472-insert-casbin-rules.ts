@@ -184,6 +184,21 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.NUTRICIONISTA]: 'GET|PATCH',
         [RolEnum.PACIENTE]: 'GET|PATCH',
       },
+      '/api/evaluacion-nutricional': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
+        [RolEnum.PACIENTE]: 'GET',
+      },
+      '/api/evaluacion-nutricional/:id': {
+        [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
+        [RolEnum.NUTRICIONISTA]: 'GET|PATCH',
+        [RolEnum.PACIENTE]: 'GET',
+      },
+      '/api/historia-clinica/:id/evaluacion-nutricional': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.NUTRICIONISTA]: 'GET|POST',
+        [RolEnum.PACIENTE]: 'GET',
+      },
       // Pacientes
       '/api/pacientes/asignados': { [RolEnum.NUTRICIONISTA]: 'GET' },
       '/api/pacientes': { [RolEnum.ADMINISTRADOR]: 'GET' },

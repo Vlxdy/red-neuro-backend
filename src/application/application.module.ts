@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import { ParametroModule } from './parametro/parametro.module'
 import { PrinterModule } from '@/printer/printer.module'
 import { HistoriaClinicaService } from './historia-clinica/services/historia-clinico.service'
 import { HistoriaClinicaRepository } from './historia-clinica/repositories/historia-clinica.repository'
 import { ArchivoAdjuntoService } from './historia-clinica/services/archivo-adjunto.service'
 import { ArchivoRepository } from './historia-clinica/repositories/archivo.repository'
-import { EvaluacionNutricionalRepository } from './historia-clinica/repositories/evaluacion-nutricional.repository'
 import { ComentarioRepository } from './historia-clinica/repositories/comentario.repository'
 import { ComentarioService } from './historia-clinica/services/comentario.service'
 import { AntecedenteRepository } from './historia-clinica/repositories/antecedentes.repository'
@@ -34,6 +34,13 @@ import { UsuarioRepository } from '@/core/usuario/repository/usuario.repository'
 import { PersonaRepository } from '@/core/usuario/repository/persona.repository'
 import { EvaluacionesController } from './historia-clinica/controllers/evaluacion-nutricional.controller'
 import { HistoriaClinicaController } from './historia-clinica/controllers/historia-clinica.controller'
+import { EvaluacionNutricional } from './historia-clinica/entities/evaluacion-nutricional.entity'
+import { EvaluacionAntropometrica } from './historia-clinica/entities/eval-antropometrica.entity'
+import { EvaluacionBioquimica } from './historia-clinica/entities/eval-bioquimica.entity'
+import { EvaluacionDietetica } from './historia-clinica/entities/eval-dietetica.entity'
+import { EvaluacionClinica } from './historia-clinica/entities/eval-clinica.entity'
+import { EvaluacionPsicosocial } from './historia-clinica/entities/eval-psicosocial.entity'
+import { HistoriaClinica } from './historia-clinica/entities/historia-clinica.entity'
 import { ComentarioController } from './historia-clinica/controllers/comentario.controller'
 import { PacientesController } from './gestion-pacientes/controllers/pacientes.controller'
 import { MedicosController } from './gestion-pacientes/controllers/medicos.controller'
@@ -46,13 +53,24 @@ import { AlimentoController } from './planes-alimentarios/controller/alimento.co
 import { NotificacionController } from './gestion-pacientes/controllers/notificaciones.controller'
 
 @Module({
-  imports: [ParametroModule, PrinterModule],
+  imports: [
+    ParametroModule,
+    PrinterModule,
+    TypeOrmModule.forFeature([
+      EvaluacionNutricional,
+      EvaluacionAntropometrica,
+      EvaluacionBioquimica,
+      EvaluacionDietetica,
+      EvaluacionClinica,
+      EvaluacionPsicosocial,
+      HistoriaClinica,
+    ]),
+  ],
   providers: [
     HistoriaClinicaService,
     HistoriaClinicaRepository,
     ArchivoAdjuntoService,
     ArchivoRepository,
-    EvaluacionNutricionalRepository,
     ComentarioRepository,
     ComentarioService,
     AntecedenteRepository,
