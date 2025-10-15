@@ -1478,7 +1478,133 @@
         ]
       }
     },
+    "/evaluacion-nutricional": {
+      "get": {
+        "operationId": "EvaluacionesController_listarEvaluaciones",
+        "parameters": [
+          {
+            "name": "historiaClinicaId",
+            "required": false,
+            "in": "query",
+            "description": "Identificador de la historia clínica",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fechaDesde",
+            "required": false,
+            "in": "query",
+            "description": "Fecha inicial para el filtro",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fechaHasta",
+            "required": false,
+            "in": "query",
+            "description": "Fecha final para el filtro",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Límite de registros por página",
+            "schema": {
+              "default": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Página solicitada",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "include",
+            "required": false,
+            "in": "query",
+            "description": "Relaciones a cargar",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "antropometria",
+                  "bioquimica",
+                  "dietetica",
+                  "clinica",
+                  "psicosocial"
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listar evaluaciones nutricionales",
+        "tags": [
+          "Evaluaciones"
+        ]
+      }
+    },
     "/evaluacion-nutricional/{id}": {
+      "get": {
+        "operationId": "EvaluacionesController_obtenerEvaluacion",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "include",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtener una evaluación nutricional",
+        "tags": [
+          "Evaluaciones"
+        ]
+      },
       "patch": {
         "operationId": "EvaluacionesController_modificarEvalucacion",
         "parameters": [
@@ -1568,40 +1694,69 @@
             }
           },
           {
-            "name": "limite",
+            "name": "historiaClinicaId",
             "required": false,
             "in": "query",
+            "description": "Identificador de la historia clínica",
             "schema": {
-              "minimum": 10,
-              "maximum": 50,
-              "default": 10,
+              "type": "string"
+            }
+          },
+          {
+            "name": "fechaDesde",
+            "required": false,
+            "in": "query",
+            "description": "Fecha inicial para el filtro",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fechaHasta",
+            "required": false,
+            "in": "query",
+            "description": "Fecha final para el filtro",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Límite de registros por página",
+            "schema": {
+              "default": 25,
               "type": "number"
             }
           },
           {
-            "name": "pagina",
+            "name": "page",
             "required": false,
             "in": "query",
+            "description": "Página solicitada",
             "schema": {
-              "minimum": 1,
               "default": 1,
               "type": "number"
             }
           },
           {
-            "name": "filtro",
+            "name": "include",
             "required": false,
             "in": "query",
+            "description": "Relaciones a cargar",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "ordenRaw",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "antropometria",
+                  "bioquimica",
+                  "dietetica",
+                  "clinica",
+                  "psicosocial"
+                ]
+              }
             }
           }
         ],
@@ -3972,280 +4127,332 @@
           "id"
         ]
       },
+      "UpsertAntropometriaDto": {
+        "type": "object",
+        "properties": {
+          "circunferenciaCintura": {
+            "type": "number",
+            "minimum": 30,
+            "maximum": 200
+          },
+          "circunferenciaCadera": {
+            "type": "number",
+            "minimum": 30,
+            "maximum": 200
+          },
+          "cinturaCaderaRatio": {
+            "type": "number",
+            "minimum": 0.3,
+            "maximum": 2.5
+          },
+          "pliegueTricipital": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "porcentajeGrasa": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 70
+          },
+          "porcentajeMusculo": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 70
+          },
+          "aguaCorporal": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 80
+          }
+        }
+      },
+      "UpsertBioquimicaDto": {
+        "type": "object",
+        "properties": {
+          "glucosa": {
+            "type": "number",
+            "minimum": 40,
+            "maximum": 400
+          },
+          "colesterolTotal": {
+            "type": "number",
+            "minimum": 50,
+            "maximum": 400
+          },
+          "trigliceridos": {
+            "type": "number",
+            "minimum": 30,
+            "maximum": 1000
+          },
+          "hdl": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 150
+          },
+          "ldl": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 300
+          },
+          "hemoglobina": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 20
+          },
+          "ferritina": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        }
+      },
+      "UpsertDieteticaDto": {
+        "type": "object",
+        "properties": {
+          "caloriasTotales": {
+            "type": "number",
+            "minimum": 500,
+            "maximum": 6000
+          },
+          "numeroComidasDiarias": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "registroAlimentario": {
+            "type": "object",
+            "description": "Registro alimentario en formato JSON"
+          },
+          "nivelConsumoAzucar": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "nivelHidratacion": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          }
+        }
+      },
+      "UpsertClinicaDto": {
+        "type": "object",
+        "properties": {
+          "patologiasPrevias": {
+            "type": "string"
+          },
+          "medicacionActual": {
+            "type": "string"
+          },
+          "nauseas": {
+            "type": "boolean"
+          },
+          "vomitos": {
+            "type": "boolean"
+          },
+          "diarrea": {
+            "type": "boolean"
+          },
+          "fatiga": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpsertPsicosocialDto": {
+        "type": "object",
+        "properties": {
+          "nivelMotivacion": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "estresAlimentario": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "ansiedad": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "apoyoFamiliar": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "cumplimientoDieta": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          }
+        }
+      },
       "ActualizarEvaluacionAntropometricaDto": {
         "type": "object",
         "properties": {
+          "historiaClinicaId": {
+            "type": "string",
+            "description": "Identificador de la historia clínica",
+            "example": "1"
+          },
+          "fechaEvaluacion": {
+            "type": "string",
+            "description": "Fecha en que se realiza la evaluación"
+          },
           "peso": {
             "type": "number",
-            "example": 70.5,
-            "description": "Masa corporal (kg)"
+            "description": "Peso en kilogramos",
+            "minimum": 0.1,
+            "maximum": 500
           },
-          "pesoCompeticion": {
+          "talla": {
             "type": "number",
-            "example": 68,
-            "description": "Peso en competición (kg)"
+            "description": "Talla en metros",
+            "minimum": 0.5,
+            "maximum": 2.5
           },
-          "pesoObjetivo": {
+          "imc": {
             "type": "number",
-            "example": 65,
-            "description": "Peso objetivo (kg)"
+            "description": "Índice de masa corporal",
+            "minimum": 1,
+            "maximum": 100
           },
-          "estatura": {
-            "type": "number",
-            "example": 170,
-            "description": "Estatura (cm)"
-          },
-          "envergadura": {
-            "type": "number",
-            "example": 175,
-            "description": "Envergadura (cm)"
-          },
-          "estaturaSentada": {
-            "type": "number",
-            "example": 85,
-            "description": "Estatura sentada (cm)"
-          },
-          "triceps": {
-            "type": "number",
-            "example": 12.5,
-            "description": "Pliegue tricipital (mm)"
-          },
-          "subescapular": {
-            "type": "number",
-            "example": 10,
-            "description": "Pliegue subescapular (mm)"
-          },
-          "biceps": {
-            "type": "number",
-            "example": 8,
-            "description": "Pliegue bíceps (mm)"
-          },
-          "crestaIliaca": {
-            "type": "number",
-            "example": 15,
-            "description": "Pliegue cresta ilíaca (mm)"
-          },
-          "supraEspinal": {
-            "type": "number",
-            "example": 14,
-            "description": "Pliegue supraespinal (mm)"
-          },
-          "abdominal": {
-            "type": "number",
-            "example": 18,
-            "description": "Pliegue abdominal (mm)"
-          },
-          "muslo": {
-            "type": "number",
-            "example": 20,
-            "description": "Pliegue muslo (mm)"
-          },
-          "pierna": {
-            "type": "number",
-            "example": 10,
-            "description": "Pliegue pierna (mm)"
-          },
-          "brazoRelajado": {
-            "type": "number",
-            "example": 30.5,
-            "description": "Brazo relajado (cm)"
-          },
-          "brazoFlexContraido": {
-            "type": "number",
-            "example": 32,
-            "description": "Brazo contraído (cm)"
-          },
-          "cintura": {
-            "type": "number",
-            "example": 85,
-            "description": "Cintura (cm)"
-          },
-          "caderas": {
-            "type": "number",
-            "example": 95,
-            "description": "Caderas (cm)"
-          },
-          "musloMedio": {
-            "type": "number",
-            "example": 55,
-            "description": "Muslo medio (cm)"
-          },
-          "piernaPerimetro": {
-            "type": "number",
-            "example": 40,
-            "description": "Pierna (cm)"
-          },
-          "humero": {
-            "type": "number",
-            "example": 7.5,
-            "description": "Diámetro del húmero (cm)"
-          },
-          "biEstiloideo": {
-            "type": "number",
-            "example": 6.8,
-            "description": "Diámetro bi estilóideo (cm)"
-          },
-          "femur": {
-            "type": "number",
-            "example": 9.2,
-            "description": "Diámetro del fémur (cm)"
-          },
-          "requerimientoCalorico": {
-            "type": "number",
-            "example": 2000,
-            "description": "Requerimiento calórico estimado (kcal)"
-          },
-          "diagnostico": {
+          "diagnosticoNutricional": {
             "type": "string",
-            "example": "Paciente con sobrepeso grado I",
-            "description": "Diagnóstico nutricional clínico"
+            "description": "Diagnóstico nutricional"
+          },
+          "observaciones": {
+            "type": "string",
+            "description": "Observaciones adicionales"
+          },
+          "antropometria": {
+            "description": "Datos antropométricos asociados",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertAntropometriaDto"
+              }
+            ]
+          },
+          "bioquimica": {
+            "description": "Resultados bioquímicos asociados",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertBioquimicaDto"
+              }
+            ]
+          },
+          "dietetica": {
+            "description": "Hábitos dietéticos asociados",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertDieteticaDto"
+              }
+            ]
+          },
+          "clinica": {
+            "description": "Evaluación clínica asociada",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertClinicaDto"
+              }
+            ]
+          },
+          "psicosocial": {
+            "description": "Evaluación psicosocial asociada",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertPsicosocialDto"
+              }
+            ]
           }
-        },
-        "required": [
-          "peso"
-        ]
+        }
       },
       "CreateEvaluacionAntropometricaDto": {
         "type": "object",
         "properties": {
-          "idCita": {
+          "fechaEvaluacion": {
             "type": "string",
-            "example": "1234567890",
-            "description": "ID de la cita médica asociada a la evaluación"
-          },
-          "forzarFecha": {
-            "type": "boolean",
-            "example": true,
-            "description": "Indica si se debe forzar la fecha de la evaluación"
+            "description": "Fecha en que se realiza la evaluación"
           },
           "peso": {
             "type": "number",
-            "example": 70.5,
-            "description": "Masa corporal (kg)"
+            "description": "Peso en kilogramos",
+            "minimum": 0.1,
+            "maximum": 500
           },
-          "pesoCompeticion": {
+          "talla": {
             "type": "number",
-            "example": 68,
-            "description": "Peso en competición (kg)"
+            "description": "Talla en metros",
+            "minimum": 0.5,
+            "maximum": 2.5
           },
-          "pesoObjetivo": {
+          "imc": {
             "type": "number",
-            "example": 65,
-            "description": "Peso objetivo (kg)"
+            "description": "Índice de masa corporal",
+            "minimum": 1,
+            "maximum": 100
           },
-          "estatura": {
-            "type": "number",
-            "example": 170,
-            "description": "Estatura (cm)"
-          },
-          "envergadura": {
-            "type": "number",
-            "example": 175,
-            "description": "Envergadura (cm)"
-          },
-          "estaturaSentada": {
-            "type": "number",
-            "example": 85,
-            "description": "Estatura sentada (cm)"
-          },
-          "triceps": {
-            "type": "number",
-            "example": 12.5,
-            "description": "Pliegue tricipital (mm)"
-          },
-          "subescapular": {
-            "type": "number",
-            "example": 10,
-            "description": "Pliegue subescapular (mm)"
-          },
-          "biceps": {
-            "type": "number",
-            "example": 8,
-            "description": "Pliegue bíceps (mm)"
-          },
-          "crestaIliaca": {
-            "type": "number",
-            "example": 15,
-            "description": "Pliegue cresta ilíaca (mm)"
-          },
-          "supraEspinal": {
-            "type": "number",
-            "example": 14,
-            "description": "Pliegue supraespinal (mm)"
-          },
-          "abdominal": {
-            "type": "number",
-            "example": 18,
-            "description": "Pliegue abdominal (mm)"
-          },
-          "muslo": {
-            "type": "number",
-            "example": 20,
-            "description": "Pliegue muslo (mm)"
-          },
-          "pierna": {
-            "type": "number",
-            "example": 10,
-            "description": "Pliegue pierna (mm)"
-          },
-          "brazoRelajado": {
-            "type": "number",
-            "example": 30.5,
-            "description": "Brazo relajado (cm)"
-          },
-          "brazoFlexContraido": {
-            "type": "number",
-            "example": 32,
-            "description": "Brazo contraído (cm)"
-          },
-          "cintura": {
-            "type": "number",
-            "example": 85,
-            "description": "Cintura (cm)"
-          },
-          "caderas": {
-            "type": "number",
-            "example": 95,
-            "description": "Caderas (cm)"
-          },
-          "musloMedio": {
-            "type": "number",
-            "example": 55,
-            "description": "Muslo medio (cm)"
-          },
-          "piernaPerimetro": {
-            "type": "number",
-            "example": 40,
-            "description": "Pierna (cm)"
-          },
-          "humero": {
-            "type": "number",
-            "example": 7.5,
-            "description": "Diámetro del húmero (cm)"
-          },
-          "biEstiloideo": {
-            "type": "number",
-            "example": 6.8,
-            "description": "Diámetro bi estilóideo (cm)"
-          },
-          "femur": {
-            "type": "number",
-            "example": 9.2,
-            "description": "Diámetro del fémur (cm)"
-          },
-          "requerimientoCalorico": {
-            "type": "number",
-            "example": 2000,
-            "description": "Requerimiento calórico estimado (kcal)"
-          },
-          "diagnostico": {
+          "diagnosticoNutricional": {
             "type": "string",
-            "example": "Paciente con sobrepeso grado I",
-            "description": "Diagnóstico nutricional clínico"
+            "description": "Diagnóstico nutricional"
+          },
+          "observaciones": {
+            "type": "string",
+            "description": "Observaciones adicionales"
+          },
+          "antropometria": {
+            "description": "Datos antropométricos asociados",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertAntropometriaDto"
+              }
+            ]
+          },
+          "bioquimica": {
+            "description": "Resultados bioquímicos asociados",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertBioquimicaDto"
+              }
+            ]
+          },
+          "dietetica": {
+            "description": "Hábitos dietéticos asociados",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertDieteticaDto"
+              }
+            ]
+          },
+          "clinica": {
+            "description": "Evaluación clínica asociada",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertClinicaDto"
+              }
+            ]
+          },
+          "psicosocial": {
+            "description": "Evaluación psicosocial asociada",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertPsicosocialDto"
+              }
+            ]
+          },
+          "idCita": {
+            "type": "string",
+            "description": "Identificador de cita vinculada"
+          },
+          "forzarFecha": {
+            "type": "boolean",
+            "description": "Permite forzar la fecha de creación"
           }
         },
         "required": [
-          "peso"
+          "fechaEvaluacion"
         ]
       },
       "CrearComentarioDto": {

@@ -7,6 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
@@ -17,6 +18,7 @@ import { EvaluacionBioquimica } from './eval-bioquimica.entity'
 import { EvaluacionDietetica } from './eval-dietetica.entity'
 import { EvaluacionClinica } from './eval-clinica.entity'
 import { EvaluacionPsicosocial } from './eval-psicosocial.entity'
+import { ArchivoAdjunto } from './archivos-adjunto.entity'
 
 dotenv.config()
 
@@ -97,6 +99,13 @@ export class EvaluacionNutricional extends AuditoriaEntity {
     { cascade: true }
   )
   psicosocial?: EvaluacionPsicosocial
+
+  @OneToMany(
+    () => ArchivoAdjunto,
+    (archivoAdjunto) => archivoAdjunto.antecedente,
+    { cascade: true }
+  )
+  archivos: ArchivoAdjunto[]
 
   @BeforeInsert()
   insertarEstado() {

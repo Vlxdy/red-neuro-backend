@@ -24,6 +24,7 @@ import { ComentarioService } from '../services/comentario.service'
 import { CrearComentarioDto } from '../dtos/comentario.dto'
 import { AntecedenteService } from '../services/antecedentes.service'
 import { CreateAntecedenteDto } from '../dtos/antecedentes.dto'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @ApiTags('Historia clinica')
 @ApiBearerAuth()
