@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsArray,
   IsBoolean,
@@ -8,18 +8,17 @@ import {
   IsNumber,
   IsNumberString,
   IsOptional,
-  IsPositive,
   IsString,
   Max,
   Min,
   ValidateNested,
 } from 'class-validator'
 import { Transform, Type } from 'class-transformer'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 export class UpsertAntropometriaDto {
   @ApiPropertyOptional({ minimum: 30, maximum: 200 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(30)
   @Max(200)
@@ -27,7 +26,6 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 30, maximum: 200 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(30)
   @Max(200)
@@ -35,7 +33,6 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 0.3, maximum: 2.5 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(0.3)
   @Max(2.5)
@@ -43,7 +40,6 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 0, maximum: 50 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @Max(50)
@@ -51,7 +47,6 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 70 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(70)
@@ -59,7 +54,6 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 70 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(70)
@@ -67,7 +61,6 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 10, maximum: 80 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(10)
   @Max(80)
@@ -77,7 +70,6 @@ export class UpsertAntropometriaDto {
 export class UpsertBioquimicaDto {
   @ApiPropertyOptional({ minimum: 40, maximum: 400 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(40)
   @Max(400)
@@ -85,7 +77,6 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 50, maximum: 400 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(50)
   @Max(400)
@@ -93,7 +84,6 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 30, maximum: 1000 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(30)
   @Max(1000)
@@ -101,7 +91,6 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 10, maximum: 150 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(10)
   @Max(150)
@@ -109,7 +98,6 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 10, maximum: 300 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(10)
   @Max(300)
@@ -117,7 +105,6 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 5, maximum: 20 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(5)
   @Max(20)
@@ -125,7 +112,6 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 1000 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(1000)
@@ -135,7 +121,6 @@ export class UpsertBioquimicaDto {
 export class UpsertDieteticaDto {
   @ApiPropertyOptional({ minimum: 500, maximum: 6000 })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(500)
   @Max(6000)
@@ -143,7 +128,6 @@ export class UpsertDieteticaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 12 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(12)
@@ -155,7 +139,6 @@ export class UpsertDieteticaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(5)
@@ -163,7 +146,6 @@ export class UpsertDieteticaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(5)
@@ -209,7 +191,6 @@ export class UpsertClinicaDto {
 export class UpsertPsicosocialDto {
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(5)
@@ -217,7 +198,6 @@ export class UpsertPsicosocialDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(5)
@@ -225,7 +205,6 @@ export class UpsertPsicosocialDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(5)
@@ -233,7 +212,6 @@ export class UpsertPsicosocialDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(5)
@@ -241,7 +219,6 @@ export class UpsertPsicosocialDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(5)
@@ -249,17 +226,12 @@ export class UpsertPsicosocialDto {
 }
 
 export class CreateEvaluacionDto {
-  @ApiProperty({ description: 'Fecha en que se realiza la evaluación' })
-  @IsDateString()
-  fechaEvaluacion: string
-
   @ApiPropertyOptional({
     description: 'Peso en kilogramos',
     minimum: 0.1,
     maximum: 500,
   })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(0.1)
   @Max(500)
@@ -271,7 +243,6 @@ export class CreateEvaluacionDto {
     maximum: 2.5,
   })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(0.5)
   @Max(2.5)
@@ -283,7 +254,6 @@ export class CreateEvaluacionDto {
     maximum: 100,
   })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -362,7 +332,6 @@ export class UpdateEvaluacionDto {
     maximum: 500,
   })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(0.1)
   @Max(500)
@@ -374,7 +343,6 @@ export class UpdateEvaluacionDto {
     maximum: 2.5,
   })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(0.5)
   @Max(2.5)
@@ -386,7 +354,6 @@ export class UpdateEvaluacionDto {
     maximum: 100,
   })
   @IsOptional()
-  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -443,7 +410,7 @@ export const EVALUACION_RELACIONES = [
 
 export type EvaluacionInclude = (typeof EVALUACION_RELACIONES)[number]
 
-export class QueryEvaluacionesDto {
+export class QueryEvaluacionesDto extends PaginacionQueryDto {
   @ApiPropertyOptional({ description: 'Identificador de la historia clínica' })
   @IsOptional()
   @IsString()
@@ -459,23 +426,6 @@ export class QueryEvaluacionesDto {
   @IsOptional()
   @IsDateString()
   fechaHasta?: string
-
-  @ApiPropertyOptional({
-    description: 'Límite de registros por página',
-    default: 25,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @IsPositive()
-  limit?: number
-
-  @ApiPropertyOptional({ description: 'Página solicitada', default: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @IsPositive()
-  page?: number
 
   @ApiPropertyOptional({
     description: 'Relaciones a cargar',

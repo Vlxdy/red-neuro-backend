@@ -80,7 +80,7 @@ export class EvaluacionNutricionalService extends BaseService {
         transaccion
       )
 
-    const fechaEvaluacion = data.fechaEvaluacion || dayjs().format('YYYY-MM-DD')
+    const fechaEvaluacion = dayjs().toISOString()
 
     const imcCalculado = this.calcularImc(data.peso, data.talla, data.imc)
 
@@ -306,9 +306,7 @@ export class EvaluacionNutricionalService extends BaseService {
     idHistoriaClinica: string
     paginacion: QueryEvaluacionesDto
   }): Promise<[EvaluacionNutricionalResponde[], number]> {
-    const take = Math.min(paginacion.limit ?? 25, 200)
-    const page = paginacion.page ?? 1
-    const skip = (page - 1) * take
+    const { limite, saltar } = paginacion
 
     const query = this.evaluacionRepository.createQueryBuilder('evaluacion')
     query.where('evaluacion.idHistoriaClinica = :idHistoriaClinica', {
@@ -333,8 +331,8 @@ export class EvaluacionNutricionalService extends BaseService {
     })
 
     query.orderBy('evaluacion.fechaEvaluacion', 'DESC')
-    query.take(take)
-    query.skip(skip)
+    query.take(limite)
+    query.skip(saltar)
 
     const [evaluaciones, total] = await query.getManyAndCount()
 

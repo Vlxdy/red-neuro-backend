@@ -27,9 +27,12 @@ dotenv.config()
   schema: process.env.DB_SCHEMA_HISTORIA_CLINICA,
 })
 export class EvaluacionNutricional extends AuditoriaEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+    name: 'id',
+    comment: 'Identificador único del antecedente',
+  })
   id: string
-
   @Column('bigint', { name: 'id_historia_clinica' })
   idHistoriaClinica: string
 

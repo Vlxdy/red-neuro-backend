@@ -1483,6 +1483,43 @@
         "operationId": "EvaluacionesController_listarEvaluaciones",
         "parameters": [
           {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "historiaClinicaId",
             "required": false,
             "in": "query",
@@ -1507,26 +1544,6 @@
             "description": "Fecha final para el filtro",
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Límite de registros por página",
-            "schema": {
-              "default": 25,
-              "type": "number"
-            }
-          },
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "description": "Página solicitada",
-            "schema": {
-              "default": 1,
-              "type": "number"
             }
           },
           {
@@ -1694,6 +1711,43 @@
             }
           },
           {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "historiaClinicaId",
             "required": false,
             "in": "query",
@@ -1718,26 +1772,6 @@
             "description": "Fecha final para el filtro",
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Límite de registros por página",
-            "schema": {
-              "default": 25,
-              "type": "number"
-            }
-          },
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "description": "Página solicitada",
-            "schema": {
-              "default": 1,
-              "type": "number"
             }
           },
           {
@@ -4372,10 +4406,6 @@
       "CreateEvaluacionAntropometricaDto": {
         "type": "object",
         "properties": {
-          "fechaEvaluacion": {
-            "type": "string",
-            "description": "Fecha en que se realiza la evaluación"
-          },
           "peso": {
             "type": "number",
             "description": "Peso en kilogramos",
@@ -4450,10 +4480,7 @@
             "type": "boolean",
             "description": "Permite forzar la fecha de creación"
           }
-        },
-        "required": [
-          "fechaEvaluacion"
-        ]
+        }
       },
       "CrearComentarioDto": {
         "type": "object",
