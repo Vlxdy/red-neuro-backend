@@ -38,11 +38,20 @@ export class PlanNutricionalRepository {
     })
   }
 
-  async buscarPorId(id: string) {
-    return await this.dataSource
+  async buscarPorId(id: string, transaccion?: EntityManager) {
+    return await (transaccion || this.dataSource)
       .getRepository(PlanNutricional)
       .createQueryBuilder('plan')
-      .where({ id })
+      .leftJoinAndSelect(
+        'plan.alimentosPlanNutricional',
+        'alimentoPlanNutricional',
+        'alimentoPlanNutricional.estado = :estadoAlimento',
+        {
+          estadoAlimento: AlimentoPlanNutricionalEstado.ACTIVO,
+        }
+      )
+      .leftJoinAndSelect('alimentoPlanNutricional.alimento', 'alimento')
+      .where('plan.id = :id', { id })
       .getOne()
   }
 
@@ -79,6 +88,11 @@ export class PlanNutricionalRepository {
         'plan.plan',
         'plan.recomendaciones',
         'plan.idPaciente',
+        'plan.idEvaluacionNutricional',
+        'plan.caloriasObjetivo',
+        'plan.distribucionMacronutrientes',
+        'plan.distribucionCalorica',
+        'plan.esGeneradoAutomatico',
         'plan.estado',
         'plan.fechaCreacion',
       ])

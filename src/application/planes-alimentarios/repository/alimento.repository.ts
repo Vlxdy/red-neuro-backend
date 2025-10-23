@@ -2,6 +2,7 @@ import { PaginacionAlimentosQueryDto } from '@/common/dto/paginacion-query.dto'
 import { Injectable } from '@nestjs/common'
 import { Brackets, DataSource, EntityManager } from 'typeorm'
 import { Alimento } from '../entity/alimento.entity'
+import { AlimentoEstado, CategoriaAlimento } from '../constant'
 
 @Injectable()
 export class AlimentoRepository {
@@ -28,7 +29,7 @@ export class AlimentoRepository {
   }
 
   async listarTodos(paginacionQueryDto: PaginacionAlimentosQueryDto) {
-    const { limite, saltar, filtro, orden, sentido, tipo } = paginacionQueryDto
+    const { limite, saltar, filtro, orden, sentido } = paginacionQueryDto
 
     const query = this.dataSource
       .getRepository(Alimento)
@@ -99,6 +100,22 @@ export class AlimentoRepository {
         'alimento.receta',
       ])
       .where('alimento.id IN (:...ids)', { ids })
+    return await query.getMany()
+  }
+
+  async listarPorCategorias(
+    categorias: CategoriaAlimento[],
+    transaccion?: EntityManager
+  ) {
+    const repositorio = (transaccion || this.dataSource).getRepository(Alimento)
+    const query = repositorio
+      .createQueryBuilder('alimento')
+      .where('alimento.estado = :estado', { estado: AlimentoEstado.ACTIVO })
+
+    if (categorias?.length) {
+      query.andWhere('alimento.categoria IN (:...categorias)', { categorias })
+    }
+
     return await query.getMany()
   }
 }
