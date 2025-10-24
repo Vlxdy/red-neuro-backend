@@ -14,6 +14,7 @@ import {
 } from 'typeorm'
 import { PlanNutricionalEstado } from '../constant'
 import { AlimentoPlanNutricional } from './alimento-plan-nutricional.entity'
+import { TipoAlimento } from './alimento.entity'
 
 dotenv.config()
 
@@ -54,6 +55,50 @@ export class PlanNutricional extends AuditoriaEntity {
   recomendaciones: string
 
   @Column({
+    name: 'id_evaluacion_nutricional',
+    type: 'bigint',
+    nullable: true,
+    comment:
+      'Evaluación nutricional que se utilizó como referencia para el plan',
+  })
+  idEvaluacionNutricional?: string | null
+
+  @Column({
+    name: 'calorias_objetivo',
+    type: 'numeric',
+    precision: 8,
+    scale: 2,
+    nullable: true,
+    comment: 'Total de calorías objetivo calculadas para el plan',
+  })
+  caloriasObjetivo?: number | null
+
+  @Column({
+    name: 'distribucion_macronutrientes',
+    type: 'jsonb',
+    nullable: true,
+    comment: 'Distribución de macronutrientes objetivo y obtenida en el plan',
+  })
+  distribucionMacronutrientes?: PlanNutricionalDistribucionMacronutrientes | null
+
+  @Column({
+    name: 'distribucion_calorica',
+    type: 'jsonb',
+    nullable: true,
+    comment: 'Distribución calórica objetivo y resultante por tiempo de comida',
+  })
+  distribucionCalorica?: PlanNutricionalDistribucionCalorica | null
+
+  @Column({
+    name: 'es_generado_automatico',
+    type: 'boolean',
+    default: false,
+    comment:
+      'Indica si el plan fue generado automáticamente a partir de la evaluación',
+  })
+  esGeneradoAutomatico = false
+
+  @Column({
     name: 'id_paciente',
     type: 'bigint',
     nullable: false,
@@ -77,4 +122,32 @@ export class PlanNutricional extends AuditoriaEntity {
   insertarEstado() {
     this.estado = this.estado || PlanNutricionalEstado.ACTIVO
   }
+}
+
+export interface PlanNutricionalMacroDetalle {
+  gramos: number
+  calorias: number
+  porcentaje: number
+}
+
+export interface PlanNutricionalDistribucionMacronutrienteDetalle {
+  carbohidratos: PlanNutricionalMacroDetalle
+  proteinas: PlanNutricionalMacroDetalle
+  grasas: PlanNutricionalMacroDetalle
+}
+
+export interface PlanNutricionalDistribucionMacronutrientes {
+  objetivo: PlanNutricionalDistribucionMacronutrienteDetalle
+  planGenerado: PlanNutricionalDistribucionMacronutrienteDetalle
+}
+
+export interface PlanNutricionalTiempoCalorico {
+  tipo: TipoAlimento
+  calorias: number
+  porcentaje: number
+}
+
+export interface PlanNutricionalDistribucionCalorica {
+  objetivo: PlanNutricionalTiempoCalorico[]
+  planGenerado: PlanNutricionalTiempoCalorico[]
 }

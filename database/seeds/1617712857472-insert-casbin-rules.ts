@@ -184,6 +184,42 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.NUTRICIONISTA]: 'GET|PATCH',
         [RolEnum.PACIENTE]: 'GET|PATCH',
       },
+      '/api/planes-nutricionales/generar': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.NUTRICIONISTA]: 'POST',
+      },
+      '/api/planes-nutricionales': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.NUTRICIONISTA]: 'GET|POST',
+      },
+      '/api/planes-nutricionales/multiple': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.NUTRICIONISTA]: 'POST',
+      },
+      '/api/planes-nutricionales/:id': {
+        [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
+        [RolEnum.NUTRICIONISTA]: 'GET|PATCH',
+        [RolEnum.PACIENTE]: 'GET',
+      },
+      '/api/planes-nutricionales/:id/inactivar': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.NUTRICIONISTA]: 'PATCH',
+      },
+      '/api/planes-nutricionales/paciente/:idUsuarioRol/fecha/:fecha': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
+        [RolEnum.PACIENTE]: 'GET',
+      },
+      '/api/planes-nutricionales/paciente/:idUsuarioRol': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
+        [RolEnum.PACIENTE]: 'GET',
+      },
+      '/api/planes-nutricionales/paciente/:idUsuarioRol/carrito-compras': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
+        [RolEnum.PACIENTE]: 'GET',
+      },
       '/api/evaluacion-nutricional': {
         [RolEnum.ADMINISTRADOR]: 'GET',
         [RolEnum.NUTRICIONISTA]: 'GET',
