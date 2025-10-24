@@ -52,7 +52,7 @@ export class PlanNutricional extends AuditoriaEntity {
     nullable: true,
     comment: 'Recomendaciones adicionales del plan alimentario',
   })
-  recomendaciones: string
+  recomendaciones: string | null
 
   @Column({
     name: 'id_evaluacion_nutricional',

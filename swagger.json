@@ -2816,6 +2816,43 @@
         ]
       }
     },
+    "/planes-nutricionales/generar": {
+      "post": {
+        "operationId": "PlanNutricionalController_generar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerarPlanNutricionalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanNutricionalGeneradoResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generar un plan nutricional automáticamente sin persistirlo",
+        "tags": [
+          "Planes nutricionales"
+        ]
+      }
+    },
     "/planes-nutricionales": {
       "post": {
         "operationId": "PlanNutricionalController_crear",
@@ -2832,11 +2869,24 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanNutricionalGeneradoResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crear un plan nutricional",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       },
       "get": {
@@ -2885,8 +2935,14 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listar todos los planes nutricionales",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       }
     },
@@ -2912,8 +2968,14 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crear múltiples planes nutricionales",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       }
     },
@@ -2942,11 +3004,24 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanNutricionalGeneradoResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualizar un plan nutricional existente",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       },
       "get": {
@@ -2963,11 +3038,24 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanNutricionalGeneradoResponseDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtener un plan nutricional por su identificador",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       }
     },
@@ -2989,8 +3077,14 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Inactivar un plan nutricional",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       }
     },
@@ -3020,8 +3114,14 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Buscar plan nutricional activo por paciente y fecha",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       }
     },
@@ -3080,8 +3180,14 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listar planes nutricionales por paciente",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       }
     },
@@ -3119,8 +3225,14 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listar el consolidado de alimentos de los planes nutricionales de un paciente en un rango",
         "tags": [
-          "PlanNutricional"
+          "Planes nutricionales"
         ]
       }
     },
@@ -4726,16 +4838,354 @@
           "estado"
         ]
       },
+      "GenerarPlanNutricionalDto": {
+        "type": "object",
+        "properties": {
+          "fecha": {
+            "type": "string",
+            "example": "2025-05-20",
+            "description": "Fecha a planificar"
+          },
+          "idUsuarioRol": {
+            "type": "string",
+            "description": "Identificador del paciente (idUsuarioRol)"
+          },
+          "reutilizarPlanExistente": {
+            "type": "boolean",
+            "description": "Si es verdadero y existe un plan activo para la fecha, se devolverá ese plan en lugar de generar uno nuevo"
+          }
+        },
+        "required": [
+          "fecha",
+          "idUsuarioRol"
+        ]
+      },
+      "PlanMacroDetalleDto": {
+        "type": "object",
+        "properties": {
+          "gramos": {
+            "type": "number",
+            "example": 210,
+            "description": "Cantidad expresada en gramos"
+          },
+          "calorias": {
+            "type": "number",
+            "example": 840,
+            "description": "Aporte calórico asociado al macronutriente"
+          },
+          "porcentaje": {
+            "type": "number",
+            "example": 0.4,
+            "description": "Porcentaje respecto al total calórico diario"
+          }
+        },
+        "required": [
+          "gramos",
+          "calorias",
+          "porcentaje"
+        ]
+      },
+      "PlanMacroDetalleGrupoDto": {
+        "type": "object",
+        "properties": {
+          "carbohidratos": {
+            "$ref": "#/components/schemas/PlanMacroDetalleDto"
+          },
+          "proteinas": {
+            "$ref": "#/components/schemas/PlanMacroDetalleDto"
+          },
+          "grasas": {
+            "$ref": "#/components/schemas/PlanMacroDetalleDto"
+          }
+        },
+        "required": [
+          "carbohidratos",
+          "proteinas",
+          "grasas"
+        ]
+      },
+      "PlanNutricionalDistribucionMacronutrientesResponseDto": {
+        "type": "object",
+        "properties": {
+          "objetivo": {
+            "$ref": "#/components/schemas/PlanMacroDetalleGrupoDto"
+          },
+          "planGenerado": {
+            "$ref": "#/components/schemas/PlanMacroDetalleGrupoDto"
+          }
+        },
+        "required": [
+          "objetivo",
+          "planGenerado"
+        ]
+      },
+      "PlanNutricionalTiempoCaloricoResponseDto": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "DESAYUNO",
+              "ALMUERZO",
+              "CENA",
+              "MEDIA_MANIANA",
+              "MEDIA_TARDE"
+            ]
+          },
+          "calorias": {
+            "type": "number",
+            "example": 450,
+            "description": "Calorías destinadas al tiempo de comida"
+          },
+          "porcentaje": {
+            "type": "number",
+            "example": 0.25,
+            "description": "Porcentaje del total calórico"
+          }
+        },
+        "required": [
+          "tipo",
+          "calorias",
+          "porcentaje"
+        ]
+      },
+      "PlanNutricionalDistribucionCaloricaResponseDto": {
+        "type": "object",
+        "properties": {
+          "objetivo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanNutricionalTiempoCaloricoResponseDto"
+            }
+          },
+          "planGenerado": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanNutricionalTiempoCaloricoResponseDto"
+            }
+          }
+        },
+        "required": [
+          "objetivo",
+          "planGenerado"
+        ]
+      },
+      "PlanNutricionalAlimentoResponseDto": {
+        "type": "object",
+        "properties": {
+          "idAlimento": {
+            "type": "string",
+            "description": "Identificador del alimento seleccionado"
+          },
+          "cantidad": {
+            "type": "number",
+            "example": 1,
+            "description": "Cantidad en múltiplos de la porción referencial registrada"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "DESAYUNO",
+              "ALMUERZO",
+              "CENA",
+              "MEDIA_MANIANA",
+              "MEDIA_TARDE"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "Identificador del registro dentro del plan"
+          },
+          "nombre": {
+            "type": "string",
+            "description": "Nombre del alimento"
+          },
+          "categoria": {
+            "type": "string",
+            "enum": [
+              "PROTEÍNA ANIMAL",
+              "CEREAL",
+              "LÁCTEO",
+              "LEGUMBRE",
+              "VERDURA",
+              "FRUTA",
+              "GRASA SALUDABLE",
+              "FRUTA SECA",
+              "BEBIDA",
+              "ENDULZANTE",
+              "CONDIMENTO"
+            ]
+          },
+          "unidadMedida": {
+            "type": "string",
+            "enum": [
+              "g",
+              "ml",
+              "unidad",
+              "taza",
+              "rebanada",
+              "cucharadita",
+              "hoja",
+              "sobre",
+              "diente",
+              "pizca"
+            ]
+          },
+          "cantidadReferencial": {
+            "type": "number",
+            "example": 100
+          },
+          "calorias": {
+            "type": "number",
+            "example": 250,
+            "description": "Calorías aportadas según la cantidad"
+          },
+          "carbohidratos": {
+            "type": "number",
+            "example": 35,
+            "description": "Gramos de carbohidratos aportados"
+          },
+          "proteinas": {
+            "type": "number",
+            "example": 25,
+            "description": "Gramos de proteína aportados"
+          },
+          "grasa": {
+            "type": "number",
+            "example": 10,
+            "description": "Gramos de grasa aportados"
+          },
+          "urlImage": {
+            "type": "object",
+            "description": "URL de la imagen del alimento"
+          }
+        },
+        "required": [
+          "idAlimento",
+          "cantidad",
+          "tipo",
+          "nombre",
+          "categoria",
+          "unidadMedida",
+          "cantidadReferencial",
+          "calorias",
+          "carbohidratos",
+          "proteinas",
+          "grasa"
+        ]
+      },
+      "PlanNutricionalGeneradoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador del plan nutricional"
+          },
+          "fecha": {
+            "type": "string",
+            "description": "Fecha del plan"
+          },
+          "idPaciente": {
+            "type": "string",
+            "description": "Identificador del paciente (UsuarioRol)"
+          },
+          "idEvaluacionNutricional": {
+            "type": "object",
+            "description": "Evaluación nutricional utilizada como referencia"
+          },
+          "caloriasObjetivo": {
+            "type": "object",
+            "description": "Calorías objetivo derivadas de la evaluación"
+          },
+          "distribucionMacronutrientes": {
+            "$ref": "#/components/schemas/PlanNutricionalDistribucionMacronutrientesResponseDto"
+          },
+          "distribucionCalorica": {
+            "$ref": "#/components/schemas/PlanNutricionalDistribucionCaloricaResponseDto"
+          },
+          "esGeneradoAutomatico": {
+            "type": "boolean",
+            "description": "Indica si el plan fue generado automáticamente"
+          },
+          "recomendaciones": {
+            "type": "object",
+            "description": "Recomendaciones sugeridas para el paciente"
+          },
+          "alimentos": {
+            "description": "Detalle de alimentos que componen el plan",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanNutricionalAlimentoResponseDto"
+            }
+          },
+          "persistido": {
+            "type": "boolean",
+            "description": "Indica si el plan ha sido persistido en base de datos o es una previsualización"
+          }
+        },
+        "required": [
+          "fecha",
+          "idPaciente",
+          "esGeneradoAutomatico",
+          "alimentos",
+          "persistido"
+        ]
+      },
+      "PlanAlimentoDto": {
+        "type": "object",
+        "properties": {
+          "idAlimento": {
+            "type": "string",
+            "description": "Identificador del alimento seleccionado"
+          },
+          "cantidad": {
+            "type": "number",
+            "example": 1,
+            "description": "Cantidad en múltiplos de la porción referencial registrada"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "DESAYUNO",
+              "ALMUERZO",
+              "CENA",
+              "MEDIA_MANIANA",
+              "MEDIA_TARDE"
+            ]
+          }
+        },
+        "required": [
+          "idAlimento",
+          "cantidad",
+          "tipo"
+        ]
+      },
       "CrearPlanNutricionalDto": {
         "type": "object",
         "properties": {
           "fecha": {
             "type": "string",
-            "example": "Fecha del plan diario"
+            "example": "2025-05-20",
+            "description": "Fecha del plan diario"
           },
           "idUsuarioRol": {
             "type": "string",
-            "example": "id usuario rol"
+            "example": "UUID o ID de usuario rol del paciente"
+          },
+          "alimentos": {
+            "description": "Listado de alimentos asignados manualmente",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanAlimentoDto"
+            }
+          },
+          "autoGenerar": {
+            "type": "boolean",
+            "description": "Indica si se debe generar automáticamente el plan a partir de la evaluación más reciente"
+          },
+          "recomendaciones": {
+            "type": "string",
+            "description": "Recomendaciones adicionales ingresadas por el profesional"
           }
         },
         "required": [
@@ -4745,7 +5195,22 @@
       },
       "ActualizarPlanNutricionalDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "alimentos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanAlimentoDto"
+            }
+          },
+          "autoGenerar": {
+            "type": "boolean",
+            "description": "Regenerar automáticamente el plan a partir de la última evaluación"
+          },
+          "recomendaciones": {
+            "type": "string",
+            "description": "Recomendaciones actualizadas"
+          }
+        }
       },
       "CrearCarritoCompraDto": {
         "type": "object",
