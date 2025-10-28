@@ -96,6 +96,13 @@ export interface EvaluacionNutricionalResponde {
   clinica?: EvaluacionClinicaRespuesta | null
   psicosocial?: EvaluacionPsicosocialRespuesta | null
 }
+export interface ArchivoAdjuntoMetadataResponse {
+  ruta: string
+  tamanoBytes: number
+  tipoMime: string
+  nombreOriginal: string
+}
+
 export interface ArchivoAdjuntoResponse {
   id: string
   nombreArchivo: string
@@ -103,7 +110,9 @@ export interface ArchivoAdjuntoResponse {
   tipoArchivo: string
   contenidoBase64: string | null // sin prefijo: solo el base64 puro
   idHistoriaClinica: string
-  idEvaluacionNutricional: string
+  idEvaluacionNutricional: string | null
+  metadatos?: ArchivoAdjuntoMetadataResponse | null
+  fechaCreacion?: Date | string
 }
 
 export interface AntecedenteResponse {

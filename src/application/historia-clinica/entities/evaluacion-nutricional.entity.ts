@@ -105,7 +105,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
 
   @OneToMany(
     () => ArchivoAdjunto,
-    (archivoAdjunto) => archivoAdjunto.antecedente,
+    (archivoAdjunto) => archivoAdjunto.evaluacionNutricional,
     { cascade: true }
   )
   archivos: ArchivoAdjunto[]

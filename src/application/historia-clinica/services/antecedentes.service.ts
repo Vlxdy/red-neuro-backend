@@ -97,7 +97,8 @@ export class AntecedenteService extends BaseService {
           fechaCreacion: archivo.fechaCreacion,
           estado: archivo.estado,
           idHistoriaClinica: archivo.idHistoriaClinica,
-          idEvaluacionNutricional: archivo.idEvaluacionNutricional,
+          idEvaluacionNutricional: archivo.idEvaluacionNutricional ?? null,
+          metadatos: archivo.metadatos ?? null,
         })) || null,
     }
   }
