@@ -46,7 +46,7 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   @JoinColumn({ name: 'id_historia_clinica' })
   historiaClinica: HistoriaClinica
 
-  @Column('date', { name: 'fecha_evaluacion' })
+  @Column('timestamp without time zone', { name: 'fecha_evaluacion' })
   fechaEvaluacion: string
 
   @Column('numeric', { name: 'peso', precision: 5, scale: 2, nullable: true })

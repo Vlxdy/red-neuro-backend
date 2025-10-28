@@ -107,7 +107,7 @@ export class EvaluacionNutricionalService extends BaseService {
         transaccion
       )
 
-    const fechaEvaluacion = dayjs().toISOString()
+    const fechaEvaluacion = dayjs().toString()
 
     const imcCalculado = this.calcularImc(data.peso, data.talla)
 
@@ -254,10 +254,6 @@ export class EvaluacionNutricionalService extends BaseService {
 
     if (data.historiaClinicaId) {
       evaluacion.idHistoriaClinica = data.historiaClinicaId
-    }
-
-    if (data.fechaEvaluacion) {
-      evaluacion.fechaEvaluacion = data.fechaEvaluacion
     }
 
     if (data.peso !== undefined) {

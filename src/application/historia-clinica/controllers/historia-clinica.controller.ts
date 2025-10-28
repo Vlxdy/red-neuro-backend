@@ -57,13 +57,6 @@ export class HistoriaClinicaController extends BaseController {
     super()
   }
 
-  // @ApiOperation({ summary: 'API para asignar medicos a los pacientes' })
-  // @Post()
-  // async crearCita(@Body() data: CrearCitaDto, @Req() req: Request) {
-  //   const usuarioAuditoria = this.getUser(req)
-  //   const respuesta = await this.citasService.crearCita(data, usuarioAuditoria)
-  //   return this.successCreate(respuesta)
-  // }
   @Post(':id/evaluacion-nutricional')
   @UseInterceptors(
     FilesInterceptor('archivosAdjuntos', getEvalNutriMaxFiles(), {
@@ -73,9 +66,6 @@ export class HistoriaClinicaController extends BaseController {
           cb(null, EVAL_NUTRI_TEMP_DIR)
         },
         filename: (_req, file, cb) => {
-          // const decodedName = Buffer.from(file.originalname, 'latin1').toString(
-          //   'utf8'
-          // )
           cb(null, `${uuid()}${extname(file.originalname)}`)
         },
       }),

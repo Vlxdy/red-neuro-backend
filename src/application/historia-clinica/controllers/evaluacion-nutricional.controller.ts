@@ -178,7 +178,7 @@ export class EvaluacionesController extends BaseController {
       additionalProperties: true,
     },
   })
-  async modificarEvalucacion(
+  async modificarEvaluacion(
     @Param() params: ParamIdDto,
     @Req() req: Request,
     @Body() data: ActualizarEvaluacionAntropometricaDto,

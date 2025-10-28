@@ -25,7 +25,15 @@ export class MensajeriaService extends BaseService {
   }
 
   async enviarCorreo(dto: EnviarMensajeDto) {
-    if (this.config.mailUser === '' || this.config.mailPass === '') {
+    if (
+      !this.config.mailUser ||
+      this.config.mailUser === '' ||
+      !this.config.mailPass ||
+      this.config.mailPass === ''
+    ) {
+      this.logger.warn(
+        'Configuración de correo no está completa: MAIL_USER o MAIL_PASS no están configurados'
+      )
       return {
         finalizado: false,
         mensaje: 'Configuración de correo no está completa',

@@ -1624,7 +1624,7 @@
         ]
       },
       "patch": {
-        "operationId": "EvaluacionesController_modificarEvalucacion",
+        "operationId": "EvaluacionesController_modificarEvaluacion",
         "parameters": [
           {
             "name": "id",

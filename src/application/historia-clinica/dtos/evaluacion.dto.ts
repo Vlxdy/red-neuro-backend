@@ -379,11 +379,6 @@ export class UpdateEvaluacionDto {
   @IsNumberString()
   historiaClinicaId?: string
 
-  @ApiPropertyOptional({ description: 'Fecha en que se realiza la evaluación' })
-  @IsOptional()
-  @IsDateString()
-  fechaEvaluacion?: string
-
   @ApiPropertyOptional({
     description: 'Peso en kilogramos',
     minimum: 0.1,
