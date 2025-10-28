@@ -155,7 +155,55 @@ Marca el plan como inactivo. No elimina registros, pero deja de estar disponible
 
 ## Notas para el front-end
 
+- Las evaluaciones nutricionales devueltas desde `/historia-clinica/:id/evaluacion-nutricional` y `/evaluacion-nutricional/:id`
+  ahora incluyen el arreglo `archivos` con metadatos de cada adjunto (`id`, `nombreArchivo`, `tipoArchivo`, `metadatos.ruta`,
+  `metadatos.tamanoBytes`, etc.). Úsalo para mostrar la lista de adjuntos disponibles.
 - `distribucionMacronutrientes` expone objetivos y valores logrados; úsalo para gráficos o tarjetas informativas.
 - `distribucionCalorica` ya distribuye las calorías por tiempo de comida (`DESAYUNO`, `ALMUERZO`, etc.). Úsalo para barras de progreso o indicadores diarios.
 - Los alimentos llegan con macronutrientes escalados (`macrosPorcion`) y calorías calculadas; evita recalcular en el cliente salvo que cambies la cantidad. Si el usuario modifica una porción, puedes actualizar localmente multiplicando esos macros por el nuevo valor antes de enviarlo al backend.
+
+## Adjuntos en evaluaciones nutricionales
+
+Las evaluaciones nutricionales aceptan archivos adjuntos que quedan asociados a la historia clínica del paciente. Estos adjuntos
+pueden ser útiles como evidencia para respaldar los planes generados.
+
+### Carga de archivos
+
+- **Endpoints**: `POST /historia-clinica/:id/evaluacion-nutricional` y `PATCH /evaluacion-nutricional/:id`.
+- **Tipo de contenido**: envía las solicitudes como `multipart/form-data` utilizando el campo `archivosAdjuntos`.
+- **Límites**: por defecto se aceptan hasta `5` archivos y cada uno puede pesar hasta `10 MB` (pueden sobrescribirse con las
+  variables de entorno `EVAL_NUTRI_MAX_FILES` y `EVAL_NUTRI_MAX_FILE_MB`).
+- **Estrategia recomendada**: arma un `FormData` con los campos existentes de la evaluación y agrega cada archivo con
+  `formData.append('archivosAdjuntos', file)`. Los campos no binarios se siguen enviando como antes.
+- **Campos numéricos**: al construir el `FormData`, envía los valores como `string` usando el punto (`.`) como separador
+  decimal (por ejemplo `"72.5"`). El backend convierte cada valor y valida que cumpla los rangos establecidos en la
+  evaluación.
+
+Ejemplo en TypeScript:
+
+```ts
+const formData = new FormData()
+formData.append('peso', values.peso)
+formData.append('diagnosticoNutricional', values.diagnostico)
+selectedFiles.forEach((file) => {
+  formData.append('archivosAdjuntos', file)
+})
+
+await http.patch(`/evaluacion-nutricional/${id}`, formData, {
+  headers: { 'Content-Type': 'multipart/form-data' },
+})
+```
+
+Si la validación falla (límite de archivos o tamaño), el backend responde con `400` y el mensaje correspondiente para mostrarlo
+al usuario.
+
+### Descarga de archivos
+
+- **Endpoint**: `GET /evaluacion-nutricional/:id/archivos/:archivoId`.
+- **Respuesta**: devuelve el binario del adjunto con el encabezado `Content-Type` configurado según el tipo original. El
+  encabezado `Content-Disposition` se envía como `inline`, por lo que navegadores podrán previsualizar PDFs e imágenes.
+- **Permisos**: solo pueden descargar los adjuntos el administrador, los nutricionistas y el paciente dueño de la historia
+  clínica asociada.
+- **Cómo usarlo**: renderiza la lista de adjuntos con el `id` expuesto en la evaluación. Para mostrar/descargar puedes abrir la
+  URL en una pestaña nueva o ejecutar una solicitud `fetch` y crear un `Blob` para descargarlo manualmente.
 - Al regenerar un plan desde la UI, confirma con el usuario porque se perderán los cambios no guardados. Tras la regeneración, compara `idEvaluacionNutricional` para informar si la propuesta proviene de una evaluación diferente.

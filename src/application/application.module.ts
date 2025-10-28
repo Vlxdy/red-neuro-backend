@@ -30,6 +30,7 @@ import { PrinterService } from '@/printer/printer.service'
 import { NotificacionRepository } from './gestion-pacientes/repositories/notificacion.repository'
 import { NotificacionService } from './gestion-pacientes/services/notificacion.service'
 import { EvaluacionNutricionalService } from './historia-clinica/services/evaluacion-nutricional.service'
+import { EvaluacionArchivosService } from './historia-clinica/services/evaluacion-archivos.service'
 import { UsuarioRepository } from '@/core/usuario/repository/usuario.repository'
 import { PersonaRepository } from '@/core/usuario/repository/persona.repository'
 import { EvaluacionesController } from './historia-clinica/controllers/evaluacion-nutricional.controller'
@@ -97,6 +98,7 @@ import { NotificacionController } from './gestion-pacientes/controllers/notifica
     NotificacionRepository,
     NotificacionService,
     EvaluacionNutricionalService,
+    EvaluacionArchivosService,
   ],
   controllers: [
     EvaluacionesController,

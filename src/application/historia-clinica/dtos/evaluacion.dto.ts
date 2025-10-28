@@ -14,11 +14,58 @@ import {
   ValidateNested,
 } from 'class-validator'
 import { Transform, Type } from 'class-transformer'
+
+const DECIMAL_PATTERN = /^\d+(\.\d+)?$/
+const INTEGER_PATTERN = /^\d+$/
+
+interface TransformNumberOptions {
+  integer?: boolean
+}
+
+const TransformToNumber = ({ integer }: TransformNumberOptions = {}) =>
+  Transform(({ value }) => {
+    if (value === undefined || value === null) {
+      return undefined
+    }
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value
+    }
+
+    if (typeof value !== 'string') {
+      return value
+    }
+
+    const trimmed = value.trim()
+
+    if (trimmed === '') {
+      return undefined
+    }
+
+    const pattern = integer ? INTEGER_PATTERN : DECIMAL_PATTERN
+
+    if (!pattern.test(trimmed)) {
+      return value
+    }
+
+    const parsed = Number(trimmed)
+
+    if (!Number.isFinite(parsed)) {
+      return value
+    }
+
+    if (integer) {
+      return Math.trunc(parsed)
+    }
+
+    return parsed
+  })
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 export class UpsertAntropometriaDto {
   @ApiPropertyOptional({ minimum: 30, maximum: 200 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(30)
   @Max(200)
@@ -26,6 +73,7 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 30, maximum: 200 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(30)
   @Max(200)
@@ -33,6 +81,7 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 0.3, maximum: 2.5 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(0.3)
   @Max(2.5)
@@ -40,6 +89,7 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 0, maximum: 50 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(0)
   @Max(50)
@@ -47,6 +97,7 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 70 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(1)
   @Max(70)
@@ -54,6 +105,7 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 70 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(1)
   @Max(70)
@@ -61,6 +113,7 @@ export class UpsertAntropometriaDto {
 
   @ApiPropertyOptional({ minimum: 10, maximum: 80 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(10)
   @Max(80)
@@ -70,6 +123,7 @@ export class UpsertAntropometriaDto {
 export class UpsertBioquimicaDto {
   @ApiPropertyOptional({ minimum: 40, maximum: 400 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(40)
   @Max(400)
@@ -77,6 +131,7 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 50, maximum: 400 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(50)
   @Max(400)
@@ -84,6 +139,7 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 30, maximum: 1000 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(30)
   @Max(1000)
@@ -91,6 +147,7 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 10, maximum: 150 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(10)
   @Max(150)
@@ -98,6 +155,7 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 10, maximum: 300 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(10)
   @Max(300)
@@ -105,6 +163,7 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 5, maximum: 20 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(5)
   @Max(20)
@@ -112,6 +171,7 @@ export class UpsertBioquimicaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 1000 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(1)
   @Max(1000)
@@ -121,6 +181,7 @@ export class UpsertBioquimicaDto {
 export class UpsertDieteticaDto {
   @ApiPropertyOptional({ minimum: 500, maximum: 6000 })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(500)
   @Max(6000)
@@ -128,6 +189,7 @@ export class UpsertDieteticaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 12 })
   @IsOptional()
+  @TransformToNumber({ integer: true })
   @IsInt()
   @Min(1)
   @Max(12)
@@ -139,6 +201,7 @@ export class UpsertDieteticaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
+  @TransformToNumber({ integer: true })
   @IsInt()
   @Min(1)
   @Max(5)
@@ -146,6 +209,7 @@ export class UpsertDieteticaDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
+  @TransformToNumber({ integer: true })
   @IsInt()
   @Min(1)
   @Max(5)
@@ -191,6 +255,7 @@ export class UpsertClinicaDto {
 export class UpsertPsicosocialDto {
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
+  @TransformToNumber({ integer: true })
   @IsInt()
   @Min(1)
   @Max(5)
@@ -198,6 +263,7 @@ export class UpsertPsicosocialDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
+  @TransformToNumber({ integer: true })
   @IsInt()
   @Min(1)
   @Max(5)
@@ -205,6 +271,7 @@ export class UpsertPsicosocialDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
+  @TransformToNumber({ integer: true })
   @IsInt()
   @Min(1)
   @Max(5)
@@ -212,6 +279,7 @@ export class UpsertPsicosocialDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
+  @TransformToNumber({ integer: true })
   @IsInt()
   @Min(1)
   @Max(5)
@@ -219,6 +287,7 @@ export class UpsertPsicosocialDto {
 
   @ApiPropertyOptional({ minimum: 1, maximum: 5 })
   @IsOptional()
+  @TransformToNumber({ integer: true })
   @IsInt()
   @Min(1)
   @Max(5)
@@ -232,6 +301,7 @@ export class CreateEvaluacionDto {
     maximum: 500,
   })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(0.1)
   @Max(500)
@@ -243,6 +313,7 @@ export class CreateEvaluacionDto {
     maximum: 2.5,
   })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(0.5)
   @Max(2.5)
@@ -254,6 +325,7 @@ export class CreateEvaluacionDto {
     maximum: 100,
   })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -332,6 +404,7 @@ export class UpdateEvaluacionDto {
     maximum: 500,
   })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(0.1)
   @Max(500)
@@ -343,6 +416,7 @@ export class UpdateEvaluacionDto {
     maximum: 2.5,
   })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(0.5)
   @Max(2.5)
@@ -354,6 +428,7 @@ export class UpdateEvaluacionDto {
     maximum: 100,
   })
   @IsOptional()
+  @TransformToNumber()
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -406,6 +481,7 @@ export const EVALUACION_RELACIONES = [
   'dietetica',
   'clinica',
   'psicosocial',
+  'archivos',
 ] as const
 
 export type EvaluacionInclude = (typeof EVALUACION_RELACIONES)[number]

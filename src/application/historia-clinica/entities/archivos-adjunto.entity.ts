@@ -12,6 +12,13 @@ import { HistoriaClinica } from './historia-clinica.entity'
 import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 import { Antecedente } from './antecedente.entity'
 
+export interface ArchivoAdjuntoMetadatos {
+  ruta: string
+  tamanoBytes: number
+  tipoMime: string
+  nombreOriginal: string
+}
+
 @Entity({
   name: 'archivos_adjuntos',
   schema: process.env.DB_SCHEMA_HISTORIA_CLINICA,
@@ -38,7 +45,7 @@ export class ArchivoAdjunto extends AuditoriaEntity {
     nullable: true,
     comment: 'Código único del archivo adjunto',
   })
-  codigo: string
+  codigo: string | null
 
   @Column({
     name: 'tipo_archivo',
@@ -54,7 +61,7 @@ export class ArchivoAdjunto extends AuditoriaEntity {
     nullable: true,
     comment: 'Contenido del archivo en formato base64',
   })
-  contenidoBase64: string // sin prefijo: solo el base64 puro
+  contenidoBase64: string | null // sin prefijo: solo el base64 puro
 
   @Column({
     name: 'id_historia_clinica',
@@ -71,29 +78,36 @@ export class ArchivoAdjunto extends AuditoriaEntity {
   @Column({
     name: 'id_evaluacion_nutricional',
     type: 'bigint',
-    nullable: false,
+    nullable: true,
     comment: 'Identificador del evaluación nutricional asociado',
   })
-  idEvaluacionNutricional: string
+  idEvaluacionNutricional: string | null
 
   @ManyToOne(
     () => EvaluacionNutricional,
     (evaluaciones_nutricionales) => evaluaciones_nutricionales.archivos
   )
   @JoinColumn({ name: 'id_evaluacion_nutricional' })
-  evaluacionNutricional: HistoriaClinica
+  evaluacionNutricional: EvaluacionNutricional
 
   @Column({
     name: 'id_antecedente',
     type: 'bigint',
-    nullable: false,
+    nullable: true,
     comment: 'Identificador del antecedente asociado',
   })
-  idAntecedente: string
+  idAntecedente: string | null
 
   @ManyToOne(() => Antecedente, (antecedente) => antecedente.archivos)
   @JoinColumn({ name: 'id_antecedente' })
   antecedente: Antecedente
+
+  @Column({
+    name: 'metadatos',
+    type: 'jsonb',
+    nullable: true,
+  })
+  metadatos?: ArchivoAdjuntoMetadatos | null
 
   constructor(data?: Partial<ArchivoAdjunto>) {
     super(data)

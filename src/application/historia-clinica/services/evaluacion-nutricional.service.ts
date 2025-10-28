@@ -1,5 +1,6 @@
 import { BaseService } from '@/common/base/base-service'
 import {
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -13,6 +14,7 @@ import { EvaluacionBioquimica } from '../entities/eval-bioquimica.entity'
 import { EvaluacionDietetica } from '../entities/eval-dietetica.entity'
 import { EvaluacionClinica } from '../entities/eval-clinica.entity'
 import { EvaluacionPsicosocial } from '../entities/eval-psicosocial.entity'
+import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
 import {
   ActualizarEvaluacionAntropometricaDto,
   CreateEvaluacionAntropometricaDto,
@@ -25,6 +27,25 @@ import { CitasService } from '@/application/gestion-pacientes/services/citas.ser
 import dayjs from 'dayjs'
 import { CitasEstado } from '@/application/gestion-pacientes/constant'
 import { EvaluacionNutricionalResponde } from '@/common/types/data-response.type'
+import {
+  EvaluacionArchivosService,
+  EvaluacionArchivoTemporal,
+} from './evaluacion-archivos.service'
+import { RolEnum } from '@/core/authorization/rol.enum'
+
+export type ArchivoDescargable =
+  | {
+      tipo: 'path'
+      path: string
+      nombreArchivo: string
+      mimeType: string
+    }
+  | {
+      tipo: 'buffer'
+      buffer: Buffer
+      nombreArchivo: string
+      mimeType: string
+    }
 
 @Injectable()
 export class EvaluacionNutricionalService extends BaseService {
@@ -44,7 +65,8 @@ export class EvaluacionNutricionalService extends BaseService {
     private readonly dataSource: DataSource,
     @Inject(forwardRef(() => HistoriaClinicaService))
     private readonly historiaClinicaService: HistoriaClinicaService,
-    private readonly citasService: CitasService
+    private readonly citasService: CitasService,
+    private readonly evaluacionArchivosService: EvaluacionArchivosService
   ) {
     super()
   }
@@ -55,12 +77,14 @@ export class EvaluacionNutricionalService extends BaseService {
     usuarioAuditoria,
     idMedico,
     transaccion,
+    archivos = [],
   }: {
     idHistoriaClinica: string
     data: CreateEvaluacionAntropometricaDto
     usuarioAuditoria: string
     idMedico: string
     transaccion?: EntityManager
+    archivos?: EvaluacionArchivoTemporal[]
   }) {
     if (!transaccion) {
       return this.dataSource.transaction((manager) =>
@@ -70,6 +94,7 @@ export class EvaluacionNutricionalService extends BaseService {
           usuarioAuditoria,
           idMedico,
           transaccion: manager,
+          archivos,
         })
       )
     }
@@ -160,11 +185,33 @@ export class EvaluacionNutricionalService extends BaseService {
       }
     }
 
-    const creada = await transaccion
-      .getRepository(EvaluacionNutricional)
-      .save(evaluacion)
+    let archivosPendientes = archivos
 
-    return { id: creada.id }
+    try {
+      const creada = await transaccion
+        .getRepository(EvaluacionNutricional)
+        .save(evaluacion)
+
+      if (archivosPendientes.length) {
+        await this.evaluacionArchivosService.adjuntarArchivos({
+          archivos: archivosPendientes,
+          idEvaluacionNutricional: creada.id,
+          idHistoriaClinica,
+          usuarioAuditoria,
+          transaccion,
+        })
+        archivosPendientes = []
+      }
+
+      return { id: creada.id }
+    } catch (error) {
+      if (archivosPendientes.length) {
+        await this.evaluacionArchivosService.limpiarTemporales(
+          archivosPendientes
+        )
+      }
+      throw error
+    }
   }
 
   async modificarEvaluacion({
@@ -172,11 +219,13 @@ export class EvaluacionNutricionalService extends BaseService {
     data,
     usuarioAuditoria,
     transaccion,
+    archivos = [],
   }: {
     idEvaluacionNutricional: string
     data: ActualizarEvaluacionAntropometricaDto
     usuarioAuditoria: string
     transaccion?: EntityManager
+    archivos?: EvaluacionArchivoTemporal[]
   }) {
     if (!transaccion) {
       return this.dataSource.transaction((manager) =>
@@ -185,6 +234,7 @@ export class EvaluacionNutricionalService extends BaseService {
           data,
           usuarioAuditoria,
           transaccion: manager,
+          archivos,
         })
       )
     }
@@ -292,11 +342,33 @@ export class EvaluacionNutricionalService extends BaseService {
 
     evaluacion.usuarioModificacion = usuarioAuditoria
 
-    await transaccion.getRepository(EvaluacionNutricional).save(evaluacion)
+    let archivosPendientes = archivos
 
-    return this.obtenerEvaluacion(idEvaluacionNutricional, {
-      include: [...EVALUACION_RELACIONES],
-    })
+    try {
+      await transaccion.getRepository(EvaluacionNutricional).save(evaluacion)
+
+      if (archivosPendientes.length) {
+        await this.evaluacionArchivosService.adjuntarArchivos({
+          archivos: archivosPendientes,
+          idEvaluacionNutricional,
+          idHistoriaClinica: evaluacion.idHistoriaClinica,
+          usuarioAuditoria,
+          transaccion,
+        })
+        archivosPendientes = []
+      }
+
+      return this.obtenerEvaluacion(idEvaluacionNutricional, {
+        include: [...EVALUACION_RELACIONES],
+      })
+    } catch (error) {
+      if (archivosPendientes.length) {
+        await this.evaluacionArchivosService.limpiarTemporales(
+          archivosPendientes
+        )
+      }
+      throw error
+    }
   }
 
   async listarEvaluacionesPorHistoriaClinica({
@@ -358,6 +430,73 @@ export class EvaluacionNutricionalService extends BaseService {
     return this.formatearEvaluacion(evaluacion)
   }
 
+  async obtenerArchivoDescargable({
+    idArchivo,
+    idEvaluacion,
+    solicitante,
+  }: {
+    idArchivo: string
+    idEvaluacion: string
+    solicitante: PassportUser
+  }): Promise<ArchivoDescargable> {
+    const archivo = await this.dataSource
+      .getRepository(ArchivoAdjunto)
+      .createQueryBuilder('archivo')
+      .leftJoinAndSelect('archivo.historiaClinica', 'historiaClinica')
+      .where('archivo.id = :idArchivo', { idArchivo })
+      .andWhere('archivo.idEvaluacionNutricional = :idEvaluacion', {
+        idEvaluacion,
+      })
+      .getOne()
+
+    if (!archivo || !archivo.historiaClinica) {
+      throw new NotFoundException('Archivo adjunto no encontrado')
+    }
+
+    const roles = new Set(
+      (solicitante.roles ?? []).map((rol) => rol.toUpperCase())
+    )
+    const esAdmin = roles.has(RolEnum.ADMINISTRADOR)
+    const esNutricionista = roles.has(RolEnum.NUTRICIONISTA)
+    const esPacientePropietario =
+      roles.has(RolEnum.PACIENTE) &&
+      solicitante.idUsuarioRol &&
+      archivo.historiaClinica.idPaciente === solicitante.idUsuarioRol
+
+    if (!(esAdmin || esNutricionista || esPacientePropietario)) {
+      throw new ForbiddenException(
+        'No tiene permisos para acceder a este archivo adjunto'
+      )
+    }
+
+    const rutaFinal =
+      await this.evaluacionArchivosService.obtenerRutaFinal(archivo)
+    const mimeType = archivo.tipoArchivo ?? 'application/octet-stream'
+    const nombreArchivo = archivo.nombreArchivo
+
+    if (rutaFinal) {
+      return {
+        tipo: 'path',
+        path: rutaFinal,
+        nombreArchivo,
+        mimeType,
+      }
+    }
+
+    if (archivo.contenidoBase64) {
+      return {
+        tipo: 'buffer',
+        buffer: Buffer.from(archivo.contenidoBase64, 'base64'),
+        nombreArchivo,
+        mimeType,
+      }
+    }
+
+    throw new NotFoundException(
+      'El archivo adjunto no tiene contenido disponible para descargar'
+    )
+  }
+
   async ultimaEvaluacion({
     idHistoriaClinica,
     transaccion,
@@ -392,13 +531,31 @@ export class EvaluacionNutricionalService extends BaseService {
       imc: evaluacion.imc ?? null,
       diagnosticoNutricional: evaluacion.diagnosticoNutricional ?? null,
       observaciones: evaluacion.observaciones ?? null,
-      archivos: null,
+      archivos: this.mapArchivos(evaluacion.archivos),
       antropometria: this.mapAntropometria(evaluacion.antropometria),
       bioquimica: this.mapBioquimica(evaluacion.bioquimica),
       dietetica: this.mapDietetica(evaluacion.dietetica),
       clinica: this.mapClinica(evaluacion.clinica),
       psicosocial: this.mapPsicosocial(evaluacion.psicosocial),
     }
+  }
+
+  private mapArchivos(archivos?: ArchivoAdjunto[]) {
+    if (!archivos || archivos.length === 0) {
+      return null
+    }
+
+    return archivos.map((archivo) => ({
+      id: archivo.id,
+      nombreArchivo: archivo.nombreArchivo,
+      codigo: archivo.codigo ?? null,
+      tipoArchivo: archivo.tipoArchivo,
+      contenidoBase64: archivo.contenidoBase64 ?? null,
+      idHistoriaClinica: archivo.idHistoriaClinica,
+      idEvaluacionNutricional: archivo.idEvaluacionNutricional ?? null,
+      metadatos: archivo.metadatos ?? null,
+      fechaCreacion: archivo.fechaCreacion,
+    }))
   }
 
   private mapAntropometria(antropometria?: EvaluacionAntropometrica) {
