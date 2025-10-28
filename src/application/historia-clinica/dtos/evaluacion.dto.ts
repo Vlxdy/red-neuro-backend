@@ -300,36 +300,22 @@ export class CreateEvaluacionDto {
     minimum: 0.1,
     maximum: 500,
   })
-  @IsOptional()
   @TransformToNumber()
   @IsNumber()
   @Min(0.1)
   @Max(500)
-  peso?: number
+  peso: number
 
   @ApiPropertyOptional({
     description: 'Talla en metros',
     minimum: 0.5,
     maximum: 2.5,
   })
-  @IsOptional()
   @TransformToNumber()
   @IsNumber()
   @Min(0.5)
   @Max(2.5)
-  talla?: number
-
-  @ApiPropertyOptional({
-    description: 'Índice de masa corporal',
-    minimum: 1,
-    maximum: 100,
-  })
-  @IsOptional()
-  @TransformToNumber()
-  @IsNumber()
-  @Min(1)
-  @Max(100)
-  imc?: number
+  talla: number
 
   @ApiPropertyOptional({ description: 'Diagnóstico nutricional' })
   @IsOptional()

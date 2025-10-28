@@ -52,6 +52,7 @@ import { PlanNutricionalController } from './planes-alimentarios/controller/plan
 import { CarritoCompraController } from './planes-alimentarios/controller/carrito-compras.controller'
 import { AlimentoController } from './planes-alimentarios/controller/alimento.controller'
 import { NotificacionController } from './gestion-pacientes/controllers/notificaciones.controller'
+import { ConfigService } from '@nestjs/config'
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { NotificacionController } from './gestion-pacientes/controllers/notifica
     ]),
   ],
   providers: [
+    ConfigService,
     HistoriaClinicaService,
     HistoriaClinicaRepository,
     ArchivoAdjuntoService,

@@ -29,7 +29,7 @@ import { AntecedenteService } from '../services/antecedentes.service'
 import { CreateAntecedenteDto } from '../dtos/antecedentes.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { FilesInterceptor } from '@nestjs/platform-express'
-import { diskStorage } from 'multer'
+import { diskStorage, FileFilterCallback } from 'multer'
 import { extname } from 'path'
 import { promises as fs } from 'fs'
 import {
@@ -39,6 +39,32 @@ import {
 } from '../constants/evaluacion-archivos.constants'
 import { v4 as uuid } from 'uuid'
 import { EvaluacionArchivosService } from '../services/evaluacion-archivos.service'
+import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface'
+
+type AllowedMime = 'application/pdf' | 'image/jpeg' | 'image/png' | 'image/webp'
+
+const ALLOWED_MIME_TYPES: ReadonlySet<AllowedMime> = new Set<AllowedMime>([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+])
+
+const fileFilter: MulterOptions['fileFilter'] = (
+  _req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+): void => {
+  if (ALLOWED_MIME_TYPES.has(file.mimetype as AllowedMime)) {
+    cb(null, true)
+  } else {
+    cb(
+      new BadRequestException(
+        'Solo se permiten PDF o imágenes (JPG, PNG, WEBP).'
+      )
+    )
+  }
+}
 
 @ApiTags('Historia clinica')
 @ApiBearerAuth()
@@ -75,6 +101,7 @@ export class HistoriaClinicaController extends BaseController {
           cb(null, `${uuid()}${extname(file.originalname)}`)
         },
       }),
+      fileFilter,
       limits: {
         files: getEvalNutriMaxFiles(),
         fileSize: getEvalNutriMaxFileSizeBytes(),

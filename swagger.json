@@ -1560,7 +1560,8 @@
                   "bioquimica",
                   "dietetica",
                   "clinica",
-                  "psicosocial"
+                  "psicosocial",
+                  "archivos"
                 ]
               }
             }
@@ -1638,9 +1639,19 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/ActualizarEvaluacionAntropometricaDto"
+                "type": "object",
+                "properties": {
+                  "archivosAdjuntos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "additionalProperties": true
               }
             }
           }
@@ -1655,6 +1666,43 @@
             "bearer": []
           }
         ],
+        "tags": [
+          "Evaluaciones"
+        ]
+      }
+    },
+    "/evaluacion-nutricional/{id}/archivos/{archivoId}": {
+      "get": {
+        "operationId": "EvaluacionesController_descargarArchivo",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "archivoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Descargar un archivo adjunto de la evaluación nutricional",
         "tags": [
           "Evaluaciones"
         ]
@@ -1677,9 +1725,19 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CreateEvaluacionAntropometricaDto"
+                "type": "object",
+                "properties": {
+                  "archivosAdjuntos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "additionalProperties": true
               }
             }
           }
@@ -1788,7 +1846,8 @@
                   "bioquimica",
                   "dietetica",
                   "clinica",
-                  "psicosocial"
+                  "psicosocial",
+                  "archivos"
                 ]
               }
             }
@@ -4272,327 +4331,6 @@
         "required": [
           "id"
         ]
-      },
-      "UpsertAntropometriaDto": {
-        "type": "object",
-        "properties": {
-          "circunferenciaCintura": {
-            "type": "number",
-            "minimum": 30,
-            "maximum": 200
-          },
-          "circunferenciaCadera": {
-            "type": "number",
-            "minimum": 30,
-            "maximum": 200
-          },
-          "cinturaCaderaRatio": {
-            "type": "number",
-            "minimum": 0.3,
-            "maximum": 2.5
-          },
-          "pliegueTricipital": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 50
-          },
-          "porcentajeGrasa": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 70
-          },
-          "porcentajeMusculo": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 70
-          },
-          "aguaCorporal": {
-            "type": "number",
-            "minimum": 10,
-            "maximum": 80
-          }
-        }
-      },
-      "UpsertBioquimicaDto": {
-        "type": "object",
-        "properties": {
-          "glucosa": {
-            "type": "number",
-            "minimum": 40,
-            "maximum": 400
-          },
-          "colesterolTotal": {
-            "type": "number",
-            "minimum": 50,
-            "maximum": 400
-          },
-          "trigliceridos": {
-            "type": "number",
-            "minimum": 30,
-            "maximum": 1000
-          },
-          "hdl": {
-            "type": "number",
-            "minimum": 10,
-            "maximum": 150
-          },
-          "ldl": {
-            "type": "number",
-            "minimum": 10,
-            "maximum": 300
-          },
-          "hemoglobina": {
-            "type": "number",
-            "minimum": 5,
-            "maximum": 20
-          },
-          "ferritina": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 1000
-          }
-        }
-      },
-      "UpsertDieteticaDto": {
-        "type": "object",
-        "properties": {
-          "caloriasTotales": {
-            "type": "number",
-            "minimum": 500,
-            "maximum": 6000
-          },
-          "numeroComidasDiarias": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 12
-          },
-          "registroAlimentario": {
-            "type": "object",
-            "description": "Registro alimentario en formato JSON"
-          },
-          "nivelConsumoAzucar": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 5
-          },
-          "nivelHidratacion": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 5
-          }
-        }
-      },
-      "UpsertClinicaDto": {
-        "type": "object",
-        "properties": {
-          "patologiasPrevias": {
-            "type": "string"
-          },
-          "medicacionActual": {
-            "type": "string"
-          },
-          "nauseas": {
-            "type": "boolean"
-          },
-          "vomitos": {
-            "type": "boolean"
-          },
-          "diarrea": {
-            "type": "boolean"
-          },
-          "fatiga": {
-            "type": "boolean"
-          }
-        }
-      },
-      "UpsertPsicosocialDto": {
-        "type": "object",
-        "properties": {
-          "nivelMotivacion": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 5
-          },
-          "estresAlimentario": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 5
-          },
-          "ansiedad": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 5
-          },
-          "apoyoFamiliar": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 5
-          },
-          "cumplimientoDieta": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 5
-          }
-        }
-      },
-      "ActualizarEvaluacionAntropometricaDto": {
-        "type": "object",
-        "properties": {
-          "historiaClinicaId": {
-            "type": "string",
-            "description": "Identificador de la historia clínica",
-            "example": "1"
-          },
-          "fechaEvaluacion": {
-            "type": "string",
-            "description": "Fecha en que se realiza la evaluación"
-          },
-          "peso": {
-            "type": "number",
-            "description": "Peso en kilogramos",
-            "minimum": 0.1,
-            "maximum": 500
-          },
-          "talla": {
-            "type": "number",
-            "description": "Talla en metros",
-            "minimum": 0.5,
-            "maximum": 2.5
-          },
-          "imc": {
-            "type": "number",
-            "description": "Índice de masa corporal",
-            "minimum": 1,
-            "maximum": 100
-          },
-          "diagnosticoNutricional": {
-            "type": "string",
-            "description": "Diagnóstico nutricional"
-          },
-          "observaciones": {
-            "type": "string",
-            "description": "Observaciones adicionales"
-          },
-          "antropometria": {
-            "description": "Datos antropométricos asociados",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertAntropometriaDto"
-              }
-            ]
-          },
-          "bioquimica": {
-            "description": "Resultados bioquímicos asociados",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertBioquimicaDto"
-              }
-            ]
-          },
-          "dietetica": {
-            "description": "Hábitos dietéticos asociados",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertDieteticaDto"
-              }
-            ]
-          },
-          "clinica": {
-            "description": "Evaluación clínica asociada",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertClinicaDto"
-              }
-            ]
-          },
-          "psicosocial": {
-            "description": "Evaluación psicosocial asociada",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertPsicosocialDto"
-              }
-            ]
-          }
-        }
-      },
-      "CreateEvaluacionAntropometricaDto": {
-        "type": "object",
-        "properties": {
-          "peso": {
-            "type": "number",
-            "description": "Peso en kilogramos",
-            "minimum": 0.1,
-            "maximum": 500
-          },
-          "talla": {
-            "type": "number",
-            "description": "Talla en metros",
-            "minimum": 0.5,
-            "maximum": 2.5
-          },
-          "imc": {
-            "type": "number",
-            "description": "Índice de masa corporal",
-            "minimum": 1,
-            "maximum": 100
-          },
-          "diagnosticoNutricional": {
-            "type": "string",
-            "description": "Diagnóstico nutricional"
-          },
-          "observaciones": {
-            "type": "string",
-            "description": "Observaciones adicionales"
-          },
-          "antropometria": {
-            "description": "Datos antropométricos asociados",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertAntropometriaDto"
-              }
-            ]
-          },
-          "bioquimica": {
-            "description": "Resultados bioquímicos asociados",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertBioquimicaDto"
-              }
-            ]
-          },
-          "dietetica": {
-            "description": "Hábitos dietéticos asociados",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertDieteticaDto"
-              }
-            ]
-          },
-          "clinica": {
-            "description": "Evaluación clínica asociada",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertClinicaDto"
-              }
-            ]
-          },
-          "psicosocial": {
-            "description": "Evaluación psicosocial asociada",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UpsertPsicosocialDto"
-              }
-            ]
-          },
-          "idCita": {
-            "type": "string",
-            "description": "Identificador de cita vinculada"
-          },
-          "forzarFecha": {
-            "type": "boolean",
-            "description": "Permite forzar la fecha de creación"
-          }
-        }
       },
       "CrearComentarioDto": {
         "type": "object",

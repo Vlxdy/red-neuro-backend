@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  PreconditionFailedException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DataSource, EntityManager, Repository } from 'typeorm'
@@ -107,7 +108,7 @@ export class EvaluacionNutricionalService extends BaseService {
 
     const fechaEvaluacion = dayjs().toISOString()
 
-    const imcCalculado = this.calcularImc(data.peso, data.talla, data.imc)
+    const imcCalculado = this.calcularImc(data.peso, data.talla)
 
     const evaluacion = transaccion.getRepository(EvaluacionNutricional).create({
       idHistoriaClinica,
@@ -266,11 +267,9 @@ export class EvaluacionNutricionalService extends BaseService {
       evaluacion.talla = data.talla
     }
 
-    evaluacion.imc = this.calcularImc(
-      data.peso ?? evaluacion.peso,
-      data.talla ?? evaluacion.talla,
-      data.imc ?? evaluacion.imc
-    )
+    if (data.peso && data.talla) {
+      evaluacion.imc = this.calcularImc(data.peso, data.talla)
+    }
 
     if (data.diagnosticoNutricional !== undefined) {
       evaluacion.diagnosticoNutricional = data.diagnosticoNutricional
@@ -632,27 +631,12 @@ export class EvaluacionNutricionalService extends BaseService {
     return EVALUACION_RELACIONES.filter((relacion) => set.has(relacion))
   }
 
-  private calcularImc(
-    peso?: number,
-    talla?: number,
-    imc?: number | null
-  ): number | undefined {
-    if (imc !== undefined && imc !== null) {
-      const valor = Number(imc)
-      return Math.round(valor * 100) / 100
-    }
-
-    if (
-      peso !== undefined &&
-      peso !== null &&
-      talla !== undefined &&
-      talla !== null &&
-      talla > 0
-    ) {
-      const resultado = Number(peso) / Math.pow(Number(talla), 2)
-      return Math.round(resultado * 100) / 100
-    }
-
-    return undefined
+  private calcularImc(peso: number, talla: number): number {
+    if (talla <= 0)
+      throw new PreconditionFailedException(
+        'La talla debe ser un número mayor que cero'
+      )
+    const resultado = peso / Math.pow(talla, 2)
+    return Math.round(resultado * 100) / 100
   }
 }
