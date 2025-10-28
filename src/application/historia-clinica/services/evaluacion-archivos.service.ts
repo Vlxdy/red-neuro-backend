@@ -123,10 +123,15 @@ export class EvaluacionArchivosService {
           .split(path.sep)
           .join('/')
 
+        const decodedName = Buffer.from(
+          archivo.originalname,
+          'latin1'
+        ).toString('utf8')
+
         const entidad = repository.create({
           idHistoriaClinica,
           idEvaluacionNutricional,
-          nombreArchivo: archivo.originalname,
+          nombreArchivo: decodedName,
           tipoArchivo: archivo.mimetype,
           codigo: finalFilename,
           contenidoBase64: null,

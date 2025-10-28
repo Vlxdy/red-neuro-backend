@@ -42,6 +42,7 @@ import {
 } from '../constants/evaluacion-archivos.constants'
 import { promises as fs } from 'fs'
 import { EvaluacionArchivosService } from '../services/evaluacion-archivos.service'
+import { fileFilter } from '@/utils/archivos'
 
 @ApiTags('Evaluaciones')
 @ApiBearerAuth()
@@ -154,6 +155,7 @@ export class EvaluacionesController extends BaseController {
           cb(null, `${uuid()}${extname(file.originalname)}`)
         },
       }),
+      fileFilter,
       limits: {
         files: getEvalNutriMaxFiles(),
         fileSize: getEvalNutriMaxFileSizeBytes(),

@@ -33,6 +33,7 @@ import {
   EvaluacionArchivoTemporal,
 } from './evaluacion-archivos.service'
 import { RolEnum } from '@/core/authorization/rol.enum'
+import { Status } from '@/common/constants'
 
 export type ArchivoDescargable =
   | {
@@ -400,6 +401,13 @@ export class EvaluacionNutricionalService extends BaseService {
     relaciones.forEach((relacion) => {
       query.leftJoinAndSelect(`evaluacion.${relacion}`, relacion)
     })
+
+    query.leftJoinAndSelect(
+      `evaluacion.archivos`,
+      'archivos',
+      'archivos.estado = :estadoArchivo',
+      { estadoArchivo: Status.ACTIVE }
+    )
 
     query.orderBy('evaluacion.fechaEvaluacion', 'DESC')
     query.take(limite)
