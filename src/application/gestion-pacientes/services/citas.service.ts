@@ -1,5 +1,6 @@
 import { BaseService } from '@/common/base/base-service'
 import {
+  BadRequestException,
   ForbiddenException,
   forwardRef,
   Inject,
@@ -20,7 +21,7 @@ import { CitasEstado } from '../constant'
 import { CitaResponse } from '@/common/types/data-response.type'
 import { formatearUsuarioRolRespuesta } from '../utils/formateos'
 import { NotificacionService } from './notificacion.service'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { NotificacionTipo } from '../entities/notificacion.entity'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { AsignacionService } from './asignacion.service'
@@ -42,19 +43,63 @@ export class CitasService extends BaseService {
   async listarCitas({
     idUsuarioRol,
     idRol,
+    fechaInicio,
+    fechaFin,
   }: {
     idUsuarioRol: string
     idRol: string
+    fechaInicio?: string
+    fechaFin?: string
   }) {
+    const fechaInicioParseada = fechaInicio ? dayjs(fechaInicio) : null
+    const fechaFinParseada = fechaFin ? dayjs(fechaFin) : null
+
+    if (fechaInicioParseada && !fechaInicioParseada.isValid()) {
+      throw new BadRequestException('La fecha de inicio no es válida')
+    }
+
+    if (fechaFinParseada && !fechaFinParseada.isValid()) {
+      throw new BadRequestException('La fecha fin no es válida')
+    }
+
+    let fechaInicioConsulta: Dayjs
+    let fechaFinConsulta: Dayjs
+
+    if (!fechaInicioParseada && !fechaFinParseada) {
+      const ahora = dayjs()
+      fechaInicioConsulta = ahora.startOf('month')
+      fechaFinConsulta = ahora.endOf('month')
+    } else {
+      const fechaInicioBase = fechaInicioParseada || fechaFinParseada!
+      const fechaFinBase = fechaFinParseada || fechaInicioParseada!
+      fechaInicioConsulta = fechaInicioBase.startOf('day')
+      fechaFinConsulta = fechaFinBase.endOf('day')
+    }
+
+    if (fechaInicioConsulta.isAfter(fechaFinConsulta)) {
+      throw new BadRequestException(
+        'La fecha de inicio debe ser anterior o igual a la fecha fin'
+      )
+    }
+
+    const fechaInicioBusqueda = fechaInicioConsulta.toDate()
+    const fechaFinBusqueda = fechaFinConsulta.toDate()
+
     if (idRol === RolEnumId.PACIENTE) {
       const [citas, cantidad] = await this.citasRepositorio.listarPorPaciente({
         idUsuarioRol,
+        fechaInicio: fechaInicioBusqueda,
+        fechaFin: fechaFinBusqueda,
       })
 
       return [this.formatearCitas(citas), cantidad]
     } else if (idRol === RolEnumId.NUTRICIONISTA) {
       const [citas, cantidad] =
-        await this.citasRepositorio.listarPorNutricionista({ idUsuarioRol })
+        await this.citasRepositorio.listarPorNutricionista({
+          idUsuarioRol,
+          fechaInicio: fechaInicioBusqueda,
+          fechaFin: fechaFinBusqueda,
+        })
       return [this.formatearCitas(citas), cantidad]
     }
     throw new ForbiddenException(
