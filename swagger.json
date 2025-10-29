@@ -2696,11 +2696,46 @@
         ]
       },
       "get": {
+        "description": "Permite filtrar las citas por un rango de fechas opcional. Si no se envía rango, devuelve el mes actual.",
         "operationId": "CitasController_listarCitas",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "fechaInicio",
+            "required": false,
+            "in": "query",
+            "description": "Fecha inicial del rango a consultar en formato ISO 8601. Si solo se envía una fecha, se utiliza ese día completo como filtro.",
+            "schema": {
+              "example": "2024-07-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "fechaFin",
+            "required": false,
+            "in": "query",
+            "description": "Fecha final del rango a consultar en formato ISO 8601. Si solo se envía una fecha, se utiliza ese día completo como filtro.",
+            "schema": {
+              "example": "2024-07-31T23:59:59.000Z",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Listado de citas dentro del rango indicado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListarCitasSuccessResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Alguno de los parámetros de fecha tiene un formato inválido o la fecha inicial es posterior a la final."
+          },
+          "403": {
+            "description": "El rol autenticado no tiene permisos para acceder a las citas."
           }
         },
         "security": [
@@ -2708,7 +2743,7 @@
             "bearer": []
           }
         ],
-        "summary": "API para listar citas medicas de un paciente",
+        "summary": "Listar citas médicas visibles para el usuario autenticado",
         "tags": [
           "Citas"
         ]
@@ -4535,6 +4570,156 @@
           "fechaInicio",
           "fechaFin",
           "detalle"
+        ]
+      },
+      "CitaUsuarioRolResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "23"
+          },
+          "nombres": {
+            "type": "string",
+            "example": "María"
+          },
+          "primerApellido": {
+            "type": "object",
+            "example": "Pérez"
+          },
+          "segundoApellido": {
+            "type": "object",
+            "example": "Gómez"
+          },
+          "nroDocumento": {
+            "type": "string",
+            "example": "87654321"
+          },
+          "tipoDocumento": {
+            "type": "string",
+            "example": "DNI"
+          },
+          "genero": {
+            "type": "object",
+            "example": "F"
+          },
+          "correoElectronico": {
+            "type": "object",
+            "example": "maria.perez@example.com"
+          },
+          "urlFoto": {
+            "type": "object",
+            "example": "https://cdn.example.com/avatars/maria.jpg"
+          },
+          "fechaNacimiento": {
+            "type": "object",
+            "example": "1992-05-10"
+          },
+          "telefono": {
+            "type": "object",
+            "example": "+51987654321"
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          }
+        },
+        "required": [
+          "id",
+          "nombres",
+          "nroDocumento",
+          "tipoDocumento",
+          "estado"
+        ]
+      },
+      "CitaListadoItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "15"
+          },
+          "detalle": {
+            "type": "string",
+            "example": "Control mensual"
+          },
+          "fechaInicio": {
+            "type": "object",
+            "example": "2024-07-18T15:00:00.000Z"
+          },
+          "fechaFin": {
+            "type": "object",
+            "example": "2024-07-18T15:30:00.000Z"
+          },
+          "estado": {
+            "type": "string",
+            "example": "PROGRAMADA"
+          },
+          "paciente": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CitaUsuarioRolResponseDto"
+              }
+            ]
+          },
+          "medico": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CitaUsuarioRolResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "detalle",
+          "fechaInicio",
+          "fechaFin",
+          "estado",
+          "paciente",
+          "medico"
+        ]
+      },
+      "ListarCitasResponseDataDto": {
+        "type": "object",
+        "properties": {
+          "filas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitaListadoItemResponseDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "filas",
+          "total"
+        ]
+      },
+      "ListarCitasSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "finalizado": {
+            "type": "boolean",
+            "example": true
+          },
+          "mensaje": {
+            "type": "string",
+            "example": "Consulta exitosa"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/ListarCitasResponseDataDto"
+          }
+        },
+        "required": [
+          "finalizado",
+          "mensaje",
+          "datos"
         ]
       },
       "ActualizarCitaDto": {
