@@ -6,8 +6,97 @@ import {
   IsOptional,
   IsString,
 } from '@/common/validation'
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { CitasEstado } from '../constant'
+
+class CitaUsuarioRolResponseDto {
+  @ApiProperty({ example: '23' })
+  id: string
+
+  @ApiProperty({ example: 'María' })
+  nombres: string
+
+  @ApiPropertyOptional({ example: 'Pérez' })
+  primerApellido?: string | null
+
+  @ApiPropertyOptional({ example: 'Gómez' })
+  segundoApellido?: string | null
+
+  @ApiProperty({ example: '87654321' })
+  nroDocumento: string
+
+  @ApiProperty({ example: 'DNI' })
+  tipoDocumento: string
+
+  @ApiPropertyOptional({ example: 'F' })
+  genero?: string | null
+
+  @ApiPropertyOptional({ example: 'maria.perez@example.com' })
+  correoElectronico?: string | null
+
+  @ApiPropertyOptional({ example: 'https://cdn.example.com/avatars/maria.jpg' })
+  urlFoto?: string | null
+
+  @ApiPropertyOptional({ example: '1992-05-10' })
+  fechaNacimiento?: Date | string | null
+
+  @ApiPropertyOptional({ example: '+51987654321' })
+  telefono?: string | null
+
+  @ApiProperty({ example: 'ACTIVO' })
+  estado: string
+}
+
+class CitaListadoItemResponseDto {
+  @ApiProperty({ example: '15' })
+  id: string
+
+  @ApiProperty({ example: 'Control mensual' })
+  detalle: string
+
+  @ApiProperty({ example: '2024-07-18T15:00:00.000Z' })
+  fechaInicio: Date | string | null
+
+  @ApiProperty({ example: '2024-07-18T15:30:00.000Z' })
+  fechaFin: Date | string | null
+
+  @ApiProperty({ example: 'PROGRAMADA' })
+  estado: string
+
+  @ApiProperty({
+    type: () => CitaUsuarioRolResponseDto,
+    nullable: true,
+  })
+  paciente: CitaUsuarioRolResponseDto | null
+
+  @ApiProperty({
+    type: () => CitaUsuarioRolResponseDto,
+    nullable: true,
+  })
+  medico: CitaUsuarioRolResponseDto | null
+}
+
+class ListarCitasResponseDataDto {
+  @ApiProperty({
+    type: () => CitaListadoItemResponseDto,
+    isArray: true,
+  })
+  filas: CitaListadoItemResponseDto[]
+
+  @ApiProperty({ example: 1 })
+  total: number
+}
+
+export class ListarCitasSuccessResponseDto {
+  @ApiProperty({ example: true })
+  finalizado: boolean
+
+  @ApiProperty({ example: 'Consulta exitosa' })
+  mensaje: string
+
+  @ApiProperty({ type: () => ListarCitasResponseDataDto })
+  datos: ListarCitasResponseDataDto
+}
 
 export class CrearCitaDto {
   // @ApiProperty({
@@ -49,6 +138,24 @@ export class CrearCitaDto {
   @IsNotEmpty()
   @IsString()
   detalle: string
+}
+
+export class ListarCitasQueryDto {
+  @ApiPropertyOptional({
+    description: 'Fecha inicial del rango de búsqueda',
+    example: '2024-07-01T00:00:00.000Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaInicio?: string
+
+  @ApiPropertyOptional({
+    description: 'Fecha final del rango de búsqueda',
+    example: '2024-07-31T23:59:59.000Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaFin?: string
 }
 
 export class ActualizarCitaDto {

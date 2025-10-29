@@ -64,10 +64,14 @@ export class CitasRepository {
     idUsuarioRol,
     estado,
     transaccion,
+    fechaInicio,
+    fechaFin,
   }: {
     idUsuarioRol: string
     estado?: CitasEstado
     transaccion?: EntityManager
+    fechaInicio?: Date
+    fechaFin?: Date
   }) {
     const query = (transaccion || this.dataSource)
       .getRepository(Cita)
@@ -89,22 +93,47 @@ export class CitasRepository {
         'paciente.id',
         'usuario.id',
         'usuario.urlFoto',
+        'usuario.correoElectronico',
         'persona.nombres',
         'persona.primerApellido',
         'persona.segundoApellido',
         'persona.nroDocumento',
+        'persona.tipoDocumento',
+        'persona.genero',
+        'persona.fechaNacimiento',
+        'persona.telefono',
         // paciente
         'usuarioPaciente.id',
         'usuarioPaciente.urlFoto',
+        'usuarioPaciente.correoElectronico',
         'personaPaciente.nombres',
         'personaPaciente.primerApellido',
         'personaPaciente.segundoApellido',
         'personaPaciente.nroDocumento',
+        'personaPaciente.tipoDocumento',
+        'personaPaciente.genero',
+        'personaPaciente.fechaNacimiento',
+        'personaPaciente.telefono',
       ])
       .where({ idPaciente: idUsuarioRol })
       .andWhere('citas.estado != :estado', { estado: CitasEstado.INACTIVO })
+
     if (estado) {
       query.andWhere('citas.estado = :estados', { estados: estado })
+    }
+    if (fechaInicio && fechaFin) {
+      query.andWhere('citas.fechaInicio BETWEEN :fechaInicio AND :fechaFin', {
+        fechaInicio,
+        fechaFin,
+      })
+    } else if (fechaInicio) {
+      query.andWhere('citas.fechaInicio >= :fechaInicio', {
+        fechaInicio,
+      })
+    } else if (fechaFin) {
+      query.andWhere('citas.fechaInicio <= :fechaFin', {
+        fechaFin,
+      })
     }
     return await query.getManyAndCount()
   }
@@ -139,17 +168,27 @@ export class CitasRepository {
         'paciente.id',
         'usuario.id',
         'usuario.urlFoto',
+        'usuario.correoElectronico',
         'persona.nombres',
         'persona.primerApellido',
         'persona.segundoApellido',
         'persona.nroDocumento',
+        'persona.tipoDocumento',
+        'persona.genero',
+        'persona.fechaNacimiento',
+        'persona.telefono',
         // paciente
         'usuarioPaciente.id',
         'usuarioPaciente.urlFoto',
+        'usuarioPaciente.correoElectronico',
         'personaPaciente.nombres',
         'personaPaciente.primerApellido',
         'personaPaciente.segundoApellido',
         'personaPaciente.nroDocumento',
+        'personaPaciente.tipoDocumento',
+        'personaPaciente.genero',
+        'personaPaciente.fechaNacimiento',
+        'personaPaciente.telefono',
       ])
       .take(limite)
       .skip(saltar)
@@ -194,13 +233,24 @@ export class CitasRepository {
     return await query.getManyAndCount()
   }
 
-  async listarPorNutricionista({ idUsuarioRol }: { idUsuarioRol: string }) {
-    return await this.dataSource
+  async listarPorNutricionista({
+    idUsuarioRol,
+    fechaInicio,
+    fechaFin,
+  }: {
+    idUsuarioRol: string
+    fechaInicio?: Date
+    fechaFin?: Date
+  }) {
+    const query = this.dataSource
       .getRepository(Cita)
       .createQueryBuilder('citas')
+      .leftJoinAndSelect('citas.medico', 'medico')
+      .leftJoinAndSelect('medico.usuario', 'usuarioMedico')
+      .leftJoinAndSelect('usuarioMedico.persona', 'personaMedico')
       .leftJoinAndSelect('citas.paciente', 'paciente')
-      .leftJoinAndSelect('paciente.usuario', 'usuario')
-      .leftJoinAndSelect('usuario.persona', 'persona')
+      .leftJoinAndSelect('paciente.usuario', 'usuarioPaciente')
+      .leftJoinAndSelect('usuarioPaciente.persona', 'personaPaciente')
       .select([
         'citas.id',
         'citas.detalle',
@@ -208,16 +258,48 @@ export class CitasRepository {
         'citas.fechaFin',
         'citas.estado',
         'paciente.id',
-        'usuario.urlFoto',
-        'usuario.id',
-        'persona.nombres',
-        'persona.primerApellido',
-        'persona.segundoApellido',
-        'persona.nroDocumento',
+        'usuarioPaciente.urlFoto',
+        'usuarioPaciente.id',
+        'usuarioPaciente.correoElectronico',
+        'personaPaciente.nombres',
+        'personaPaciente.primerApellido',
+        'personaPaciente.segundoApellido',
+        'personaPaciente.nroDocumento',
+        'personaPaciente.tipoDocumento',
+        'personaPaciente.genero',
+        'personaPaciente.fechaNacimiento',
+        'personaPaciente.telefono',
+        'medico.id',
+        'usuarioMedico.id',
+        'usuarioMedico.urlFoto',
+        'usuarioMedico.correoElectronico',
+        'personaMedico.nombres',
+        'personaMedico.primerApellido',
+        'personaMedico.segundoApellido',
+        'personaMedico.nroDocumento',
+        'personaMedico.tipoDocumento',
+        'personaMedico.genero',
+        'personaMedico.fechaNacimiento',
+        'personaMedico.telefono',
       ])
       .where({ idMedico: idUsuarioRol })
       .andWhere('citas.estado != :estado', { estado: CitasEstado.INACTIVO })
-      .getManyAndCount()
+
+    if (fechaInicio && fechaFin) {
+      query.andWhere('citas.fechaInicio BETWEEN :fechaInicio AND :fechaFin', {
+        fechaInicio,
+        fechaFin,
+      })
+    } else if (fechaInicio) {
+      query.andWhere('citas.fechaInicio >= :fechaInicio', {
+        fechaInicio,
+      })
+    } else if (fechaFin) {
+      query.andWhere('citas.fechaInicio <= :fechaFin', {
+        fechaFin,
+      })
+    }
+    return await query.getManyAndCount()
   }
 
   async listarCitasPendientes(transaccion?: EntityManager) {
