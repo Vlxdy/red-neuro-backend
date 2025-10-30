@@ -30,6 +30,8 @@ import {
   CrearCitaDto,
   HistorialCitaItemResponseDto,
   ListarCitasQueryDto,
+  ListarCitasPorRangoQueryDto,
+  ListarAgendaCitasQueryDto,
   ListarCitasSuccessResponseDto,
   ReabrirCitaDto,
   RechazarCitaDto,
@@ -109,6 +111,56 @@ export class CitasController extends BaseController {
       fechaInicio: query.fechaInicio,
       fechaFin: query.fechaFin,
     })
+    return this.successListRows(respuesta as any)
+  }
+
+  @ApiOperation({
+    summary: 'Listar citas por rango de fechas con filtros avanzados',
+    description:
+      'Permite aplicar filtros por rango de fechas, estado y rol del usuario autenticado. Si no se envía rango se utiliza el mes actual.',
+  })
+  @Get('rango-fechas')
+  async listarCitasPorRango(
+    @Req() req: Request,
+    @Query() query: ListarCitasPorRangoQueryDto
+  ) {
+    const idRol = this.getRol(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const respuesta = await this.citasService.listarCitasPorRango({
+      idUsuarioRol,
+      idRol,
+      fechaInicio: query.fechaInicio,
+      fechaFin: query.fechaFin,
+      estados: query.estados,
+      idPaciente: query.idPaciente,
+      idMedico: query.idMedico,
+    })
+
+    return this.successListRows(respuesta as any)
+  }
+
+  @ApiOperation({
+    summary: 'Listar citas paginadas para la agenda',
+    description:
+      'Devuelve las citas paginadas y ordenadas por fecha más reciente, con filtros opcionales por día, estado y búsqueda.',
+  })
+  @Get('agenda')
+  async listarAgendaCitas(
+    @Req() req: Request,
+    @Query() query: ListarAgendaCitasQueryDto
+  ) {
+    const idRol = this.getRol(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const respuesta = await this.citasService.listarAgendaCitas({
+      idUsuarioRol,
+      idRol,
+      paginacion: query,
+      fecha: query.fecha,
+      estados: query.estados,
+      idPaciente: query.idPaciente,
+      idMedico: query.idMedico,
+    })
+
     return this.successListRows(respuesta as any)
   }
 

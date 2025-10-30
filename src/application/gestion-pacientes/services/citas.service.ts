@@ -34,6 +34,7 @@ import { NotificacionTipo } from '../entities/notificacion.entity'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { AsignacionService } from './asignacion.service'
 import { HistorialCitaRepository } from '../repositories/historial-cita.repository'
+import { Order } from '@/common/constants'
 
 const REVERSION_VENTANA_DIAS = 7
 const REVERSION_MAXIMA = 2
@@ -265,6 +266,202 @@ export class CitasService extends BaseService {
     throw new ForbiddenException(
       'No tiene permiso para acceder a esta información'
     )
+  }
+
+  private validarRolListado(idRol: string) {
+    const esAdmin = this.esAdministrador(idRol)
+    const esNutricionista = this.esNutricionista(idRol)
+    const esPaciente = this.esPaciente(idRol)
+
+    if (!esAdmin && !esNutricionista && !esPaciente) {
+      throw new ForbiddenException(
+        'No tiene permiso para acceder a esta información'
+      )
+    }
+  }
+
+  private obtenerFechasDesdeRango({
+    fechaInicio,
+    fechaFin,
+  }: {
+    fechaInicio?: string
+    fechaFin?: string
+  }): { fechaInicioConsulta: Dayjs; fechaFinConsulta: Dayjs } {
+    const fechaInicioParseada = fechaInicio ? dayjs(fechaInicio) : null
+    const fechaFinParseada = fechaFin ? dayjs(fechaFin) : null
+
+    if (fechaInicioParseada && !fechaInicioParseada.isValid()) {
+      throw new BadRequestException('La fecha de inicio no es válida')
+    }
+
+    if (fechaFinParseada && !fechaFinParseada.isValid()) {
+      throw new BadRequestException('La fecha fin no es válida')
+    }
+
+    let fechaInicioConsulta: Dayjs
+    let fechaFinConsulta: Dayjs
+
+    if (!fechaInicioParseada && !fechaFinParseada) {
+      const ahora = dayjs()
+      fechaInicioConsulta = ahora.startOf('month')
+      fechaFinConsulta = ahora.endOf('month')
+    } else {
+      const fechaInicioBase = fechaInicioParseada || fechaFinParseada!
+      const fechaFinBase = fechaFinParseada || fechaInicioParseada!
+      fechaInicioConsulta = fechaInicioBase.startOf('day')
+      fechaFinConsulta = fechaFinBase.endOf('day')
+    }
+
+    if (fechaInicioConsulta.isAfter(fechaFinConsulta)) {
+      throw new BadRequestException(
+        'La fecha de inicio debe ser anterior o igual a la fecha fin'
+      )
+    }
+
+    return { fechaInicioConsulta, fechaFinConsulta }
+  }
+
+  private obtenerFiltrosParticipantes({
+    idRol,
+    idPaciente,
+    idMedico,
+  }: {
+    idRol: string
+    idPaciente?: string
+    idMedico?: string
+  }): { idPaciente?: string; idMedico?: string } {
+    if (this.esAdministrador(idRol)) {
+      return { idPaciente, idMedico }
+    }
+
+    if (this.esNutricionista(idRol)) {
+      if (idMedico) {
+        throw new ForbiddenException(
+          'El filtro por médico solo está disponible para administradores'
+        )
+      }
+      return { idPaciente }
+    }
+
+    if (idPaciente || idMedico) {
+      throw new ForbiddenException(
+        'No tiene permiso para aplicar estos filtros'
+      )
+    }
+
+    return {}
+  }
+
+  private obtenerCampoOrdenAgenda(orden?: string) {
+    const mapaOrden: Record<string, string> = {
+      fechaInicio: 'citas.fechaInicio',
+      fechaFin: 'citas.fechaFin',
+      estado: 'citas.estado',
+      paciente: 'personaPaciente.nombres',
+      medico: 'personaMedico.nombres',
+    }
+    if (!orden) {
+      return 'citas.fechaInicio'
+    }
+    return mapaOrden[orden] || 'citas.fechaInicio'
+  }
+
+  async listarCitasPorRango({
+    idUsuarioRol,
+    idRol,
+    fechaInicio,
+    fechaFin,
+    estados,
+    idPaciente,
+    idMedico,
+  }: {
+    idUsuarioRol: string
+    idRol: string
+    fechaInicio?: string
+    fechaFin?: string
+    estados?: CitasEstado[]
+    idPaciente?: string
+    idMedico?: string
+  }): Promise<[CitaResponse[], number]> {
+    this.validarRolListado(idRol)
+
+    const { fechaInicioConsulta, fechaFinConsulta } =
+      this.obtenerFechasDesdeRango({ fechaInicio, fechaFin })
+
+    const filtrosParticipantes = this.obtenerFiltrosParticipantes({
+      idRol,
+      idPaciente,
+      idMedico,
+    })
+
+    const [citas, total] = await this.citasRepositorio.listarPorRangoYRol({
+      idRol,
+      idUsuarioRol,
+      fechaInicio: fechaInicioConsulta.toDate(),
+      fechaFin: fechaFinConsulta.toDate(),
+      estados,
+      ...filtrosParticipantes,
+    })
+
+    return [this.formatearCitas(citas), total]
+  }
+
+  async listarAgendaCitas({
+    idUsuarioRol,
+    idRol,
+    paginacion,
+    fecha,
+    estados,
+    idPaciente,
+    idMedico,
+  }: {
+    idUsuarioRol: string
+    idRol: string
+    paginacion: PaginacionQueryDto
+    fecha?: string
+    estados?: CitasEstado[]
+    idPaciente?: string
+    idMedico?: string
+  }): Promise<[CitaResponse[], number]> {
+    this.validarRolListado(idRol)
+
+    let fechaInicioConsulta: Dayjs | undefined
+    let fechaFinConsulta: Dayjs | undefined
+
+    if (fecha) {
+      const fechaReferencia = dayjs(fecha)
+      if (!fechaReferencia.isValid()) {
+        throw new BadRequestException('La fecha proporcionada no es válida')
+      }
+
+      fechaInicioConsulta = fechaReferencia.startOf('day')
+      fechaFinConsulta = fechaReferencia.endOf('day')
+    }
+
+    const sentidoOrden = paginacion.orden ? paginacion.sentido : Order.DESC
+
+    const filtrosParticipantes = this.obtenerFiltrosParticipantes({
+      idRol,
+      idPaciente,
+      idMedico,
+    })
+
+    const [citas, total] =
+      await this.citasRepositorio.listarAgendaPorRolPaginado({
+        idRol,
+        idUsuarioRol,
+        fechaInicio: fechaInicioConsulta?.toDate(),
+        fechaFin: fechaFinConsulta?.toDate(),
+        estados,
+        filtro: paginacion.filtro,
+        limite: paginacion.limite || 10,
+        saltar: paginacion.saltar,
+        orden: this.obtenerCampoOrdenAgenda(paginacion.orden),
+        sentido: sentidoOrden,
+        ...filtrosParticipantes,
+      })
+
+    return [this.formatearCitas(citas), total]
   }
 
   async listarCitasPorPaciente({

@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
@@ -8,7 +9,9 @@ import {
   IsString,
 } from '@/common/validation'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import { CitasEstado } from '../constant'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 class CitaUsuarioRolResponseDto {
   @ApiProperty({ example: '23' })
@@ -157,6 +160,82 @@ export class ListarCitasQueryDto {
   @IsOptional()
   @IsDateString()
   fechaFin?: string
+}
+
+export class ListarCitasPorRangoQueryDto extends ListarCitasQueryDto {
+  @ApiPropertyOptional({
+    description:
+      'Identificador del paciente para filtrar (solo administradores o nutricionistas).',
+    example: '23',
+  })
+  @IsOptional()
+  @IsNumberString()
+  idPaciente?: string
+
+  @ApiPropertyOptional({
+    description:
+      'Identificador del nutricionista para filtrar (solo administradores).',
+    example: '5',
+  })
+  @IsOptional()
+  @IsNumberString()
+  idMedico?: string
+
+  @ApiPropertyOptional({
+    description: 'Estados de las citas a incluir en la búsqueda',
+    enum: CitasEstado,
+    isArray: true,
+    example: [CitasEstado.APROBADA, CitasEstado.PENDIENTE],
+  })
+  @Transform(({ value }) =>
+    value === undefined ? undefined : Array.isArray(value) ? value : [value]
+  )
+  @IsOptional()
+  @IsArray()
+  @IsEnum(CitasEstado, { each: true })
+  estados?: CitasEstado[]
+}
+
+export class ListarAgendaCitasQueryDto extends PaginacionQueryDto {
+  @ApiPropertyOptional({
+    description: 'Fecha del día a consultar. Si se omite no se limita por día.',
+    example: '2024-07-21T00:00:00.000Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fecha?: string
+
+  @ApiPropertyOptional({
+    description:
+      'Identificador del paciente para filtrar (solo administradores o nutricionistas).',
+    example: '23',
+  })
+  @IsOptional()
+  @IsNumberString()
+  idPaciente?: string
+
+  @ApiPropertyOptional({
+    description:
+      'Identificador del nutricionista para filtrar (solo administradores).',
+    example: '5',
+  })
+  @IsOptional()
+  @IsNumberString()
+  idMedico?: string
+
+  @ApiPropertyOptional({
+    description: 'Estados de las citas a incluir en la agenda paginada',
+    enum: CitasEstado,
+    isArray: true,
+    example: [CitasEstado.APROBADA, CitasEstado.PENDIENTE],
+  })
+  @Transform(({ value }) =>
+    value === undefined ? undefined : Array.isArray(value) ? value : [value]
+  )
+  @IsOptional()
+  @IsArray()
+  @IsEnum(CitasEstado, { each: true })
+  estados?: CitasEstado[]
 }
 
 export class ActualizarCitaDto {
