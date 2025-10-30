@@ -39,9 +39,43 @@ export class HistorialCita extends AuditoriaEntity {
   @JoinColumn({ name: 'id_cita', referencedColumnName: 'id' })
   cita: Cita
 
+  @Column({
+    name: 'estado_anterior',
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+    comment: 'Estado de la cita antes de ejecutar la transición registrada',
+  })
+  estadoAnterior?: CitasEstado | null
+
+  @Column({
+    name: 'rol_ejecutor',
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+    comment: 'Rol del usuario que ejecutó la acción registrada en el historial',
+  })
+  rolEjecutor: string
+
+  @Column({
+    name: 'usuario_ejecutor',
+    type: 'bigint',
+    nullable: false,
+    comment: 'Identificador del usuario que ejecutó la acción',
+  })
+  usuarioEjecutor: string
+
+  @Column({
+    name: 'comentario',
+    type: 'text',
+    nullable: true,
+    comment: 'Comentario asociado a la transición de estado',
+  })
+  comentario?: string | null
+
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || CitasEstado.PENDIENTE
+    this.estado = this.estado || CitasEstado.BORRADOR
   }
 
   constructor(data?: Partial<HistorialCita>) {

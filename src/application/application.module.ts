@@ -18,6 +18,7 @@ import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-ro
 import { AsignacionRepository } from './gestion-pacientes/repositories/asignacion.repository'
 import { AsignacionService } from './gestion-pacientes/services/asignacion.service'
 import { CitasRepository } from './gestion-pacientes/repositories/citas.repository'
+import { HistorialCitaRepository } from './gestion-pacientes/repositories/historial-cita.repository'
 import { CitasService } from './gestion-pacientes/services/citas.service'
 import { PlanNutricionalService } from './planes-alimentarios/service/plan-nutricional.service'
 import { PlanNutricionalRepository } from './planes-alimentarios/repository/plan-nutricional.repository'
@@ -48,6 +49,7 @@ import { MedicosController } from './gestion-pacientes/controllers/medicos.contr
 import { AsignacionesController } from './gestion-pacientes/controllers/asignacion.controller'
 import { CitasController } from './gestion-pacientes/controllers/citas.controller'
 import { UsuariosRegistradosController } from './gestion-pacientes/controllers/usuarios-registrados.controller'
+import { ProfesionalesCitasController } from './gestion-pacientes/controllers/profesionales-citas.controller'
 import { PlanNutricionalController } from './planes-alimentarios/controller/plan-nutricional.controller'
 import { CarritoCompraController } from './planes-alimentarios/controller/carrito-compras.controller'
 import { AlimentoController } from './planes-alimentarios/controller/alimento.controller'
@@ -88,6 +90,7 @@ import { ConfigService } from '@nestjs/config'
     AsignacionRepository,
     AsignacionService,
     CitasRepository,
+    HistorialCitaRepository,
     CitasService,
     PlanNutricionalService,
     PlanNutricionalRepository,
@@ -110,6 +113,7 @@ import { ConfigService } from '@nestjs/config'
     MedicosController,
     AsignacionesController,
     CitasController,
+    ProfesionalesCitasController,
     UsuariosRegistradosController,
     PlanNutricionalController,
     CarritoCompraController,

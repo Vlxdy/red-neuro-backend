@@ -53,6 +53,63 @@ export class Cita extends AuditoriaEntity {
     comment: 'Descripción de la cita',
   })
   detalle: string
+
+  @Column({
+    name: 'comentario_nutricionista',
+    type: 'text',
+    nullable: true,
+    comment:
+      'Último comentario registrado por el nutricionista respecto a la cita',
+  })
+  comentarioNutricionista?: string | null
+
+  @Column({
+    name: 'locked_at',
+    type: 'timestamp without time zone',
+    nullable: true,
+    comment:
+      'Fecha y hora en la que la cita fue confirmada y quedó bloqueada para el paciente',
+  })
+  lockedAt?: Date | null
+
+  @Column({
+    name: 'reversiones_pendiente',
+    type: 'int',
+    nullable: false,
+    default: 0,
+    comment:
+      'Cantidad de veces que el paciente ha revertido una cita pendiente a borrador dentro de la ventana controlada',
+  })
+  reversionesPendiente: number
+
+  @Column({
+    name: 'reversiones_pendiente_ultima',
+    type: 'timestamp without time zone',
+    nullable: true,
+    comment:
+      'Marca temporal de la última reversión de pendiente a borrador para cálculo de ventanas de tiempo',
+  })
+  reversionPendienteActualizadaEn?: Date | null
+
+  @Column({
+    name: 'reprogramaciones_rechazo',
+    type: 'int',
+    nullable: false,
+    default: 0,
+    comment:
+      'Cantidad de reprogramaciones realizadas por el paciente tras un rechazo del nutricionista',
+  })
+  reprogramacionesDesdeRechazo: number
+
+  @Column({
+    name: 'reprogramaciones_totales',
+    type: 'int',
+    nullable: false,
+    default: 0,
+    comment:
+      'Cantidad total de reprogramaciones ejecutadas sobre una cita aprobada',
+  })
+  reprogramacionesTotales: number
   // relaciones
 
   @Column({
@@ -94,7 +151,7 @@ export class Cita extends AuditoriaEntity {
 
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || CitasEstado.PENDIENTE
+    this.estado = this.estado || CitasEstado.BORRADOR
   }
 
   constructor(data?: Partial<Cita>) {
