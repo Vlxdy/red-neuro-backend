@@ -6,15 +6,23 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  PreconditionFailedException,
 } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
 import { CitasRepository } from '../repositories/citas.repository'
 import {
   ActualizarCitaDto,
+  AprobarCitaDto,
+  CancelarCitaDto,
   CrearCitaDto,
+  CrearCitaPacienteDto,
+  HistorialCitaItemResponseDto,
+  ReabrirCitaDto,
+  RechazarCitaDto,
+  ReprogramarCitaDto,
 } from '../../gestion-pacientes/dto/citas.dto'
-import { RolEnumId } from '@/core/authorization/rol.enum'
+import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
 import { MedicosService } from './medicos.service'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado } from '../constant'
@@ -25,6 +33,13 @@ import dayjs, { Dayjs } from 'dayjs'
 import { NotificacionTipo } from '../entities/notificacion.entity'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { AsignacionService } from './asignacion.service'
+import { HistorialCitaRepository } from '../repositories/historial-cita.repository'
+
+const REVERSION_VENTANA_DIAS = 7
+const REVERSION_MAXIMA = 2
+const REPROGRAMACIONES_RECHAZO_MAXIMAS = 2
+const HORAS_CANCELACION_PACIENTE_APROBADA = 24
+const HORAS_REPROGRAMACION_PROFESIONAL = 2
 
 @Injectable()
 export class CitasService extends BaseService {
@@ -35,9 +50,154 @@ export class CitasService extends BaseService {
     @Inject(forwardRef(() => PacientesService))
     private pacientesService: PacientesService,
     private asignacionService: AsignacionService,
-    private notificacionService: NotificacionService
+    private notificacionService: NotificacionService,
+    private historialCitaRepositorio: HistorialCitaRepository
   ) {
     super()
+  }
+
+  private esPaciente(idRol: string) {
+    return idRol === RolEnumId.PACIENTE
+  }
+
+  private esNutricionista(idRol: string) {
+    return idRol === RolEnumId.NUTRICIONISTA
+  }
+
+  private esAdministrador(idRol: string) {
+    return idRol === RolEnumId.ADMINISTRADOR
+  }
+
+  private obtenerNombreRol(idRol: string): string {
+    switch (idRol) {
+      case RolEnumId.ADMINISTRADOR:
+        return RolEnum.ADMINISTRADOR
+      case RolEnumId.NUTRICIONISTA:
+        return RolEnum.NUTRICIONISTA
+      case RolEnumId.PACIENTE:
+        return RolEnum.PACIENTE
+      default:
+        return 'DESCONOCIDO'
+    }
+  }
+
+  private async obtenerCitaExistente(
+    idCita: string,
+    transaccion?: EntityManager
+  ) {
+    const cita = await this.citasRepositorio.buscarPorId(idCita, transaccion)
+    if (!cita) {
+      throw new NotFoundException('Cita no encontrada')
+    }
+    return cita
+  }
+
+  private async guardarCita({
+    cita,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    cita: Cita
+    usuarioAuditoria: string
+    transaccion: EntityManager
+  }) {
+    await this.citasRepositorio.guardar({
+      cita,
+      usuarioAuditoria,
+      transaccion,
+    })
+  }
+
+  private async registrarHistorial({
+    cita,
+    estadoAnterior,
+    estadoNuevo,
+    comentario,
+    idRolEjecutor,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    cita: Cita
+    estadoAnterior?: CitasEstado | null
+    estadoNuevo: CitasEstado
+    comentario?: string | null
+    idRolEjecutor: string
+    usuarioAuditoria: string
+    transaccion: EntityManager
+  }) {
+    await this.historialCitaRepositorio.registrarEvento({
+      idCita: cita.id,
+      estadoAnterior: estadoAnterior || null,
+      estadoNuevo,
+      comentario: comentario || null,
+      rolEjecutor: this.obtenerNombreRol(idRolEjecutor),
+      usuarioAuditoria,
+      transaccion,
+    })
+  }
+
+  private async notificarCambio({
+    cita,
+    tipo,
+    mensaje,
+    usuarioAuditoria,
+    transaccion,
+    incluirMedico = false,
+  }: {
+    cita: Cita
+    tipo: NotificacionTipo
+    mensaje: string
+    usuarioAuditoria: string
+    transaccion: EntityManager
+    incluirMedico?: boolean
+  }) {
+    await this.notificacionService.crear({
+      tipo,
+      idPaciente: cita.idPaciente,
+      idMedico: incluirMedico ? cita.idMedico : undefined,
+      idCita: cita.id,
+      mensaje,
+      usuarioAuditoria,
+      transaction: transaccion,
+    })
+  }
+
+  private validarAccesoPaciente(cita: Cita, idUsuarioRol: string) {
+    if (cita.idPaciente !== idUsuarioRol) {
+      throw new ForbiddenException(
+        'No tienes permisos para gestionar esta cita.'
+      )
+    }
+  }
+
+  private validarAccesoProfesional(
+    cita: Cita,
+    idUsuarioRol: string,
+    esAdministrador: boolean
+  ) {
+    if (!esAdministrador && cita.idMedico !== idUsuarioRol) {
+      throw new ForbiddenException(
+        'No tienes permisos para gestionar esta cita.'
+      )
+    }
+  }
+
+  private actualizarVentanaReversion(cita: Cita) {
+    if (!cita.reversionPendienteActualizadaEn) {
+      return
+    }
+
+    const ultimaReversion = dayjs(cita.reversionPendienteActualizadaEn)
+    if (dayjs().diff(ultimaReversion, 'day') > REVERSION_VENTANA_DIAS) {
+      cita.reversionesPendiente = 0
+      cita.reversionPendienteActualizadaEn = null
+    }
+  }
+
+  private formatearFechaCita(cita: Cita) {
+    return cita.fechaInicio
+      ? dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')
+      : 'una fecha pendiente'
   }
 
   async listarCitas({
@@ -124,6 +284,695 @@ export class CitasService extends BaseService {
     return citas
   }
 
+  async crearCitaPaciente({
+    idPaciente,
+    idRol,
+    idUsuarioRol,
+    data,
+    usuarioAuditoria,
+  }: {
+    idPaciente: string
+    idRol: string
+    idUsuarioRol: string
+    data: CrearCitaPacienteDto
+    usuarioAuditoria: string
+  }): Promise<{ id: string }> {
+    if (!this.esPaciente(idRol)) {
+      throw new ForbiddenException(
+        'Solo los pacientes pueden crear sus citas desde este endpoint.'
+      )
+    }
+
+    if (idPaciente !== idUsuarioRol) {
+      throw new ForbiddenException('No puedes crear citas para otro paciente.')
+    }
+
+    const resultado = await this.citasRepositorio.runTransaction(async (tx) => {
+      const asignacion =
+        await this.asignacionService.obtenerAsignacionActivaPorPaciente({
+          idPaciente,
+          transaccion: tx,
+        })
+
+      const cita = await this.citasRepositorio.crear({
+        idMedico: asignacion.idMedico,
+        data: {
+          idPaciente,
+          detalle: data.detalle,
+          fechaFin: data.fechaFin,
+          fechaInicio: data.fechaInicio,
+        },
+        usuarioAuditoria,
+        transaccion: tx,
+        estado: data.enviarRevision
+          ? CitasEstado.PENDIENTE
+          : CitasEstado.BORRADOR,
+        reprogramacionesDesdeRechazo: 0,
+        reprogramacionesTotales: 0,
+        reversionesPendiente: 0,
+        reversionPendienteActualizadaEn: null,
+      })
+
+      const mensajeCreacion = `Se registró una cita para el ${this.formatearFechaCita(
+        cita
+      )}.`
+
+      await this.registrarHistorial({
+        cita,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario: data.enviarRevision
+          ? 'Cita creada y enviada a revisión.'
+          : 'Cita creada por el paciente.',
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      await this.notificarCambio({
+        cita,
+        tipo: NotificacionTipo.CITA_BORRADOR,
+        mensaje: mensajeCreacion,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      return { id: cita.id }
+    })
+
+    if (data.enviarRevision) {
+      await this.enviarCitaRevision({
+        idCita: resultado.id,
+        idRol,
+        idUsuarioRol,
+        usuarioAuditoria,
+      })
+    }
+
+    return resultado
+  }
+
+  async enviarCitaRevision({
+    idCita,
+    idRol,
+    idUsuarioRol,
+    usuarioAuditoria,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+    usuarioAuditoria: string
+  }) {
+    if (!this.esPaciente(idRol)) {
+      throw new ForbiddenException('Solo los pacientes pueden enviar la cita.')
+    }
+
+    await this.citasRepositorio.runTransaction(async (tx) => {
+      const cita = await this.obtenerCitaExistente(idCita, tx)
+      this.validarAccesoPaciente(cita, idUsuarioRol)
+
+      if (cita.estado !== CitasEstado.BORRADOR) {
+        throw new PreconditionFailedException(
+          'Solo se pueden enviar las citas que están en estado BORRADOR.'
+        )
+      }
+
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.estado = CitasEstado.PENDIENTE
+
+      await this.guardarCita({
+        cita,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      await this.registrarHistorial({
+        cita,
+        estadoAnterior,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario: 'El paciente envió la cita para revisión.',
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      const mensaje = `Nueva solicitud de cita para el ${this.formatearFechaCita(
+        cita
+      )}.`
+
+      await this.notificarCambio({
+        cita,
+        tipo: NotificacionTipo.CITA_SOLICITADA,
+        mensaje,
+        usuarioAuditoria,
+        transaccion: tx,
+        incluirMedico: true,
+      })
+    })
+  }
+
+  async cancelarCita({
+    idCita,
+    idRol,
+    idUsuarioRol,
+    usuarioAuditoria,
+    data,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+    usuarioAuditoria: string
+    data: CancelarCitaDto
+  }) {
+    await this.citasRepositorio.runTransaction(async (tx) => {
+      const cita = await this.obtenerCitaExistente(idCita, tx)
+      const esAdmin = this.esAdministrador(idRol)
+      const esNutricionista = this.esNutricionista(idRol)
+      const esPaciente = this.esPaciente(idRol)
+
+      if (esPaciente) {
+        this.validarAccesoPaciente(cita, idUsuarioRol)
+        if (
+          ![
+            CitasEstado.BORRADOR,
+            CitasEstado.PENDIENTE,
+            CitasEstado.RECHAZADA,
+            CitasEstado.APROBADA,
+          ].includes(cita.estado as CitasEstado)
+        ) {
+          throw new PreconditionFailedException(
+            'La cita no se puede cancelar desde su estado actual.'
+          )
+        }
+
+        if (cita.estado === CitasEstado.APROBADA) {
+          const horasRestantes = dayjs(cita.fechaInicio).diff(dayjs(), 'hour')
+          if (horasRestantes < HORAS_CANCELACION_PACIENTE_APROBADA) {
+            throw new PreconditionFailedException(
+              'Solo puedes cancelar citas aprobadas con al menos 24 horas de anticipación.'
+            )
+          }
+        }
+      } else if (esNutricionista || esAdmin) {
+        this.validarAccesoProfesional(cita, idUsuarioRol, esAdmin)
+      } else {
+        throw new ForbiddenException(
+          'No tienes permisos para cancelar la cita.'
+        )
+      }
+
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.estado = CitasEstado.CANCELADA
+      cita.lockedAt = null
+
+      await this.guardarCita({
+        cita,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      await this.registrarHistorial({
+        cita,
+        estadoAnterior,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario: data.motivo,
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      const mensaje = `La cita programada para el ${this.formatearFechaCita(
+        cita
+      )} fue cancelada. Motivo: ${data.motivo}`
+
+      await this.notificarCambio({
+        cita,
+        tipo: NotificacionTipo.CITA_CANCELADA,
+        mensaje,
+        usuarioAuditoria,
+        transaccion: tx,
+        incluirMedico: true,
+      })
+    })
+  }
+
+  async reabrirCita({
+    idCita,
+    idRol,
+    idUsuarioRol,
+    usuarioAuditoria,
+    data,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+    usuarioAuditoria: string
+    data: ReabrirCitaDto
+  }) {
+    if (!this.esPaciente(idRol)) {
+      throw new ForbiddenException('Solo el paciente puede reabrir la cita.')
+    }
+
+    await this.citasRepositorio.runTransaction(async (tx) => {
+      const cita = await this.obtenerCitaExistente(idCita, tx)
+      this.validarAccesoPaciente(cita, idUsuarioRol)
+
+      const estadoAnterior = cita.estado as CitasEstado
+
+      if (estadoAnterior === CitasEstado.PENDIENTE) {
+        this.actualizarVentanaReversion(cita)
+        const reversionesActuales = cita.reversionesPendiente || 0
+        if (reversionesActuales >= REVERSION_MAXIMA) {
+          throw new PreconditionFailedException(
+            'Has superado el número máximo de reversiones permitidas en la última semana.'
+          )
+        }
+        cita.reversionesPendiente = reversionesActuales + 1
+        cita.reversionPendienteActualizadaEn = new Date()
+      } else if (estadoAnterior === CitasEstado.RECHAZADA) {
+        const reprogramacionesActuales = cita.reprogramacionesDesdeRechazo || 0
+        if (reprogramacionesActuales >= REPROGRAMACIONES_RECHAZO_MAXIMAS) {
+          throw new PreconditionFailedException(
+            'Debes crear una nueva cita, alcanzaste el máximo de reprogramaciones tras el rechazo.'
+          )
+        }
+        cita.reprogramacionesDesdeRechazo = reprogramacionesActuales + 1
+      } else {
+        throw new PreconditionFailedException(
+          'Solo se pueden reabrir citas pendientes o rechazadas.'
+        )
+      }
+
+      cita.estado = CitasEstado.BORRADOR
+      cita.lockedAt = null
+
+      await this.guardarCita({
+        cita,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      await this.registrarHistorial({
+        cita,
+        estadoAnterior,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario:
+          data.comentario ||
+          'El paciente reabrió la cita para realizar ajustes.',
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+    })
+  }
+
+  async aprobarCita({
+    idCita,
+    idRol,
+    idUsuarioRol,
+    usuarioAuditoria,
+    data,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+    usuarioAuditoria: string
+    data: AprobarCitaDto
+  }) {
+    if (!this.esNutricionista(idRol) && !this.esAdministrador(idRol)) {
+      throw new ForbiddenException(
+        'Solo los nutricionistas o administradores pueden aprobar citas.'
+      )
+    }
+
+    await this.citasRepositorio.runTransaction(async (tx) => {
+      const cita = await this.obtenerCitaExistente(idCita, tx)
+      this.validarAccesoProfesional(
+        cita,
+        idUsuarioRol,
+        this.esAdministrador(idRol)
+      )
+
+      if (cita.estado !== CitasEstado.PENDIENTE) {
+        throw new PreconditionFailedException(
+          'Solo se pueden aprobar citas que estén pendientes.'
+        )
+      }
+
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.estado = CitasEstado.APROBADA
+      cita.lockedAt = new Date()
+      cita.comentarioNutricionista = data.comentario || null
+      cita.reprogramacionesDesdeRechazo = 0
+
+      await this.guardarCita({
+        cita,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      await this.registrarHistorial({
+        cita,
+        estadoAnterior,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario: data.comentario || 'Cita aprobada por el nutricionista.',
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      const mensaje = `Tu cita del ${this.formatearFechaCita(
+        cita
+      )} fue confirmada.`
+
+      await this.notificarCambio({
+        cita,
+        tipo: NotificacionTipo.CITA_CONFIRMADA,
+        mensaje,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+    })
+  }
+
+  async rechazarCita({
+    idCita,
+    idRol,
+    idUsuarioRol,
+    usuarioAuditoria,
+    data,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+    usuarioAuditoria: string
+    data: RechazarCitaDto
+  }) {
+    if (!this.esNutricionista(idRol) && !this.esAdministrador(idRol)) {
+      throw new ForbiddenException(
+        'Solo los nutricionistas o administradores pueden rechazar citas.'
+      )
+    }
+
+    await this.citasRepositorio.runTransaction(async (tx) => {
+      const cita = await this.obtenerCitaExistente(idCita, tx)
+      this.validarAccesoProfesional(
+        cita,
+        idUsuarioRol,
+        this.esAdministrador(idRol)
+      )
+
+      if (cita.estado !== CitasEstado.PENDIENTE) {
+        throw new PreconditionFailedException(
+          'Solo se pueden rechazar citas que estén pendientes.'
+        )
+      }
+
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.estado = CitasEstado.RECHAZADA
+      cita.lockedAt = null
+      cita.comentarioNutricionista = data.comentario
+      cita.reprogramacionesDesdeRechazo = 0
+
+      await this.guardarCita({
+        cita,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      await this.registrarHistorial({
+        cita,
+        estadoAnterior,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario: data.comentario,
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      const mensaje = `Tu cita del ${this.formatearFechaCita(
+        cita
+      )} fue rechazada. Motivo: ${data.comentario}`
+
+      await this.notificarCambio({
+        cita,
+        tipo: NotificacionTipo.CITA_RECHAZADA,
+        mensaje,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+    })
+  }
+
+  async reprogramarCita({
+    idCita,
+    idRol,
+    idUsuarioRol,
+    usuarioAuditoria,
+    data,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+    usuarioAuditoria: string
+    data: ReprogramarCitaDto
+  }) {
+    if (!this.esNutricionista(idRol) && !this.esAdministrador(idRol)) {
+      throw new ForbiddenException(
+        'Solo los nutricionistas o administradores pueden reprogramar citas.'
+      )
+    }
+
+    await this.citasRepositorio.runTransaction(async (tx) => {
+      const cita = await this.obtenerCitaExistente(idCita, tx)
+      const esAdmin = this.esAdministrador(idRol)
+      this.validarAccesoProfesional(cita, idUsuarioRol, esAdmin)
+
+      if (cita.estado !== CitasEstado.APROBADA) {
+        throw new PreconditionFailedException(
+          'Solo se pueden reprogramar citas aprobadas.'
+        )
+      }
+
+      if (!esAdmin) {
+        const horasRestantes = dayjs(cita.fechaInicio).diff(dayjs(), 'hour')
+        if (horasRestantes < HORAS_REPROGRAMACION_PROFESIONAL) {
+          throw new PreconditionFailedException(
+            'Solo puedes reprogramar con al menos 2 horas de anticipación.'
+          )
+        }
+      }
+
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.fechaInicio = data.fechaInicio
+      cita.fechaFin = data.fechaFin
+      cita.comentarioNutricionista = data.comentario
+      cita.reprogramacionesTotales = (cita.reprogramacionesTotales || 0) + 1
+      cita.lockedAt = new Date()
+
+      await this.guardarCita({
+        cita,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      await this.registrarHistorial({
+        cita,
+        estadoAnterior,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario: data.comentario,
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      const mensaje = `Tu cita fue reprogramada para el ${this.formatearFechaCita(
+        cita
+      )}. Motivo: ${data.comentario}`
+
+      await this.notificarCambio({
+        cita,
+        tipo: NotificacionTipo.CITA_REPROGRAMADA,
+        mensaje,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+    })
+  }
+
+  async crearCitaConfirmada({
+    idProfesional,
+    idRol,
+    idUsuarioRol,
+    data,
+    usuarioAuditoria,
+  }: {
+    idProfesional: string
+    idRol: string
+    idUsuarioRol: string
+    data: CrearCitaDto
+    usuarioAuditoria: string
+  }): Promise<{ id: string }> {
+    if (!this.esNutricionista(idRol) && !this.esAdministrador(idRol)) {
+      throw new ForbiddenException(
+        'Solo nutricionistas o administradores pueden crear citas confirmadas.'
+      )
+    }
+
+    const esAdmin = this.esAdministrador(idRol)
+    if (!esAdmin && idProfesional !== idUsuarioRol) {
+      throw new ForbiddenException(
+        'No puedes crear citas confirmadas para otros profesionales.'
+      )
+    }
+
+    const idMedico = esAdmin ? idProfesional : idUsuarioRol
+
+    return await this.citasRepositorio.runTransaction(async (tx) => {
+      await this.medicosService.obtenerMedico(idMedico, tx)
+      await this.pacientesService.obtenerPaciente(data.idPaciente, tx)
+
+      if (!esAdmin) {
+        await this.asignacionService.validarAsignacion({
+          idMedico,
+          idPaciente: data.idPaciente,
+          transaccion: tx,
+        })
+      }
+
+      const cita = await this.citasRepositorio.crear({
+        idMedico,
+        data,
+        usuarioAuditoria,
+        transaccion: tx,
+        estado: CitasEstado.APROBADA,
+        lockedAt: new Date(),
+        comentarioNutricionista: data.detalle,
+        reprogramacionesDesdeRechazo: 0,
+        reprogramacionesTotales: 0,
+        reversionesPendiente: 0,
+        reversionPendienteActualizadaEn: null,
+      })
+
+      await this.registrarHistorial({
+        cita,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario: 'Cita confirmada directamente por el profesional.',
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      const mensaje = `Se confirmó una cita para el ${this.formatearFechaCita(
+        cita
+      )}.`
+
+      await this.notificarCambio({
+        cita,
+        tipo: NotificacionTipo.CITA_CONFIRMADA,
+        mensaje,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      return { id: cita.id }
+    })
+  }
+
+  async obtenerHistorialCita({
+    idCita,
+    idRol,
+    idUsuarioRol,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+  }): Promise<HistorialCitaItemResponseDto[]> {
+    const cita = await this.obtenerCitaExistente(idCita)
+
+    if (this.esPaciente(idRol)) {
+      this.validarAccesoPaciente(cita, idUsuarioRol)
+    } else if (this.esNutricionista(idRol)) {
+      this.validarAccesoProfesional(cita, idUsuarioRol, false)
+    } else if (!this.esAdministrador(idRol)) {
+      throw new ForbiddenException(
+        'No tienes permisos para ver el historial de la cita.'
+      )
+    }
+
+    const historial = await this.historialCitaRepositorio.listarPorCita({
+      idCita,
+    })
+
+    return historial.map((registro) => ({
+      id: registro.id,
+      estadoAnterior: (registro.estadoAnterior || null) as CitasEstado | null,
+      estado: registro.estado as CitasEstado,
+      comentario: registro.comentario || null,
+      rolEjecutor: registro.rolEjecutor,
+      usuarioEjecutor: registro.usuarioEjecutor,
+      fechaCreacion: registro.fechaCreacion,
+    }))
+  }
+
+  async actualizarCitaPaciente({
+    idCita,
+    idRol,
+    idUsuarioRol,
+    usuarioAuditoria,
+    data,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+    usuarioAuditoria: string
+    data: ActualizarCitaDto
+  }) {
+    if (!this.esPaciente(idRol)) {
+      throw new ForbiddenException('Solo el paciente puede editar la cita.')
+    }
+
+    await this.citasRepositorio.runTransaction(async (tx) => {
+      const cita = await this.obtenerCitaExistente(idCita, tx)
+      this.validarAccesoPaciente(cita, idUsuarioRol)
+
+      if (
+        ![CitasEstado.BORRADOR, CitasEstado.RECHAZADA].includes(
+          cita.estado as CitasEstado
+        )
+      ) {
+        throw new PreconditionFailedException(
+          'Solo se pueden editar citas en estado BORRADOR o RECHAZADA.'
+        )
+      }
+
+      if (data.fechaInicio) {
+        cita.fechaInicio = data.fechaInicio
+      }
+      if (data.fechaFin) {
+        cita.fechaFin = data.fechaFin
+      }
+      if (data.detalle) {
+        cita.detalle = data.detalle
+      }
+
+      await this.guardarCita({
+        cita,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+
+      await this.registrarHistorial({
+        cita,
+        estadoAnterior: cita.estado as CitasEstado,
+        estadoNuevo: cita.estado as CitasEstado,
+        comentario: 'El paciente actualizó los detalles de la cita.',
+        idRolEjecutor: idRol,
+        usuarioAuditoria,
+        transaccion: tx,
+      })
+    })
+  }
+
   async crearCita({
     data,
     idMedico,
@@ -163,6 +1012,20 @@ export class CitasService extends BaseService {
       data,
       usuarioAuditoria,
       transaccion,
+      estado: CitasEstado.BORRADOR,
+      reprogramacionesDesdeRechazo: 0,
+      reprogramacionesTotales: 0,
+      reversionesPendiente: 0,
+      reversionPendienteActualizadaEn: null,
+    })
+
+    await this.registrarHistorial({
+      cita,
+      estadoNuevo: cita.estado as CitasEstado,
+      comentario: 'Cita creada por el profesional.',
+      idRolEjecutor: RolEnumId.NUTRICIONISTA,
+      usuarioAuditoria,
+      transaccion,
     })
 
     return { id: cita.id }
@@ -195,30 +1058,65 @@ export class CitasService extends BaseService {
       return await this.citasRepositorio.runTransaction(op)
     }
 
-    const cita = await this.citasRepositorio.buscarPorId(idCita, transaccion)
-    if (!cita) {
-      throw new NotFoundException('Cita no encontrada')
+    const cita = await this.obtenerCitaExistente(idCita, transaccion)
+
+    if (idMedico !== cita.idMedico) {
+      throw new ForbiddenException(
+        'No tiene permiso para acceder a esta información'
+      )
     }
-    // TODO: verificar si el medico tiene permiso para actualizar la cita
-    // if (idMedico !== cita.idMedico) {
-    //   throw new ForbiddenException(
-    //     'No tiene permiso para acceder a esta información'
-    //   )
-    // }
 
     const { idPaciente, detalle, fechaFin, fechaInicio, estado } = data
 
-    if (idPaciente) {
+    if (idPaciente && idPaciente !== cita.idPaciente) {
       await this.pacientesService.obtenerPaciente(idPaciente, transaccion)
+      cita.idPaciente = idPaciente
     }
 
-    const citaUpdate = await this.citasRepositorio.actualizar({
-      datosDto: { idPaciente, detalle, estado, fechaFin, fechaInicio },
-      id: idCita,
+    if (detalle) {
+      cita.detalle = detalle
+    }
+
+    if (fechaInicio) {
+      cita.fechaInicio = fechaInicio
+    }
+
+    if (fechaFin) {
+      cita.fechaFin = fechaFin
+    }
+
+    const estadoAnterior = cita.estado as CitasEstado
+    if (estado) {
+      if (![CitasEstado.COMPLETADA, CitasEstado.NO_ASISTIO].includes(estado)) {
+        throw new BadRequestException(
+          'El estado solo puede cambiarse a COMPLETADA o NO_ASISTIO desde este método.'
+        )
+      }
+      cita.estado = estado
+    }
+
+    await this.guardarCita({
+      cita,
       usuarioAuditoria,
       transaccion,
     })
-    return citaUpdate
+
+    if (estado && estado !== estadoAnterior) {
+      await this.registrarHistorial({
+        cita,
+        estadoAnterior,
+        estadoNuevo: estado,
+        comentario:
+          estado === CitasEstado.COMPLETADA
+            ? 'La cita fue marcada como completada.'
+            : 'La cita fue marcada como no asistida.',
+        idRolEjecutor: RolEnumId.NUTRICIONISTA,
+        usuarioAuditoria,
+        transaccion,
+      })
+    }
+
+    return cita
   }
 
   async buscarPorId(id: string, transaccion?: EntityManager) {

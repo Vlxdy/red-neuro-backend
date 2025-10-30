@@ -2498,6 +2498,44 @@
         "tags": [
           "Pacientes"
         ]
+      },
+      "post": {
+        "operationId": "PacientesController_crearCitaPaciente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearCitaPacienteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cita registrada correctamente."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Permite al paciente crear una cita en borrador o enviarla a revisión",
+        "tags": [
+          "Pacientes"
+        ]
       }
     },
     "/pacientes/{id}/datos-personales": {
@@ -2736,6 +2774,7 @@
     },
     "/citas": {
       "post": {
+        "description": "Registra una nueva cita en borrador asociada al profesional autenticado. Para crear citas confirmadas utilice el endpoint de profesionales.",
         "operationId": "CitasController_crearCita",
         "parameters": [],
         "requestBody": {
@@ -2750,7 +2789,7 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Cita creada correctamente."
           }
         },
         "security": [
@@ -2758,7 +2797,7 @@
             "bearer": []
           }
         ],
-        "summary": "API para asignar medicos a los pacientes",
+        "summary": "Crear una cita desde el panel del profesional",
         "tags": [
           "Citas"
         ]
@@ -2851,7 +2890,7 @@
             "bearer": []
           }
         ],
-        "summary": "API para crear una evaluación nutricional",
+        "summary": "Actualizar los datos de una cita",
         "tags": [
           "Citas"
         ]
@@ -2885,6 +2924,276 @@
         ]
       }
     },
+    "/citas/{id}/enviar": {
+      "post": {
+        "operationId": "CitasController_enviarCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cita enviada a revisión."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enviar una cita en borrador a revisión",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/{id}/cancelar": {
+      "post": {
+        "operationId": "CitasController_cancelarCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelarCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cita cancelada correctamente."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancelar una cita",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/{id}/reabrir": {
+      "post": {
+        "operationId": "CitasController_reabrirCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReabrirCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cita reabierta."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reabrir una cita pendiente o rechazada",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/{id}/aprobar": {
+      "post": {
+        "operationId": "CitasController_aprobarCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AprobarCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cita aprobada correctamente."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Aprobar una cita pendiente",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/{id}/rechazar": {
+      "post": {
+        "operationId": "CitasController_rechazarCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RechazarCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cita rechazada correctamente."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Rechazar una cita pendiente",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/{id}/reprogramar": {
+      "post": {
+        "operationId": "CitasController_reprogramarCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReprogramarCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cita reprogramada correctamente."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reprogramar una cita aprobada",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/{id}/historial": {
+      "get": {
+        "operationId": "CitasController_obtenerHistorial",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historial de la cita.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HistorialCitaItemResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consultar el historial de eventos de una cita",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
     "/citas/cron-activar": {
       "get": {
         "operationId": "CitasController_activarCitasCron",
@@ -2902,6 +3211,47 @@
         "summary": "API para activar el cron de citas",
         "tags": [
           "Citas"
+        ]
+      }
+    },
+    "/profesionales/{id}/citas/confirmada": {
+      "post": {
+        "description": "Disponible para nutricionistas y administradores. La cita se registra confirmada y notifica inmediatamente al paciente.",
+        "operationId": "ProfesionalesCitasController_crearCitaConfirmada",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cita confirmada creada correctamente."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crear una cita confirmada para un paciente asignado",
+        "tags": [
+          "Profesionales - Citas"
         ]
       }
     },
@@ -4676,6 +5026,38 @@
           "persona"
         ]
       },
+      "CrearCitaPacienteDto": {
+        "type": "object",
+        "properties": {
+          "fechaInicio": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-10-01T10:00:00Z",
+            "description": "Fecha y hora de inicio de la cita"
+          },
+          "fechaFin": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Fecha y hora de fin de la cita",
+            "example": "2023-10-01T10:30:00Z"
+          },
+          "detalle": {
+            "type": "string",
+            "description": "Descripción de la cita",
+            "example": "Consulta de control mensual"
+          },
+          "enviarRevision": {
+            "type": "boolean",
+            "description": "Indica si la cita debe enviarse inmediatamente a revisión del nutricionista",
+            "default": false
+          }
+        },
+        "required": [
+          "fechaInicio",
+          "fechaFin",
+          "detalle"
+        ]
+      },
       "ActualizarDatosPersonalesPacienteDto": {
         "type": "object",
         "properties": {
@@ -4961,6 +5343,141 @@
           "fechaFin",
           "detalle",
           "estado"
+        ]
+      },
+      "CancelarCitaDto": {
+        "type": "object",
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "description": "Motivo de la cancelación registrada en el historial",
+            "example": "No podré asistir por un viaje programado"
+          }
+        },
+        "required": [
+          "motivo"
+        ]
+      },
+      "ReabrirCitaDto": {
+        "type": "object",
+        "properties": {
+          "comentario": {
+            "type": "string",
+            "description": "Comentario opcional que describe el ajuste que realizará el paciente",
+            "example": "Actualizaré el horario para después de mis clases."
+          }
+        }
+      },
+      "AprobarCitaDto": {
+        "type": "object",
+        "properties": {
+          "comentario": {
+            "type": "string",
+            "description": "Comentario opcional que se enviará junto con la confirmación",
+            "example": "Te espero 10 minutos antes para revisar tus últimos resultados."
+          }
+        }
+      },
+      "RechazarCitaDto": {
+        "type": "object",
+        "properties": {
+          "comentario": {
+            "type": "string",
+            "description": "Motivo detallado del rechazo que verá el paciente",
+            "example": "La hora propuesta coincide con otra atención, por favor elige otro horario."
+          }
+        },
+        "required": [
+          "comentario"
+        ]
+      },
+      "ReprogramarCitaDto": {
+        "type": "object",
+        "properties": {
+          "fechaInicio": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Nueva fecha y hora de inicio",
+            "example": "2024-07-18T15:00:00.000Z"
+          },
+          "fechaFin": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Nueva fecha y hora de término",
+            "example": "2024-07-18T15:30:00.000Z"
+          },
+          "comentario": {
+            "type": "string",
+            "description": "Comentario con el detalle de la reprogramación",
+            "example": "Reprogramamos para ajustar a tu nuevo horario de trabajo."
+          }
+        },
+        "required": [
+          "fechaInicio",
+          "fechaFin",
+          "comentario"
+        ]
+      },
+      "HistorialCitaItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "12"
+          },
+          "estadoAnterior": {
+            "type": "string",
+            "enum": [
+              "INACTIVO",
+              "BORRADOR",
+              "PENDIENTE",
+              "APROBADA",
+              "RECHAZADA",
+              "CANCELADA",
+              "COMPLETADA",
+              "NO_ASISTIO"
+            ],
+            "nullable": true
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "INACTIVO",
+              "BORRADOR",
+              "PENDIENTE",
+              "APROBADA",
+              "RECHAZADA",
+              "CANCELADA",
+              "COMPLETADA",
+              "NO_ASISTIO"
+            ]
+          },
+          "comentario": {
+            "type": "object",
+            "example": "El paciente solicitó cambiar el horario para la tarde.",
+            "nullable": true
+          },
+          "rolEjecutor": {
+            "type": "string",
+            "example": "PACIENTE"
+          },
+          "usuarioEjecutor": {
+            "type": "string",
+            "example": "45"
+          },
+          "fechaCreacion": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-07-18T15:00:00.000Z",
+            "description": "Fecha en la que se registró el evento"
+          }
+        },
+        "required": [
+          "id",
+          "estado",
+          "rolEjecutor",
+          "usuarioEjecutor",
+          "fechaCreacion"
         ]
       },
       "GenerarPlanNutricionalDto": {
