@@ -2856,6 +2856,209 @@
         ]
       }
     },
+    "/citas/rango-fechas": {
+      "get": {
+        "description": "Permite aplicar filtros por rango de fechas, estado y rol del usuario autenticado. Si no se envía rango se utiliza el mes actual.",
+        "operationId": "CitasController_listarCitasPorRango",
+        "parameters": [
+          {
+            "name": "fechaInicio",
+            "required": false,
+            "in": "query",
+            "description": "Fecha inicial del rango de búsqueda",
+            "schema": {
+              "example": "2024-07-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "fechaFin",
+            "required": false,
+            "in": "query",
+            "description": "Fecha final del rango de búsqueda",
+            "schema": {
+              "example": "2024-07-31T23:59:59.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "idPaciente",
+            "required": false,
+            "in": "query",
+            "description": "Identificador del paciente para filtrar (solo administradores o nutricionistas).",
+            "schema": {
+              "example": "23",
+              "type": "string"
+            }
+          },
+          {
+            "name": "idMedico",
+            "required": false,
+            "in": "query",
+            "description": "Identificador del nutricionista para filtrar (solo administradores).",
+            "schema": {
+              "example": "5",
+              "type": "string"
+            }
+          },
+          {
+            "name": "estados",
+            "required": false,
+            "in": "query",
+            "description": "Estados de las citas a incluir en la búsqueda",
+            "schema": {
+              "example": [
+                "APROBADA",
+                "PENDIENTE"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "INACTIVO",
+                  "BORRADOR",
+                  "PENDIENTE",
+                  "APROBADA",
+                  "RECHAZADA",
+                  "CANCELADA",
+                  "COMPLETADA",
+                  "NO_ASISTIO"
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listar citas por rango de fechas con filtros avanzados",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
+    "/citas/agenda": {
+      "get": {
+        "description": "Devuelve las citas paginadas y ordenadas por fecha más reciente, con filtros opcionales por día, estado y búsqueda.",
+        "operationId": "CitasController_listarAgendaCitas",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fecha",
+            "required": false,
+            "in": "query",
+            "description": "Fecha del día a consultar. Si se omite no se limita por día.",
+            "schema": {
+              "example": "2024-07-21T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "idPaciente",
+            "required": false,
+            "in": "query",
+            "description": "Identificador del paciente para filtrar (solo administradores o nutricionistas).",
+            "schema": {
+              "example": "23",
+              "type": "string"
+            }
+          },
+          {
+            "name": "idMedico",
+            "required": false,
+            "in": "query",
+            "description": "Identificador del nutricionista para filtrar (solo administradores).",
+            "schema": {
+              "example": "5",
+              "type": "string"
+            }
+          },
+          {
+            "name": "estados",
+            "required": false,
+            "in": "query",
+            "description": "Estados de las citas a incluir en la agenda paginada",
+            "schema": {
+              "example": [
+                "APROBADA",
+                "PENDIENTE"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "INACTIVO",
+                  "BORRADOR",
+                  "PENDIENTE",
+                  "APROBADA",
+                  "RECHAZADA",
+                  "CANCELADA",
+                  "COMPLETADA",
+                  "NO_ASISTIO"
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listar citas paginadas para la agenda",
+        "tags": [
+          "Citas"
+        ]
+      }
+    },
     "/citas/{id}": {
       "patch": {
         "operationId": "CitasController_actualizarCita",
