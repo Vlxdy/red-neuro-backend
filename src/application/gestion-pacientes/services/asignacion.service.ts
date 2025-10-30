@@ -205,4 +205,26 @@ export class AsignacionService extends BaseService {
       )
     }
   }
+
+  async obtenerAsignacionActivaPorPaciente({
+    idPaciente,
+    transaccion,
+  }: {
+    idPaciente: string
+    transaccion?: EntityManager
+  }) {
+    const asignacion =
+      await this.asignacionRepositorio.buscarPacientePorIdUsuarioRol(
+        idPaciente,
+        transaccion
+      )
+
+    if (!asignacion) {
+      throw new PreconditionFailedException(
+        'El paciente no cuenta con un nutricionista asignado.'
+      )
+    }
+
+    return asignacion
+  }
 }

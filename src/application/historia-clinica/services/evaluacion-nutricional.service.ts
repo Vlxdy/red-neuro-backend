@@ -179,7 +179,7 @@ export class EvaluacionNutricionalService extends BaseService {
         }
         await this.citasService.actualizarCita({
           idCita: cita.id,
-          data: { estado: CitasEstado.CONCLUIDA },
+          data: { estado: CitasEstado.COMPLETADA },
           idMedico: historiaClinica.idMedico,
           usuarioAuditoria,
           transaccion,

@@ -155,7 +155,35 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
         [RolEnum.PACIENTE]: 'GET|POST',
       },
-      '/api/citas/:id': { [RolEnum.NUTRICIONISTA]: 'PATCH|DELETE' },
+      '/api/citas/:id': {
+        [RolEnum.NUTRICIONISTA]: 'PATCH|DELETE',
+        [RolEnum.ADMINISTRADOR]: 'PATCH|DELETE',
+        [RolEnum.PACIENTE]: 'PATCH',
+      },
+      '/api/citas/:id/enviar': { [RolEnum.PACIENTE]: 'POST' },
+      '/api/citas/:id/cancelar': {
+        [RolEnum.PACIENTE]: 'POST',
+        [RolEnum.NUTRICIONISTA]: 'POST',
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/citas/:id/reabrir': { [RolEnum.PACIENTE]: 'POST' },
+      '/api/citas/:id/aprobar': {
+        [RolEnum.NUTRICIONISTA]: 'POST',
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/citas/:id/rechazar': {
+        [RolEnum.NUTRICIONISTA]: 'POST',
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/citas/:id/reprogramar': {
+        [RolEnum.NUTRICIONISTA]: 'POST',
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/citas/:id/historial': {
+        [RolEnum.PACIENTE]: 'GET',
+        [RolEnum.NUTRICIONISTA]: 'GET',
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
       '/api/citas/cron-activar': { [RolEnum.ADMINISTRADOR]: 'GET' },
       // verificados
       // --------------------------
@@ -250,6 +278,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/pacientes/:id/citas': {
         [RolEnum.ADMINISTRADOR]: 'GET',
         [RolEnum.NUTRICIONISTA]: 'GET',
+        [RolEnum.PACIENTE]: 'POST',
       },
       '/api/pacientes/:id/datos-personales': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
@@ -257,6 +286,10 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
       // usuarios registrados
       '/api/usuarios-registrados/:rol': { [RolEnum.ADMINISTRADOR]: 'GET' },
+      '/api/profesionales/:id/citas/confirmada': {
+        [RolEnum.NUTRICIONISTA]: 'POST',
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
     }
 
     const registrarCasbin = async (

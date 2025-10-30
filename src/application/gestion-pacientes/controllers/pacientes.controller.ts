@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Query,
   Req,
   Res,
@@ -12,7 +13,12 @@ import {
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { BaseController } from '@/common/base'
 
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { PacientesService } from '../services/pacientes.service'
 import { PacientesAsignadosDto } from '../dto/usuarios-registrados.dto'
@@ -22,6 +28,7 @@ import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { CitasService } from '../services/citas.service'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { ActualizarDatosPersonalesPacienteDto } from '../dto/actualizar-datos-paciente.dto'
+import { CrearCitaPacienteDto } from '../dto/citas.dto'
 
 @ApiTags('Pacientes')
 @ApiBearerAuth()
@@ -104,6 +111,33 @@ export class PacientesController extends BaseController {
       paginacion: query,
     })
     return this.successListRows(citas)
+  }
+
+  @ApiOperation({
+    summary:
+      'Permite al paciente crear una cita en borrador o enviarla a revisión',
+  })
+  @ApiCreatedResponse({ description: 'Cita registrada correctamente.' })
+  @Post(':id/citas')
+  async crearCitaPaciente(
+    @Param() params: ParamIdDto,
+    @Body() body: CrearCitaPacienteDto,
+    @Req() req: Request
+  ) {
+    const { id: idPaciente } = params
+    const usuarioAuditoria = this.getUser(req)
+    const idRol = this.getRol(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+
+    const resultado = await this.citasService.crearCitaPaciente({
+      idPaciente,
+      idRol,
+      idUsuarioRol,
+      data: body,
+      usuarioAuditoria,
+    })
+
+    return this.successCreate(resultado)
   }
 
   @ApiOperation({

@@ -42,11 +42,25 @@ export class CitasRepository {
     data,
     usuarioAuditoria,
     transaccion,
+    estado,
+    comentarioNutricionista,
+    lockedAt,
+    reversionesPendiente,
+    reversionPendienteActualizadaEn,
+    reprogramacionesDesdeRechazo,
+    reprogramacionesTotales,
   }: {
     idMedico: string
     data: CrearCitaDto
     usuarioAuditoria: string
     transaccion: EntityManager
+    estado?: CitasEstado
+    comentarioNutricionista?: string | null
+    lockedAt?: Date | null
+    reversionesPendiente?: number
+    reversionPendienteActualizadaEn?: Date | null
+    reprogramacionesDesdeRechazo?: number
+    reprogramacionesTotales?: number
   }) {
     const { idPaciente, detalle, fechaFin, fechaInicio } = data
     const consultas = new Cita({
@@ -56,8 +70,31 @@ export class CitasRepository {
       fechaFin,
       fechaInicio,
       usuarioCreacion: usuarioAuditoria,
+      estado,
+      comentarioNutricionista,
+      lockedAt,
+      reversionesPendiente,
+      reversionPendienteActualizadaEn,
+      reprogramacionesDesdeRechazo,
+      reprogramacionesTotales,
     })
     return await transaccion.getRepository(Cita).save(consultas)
+  }
+
+  async guardar({
+    cita,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    cita: Cita
+    usuarioAuditoria: string
+    transaccion: EntityManager
+  }) {
+    const instancia = new Cita({
+      ...cita,
+      usuarioModificacion: usuarioAuditoria,
+    })
+    return await transaccion.getRepository(Cita).save(instancia)
   }
 
   async listarPorPaciente({

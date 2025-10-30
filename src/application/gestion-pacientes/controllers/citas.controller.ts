@@ -16,6 +16,7 @@ import { BaseController } from '@/common/base'
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
@@ -24,14 +25,21 @@ import {
 } from '@nestjs/swagger'
 import {
   ActualizarCitaDto,
+  AprobarCitaDto,
+  CancelarCitaDto,
   CrearCitaDto,
+  HistorialCitaItemResponseDto,
   ListarCitasQueryDto,
   ListarCitasSuccessResponseDto,
+  ReabrirCitaDto,
+  RechazarCitaDto,
+  ReprogramarCitaDto,
 } from '../dto/citas.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
 import { CitasService } from '../services/citas.service'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
+import { RolEnumId } from '@/core/authorization/rol.enum'
 
 @ApiTags('Citas')
 @ApiBearerAuth()
@@ -42,7 +50,12 @@ export class CitasController extends BaseController {
     super()
   }
 
-  @ApiOperation({ summary: 'API para asignar medicos a los pacientes' })
+  @ApiOperation({
+    summary: 'Crear una cita desde el panel del profesional',
+    description:
+      'Registra una nueva cita en borrador asociada al profesional autenticado. Para crear citas confirmadas utilice el endpoint de profesionales.',
+  })
+  @ApiCreatedResponse({ description: 'Cita creada correctamente.' })
   @Post()
   async crearCita(@Body() data: CrearCitaDto, @Req() req: Request) {
     const usuarioAuditoria = this.getUser(req)
@@ -99,7 +112,7 @@ export class CitasController extends BaseController {
     return this.successListRows(respuesta as any)
   }
 
-  @ApiOperation({ summary: 'API para crear una evaluación nutricional' })
+  @ApiOperation({ summary: 'Actualizar los datos de una cita' })
   @Patch(':id')
   async actualizarCita(
     @Body() data: ActualizarCitaDto,
@@ -108,14 +121,179 @@ export class CitasController extends BaseController {
   ) {
     const usuarioAuditoria = this.getUser(req)
     const idUsuarioRol = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
     const { id: idCita } = param
+    if (idRol === RolEnumId.PACIENTE) {
+      await this.citasService.actualizarCitaPaciente({
+        data,
+        idCita,
+        idRol,
+        idUsuarioRol,
+        usuarioAuditoria,
+      })
+      return this.successUpdate({ id: idCita })
+    }
+
     const respuesta = await this.citasService.actualizarCita({
       data,
       idCita,
       idMedico: idUsuarioRol,
       usuarioAuditoria,
     })
-    return this.successCreate(respuesta)
+    return this.successUpdate(respuesta)
+  }
+
+  @ApiOperation({ summary: 'Enviar una cita en borrador a revisión' })
+  @ApiOkResponse({ description: 'Cita enviada a revisión.' })
+  @Post(':id/enviar')
+  async enviarCita(@Param() param: ParamIdDto, @Req() req: Request) {
+    const usuarioAuditoria = this.getUser(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+    const { id: idCita } = param
+    await this.citasService.enviarCitaRevision({
+      idCita,
+      idRol,
+      idUsuarioRol,
+      usuarioAuditoria,
+    })
+    return this.successUpdate({ id: idCita })
+  }
+
+  @ApiOperation({ summary: 'Cancelar una cita' })
+  @ApiOkResponse({ description: 'Cita cancelada correctamente.' })
+  @Post(':id/cancelar')
+  async cancelarCita(
+    @Param() param: ParamIdDto,
+    @Body() body: CancelarCitaDto,
+    @Req() req: Request
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+    const { id: idCita } = param
+
+    await this.citasService.cancelarCita({
+      idCita,
+      idRol,
+      idUsuarioRol,
+      usuarioAuditoria,
+      data: body,
+    })
+    return this.successUpdate({ id: idCita })
+  }
+
+  @ApiOperation({ summary: 'Reabrir una cita pendiente o rechazada' })
+  @ApiOkResponse({ description: 'Cita reabierta.' })
+  @Post(':id/reabrir')
+  async reabrirCita(
+    @Param() param: ParamIdDto,
+    @Body() body: ReabrirCitaDto,
+    @Req() req: Request
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+    const { id: idCita } = param
+
+    await this.citasService.reabrirCita({
+      idCita,
+      idRol,
+      idUsuarioRol,
+      usuarioAuditoria,
+      data: body,
+    })
+    return this.successUpdate({ id: idCita })
+  }
+
+  @ApiOperation({ summary: 'Aprobar una cita pendiente' })
+  @ApiOkResponse({ description: 'Cita aprobada correctamente.' })
+  @Post(':id/aprobar')
+  async aprobarCita(
+    @Param() param: ParamIdDto,
+    @Body() body: AprobarCitaDto,
+    @Req() req: Request
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+    const { id: idCita } = param
+
+    await this.citasService.aprobarCita({
+      idCita,
+      idRol,
+      idUsuarioRol,
+      usuarioAuditoria,
+      data: body,
+    })
+    return this.successUpdate({ id: idCita })
+  }
+
+  @ApiOperation({ summary: 'Rechazar una cita pendiente' })
+  @ApiOkResponse({ description: 'Cita rechazada correctamente.' })
+  @Post(':id/rechazar')
+  async rechazarCita(
+    @Param() param: ParamIdDto,
+    @Body() body: RechazarCitaDto,
+    @Req() req: Request
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+    const { id: idCita } = param
+
+    await this.citasService.rechazarCita({
+      idCita,
+      idRol,
+      idUsuarioRol,
+      usuarioAuditoria,
+      data: body,
+    })
+    return this.successUpdate({ id: idCita })
+  }
+
+  @ApiOperation({ summary: 'Reprogramar una cita aprobada' })
+  @ApiOkResponse({ description: 'Cita reprogramada correctamente.' })
+  @Post(':id/reprogramar')
+  async reprogramarCita(
+    @Param() param: ParamIdDto,
+    @Body() body: ReprogramarCitaDto,
+    @Req() req: Request
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+    const { id: idCita } = param
+
+    await this.citasService.reprogramarCita({
+      idCita,
+      idRol,
+      idUsuarioRol,
+      usuarioAuditoria,
+      data: body,
+    })
+    return this.successUpdate({ id: idCita })
+  }
+
+  @ApiOperation({ summary: 'Consultar el historial de eventos de una cita' })
+  @ApiOkResponse({
+    description: 'Historial de la cita.',
+    type: HistorialCitaItemResponseDto,
+    isArray: true,
+  })
+  @Get(':id/historial')
+  async obtenerHistorial(@Param() param: ParamIdDto, @Req() req: Request) {
+    const idRol = this.getRol(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const { id: idCita } = param
+
+    const historial = await this.citasService.obtenerHistorialCita({
+      idCita,
+      idRol,
+      idUsuarioRol,
+    })
+
+    return this.success(historial)
   }
 
   @ApiOperation({ summary: 'API para eliminar una cita' })
