@@ -80,7 +80,9 @@ export async function crearUsuario(payload: UsuarioPayload): Promise<void> {
 
 async function crearPaciente(payload: PacientePayload): Promise<void> {
   const userIdentifier =
-    payload.persona.nroDocumento || payload.correoElectronico || 'Paciente Desconocido'
+    payload.persona.nroDocumento ||
+    payload.correoElectronico ||
+    'Paciente Desconocido'
   const internalId = generateUniqueUserId()
 
   try {

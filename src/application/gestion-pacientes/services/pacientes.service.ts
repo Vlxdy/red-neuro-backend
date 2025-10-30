@@ -324,16 +324,21 @@ export class PacientesService extends BaseService {
       await this.personaRepositorio.actualizar(
         personaActual.id,
         {
-          nombres: persona.nombres ?? personaActual.nombres,
+          nombres: persona.nombres ?? personaActual.nombres ?? undefined,
           primerApellido:
-            persona.primerApellido ?? personaActual.primerApellido,
+            persona.primerApellido ?? personaActual.primerApellido ?? undefined,
           segundoApellido:
-            persona.segundoApellido ?? personaActual.segundoApellido,
-          telefono: persona.telefono ?? personaActual.telefono,
+            persona.segundoApellido ??
+            personaActual.segundoApellido ??
+            undefined,
+          telefono: persona.telefono ?? personaActual.telefono ?? undefined,
           fechaNacimiento:
-            persona.fechaNacimiento ?? personaActual.fechaNacimiento,
-          genero: persona.genero ?? personaActual.genero,
-          nroDocumento: persona.nroDocumento ?? personaActual.nroDocumento,
+            persona.fechaNacimiento ??
+            personaActual.fechaNacimiento ??
+            undefined,
+          genero: persona.genero ?? personaActual.genero ?? undefined,
+          nroDocumento:
+            persona.nroDocumento ?? personaActual.nroDocumento ?? undefined,
           tipoDocumento:
             persona.tipoDocumento ??
             personaActual.tipoDocumento ??

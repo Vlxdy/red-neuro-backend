@@ -22,7 +22,7 @@ class PersonaPacienteDto extends PersonaDto {
   @ApiProperty({ example: '2002-05-04' })
   @IsDateString()
   @IsNotEmpty()
-  override fechaNacimiento: string
+  override fechaNacimiento: Date
 
   @ApiProperty({ enum: Genero })
   @IsEnum(Genero)
@@ -67,7 +67,7 @@ class PersonaPacienteActualizarDto {
   @ApiProperty({ example: '2002-05-04' })
   @IsDateString()
   @IsNotEmpty()
-  fechaNacimiento: string
+  fechaNacimiento: Date
 
   @ApiProperty({ enum: Genero })
   @IsEnum(Genero)
