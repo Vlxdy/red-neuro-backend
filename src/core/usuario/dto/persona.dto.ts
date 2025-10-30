@@ -43,7 +43,7 @@ export class PersonaDto {
 
   @ApiProperty({ example: '2002-05-04' })
   @IsDateString()
-  fechaNacimiento?: Date | null
+  fechaNacimiento: Date
 
   @ApiProperty({ example: '71234567' })
   @IsOptional()

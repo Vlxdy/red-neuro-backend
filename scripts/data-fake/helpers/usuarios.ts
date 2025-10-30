@@ -22,6 +22,23 @@ interface UsuarioPayload {
   }
 }
 
+interface PacientePayload {
+  usuario?: string
+  contrasena: string
+  repetirContrasena: string
+  correoElectronico: string
+  persona: {
+    tipoDocumento?: string
+    nroDocumento: string
+    nombres: string
+    primerApellido?: string
+    segundoApellido?: string
+    fechaNacimiento: string
+    genero: string
+    telefono?: string
+  }
+}
+
 let userIdCounter = 0
 function generateUniqueUserId() {
   return ++userIdCounter
@@ -61,6 +78,36 @@ export async function crearUsuario(payload: UsuarioPayload): Promise<void> {
   }
 }
 
+async function crearPaciente(payload: PacientePayload): Promise<void> {
+  const userIdentifier =
+    payload.persona.nroDocumento ||
+    payload.correoElectronico ||
+    'Paciente Desconocido'
+  const internalId = generateUniqueUserId()
+
+  try {
+    const response = await apiAdmin.post('/pacientes', payload)
+
+    if (response.status !== 201) {
+      console.error(
+        `[${internalId}] ❌ ERROR al crear paciente ${userIdentifier}: ${response.statusText} (Status: ${response.status})`
+      )
+      throw new Error(`Error al crear paciente: ${response.statusText}`)
+    }
+
+    console.log(
+      `[${internalId}] ✅ Paciente ${userIdentifier} creado exitosamente. ID del servidor: ${response.data.datos.id || 'N/A'}`
+    )
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message || error.message || 'Error desconocido'
+    console.error(
+      `[${internalId}] ❌ Fallo en la creación del paciente ${userIdentifier}: ${errorMessage}`
+    )
+    throw error
+  }
+}
+
 export async function crearArmarUsuario(
   usuario: UsuarioFake,
   roles: string[]
@@ -88,6 +135,26 @@ export async function crearArmarUsuario(
   })
 }
 
+async function crearPacienteDesdeFake(usuario: UsuarioFake): Promise<void> {
+  const contrasena = '123'
+  await crearPaciente({
+    usuario: usuario.usuario,
+    contrasena,
+    repetirContrasena: contrasena,
+    correoElectronico: usuario.correoElectronico,
+    persona: {
+      tipoDocumento: usuario.persona.tipoDocumento,
+      nroDocumento: usuario.persona.nroDocumento,
+      nombres: usuario.persona.nombres,
+      primerApellido: usuario.persona.primerApellido,
+      segundoApellido: usuario.persona.segundoApellido,
+      fechaNacimiento: usuario.persona.fechaNacimiento,
+      genero: usuario.persona.genero.toUpperCase(),
+      telefono: usuario.persona.telefono,
+    },
+  })
+}
+
 export async function registrarUsuariosEnGrupos(
   personasFake: UsuarioFake[],
   ajuste: number = 0
@@ -97,7 +164,7 @@ export async function registrarUsuariosEnGrupos(
   let usersProcessed = 0
 
   console.log(
-    `\n--- Iniciando registro de ${totalUsers} usuarios en lotes de ${BATCH_SIZE} ---`
+    `\n--- Iniciando registro de ${totalUsers} pacientes en lotes de ${BATCH_SIZE} ---`
   )
 
   for (let i = 2; i < personasFake.length; i += BATCH_SIZE) {
@@ -110,13 +177,13 @@ export async function registrarUsuariosEnGrupos(
       `\n--- Procesando lote ${batchNumber}/${Math.ceil(totalUsers / BATCH_SIZE)} (Usuarios ${startUserIndex + 1} - ${endUserIndex + 1}) ---`
     )
 
-    const promises = batch.map((element) => crearArmarUsuario(element, ['3']))
+    const promises = batch.map((element) => crearPacienteDesdeFake(element))
 
     try {
       await Promise.all(promises)
       usersProcessed += batch.length
       console.log(
-        `--- Lote ${batchNumber} completado. Total de usuarios procesados: ${usersProcessed}/${totalUsers} ---`
+        `--- Lote ${batchNumber} completado. Total de pacientes procesados: ${usersProcessed}/${totalUsers} ---`
       )
     } catch (error) {
       console.error(
@@ -128,6 +195,6 @@ export async function registrarUsuariosEnGrupos(
     }
   }
   console.log(
-    `\n--- Proceso de registro de usuarios finalizado. Se procesaron ${usersProcessed} de ${totalUsers} usuarios. ---`
+    `\n--- Proceso de registro de pacientes finalizado. Se procesaron ${usersProcessed} de ${totalUsers} pacientes. ---`
   )
 }

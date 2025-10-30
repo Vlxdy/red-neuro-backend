@@ -26,7 +26,6 @@ export enum TipoDocumento {
 export enum Genero {
   MASCULINO = 'M',
   FEMENINO = 'F',
-  OTRO = 'OTRO',
 }
 
 export enum Transaccion {

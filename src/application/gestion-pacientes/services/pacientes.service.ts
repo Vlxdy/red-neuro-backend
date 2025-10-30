@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
-import { RolEnum } from '@/core/authorization/rol.enum'
+import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
 import { Messages } from '@/common/constants/response-messages'
 import { QueryEvaluacionesDto } from '@/application/historia-clinica/dtos/evaluacion.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
@@ -36,6 +36,13 @@ import { HistoriaClinicaService } from '@/application/historia-clinica/services/
 import { EvaluacionNutricionalResponde } from '@/common/types/data-response.type'
 import dayjs from 'dayjs'
 import { ActualizarDatosPersonalesPacienteDto } from '../dto/actualizar-datos-paciente.dto'
+import {
+  CrearPacienteDto,
+  ActualizarPacienteDto,
+} from '../dto/crear-paciente.dto'
+import { TipoDocumento } from '@/common/constants'
+import { TextService } from '@/common/lib/text.service'
+import { UsuarioEstado } from '@/core/usuario/constant'
 
 @Injectable()
 export class PacientesService extends BaseService {
@@ -103,6 +110,272 @@ export class PacientesService extends BaseService {
     const [usuariosRol, total] =
       await this.usuarioRegistradoRepositorio.listarPacientes(params)
     return [formatearUsuariosRolesRespuesta(usuariosRol), total]
+  }
+
+  async crearPaciente({
+    datos,
+    idUsuarioRol,
+    usuarioAuditoria,
+  }: {
+    datos: CrearPacienteDto
+    idUsuarioRol: string
+    usuarioAuditoria: string
+  }) {
+    const actor = await this.usuarioRolRepositorio.buscarPorId(idUsuarioRol)
+
+    if (
+      !actor ||
+      !(
+        actor.rol.rol === RolEnum.ADMINISTRADOR ||
+        actor.rol.rol === RolEnum.NUTRICIONISTA
+      )
+    ) {
+      throw new ForbiddenException(Messages.EXCEPTION_FORBIDDEN)
+    }
+
+    const { persona, repetirContrasena: _, ...datosUsuario } = datos
+    void _
+
+    const personaPaciente = {
+      ...persona,
+      tipoDocumento: persona.tipoDocumento ?? TipoDocumento.CI,
+    }
+
+    const usuarioExistente = await this.usuarioRepositorio.buscarUsuarioPorCI(
+      personaPaciente.nroDocumento
+    )
+
+    if (usuarioExistente) {
+      throw new PreconditionFailedException(Messages.EXISTING_USER)
+    }
+
+    const correoExistente =
+      await this.usuarioRepositorio.buscarUsuarioPorCorreo(
+        datosUsuario.correoElectronico
+      )
+
+    if (correoExistente) {
+      throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
+    }
+
+    if (datosUsuario.usuario) {
+      const usuarioRegistrado = await this.usuarioRepositorio.buscarUsuario(
+        datosUsuario.usuario
+      )
+
+      if (usuarioRegistrado) {
+        throw new PreconditionFailedException(Messages.EXISTING_USER)
+      }
+    }
+
+    if (personaPaciente.telefono) {
+      const telefonoExistente =
+        await this.personaRepositorio.buscarPersonaPorTelefono(
+          personaPaciente.telefono
+        )
+
+      if (telefonoExistente) {
+        throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+      }
+    }
+
+    const contrasenaEncriptada = await TextService.encrypt(
+      datosUsuario.contrasena
+    )
+
+    const op = async (transaction: EntityManager) => {
+      const nuevaPersona = await this.personaRepositorio.crear(
+        personaPaciente,
+        usuarioAuditoria,
+        transaction
+      )
+
+      const nuevoUsuario = await this.usuarioRepositorio.crear(
+        nuevaPersona.id,
+        {
+          usuario: datosUsuario.usuario ?? personaPaciente.nroDocumento,
+          estado: UsuarioEstado.ACTIVE,
+          correoElectronico: datosUsuario.correoElectronico,
+          contrasena: contrasenaEncriptada,
+        },
+        usuarioAuditoria,
+        transaction
+      )
+
+      await this.usuarioRolRepositorio.crear(
+        nuevoUsuario.id,
+        [RolEnumId.PACIENTE],
+        usuarioAuditoria,
+        transaction
+      )
+
+      return nuevoUsuario
+    }
+
+    const usuarioCreado = await this.usuarioRepositorio.runTransaction(op)
+
+    return { id: usuarioCreado.id, estado: usuarioCreado.estado }
+  }
+
+  async actualizarPaciente({
+    idPaciente,
+    datos,
+    idUsuarioRol,
+    usuarioAuditoria,
+  }: {
+    idPaciente: string
+    datos: ActualizarPacienteDto
+    idUsuarioRol: string
+    usuarioAuditoria: string
+  }) {
+    const actor = await this.usuarioRolRepositorio.buscarPorId(idUsuarioRol)
+
+    if (
+      !actor ||
+      !(
+        actor.rol.rol === RolEnum.ADMINISTRADOR ||
+        actor.rol.rol === RolEnum.NUTRICIONISTA
+      )
+    ) {
+      throw new ForbiddenException(Messages.EXCEPTION_FORBIDDEN)
+    }
+
+    const paciente = await this.obtenerPaciente(idPaciente)
+
+    if (actor.rol.rol === RolEnum.NUTRICIONISTA) {
+      const asignacion =
+        await this.asignacionRepositorio.buscarAsignacionActivaPorMedicoPaciente(
+          idUsuarioRol,
+          idPaciente
+        )
+
+      if (!asignacion) {
+        throw new PreconditionFailedException(Messages.PATIENT_NOT_ASSIGNED)
+      }
+    }
+
+    const { persona, correoElectronico } = datos
+
+    const op = async (transaction: EntityManager) => {
+      const personaActual = await this.personaRepositorio.buscarPersonaId(
+        paciente.usuario.idPersona,
+        transaction
+      )
+
+      if (!personaActual) {
+        throw new NotFoundException(Messages.INVALID_USER)
+      }
+
+      if (persona.telefono && persona.telefono !== personaActual.telefono) {
+        const telefonoExistente =
+          await this.personaRepositorio.buscarPersonaPorTelefono(
+            persona.telefono,
+            transaction
+          )
+
+        if (telefonoExistente && telefonoExistente.id !== personaActual.id) {
+          throw new PreconditionFailedException(Messages.EXISTING_PHONE)
+        }
+      }
+
+      if (
+        persona.nroDocumento &&
+        persona.nroDocumento !== personaActual.nroDocumento
+      ) {
+        const tipoDocumento =
+          persona.tipoDocumento ??
+          personaActual.tipoDocumento ??
+          TipoDocumento.CI
+
+        const personaExistente =
+          await this.personaRepositorio.buscarPersonaPorDocumento(
+            tipoDocumento,
+            persona.nroDocumento
+          )
+
+        if (personaExistente && personaExistente.id !== personaActual.id) {
+          throw new PreconditionFailedException(Messages.EXISTING_USER)
+        }
+
+        const usuarioExistente = await this.usuarioRepositorio.buscarUsuario(
+          persona.nroDocumento
+        )
+
+        if (usuarioExistente && usuarioExistente.id !== paciente.usuario.id) {
+          throw new PreconditionFailedException(Messages.EXISTING_USER)
+        }
+      }
+
+      if (
+        correoElectronico &&
+        correoElectronico !== paciente.usuario.correoElectronico
+      ) {
+        const correoExistente =
+          await this.usuarioRepositorio.buscarUsuarioPorCorreo(
+            correoElectronico,
+            transaction
+          )
+
+        if (correoExistente && correoExistente.id !== paciente.usuario.id) {
+          throw new PreconditionFailedException(Messages.EXISTING_EMAIL)
+        }
+      }
+
+      await this.personaRepositorio.actualizar(
+        personaActual.id,
+        {
+          nombres: persona.nombres ?? personaActual.nombres ?? undefined,
+          primerApellido:
+            persona.primerApellido ?? personaActual.primerApellido ?? undefined,
+          segundoApellido:
+            persona.segundoApellido ??
+            personaActual.segundoApellido ??
+            undefined,
+          telefono: persona.telefono ?? personaActual.telefono ?? undefined,
+          fechaNacimiento:
+            persona.fechaNacimiento ??
+            personaActual.fechaNacimiento ??
+            undefined,
+          genero: persona.genero ?? personaActual.genero ?? undefined,
+          nroDocumento:
+            persona.nroDocumento ?? personaActual.nroDocumento ?? undefined,
+          tipoDocumento:
+            persona.tipoDocumento ??
+            personaActual.tipoDocumento ??
+            TipoDocumento.CI,
+        },
+        usuarioAuditoria,
+        transaction
+      )
+
+      if (
+        persona.nroDocumento &&
+        persona.nroDocumento !== personaActual.nroDocumento
+      ) {
+        await this.usuarioRepositorio.actualizarNombreUsuario(
+          paciente.usuario.id,
+          persona.nroDocumento,
+          usuarioAuditoria,
+          transaction
+        )
+      }
+
+      if (
+        correoElectronico &&
+        correoElectronico !== paciente.usuario.correoElectronico
+      ) {
+        await this.usuarioRepositorio.actualizar(
+          paciente.usuario.id,
+          { correoElectronico },
+          usuarioAuditoria,
+          transaction
+        )
+      }
+
+      return { id: paciente.usuario.id }
+    }
+
+    return await this.usuarioRepositorio.runTransaction(op)
   }
 
   async ReportePaciente({

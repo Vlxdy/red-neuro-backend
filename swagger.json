@@ -2193,6 +2193,131 @@
         ]
       }
     },
+    "/pacientes": {
+      "post": {
+        "operationId": "PacientesController_crearPaciente",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearPacienteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crear un nuevo paciente",
+        "tags": [
+          "Pacientes"
+        ]
+      },
+      "get": {
+        "operationId": "PacientesController_listarPacientes",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
+    "/pacientes/{id}": {
+      "put": {
+        "operationId": "PacientesController_actualizarPaciente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarPacienteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualizar los datos de un paciente",
+        "tags": [
+          "Pacientes"
+        ]
+      }
+    },
     "/pacientes/asignados": {
       "get": {
         "operationId": "PacientesController_asignarPacienteAMedico",
@@ -2246,63 +2371,6 @@
           }
         ],
         "summary": "Listar pacientes asignados a un medico",
-        "tags": [
-          "Pacientes"
-        ]
-      }
-    },
-    "/pacientes": {
-      "get": {
-        "operationId": "PacientesController_listarPacientes",
-        "parameters": [
-          {
-            "name": "limite",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "minimum": 10,
-              "maximum": 50,
-              "default": 10,
-              "type": "number"
-            }
-          },
-          {
-            "name": "pagina",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "minimum": 1,
-              "default": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "filtro",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "ordenRaw",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
         "tags": [
           "Pacientes"
         ]
@@ -4457,7 +4525,8 @@
             "example": "ALMARAZ"
           },
           "fechaNacimiento": {
-            "type": "object",
+            "format": "date-time",
+            "type": "string",
             "example": "2002-05-04"
           },
           "telefono": {
@@ -4535,7 +4604,8 @@
             "example": "ALMARAZ"
           },
           "fechaNacimiento": {
-            "type": "object",
+            "format": "date-time",
+            "type": "string",
             "example": "2002-05-04"
           },
           "telefono": {
@@ -4823,6 +4893,139 @@
           "tieneVomitos"
         ]
       },
+      "PersonaPacienteDto": {
+        "type": "object",
+        "properties": {
+          "nroDocumento": {
+            "type": "string",
+            "example": "4192299"
+          },
+          "nombres": {
+            "type": "string",
+            "example": "MARIELA"
+          },
+          "primerApellido": {
+            "type": "string",
+            "example": "ALCAZAR"
+          },
+          "segundoApellido": {
+            "type": "string",
+            "example": "ALMARAZ"
+          },
+          "fechaNacimiento": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2002-05-04"
+          },
+          "telefono": {
+            "type": "object",
+            "example": "71234567"
+          },
+          "genero": {
+            "type": "string",
+            "example": "F",
+            "enum": [
+              "M",
+              "F"
+            ]
+          }
+        },
+        "required": [
+          "nroDocumento",
+          "nombres",
+          "primerApellido",
+          "segundoApellido",
+          "fechaNacimiento",
+          "telefono",
+          "genero"
+        ]
+      },
+      "CrearPacienteDto": {
+        "type": "object",
+        "properties": {
+          "contrasena": {
+            "type": "string",
+            "example": "AGEPIC.admin135"
+          },
+          "repetirContrasena": {
+            "type": "string",
+            "example": "AGEPIC.admin135"
+          },
+          "correoElectronico": {
+            "type": "string",
+            "example": "123456@gmail.com"
+          },
+          "persona": {
+            "$ref": "#/components/schemas/PersonaPacienteDto"
+          }
+        },
+        "required": [
+          "contrasena",
+          "repetirContrasena",
+          "correoElectronico",
+          "persona"
+        ]
+      },
+      "PersonaPacienteActualizarDto": {
+        "type": "object",
+        "properties": {
+          "nroDocumento": {
+            "type": "string",
+            "example": "4192299"
+          },
+          "tipoDocumento": {
+            "type": "string",
+            "example": "CI"
+          },
+          "nombres": {
+            "type": "string",
+            "example": "MARIELA"
+          },
+          "primerApellido": {
+            "type": "string",
+            "example": "ALCAZAR"
+          },
+          "segundoApellido": {
+            "type": "string",
+            "example": "ALMARAZ"
+          },
+          "fechaNacimiento": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2002-05-04"
+          },
+          "genero": {
+            "type": "string",
+            "enum": [
+              "M",
+              "F"
+            ]
+          },
+          "telefono": {
+            "type": "string",
+            "example": "71234567"
+          }
+        },
+        "required": [
+          "fechaNacimiento",
+          "genero"
+        ]
+      },
+      "ActualizarPacienteDto": {
+        "type": "object",
+        "properties": {
+          "persona": {
+            "$ref": "#/components/schemas/PersonaPacienteActualizarDto"
+          },
+          "correoElectronico": {
+            "type": "string",
+            "example": "paciente@example.com"
+          }
+        },
+        "required": [
+          "persona"
+        ]
+      },
       "CrearCitaPacienteDto": {
         "type": "object",
         "properties": {
@@ -4870,8 +5073,7 @@
             "type": "string",
             "enum": [
               "M",
-              "F",
-              "OTRO"
+              "F"
             ]
           }
         }
