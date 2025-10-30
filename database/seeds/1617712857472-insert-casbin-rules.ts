@@ -184,6 +184,16 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.NUTRICIONISTA]: 'GET',
         [RolEnum.ADMINISTRADOR]: 'GET',
       },
+      '/api/citas/rango-fechas': {
+        [RolEnum.NUTRICIONISTA]: 'GET',
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.PACIENTE]: 'GET',
+      },
+      '/api/citas/agenda': {
+        [RolEnum.NUTRICIONISTA]: 'GET',
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.PACIENTE]: 'GET',
+      },
       '/api/citas/cron-activar': { [RolEnum.ADMINISTRADOR]: 'GET' },
       // verificados
       // --------------------------
