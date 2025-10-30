@@ -4,6 +4,8 @@ import {
   Get,
   Param,
   Patch,
+  Post,
+  Put,
   Query,
   Req,
   Res,
@@ -22,6 +24,10 @@ import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { CitasService } from '../services/citas.service'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { ActualizarDatosPersonalesPacienteDto } from '../dto/actualizar-datos-paciente.dto'
+import {
+  ActualizarPacienteDto,
+  CrearPacienteDto,
+} from '../dto/crear-paciente.dto'
 
 @ApiTags('Pacientes')
 @ApiBearerAuth()
@@ -34,6 +40,42 @@ export class PacientesController extends BaseController {
     private readonly citasService: CitasService
   ) {
     super()
+  }
+
+  @ApiOperation({ summary: 'Crear un nuevo paciente' })
+  @Post()
+  async crearPaciente(@Body() body: CrearPacienteDto, @Req() req: Request) {
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const usuarioAuditoria = this.getUser(req)
+
+    const resultado = await this.pacientesService.crearPaciente({
+      datos: body,
+      idUsuarioRol,
+      usuarioAuditoria,
+    })
+
+    return this.successCreate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Actualizar los datos de un paciente' })
+  @Put(':id')
+  async actualizarPaciente(
+    @Param() params: ParamIdDto,
+    @Body() body: ActualizarPacienteDto,
+    @Req() req: Request
+  ) {
+    const { id } = params
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const usuarioAuditoria = this.getUser(req)
+
+    const resultado = await this.pacientesService.actualizarPaciente({
+      idPaciente: id,
+      datos: body,
+      idUsuarioRol,
+      usuarioAuditoria,
+    })
+
+    return this.successUpdate(resultado)
   }
   @ApiOperation({ summary: 'Listar pacientes asignados a un medico' })
   @Get('asignados')

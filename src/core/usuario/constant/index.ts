@@ -13,7 +13,6 @@ export const TiposDocumento = {
 export const TiposGenero = {
   MASCULINO: Genero.MASCULINO,
   FEMENINO: Genero.FEMENINO,
-  OTRO: Genero.OTRO,
 }
 
 export const UsuarioEstado = {

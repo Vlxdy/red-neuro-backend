@@ -318,6 +318,22 @@ export class UsuarioRepository {
     return await repo.update(idUsuario, datosActualizar)
   }
 
+  async actualizarNombreUsuario(
+    idUsuario: string,
+    nombreUsuario: string,
+    usuarioAuditoria: string,
+    transaction?: EntityManager
+  ) {
+    const repo = transaction
+      ? transaction.getRepository(Usuario)
+      : this.dataSource.getRepository(Usuario)
+
+    return await repo.update(idUsuario, {
+      usuario: nombreUsuario,
+      usuarioModificacion: usuarioAuditoria,
+    })
+  }
+
   async actualizarContadorBloqueos(idUsuario: string, intento: number) {
     return await this.dataSource
       .createQueryBuilder()

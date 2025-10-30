@@ -25,6 +25,7 @@ export class PersonaRepository {
         fechaNacimiento: personaDto?.fechaNacimiento,
         tipoDocumento: personaDto.tipoDocumento,
         telefono: personaDto?.telefono,
+        genero: personaDto?.genero,
         usuarioCreacion: usuarioAuditoria,
       })
     )
@@ -39,13 +40,44 @@ export class PersonaRepository {
     const repo =
       transaction?.getRepository(Persona) ??
       this.dataSource.getRepository(Persona)
-    await repo.update(id, {
-      nombres: personaDto.nombres,
-      primerApellido: personaDto.primerApellido,
-      segundoApellido: personaDto.segundoApellido,
+
+    const datosActualizar: Partial<Persona> = {
       usuarioModificacion: usuarioAuditoria,
-      telefono: personaDto.telefono,
-    })
+    }
+
+    if (personaDto.nombres !== undefined) {
+      datosActualizar.nombres = personaDto.nombres
+    }
+
+    if (personaDto.primerApellido !== undefined) {
+      datosActualizar.primerApellido = personaDto.primerApellido
+    }
+
+    if (personaDto.segundoApellido !== undefined) {
+      datosActualizar.segundoApellido = personaDto.segundoApellido
+    }
+
+    if (personaDto.telefono !== undefined) {
+      datosActualizar.telefono = personaDto.telefono
+    }
+
+    if (personaDto.fechaNacimiento !== undefined) {
+      datosActualizar.fechaNacimiento = personaDto.fechaNacimiento
+    }
+
+    if (personaDto.genero !== undefined) {
+      datosActualizar.genero = personaDto.genero
+    }
+
+    if (personaDto.nroDocumento !== undefined) {
+      datosActualizar.nroDocumento = personaDto.nroDocumento
+    }
+
+    if (personaDto.tipoDocumento !== undefined) {
+      datosActualizar.tipoDocumento = personaDto.tipoDocumento
+    }
+
+    await repo.update(id, datosActualizar)
     return await repo.findOne({ where: { id } })
   }
 
