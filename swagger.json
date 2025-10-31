@@ -2498,44 +2498,6 @@
         "tags": [
           "Pacientes"
         ]
-      },
-      "post": {
-        "operationId": "PacientesController_crearCitaPaciente",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "example": "12",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CrearCitaPacienteDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Cita registrada correctamente."
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Permite al paciente crear una cita en borrador o enviarla a revisión",
-        "tags": [
-          "Pacientes"
-        ]
       }
     },
     "/pacientes/{id}/datos-personales": {
@@ -2774,7 +2736,7 @@
     },
     "/citas": {
       "post": {
-        "description": "Registra una nueva cita en borrador asociada al profesional autenticado. Para crear citas confirmadas utilice el endpoint de profesionales.",
+        "description": "Registra una nueva cita aprobada asociada al paciente seleccionado. El médico se determina automáticamente según el rol autenticado.",
         "operationId": "CitasController_crearCita",
         "parameters": [],
         "requestBody": {
@@ -3414,47 +3376,6 @@
         "summary": "API para activar el cron de citas",
         "tags": [
           "Citas"
-        ]
-      }
-    },
-    "/profesionales/{id}/citas/confirmada": {
-      "post": {
-        "description": "Disponible para nutricionistas y administradores. La cita se registra confirmada y notifica inmediatamente al paciente.",
-        "operationId": "ProfesionalesCitasController_crearCitaConfirmada",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "example": "12",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CrearCitaDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Cita confirmada creada correctamente."
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Crear una cita confirmada para un paciente asignado",
-        "tags": [
-          "Profesionales - Citas"
         ]
       }
     },
@@ -5229,38 +5150,6 @@
           "persona"
         ]
       },
-      "CrearCitaPacienteDto": {
-        "type": "object",
-        "properties": {
-          "fechaInicio": {
-            "format": "date-time",
-            "type": "string",
-            "example": "2023-10-01T10:00:00Z",
-            "description": "Fecha y hora de inicio de la cita"
-          },
-          "fechaFin": {
-            "format": "date-time",
-            "type": "string",
-            "description": "Fecha y hora de fin de la cita",
-            "example": "2023-10-01T10:30:00Z"
-          },
-          "detalle": {
-            "type": "string",
-            "description": "Descripción de la cita",
-            "example": "Consulta de control mensual"
-          },
-          "enviarRevision": {
-            "type": "boolean",
-            "description": "Indica si la cita debe enviarse inmediatamente a revisión del nutricionista",
-            "default": false
-          }
-        },
-        "required": [
-          "fechaInicio",
-          "fechaFin",
-          "detalle"
-        ]
-      },
       "ActualizarDatosPersonalesPacienteDto": {
         "type": "object",
         "properties": {
@@ -5331,7 +5220,7 @@
         "properties": {
           "idPaciente": {
             "type": "string",
-            "description": "Clave foránea que referencia al paciente idRolUsuario",
+            "description": "Clave foránea que referencia al paciente idRolUsuario. Obligatorio para administradores y nutricionistas.",
             "example": "3"
           },
           "fechaInicio": {
@@ -5353,7 +5242,6 @@
           }
         },
         "required": [
-          "idPaciente",
           "fechaInicio",
           "fechaFin",
           "detalle"

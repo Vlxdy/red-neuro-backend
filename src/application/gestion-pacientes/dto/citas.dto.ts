@@ -1,6 +1,5 @@
 import {
   IsArray,
-  IsBoolean,
   IsDateString,
   IsEnum,
   IsNotEmpty,
@@ -111,13 +110,14 @@ export class CrearCitaDto {
   // @IsNumberString()
   // idMedico: string
 
-  @ApiProperty({
-    description: 'Clave foránea que referencia al paciente idRolUsuario',
+  @ApiPropertyOptional({
+    description:
+      'Clave foránea que referencia al paciente idRolUsuario. Obligatorio para administradores y nutricionistas.',
     example: '3',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumberString()
-  idPaciente: string
+  idPaciente?: string
 
   @ApiProperty({
     example: '2023-10-01T10:00:00Z',
@@ -310,15 +310,6 @@ export class CrearCitaPacienteDto {
   @IsNotEmpty()
   @IsString()
   detalle: string
-
-  @ApiPropertyOptional({
-    description:
-      'Indica si la cita debe enviarse inmediatamente a revisión del nutricionista',
-    default: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  enviarRevision?: boolean
 }
 
 export class CancelarCitaDto {

@@ -49,7 +49,6 @@ import { MedicosController } from './gestion-pacientes/controllers/medicos.contr
 import { AsignacionesController } from './gestion-pacientes/controllers/asignacion.controller'
 import { CitasController } from './gestion-pacientes/controllers/citas.controller'
 import { UsuariosRegistradosController } from './gestion-pacientes/controllers/usuarios-registrados.controller'
-import { ProfesionalesCitasController } from './gestion-pacientes/controllers/profesionales-citas.controller'
 import { PlanNutricionalController } from './planes-alimentarios/controller/plan-nutricional.controller'
 import { CarritoCompraController } from './planes-alimentarios/controller/carrito-compras.controller'
 import { AlimentoController } from './planes-alimentarios/controller/alimento.controller'
@@ -113,7 +112,6 @@ import { ConfigService } from '@nestjs/config'
     MedicosController,
     AsignacionesController,
     CitasController,
-    ProfesionalesCitasController,
     UsuariosRegistradosController,
     PlanNutricionalController,
     CarritoCompraController,

@@ -521,49 +521,24 @@ export class CitasService extends BaseService {
         },
         usuarioAuditoria,
         transaccion: tx,
-        estado: data.enviarRevision
-          ? CitasEstado.PENDIENTE
-          : CitasEstado.BORRADOR,
+        estado: CitasEstado.BORRADOR,
         reprogramacionesDesdeRechazo: 0,
         reprogramacionesTotales: 0,
         reversionesPendiente: 0,
         reversionPendienteActualizadaEn: null,
       })
 
-      const mensajeCreacion = `Se registró una cita para el ${this.formatearFechaCita(
-        cita
-      )}.`
-
       await this.registrarHistorial({
         cita,
         estadoNuevo: cita.estado as CitasEstado,
-        comentario: data.enviarRevision
-          ? 'Cita creada y enviada a revisión.'
-          : 'Cita creada por el paciente.',
+        comentario: 'Cita creada por el paciente en borrador.',
         idRolEjecutor: idRol,
-        usuarioAuditoria,
-        transaccion: tx,
-      })
-
-      await this.notificarCambio({
-        cita,
-        tipo: NotificacionTipo.CITA_BORRADOR,
-        mensaje: mensajeCreacion,
         usuarioAuditoria,
         transaccion: tx,
       })
 
       return { id: cita.id }
     })
-
-    if (data.enviarRevision) {
-      await this.enviarCitaRevision({
-        idCita: resultado.id,
-        idRol,
-        idUsuarioRol,
-        usuarioAuditoria,
-      })
-    }
 
     return resultado
   }
@@ -847,6 +822,7 @@ export class CitasService extends BaseService {
         mensaje,
         usuarioAuditoria,
         transaccion: tx,
+        incluirMedico: this.esAdministrador(idRol),
       })
     })
   }
@@ -996,84 +972,84 @@ export class CitasService extends BaseService {
     })
   }
 
-  async crearCitaConfirmada({
-    idProfesional,
-    idRol,
-    idUsuarioRol,
-    data,
-    usuarioAuditoria,
-  }: {
-    idProfesional: string
-    idRol: string
-    idUsuarioRol: string
-    data: CrearCitaDto
-    usuarioAuditoria: string
-  }): Promise<{ id: string }> {
-    if (!this.esNutricionista(idRol) && !this.esAdministrador(idRol)) {
-      throw new ForbiddenException(
-        'Solo nutricionistas o administradores pueden crear citas confirmadas.'
-      )
-    }
+  // async crearCitaConfirmada({
+  //   idProfesional,
+  //   idRol,
+  //   idUsuarioRol,
+  //   data,
+  //   usuarioAuditoria,
+  // }: {
+  //   idProfesional: string
+  //   idRol: string
+  //   idUsuarioRol: string
+  //   data: CrearCitaDto
+  //   usuarioAuditoria: string
+  // }): Promise<{ id: string }> {
+  //   if (!this.esNutricionista(idRol) && !this.esAdministrador(idRol)) {
+  //     throw new ForbiddenException(
+  //       'Solo nutricionistas o administradores pueden crear citas confirmadas.'
+  //     )
+  //   }
 
-    const esAdmin = this.esAdministrador(idRol)
-    if (!esAdmin && idProfesional !== idUsuarioRol) {
-      throw new ForbiddenException(
-        'No puedes crear citas confirmadas para otros profesionales.'
-      )
-    }
+  //   const esAdmin = this.esAdministrador(idRol)
+  //   if (!esAdmin && idProfesional !== idUsuarioRol) {
+  //     throw new ForbiddenException(
+  //       'No puedes crear citas confirmadas para otros profesionales.'
+  //     )
+  //   }
 
-    const idMedico = esAdmin ? idProfesional : idUsuarioRol
+  //   const idMedico = esAdmin ? idProfesional : idUsuarioRol
 
-    return await this.citasRepositorio.runTransaction(async (tx) => {
-      await this.medicosService.obtenerMedico(idMedico, tx)
-      await this.pacientesService.obtenerPaciente(data.idPaciente, tx)
+  //   return await this.citasRepositorio.runTransaction(async (tx) => {
+  //     await this.medicosService.obtenerMedico(idMedico, tx)
+  //     await this.pacientesService.obtenerPaciente(data.idPaciente, tx)
 
-      if (!esAdmin) {
-        await this.asignacionService.validarAsignacion({
-          idMedico,
-          idPaciente: data.idPaciente,
-          transaccion: tx,
-        })
-      }
+  //     if (!esAdmin) {
+  //       await this.asignacionService.validarAsignacion({
+  //         idMedico,
+  //         idPaciente: data.idPaciente,
+  //         transaccion: tx,
+  //       })
+  //     }
 
-      const cita = await this.citasRepositorio.crear({
-        idMedico,
-        data,
-        usuarioAuditoria,
-        transaccion: tx,
-        estado: CitasEstado.APROBADA,
-        lockedAt: new Date(),
-        comentarioNutricionista: data.detalle,
-        reprogramacionesDesdeRechazo: 0,
-        reprogramacionesTotales: 0,
-        reversionesPendiente: 0,
-        reversionPendienteActualizadaEn: null,
-      })
+  //     const cita = await this.citasRepositorio.crear({
+  //       idMedico,
+  //       data,
+  //       usuarioAuditoria,
+  //       transaccion: tx,
+  //       estado: CitasEstado.APROBADA,
+  //       lockedAt: new Date(),
+  //       comentarioNutricionista: data.detalle,
+  //       reprogramacionesDesdeRechazo: 0,
+  //       reprogramacionesTotales: 0,
+  //       reversionesPendiente: 0,
+  //       reversionPendienteActualizadaEn: null,
+  //     })
 
-      await this.registrarHistorial({
-        cita,
-        estadoNuevo: cita.estado as CitasEstado,
-        comentario: 'Cita confirmada directamente por el profesional.',
-        idRolEjecutor: idRol,
-        usuarioAuditoria,
-        transaccion: tx,
-      })
+  //     await this.registrarHistorial({
+  //       cita,
+  //       estadoNuevo: cita.estado as CitasEstado,
+  //       comentario: 'Cita confirmada directamente por el profesional.',
+  //       idRolEjecutor: idRol,
+  //       usuarioAuditoria,
+  //       transaccion: tx,
+  //     })
 
-      const mensaje = `Se confirmó una cita para el ${this.formatearFechaCita(
-        cita
-      )}.`
+  //     const mensaje = `Se confirmó una cita para el ${this.formatearFechaCita(
+  //       cita
+  //     )}.`
 
-      await this.notificarCambio({
-        cita,
-        tipo: NotificacionTipo.CITA_CONFIRMADA,
-        mensaje,
-        usuarioAuditoria,
-        transaccion: tx,
-      })
+  //     await this.notificarCambio({
+  //       cita,
+  //       tipo: NotificacionTipo.CITA_CONFIRMADA,
+  //       mensaje,
+  //       usuarioAuditoria,
+  //       transaccion: tx,
+  //     })
 
-      return { id: cita.id }
-    })
-  }
+  //     return { id: cita.id }
+  //   })
+  // }
 
   async obtenerHistorialCita({
     idCita,
@@ -1172,21 +1148,49 @@ export class CitasService extends BaseService {
 
   async crearCita({
     data,
-    idMedico,
+    idRol,
+    idUsuarioRol,
     usuarioAuditoria,
     transaccion,
   }: {
-    // idRol: string
-    idMedico: string
     data: CrearCitaDto
+    idRol: string
+    idUsuarioRol: string
     usuarioAuditoria: string
     transaccion?: EntityManager
   }): Promise<{ id: string }> {
+    if (this.esPaciente(idRol)) {
+      return this.crearCitaPaciente({
+        idPaciente: idUsuarioRol,
+        idRol,
+        idUsuarioRol,
+        usuarioAuditoria,
+        data: {
+          detalle: data.detalle,
+          fechaFin: data.fechaFin,
+          fechaInicio: data.fechaInicio,
+        },
+      })
+    }
+
+    if (!this.esNutricionista(idRol) && !this.esAdministrador(idRol)) {
+      throw new ForbiddenException(
+        'Solo los administradores, nutricionistas o pacientes pueden crear citas.'
+      )
+    }
+
+    if (!data.idPaciente) {
+      throw new BadRequestException(
+        'El identificador del paciente es obligatorio.'
+      )
+    }
+
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
         return await this.crearCita({
           data,
-          idMedico,
+          idRol,
+          idUsuarioRol,
           usuarioAuditoria,
           transaccion: nuevaTransaccion,
         })
@@ -1195,21 +1199,37 @@ export class CitasService extends BaseService {
       return await this.citasRepositorio.runTransaction(op)
     }
 
-    await this.medicosService.obtenerMedico(idMedico, transaccion)
     await this.pacientesService.obtenerPaciente(data.idPaciente, transaccion)
 
-    await this.asignacionService.validarAsignacion({
-      idMedico,
-      idPaciente: data.idPaciente,
-      transaccion,
-    })
+    const esAdmin = this.esAdministrador(idRol)
+
+    let idMedico = idUsuarioRol
+
+    if (esAdmin) {
+      const asignacion =
+        await this.asignacionService.obtenerAsignacionActivaPorPaciente({
+          idPaciente: data.idPaciente,
+          transaccion,
+        })
+      idMedico = asignacion.idMedico
+    } else {
+      await this.asignacionService.validarAsignacion({
+        idMedico,
+        idPaciente: data.idPaciente,
+        transaccion,
+      })
+    }
+
+    await this.medicosService.obtenerMedico(idMedico, transaccion)
 
     const cita = await this.citasRepositorio.crear({
       idMedico,
       data,
       usuarioAuditoria,
       transaccion,
-      estado: CitasEstado.BORRADOR,
+      estado: CitasEstado.APROBADA,
+      lockedAt: new Date(),
+      comentarioNutricionista: data.detalle,
       reprogramacionesDesdeRechazo: 0,
       reprogramacionesTotales: 0,
       reversionesPendiente: 0,
@@ -1219,10 +1239,23 @@ export class CitasService extends BaseService {
     await this.registrarHistorial({
       cita,
       estadoNuevo: cita.estado as CitasEstado,
-      comentario: 'Cita creada por el profesional.',
-      idRolEjecutor: RolEnumId.NUTRICIONISTA,
+      comentario: esAdmin
+        ? 'Cita confirmada directamente por el administrador.'
+        : 'Cita confirmada directamente por el nutricionista.',
+      idRolEjecutor: idRol,
       usuarioAuditoria,
       transaccion,
+    })
+
+    const mensaje = `Se confirmó una cita para el ${this.formatearFechaCita(cita)}.`
+
+    await this.notificarCambio({
+      cita,
+      tipo: NotificacionTipo.CITA_CONFIRMADA,
+      mensaje,
+      usuarioAuditoria,
+      transaccion,
+      incluirMedico: esAdmin,
     })
 
     return { id: cita.id }

@@ -32,7 +32,7 @@ import {
   EvaluacionArchivosService,
   EvaluacionArchivoTemporal,
 } from './evaluacion-archivos.service'
-import { RolEnum } from '@/core/authorization/rol.enum'
+import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
 import { Status } from '@/common/constants'
 
 export type ArchivoDescargable =
@@ -155,7 +155,8 @@ export class EvaluacionNutricionalService extends BaseService {
     let idCita = data.idCita
     if (!idCita) {
       const citaCreada = await this.citasService.crearCita({
-        idMedico,
+        idRol: RolEnumId.NUTRICIONISTA,
+        idUsuarioRol: idMedico,
         data: {
           idPaciente: historiaClinica.idPaciente,
           detalle: 'Evaluación nutricional',

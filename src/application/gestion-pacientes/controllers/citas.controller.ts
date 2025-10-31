@@ -55,16 +55,18 @@ export class CitasController extends BaseController {
   @ApiOperation({
     summary: 'Crear una cita desde el panel del profesional',
     description:
-      'Registra una nueva cita en borrador asociada al profesional autenticado. Para crear citas confirmadas utilice el endpoint de profesionales.',
+      'Registra una nueva cita aprobada asociada al paciente seleccionado. El médico se determina automáticamente según el rol autenticado.',
   })
   @ApiCreatedResponse({ description: 'Cita creada correctamente.' })
   @Post()
   async crearCita(@Body() data: CrearCitaDto, @Req() req: Request) {
     const usuarioAuditoria = this.getUser(req)
     const idUsuarioRol = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
     const respuesta = await this.citasService.crearCita({
       data,
-      idMedico: idUsuarioRol,
+      idRol,
+      idUsuarioRol,
       usuarioAuditoria,
     })
     return this.successCreate(respuesta)
