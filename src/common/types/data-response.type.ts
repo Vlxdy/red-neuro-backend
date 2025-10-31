@@ -33,6 +33,19 @@ export interface CitaResponse {
   medico: UsuarioRolResponse | null
 }
 
+export interface CitaDetalleResponse extends CitaResponse {
+  idPaciente: string
+  idMedico: string
+  comentarioNutricionista?: string | null
+  lockedAt?: Date | null
+  reversionesPendiente: number
+  reversionPendienteActualizadaEn?: Date | null
+  reprogramacionesDesdeRechazo: number
+  reprogramacionesTotales: number
+  fechaCreacion: Date
+  fechaModificacion?: Date | null
+}
+
 export interface EvaluacionAntropometricaRespuesta {
   circunferenciaCintura?: number | null
   circunferenciaCadera?: number | null
