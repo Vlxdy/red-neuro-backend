@@ -3022,6 +3022,48 @@
       }
     },
     "/citas/{id}": {
+      "get": {
+        "description": "Permite consultar la información detallada de una cita de acuerdo a los permisos del paciente, nutricionista o administrador.",
+        "operationId": "CitasController_obtenerCita",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la cita recuperado correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CitaDetalleResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El usuario no tiene permisos para consultar esta cita."
+          },
+          "404": {
+            "description": "Cita no encontrada."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtener los detalles completos de una cita médica",
+        "tags": [
+          "Citas"
+        ]
+      },
       "patch": {
         "operationId": "CitasController_actualizarCita",
         "parameters": [
@@ -5395,6 +5437,114 @@
           "finalizado",
           "mensaje",
           "datos"
+        ]
+      },
+      "CitaDetalleResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "15"
+          },
+          "detalle": {
+            "type": "string",
+            "example": "Control mensual"
+          },
+          "fechaInicio": {
+            "type": "object",
+            "example": "2024-07-18T15:00:00.000Z"
+          },
+          "fechaFin": {
+            "type": "object",
+            "example": "2024-07-18T15:30:00.000Z"
+          },
+          "estado": {
+            "type": "string",
+            "example": "PROGRAMADA"
+          },
+          "paciente": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CitaUsuarioRolResponseDto"
+              }
+            ]
+          },
+          "medico": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CitaUsuarioRolResponseDto"
+              }
+            ]
+          },
+          "idPaciente": {
+            "type": "string",
+            "example": "23"
+          },
+          "idMedico": {
+            "type": "string",
+            "example": "7"
+          },
+          "comentarioNutricionista": {
+            "type": "object",
+            "description": "Último comentario registrado por el nutricionista para la cita",
+            "example": "Recuerda traer tus últimos análisis.",
+            "nullable": true
+          },
+          "lockedAt": {
+            "type": "object",
+            "description": "Fecha en la que la cita fue confirmada y quedó bloqueada",
+            "example": "2024-07-10T14:00:00.000Z",
+            "nullable": true
+          },
+          "reversionesPendiente": {
+            "type": "number",
+            "description": "Cantidad de reversiones de pendiente a borrador dentro de la ventana controlada",
+            "example": 0
+          },
+          "reversionPendienteActualizadaEn": {
+            "type": "object",
+            "description": "Última fecha en la que se actualizó la ventana de reversión",
+            "example": "2024-07-09T10:30:00.000Z",
+            "nullable": true
+          },
+          "reprogramacionesDesdeRechazo": {
+            "type": "number",
+            "description": "Cantidad de reprogramaciones realizadas después de un rechazo",
+            "example": 1
+          },
+          "reprogramacionesTotales": {
+            "type": "number",
+            "description": "Cantidad total de reprogramaciones realizadas sobre la cita",
+            "example": 2
+          },
+          "fechaCreacion": {
+            "type": "object",
+            "description": "Fecha de creación del registro de la cita",
+            "example": "2024-07-05T12:15:30.000Z"
+          },
+          "fechaModificacion": {
+            "type": "object",
+            "description": "Fecha de última modificación del registro de la cita",
+            "example": "2024-07-11T09:45:00.000Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "detalle",
+          "fechaInicio",
+          "fechaFin",
+          "estado",
+          "paciente",
+          "medico",
+          "idPaciente",
+          "idMedico",
+          "reversionesPendiente",
+          "reprogramacionesDesdeRechazo",
+          "reprogramacionesTotales",
+          "fechaCreacion"
         ]
       },
       "ActualizarCitaDto": {
