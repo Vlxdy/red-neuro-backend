@@ -2029,6 +2029,380 @@
         ]
       }
     },
+    "/historias-clinicas/{id}/antecedentes": {
+      "post": {
+        "operationId": "AntecedentesController_crearAntecedente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAntecedenteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Antecedente creado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crear una nueva versión de antecedentes clínicos",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      },
+      "patch": {
+        "operationId": "AntecedentesController_actualizarAntecedente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAntecedenteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Antecedente actualizado correctamente"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualizar un antecedente en estado borrador",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      },
+      "get": {
+        "operationId": "AntecedentesController_obtenerVigente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Antecedente recuperado correctamente"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtener la versión vigente de antecedentes clínicos",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      }
+    },
+    "/historias-clinicas/{id}/antecedentes/cierre": {
+      "put": {
+        "operationId": "AntecedentesController_cerrarAntecedente",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CerrarAntecedenteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Antecedente cerrado correctamente"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cerrar un antecedente y marcarlo como completo",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      }
+    },
+    "/historias-clinicas/{id}/antecedentes/versiones": {
+      "get": {
+        "operationId": "AntecedentesController_listarVersiones",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado de versiones obtenido con éxito"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Listar todas las versiones de antecedentes clínicos",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      }
+    },
+    "/historias-clinicas/{id}/antecedentes/versiones/{version}": {
+      "get": {
+        "operationId": "AntecedentesController_obtenerVersion",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "description": "Número de versión del antecedente",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Versión de antecedente recuperada correctamente"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtener una versión específica de antecedentes clínicos",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      }
+    },
+    "/historias-clinicas/{id}/antecedentes/{version}/archivos": {
+      "post": {
+        "operationId": "AntecedentesController_adjuntarArchivos",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "description": "Número de versión del antecedente",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "archivosAdjuntos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Archivos adjuntados correctamente"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Adjuntar archivos a una versión de antecedente",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      }
+    },
+    "/historias-clinicas/{id}/antecedentes/{version}/archivos/{archivoId}": {
+      "delete": {
+        "operationId": "AntecedentesController_eliminarArchivo",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "description": "Número de versión del antecedente",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "archivoId",
+            "required": true,
+            "in": "path",
+            "description": "Identificador del archivo adjunto",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archivo eliminado correctamente"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Eliminar un archivo asociado a una versión de antecedente",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      },
+      "get": {
+        "operationId": "AntecedentesController_descargarArchivo",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "description": "Número de versión del antecedente",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "archivoId",
+            "required": true,
+            "in": "path",
+            "description": "Identificador del archivo adjunto",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archivo recuperado correctamente"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Descargar un archivo adjunto de antecedentes",
+        "tags": [
+          "Antecedentes clínicos"
+        ]
+      }
+    },
     "/comentarios/{id}": {
       "patch": {
         "operationId": "ComentarioController_actualizar",
@@ -5047,6 +5421,34 @@
           "dietasAnteriores": {
             "type": "string",
             "description": "Dietas anteriores, tipos y resultados logrados"
+          },
+          "estadoRegistro": {
+            "type": "string",
+            "description": "Estado actual del registro de antecedentes",
+            "enum": [
+              "BORRADOR",
+              "COMPLETO",
+              "OBSOLETO"
+            ],
+            "default": "BORRADOR"
+          },
+          "motivoActualizacion": {
+            "type": "string",
+            "description": "Motivo asociado a la actualización"
+          },
+          "idEvaluacionNutricionalOrigen": {
+            "type": "string",
+            "description": "Identificador de la evaluación nutricional que origina el cambio"
+          },
+          "fuenteDatos": {
+            "type": "string",
+            "description": "Fuente de los datos capturados",
+            "enum": [
+              "PROFESIONAL",
+              "PACIENTE",
+              "IMPORTACION"
+            ],
+            "default": "PROFESIONAL"
           }
         },
         "required": [
@@ -5058,6 +5460,142 @@
           "tieneNauseas",
           "tieneVomitos"
         ]
+      },
+      "UpdateAntecedenteDto": {
+        "type": "object",
+        "properties": {
+          "antecedentesFamiliares": {
+            "type": "string",
+            "description": "Antecedentes patológicos familiares"
+          },
+          "enfermedadDiagnosticada": {
+            "type": "boolean",
+            "description": "¿Tiene enfermedad diagnosticada?"
+          },
+          "descripcionEnfermedad": {
+            "type": "string",
+            "description": "Descripción de la enfermedad diagnosticada"
+          },
+          "sigueTratamiento": {
+            "type": "boolean",
+            "description": "¿Sigue un tratamiento médico?"
+          },
+          "descripcionTratamiento": {
+            "type": "string",
+            "description": "Descripción del tratamiento actual"
+          },
+          "tieneCirugia": {
+            "type": "boolean",
+            "description": "¿Se le ha practicado alguna cirugía?"
+          },
+          "descripcionCirugia": {
+            "type": "string",
+            "description": "Descripción de la cirugía realizada"
+          },
+          "tieneEstrenimiento": {
+            "type": "boolean",
+            "description": "¿Tiene estreñimiento?"
+          },
+          "tieneDiarrea": {
+            "type": "boolean",
+            "description": "¿Tiene diarrea?"
+          },
+          "tieneNauseas": {
+            "type": "boolean",
+            "description": "¿Tiene náuseas?"
+          },
+          "tieneVomitos": {
+            "type": "boolean",
+            "description": "¿Tiene vómitos?"
+          },
+          "frecuenciaEvacuacion": {
+            "type": "string",
+            "description": "Frecuencia de evacuación"
+          },
+          "tipoDeposicion": {
+            "type": "string",
+            "description": "Tipo de deposición"
+          },
+          "alergias": {
+            "type": "string",
+            "description": "Alergias conocidas"
+          },
+          "intolerancias": {
+            "type": "string",
+            "description": "Intolerancias alimentarias"
+          },
+          "fechaUltimaMenstruacion": {
+            "type": "string",
+            "description": "Fecha de última menstruación",
+            "format": "date"
+          },
+          "menstruacionRegular": {
+            "type": "boolean",
+            "description": "¿Menstruación regular?"
+          },
+          "metodoAnticonceptivo": {
+            "type": "string",
+            "description": "Método anticonceptivo utilizado"
+          },
+          "colicos": {
+            "type": "boolean",
+            "description": "¿Presenta cólicos?"
+          },
+          "dietasAnteriores": {
+            "type": "string",
+            "description": "Dietas anteriores, tipos y resultados logrados"
+          },
+          "estadoRegistro": {
+            "type": "string",
+            "description": "Estado actual del registro de antecedentes",
+            "enum": [
+              "BORRADOR",
+              "COMPLETO",
+              "OBSOLETO"
+            ],
+            "default": "BORRADOR"
+          },
+          "motivoActualizacion": {
+            "type": "string",
+            "description": "Motivo asociado a la actualización"
+          },
+          "idEvaluacionNutricionalOrigen": {
+            "type": "string",
+            "description": "Identificador de la evaluación nutricional que origina el cambio"
+          },
+          "fuenteDatos": {
+            "type": "string",
+            "description": "Fuente de los datos capturados",
+            "enum": [
+              "PROFESIONAL",
+              "PACIENTE",
+              "IMPORTACION"
+            ],
+            "default": "PROFESIONAL"
+          }
+        }
+      },
+      "CerrarAntecedenteDto": {
+        "type": "object",
+        "properties": {
+          "motivoActualizacion": {
+            "type": "string",
+            "description": "Motivo de cierre o actualización final"
+          },
+          "idEvaluacionNutricionalOrigen": {
+            "type": "string",
+            "description": "Identificador de la evaluación nutricional que origina el cierre"
+          },
+          "fuenteDatos": {
+            "type": "string",
+            "description": "Fuente de los datos que respaldan el cierre",
+            "enum": [
+              "PROFESIONAL",
+              "PACIENTE",
+              "IMPORTACION"
+            ]
+          }
+        }
       },
       "PersonaPacienteDto": {
         "type": "object",

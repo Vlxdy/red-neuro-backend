@@ -124,6 +124,7 @@ export interface ArchivoAdjuntoResponse {
   contenidoBase64: string | null // sin prefijo: solo el base64 puro
   idHistoriaClinica: string
   idEvaluacionNutricional: string | null
+  idAntecedente: string | null
   metadatos?: ArchivoAdjuntoMetadataResponse | null
   fechaCreacion?: Date | string
 }
@@ -179,8 +180,15 @@ export interface AntecedenteResponse {
 
   id: string
   fechaCreacion: Date
+  fechaModificacion?: Date | null
+  fechaCierre?: Date | null
   idHistoriaClinica: string
   estado: string
+  estadoRegistro: string
+  motivoActualizacion?: string | null
+  version: number
+  fuenteDatos: string
+  idEvaluacionNutricionalOrigen?: string | null
 
   archivos?: ArchivoAdjuntoResponse[] | null
 }

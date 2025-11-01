@@ -180,6 +180,107 @@ export class EvaluacionArchivosService {
     }
   }
 
+  async adjuntarArchivosAntecedente({
+    archivos,
+    idAntecedente,
+    idHistoriaClinica,
+    usuarioAuditoria,
+    transaccion,
+  }: {
+    archivos: EvaluacionArchivoTemporal[]
+    idAntecedente: string
+    idHistoriaClinica: string
+    usuarioAuditoria: string
+    transaccion: EntityManager
+  }): Promise<ArchivoAdjunto[]> {
+    if (!archivos.length) {
+      return []
+    }
+
+    const repository = transaccion.getRepository(ArchivoAdjunto)
+    const archivosGuardados: ArchivoAdjunto[] = []
+    const archivosMovidos: string[] = []
+
+    try {
+      for (const archivo of archivos) {
+        const finalDir = path.join(
+          this.finalBaseDir,
+          idHistoriaClinica,
+          'antecedentes',
+          idAntecedente
+        )
+        await fs.mkdir(finalDir, { recursive: true })
+
+        const finalFilename = archivo.filename || `${uuid()}`
+        const finalPath = path.join(finalDir, finalFilename)
+
+        await fs.rename(archivo.path, finalPath)
+        archivosMovidos.push(finalPath)
+
+        const relativePath = path
+          .relative(this.storageRoot, finalPath)
+          .split(path.sep)
+          .join('/')
+
+        const decodedName = Buffer.from(
+          archivo.originalname,
+          'latin1'
+        ).toString('utf8')
+
+        const entidad = repository.create({
+          idHistoriaClinica,
+          idAntecedente,
+          nombreArchivo: decodedName,
+          tipoArchivo: archivo.mimetype,
+          codigo: finalFilename,
+          contenidoBase64: null,
+          usuarioCreacion: usuarioAuditoria,
+          metadatos: {
+            ruta: relativePath,
+            tamanoBytes: archivo.size,
+            tipoMime: archivo.mimetype,
+            nombreOriginal: archivo.originalname,
+          },
+        })
+
+        const guardado = await repository.save(entidad)
+        archivosGuardados.push(guardado)
+      }
+
+      return archivosGuardados
+    } catch (error) {
+      this.logger.error(
+        `Error al adjuntar archivos para el antecedente ${idAntecedente}: ${
+          error instanceof Error ? error.message : error
+        }`
+      )
+
+      await Promise.all(
+        archivosGuardados.map((archivoGuardado) =>
+          repository
+            .delete(archivoGuardado.id)
+            .catch((e) =>
+              this.logger.warn(
+                `No se pudo revertir la creación del archivo adjunto ${archivoGuardado.id}: ${
+                  e instanceof Error ? e.message : e
+                }`
+              )
+            )
+        )
+      )
+
+      await Promise.all(
+        archivosMovidos.map((ruta) => this.eliminarArchivoSilencioso(ruta))
+      )
+
+      throw error
+    } finally {
+      await Promise.all(
+        archivos.map((archivo) => this.eliminarArchivoSilencioso(archivo.path))
+      )
+    }
+  }
+
   async limpiarTemporales(archivos: EvaluacionArchivoTemporal[]) {
     await Promise.all(
       archivos.map((archivo) => this.eliminarArchivoSilencioso(archivo.path))

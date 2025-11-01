@@ -34,20 +34,7 @@ import {
 } from './evaluacion-archivos.service'
 import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
 import { Status } from '@/common/constants'
-
-export type ArchivoDescargable =
-  | {
-      tipo: 'path'
-      path: string
-      nombreArchivo: string
-      mimeType: string
-    }
-  | {
-      tipo: 'buffer'
-      buffer: Buffer
-      nombreArchivo: string
-      mimeType: string
-    }
+import { ArchivoDescargable } from '../types/archivo-descargable.type'
 
 @Injectable()
 export class EvaluacionNutricionalService extends BaseService {
@@ -557,6 +544,7 @@ export class EvaluacionNutricionalService extends BaseService {
       contenidoBase64: archivo.contenidoBase64 ?? null,
       idHistoriaClinica: archivo.idHistoriaClinica,
       idEvaluacionNutricional: archivo.idEvaluacionNutricional ?? null,
+      idAntecedente: (archivo as any).idAntecedente ?? null,
       metadatos: archivo.metadatos ?? null,
       fechaCreacion: archivo.fechaCreacion,
     }))

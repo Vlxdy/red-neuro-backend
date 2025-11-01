@@ -56,4 +56,9 @@ export enum Messages {
 
   // Mensajes de historias clinicas
   HISTORIA_CLINICA_NOT_FOUND = 'La historia clínica no se encuentra registrada.',
+  ANTECEDENTE_NOT_FOUND = 'El antecedente no se encuentra registrado.',
+  ANTECEDENTE_VERSION_NOT_FOUND = 'No se encontró la versión de antecedentes solicitada.',
+  ANTECEDENTE_ARCHIVO_NOT_FOUND = 'El archivo no se encuentra asociado al antecedente.',
+  ANTECEDENTE_INVALID_STATE = 'No es posible actualizar un antecedente que no está en borrador.',
+  ANTECEDENTE_DRAFT_EXISTS = 'Ya existe un antecedente en borrador para la historia clínica.',
 }

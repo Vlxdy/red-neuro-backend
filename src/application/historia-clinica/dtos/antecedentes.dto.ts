@@ -1,10 +1,17 @@
 import {
   IsBoolean,
   IsDateString,
+  IsEnum,
+  IsNumberString,
   IsOptional,
   IsString,
+  ValidateIf,
 } from '@/common/validation'
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger'
+import {
+  AntecedenteEstadoRegistro,
+  AntecedenteFuenteDatos,
+} from '../constants/antecedentes.constants'
 
 export class CreateAntecedenteDto {
   // DATOS FAMILIARES
@@ -20,6 +27,7 @@ export class CreateAntecedenteDto {
   @ApiPropertyOptional({
     description: 'Descripción de la enfermedad diagnosticada',
   })
+  @ValidateIf((dto) => dto.enfermedadDiagnosticada === true)
   @IsOptional()
   @IsString()
   descripcionEnfermedad?: string
@@ -29,6 +37,7 @@ export class CreateAntecedenteDto {
   sigueTratamiento: boolean
 
   @ApiPropertyOptional({ description: 'Descripción del tratamiento actual' })
+  @ValidateIf((dto) => dto.sigueTratamiento === true)
   @IsOptional()
   @IsString()
   descripcionTratamiento?: string
@@ -38,6 +47,7 @@ export class CreateAntecedenteDto {
   tieneCirugia: boolean
 
   @ApiPropertyOptional({ description: 'Descripción de la cirugía realizada' })
+  @ValidateIf((dto) => dto.tieneCirugia === true)
   @IsOptional()
   @IsString()
   descripcionCirugia?: string
@@ -112,4 +122,60 @@ export class CreateAntecedenteDto {
   @IsOptional()
   @IsString()
   dietasAnteriores?: string
+
+  @ApiPropertyOptional({
+    description: 'Estado actual del registro de antecedentes',
+    enum: AntecedenteEstadoRegistro,
+    default: AntecedenteEstadoRegistro.BORRADOR,
+  })
+  @IsOptional()
+  @IsEnum(AntecedenteEstadoRegistro)
+  estadoRegistro?: AntecedenteEstadoRegistro
+
+  @ApiPropertyOptional({ description: 'Motivo asociado a la actualización' })
+  @IsOptional()
+  @IsString()
+  motivoActualizacion?: string
+
+  @ApiPropertyOptional({
+    description:
+      'Identificador de la evaluación nutricional que origina el cambio',
+  })
+  @IsOptional()
+  @IsNumberString()
+  idEvaluacionNutricionalOrigen?: string
+
+  @ApiPropertyOptional({
+    description: 'Fuente de los datos capturados',
+    enum: AntecedenteFuenteDatos,
+    default: AntecedenteFuenteDatos.PROFESIONAL,
+  })
+  @IsOptional()
+  @IsEnum(AntecedenteFuenteDatos)
+  fuenteDatos?: AntecedenteFuenteDatos
+}
+export class UpdateAntecedenteDto extends PartialType(CreateAntecedenteDto) {}
+export class CerrarAntecedenteDto {
+  @ApiPropertyOptional({
+    description: 'Motivo de cierre o actualización final',
+  })
+  @IsOptional()
+  @IsString()
+  motivoActualizacion?: string
+
+  @ApiPropertyOptional({
+    description:
+      'Identificador de la evaluación nutricional que origina el cierre',
+  })
+  @IsOptional()
+  @IsNumberString()
+  idEvaluacionNutricionalOrigen?: string
+
+  @ApiPropertyOptional({
+    description: 'Fuente de los datos que respaldan el cierre',
+    enum: AntecedenteFuenteDatos,
+  })
+  @IsOptional()
+  @IsEnum(AntecedenteFuenteDatos)
+  fuenteDatos?: AntecedenteFuenteDatos
 }
