@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,14 +9,18 @@ import {
   Post,
   Put,
   Req,
+  Res,
   UseGuards,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { BaseController } from '@/common/base'
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -29,15 +34,32 @@ import {
   CreateAntecedenteDto,
   UpdateAntecedenteDto,
 } from '../dtos/antecedentes.dto'
-import { Request } from 'express'
-import { ArchivoAdjuntoDto } from '../dtos/historia-clinica.dto'
+import { Request, Response } from 'express'
+import { FilesInterceptor } from '@nestjs/platform-express'
+import { diskStorage } from 'multer'
+import fs from 'fs/promises'
+import { extname } from 'path'
+import { v4 as uuid } from 'uuid'
+import {
+  EVAL_NUTRI_TEMP_DIR,
+  getEvalNutriMaxFiles,
+  getEvalNutriMaxFileSizeBytes,
+} from '../constants/evaluacion-archivos.constants'
+import { fileFilter } from '@/utils/archivos'
+import {
+  EvaluacionArchivosService,
+  EvaluacionArchivoTemporal,
+} from '../services/evaluacion-archivos.service'
 
 @ApiTags('Antecedentes clínicos')
 @ApiBearerAuth()
 @Controller('historias-clinicas')
 @UseGuards(JwtAuthGuard)
 export class AntecedentesController extends BaseController {
-  constructor(private readonly antecedenteService: AntecedenteService) {
+  constructor(
+    private readonly antecedenteService: AntecedenteService,
+    private readonly evaluacionArchivosService: EvaluacionArchivosService
+  ) {
     super()
   }
 
@@ -141,27 +163,71 @@ export class AntecedentesController extends BaseController {
   }
 
   @Post(':id/antecedentes/:version/archivos')
-  @ApiOperation({ summary: 'Adjuntar un archivo a una versión de antecedente' })
+  @UseInterceptors(
+    FilesInterceptor('archivosAdjuntos', getEvalNutriMaxFiles(), {
+      storage: diskStorage({
+        destination: async (_req, _file, cb) => {
+          await fs.mkdir(EVAL_NUTRI_TEMP_DIR, { recursive: true })
+          cb(null, EVAL_NUTRI_TEMP_DIR)
+        },
+        filename: (_req, file, cb) => {
+          cb(null, `${uuid()}${extname(file.originalname)}`)
+        },
+      }),
+      fileFilter,
+      limits: {
+        files: getEvalNutriMaxFiles(),
+        fileSize: getEvalNutriMaxFileSizeBytes(),
+      },
+    })
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        archivosAdjuntos: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Adjuntar archivos a una versión de antecedente' })
   @ApiParam({
     name: 'version',
     description: 'Número de versión del antecedente',
   })
-  @ApiBody({ type: ArchivoAdjuntoDto })
-  @ApiCreatedResponse({ description: 'Archivo adjuntado correctamente' })
-  async adjuntarArchivo(
+  @ApiCreatedResponse({ description: 'Archivos adjuntados correctamente' })
+  async adjuntarArchivos(
     @Param() params: ParamIdDto,
     @Param('version', ParseIntPipe) version: number,
-    @Body() data: ArchivoAdjuntoDto,
+    @UploadedFiles() archivosAdjuntos: Express.Multer.File[],
     @Req() req: Request
   ) {
     const usuarioAuditoria = this.getUser(req)
-    const archivo = await this.antecedenteService.adjuntarArchivo({
+    let archivosTemporales: EvaluacionArchivoTemporal[]
+    try {
+      archivosTemporales = this.evaluacionArchivosService.mapUploadedFiles(
+        archivosAdjuntos ?? []
+      )
+    } catch (error) {
+      throw new BadRequestException(
+        error instanceof Error ? error.message : String(error)
+      )
+    }
+
+    const archivos = await this.antecedenteService.adjuntarArchivos({
       idHistoriaClinica: params.id,
       version,
-      data,
+      archivos: archivosTemporales,
       usuarioAuditoria,
     })
-    return this.successCreate(archivo)
+
+    return this.successCreate(archivos)
   }
 
   @Delete(':id/antecedentes/:version/archivos/:archivoId')
@@ -191,5 +257,50 @@ export class AntecedentesController extends BaseController {
       usuarioAuditoria,
     })
     return this.successDelete(resultado)
+  }
+
+  @Get(':id/antecedentes/:version/archivos/:archivoId')
+  @ApiOperation({ summary: 'Descargar un archivo adjunto de antecedentes' })
+  @ApiParam({
+    name: 'version',
+    description: 'Número de versión del antecedente',
+  })
+  @ApiParam({
+    name: 'archivoId',
+    description: 'Identificador del archivo adjunto',
+  })
+  @ApiOkResponse({ description: 'Archivo recuperado correctamente' })
+  async descargarArchivo(
+    @Param() params: ParamIdDto,
+    @Param('version', ParseIntPipe) version: number,
+    @Param('archivoId') archivoId: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
+    this.getUser(req)
+    if (!req.user) {
+      throw new BadRequestException('No se pudo identificar al usuario')
+    }
+
+    const archivo = await this.antecedenteService.obtenerArchivoDescargable({
+      idHistoriaClinica: params.id,
+      version,
+      idArchivo: archivoId,
+      solicitante: req.user,
+    })
+
+    const dispositionName = encodeURIComponent(archivo.nombreArchivo)
+    const fallbackName = archivo.nombreArchivo.replace(/"/g, "'")
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${fallbackName}"; filename*=UTF-8''${dispositionName}`
+    )
+    res.setHeader('Content-Type', archivo.mimeType)
+
+    if (archivo.tipo === 'path') {
+      return res.sendFile(archivo.path)
+    }
+
+    return res.send(archivo.buffer)
   }
 }

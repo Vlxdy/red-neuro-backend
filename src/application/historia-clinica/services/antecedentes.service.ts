@@ -1,6 +1,7 @@
 import { BaseService } from '@/common/base/base-service'
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   PreconditionFailedException,
@@ -22,18 +23,24 @@ import {
   ArchivoAdjuntoResponse,
 } from '@/common/types/data-response.type'
 import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
-import { ArchivoAdjuntoService } from './archivo-adjunto.service'
 import { ArchivoRepository } from '../repositories/archivo.repository'
 import { Status } from '@/common/constants'
 import { Messages } from '@/common/constants/response-messages'
-import { ArchivoAdjuntoDto } from '../dtos/historia-clinica.dto'
+import { HistoriaClinicaRepository } from '../repositories/historia-clinica.repository'
+import {
+  EvaluacionArchivosService,
+  EvaluacionArchivoTemporal,
+} from './evaluacion-archivos.service'
+import { ArchivoDescargable } from '../types/archivo-descargable.type'
+import { RolEnum } from '@/core/authorization/rol.enum'
 
 @Injectable()
 export class AntecedenteService extends BaseService {
   constructor(
     private readonly antecedenteRepository: AntecedenteRepository,
-    private readonly archivoAdjuntoService: ArchivoAdjuntoService,
-    private readonly archivoRepository: ArchivoRepository
+    private readonly archivoRepository: ArchivoRepository,
+    private readonly historiaClinicaRepository: HistoriaClinicaRepository,
+    private readonly evaluacionArchivosService: EvaluacionArchivosService
   ) {
     super()
   }
@@ -61,13 +68,28 @@ export class AntecedenteService extends BaseService {
     }
 
     const {
-      archivos,
       estadoRegistro,
       motivoActualizacion,
       idEvaluacionNutricionalOrigen,
       fuenteDatos,
       ...camposClinicos
     } = data
+
+    const historiaClinica = await this.historiaClinicaRepository.buscarPorId(
+      idHistoriaClinica,
+      transaccion
+    )
+
+    if (!historiaClinica) {
+      throw new NotFoundException(Messages.HISTORIA_CLINICA_NOT_FOUND)
+    }
+
+    const camposSanitizados = this.aplicarReglasGenero(
+      camposClinicos,
+      this.esGeneroFemenino(
+        historiaClinica.paciente?.usuario?.persona?.genero ?? undefined
+      )
+    )
 
     const ultimaVersion = await this.antecedenteRepository.buscarUltimaVersion(
       idHistoriaClinica,
@@ -101,7 +123,7 @@ export class AntecedenteService extends BaseService {
 
     const nuevoAntecedente = await this.antecedenteRepository.crearAntecedente({
       idHistoriaClinica,
-      data: camposClinicos as CreateAntecedenteDto,
+      data: camposSanitizados as CreateAntecedenteDto,
       usuarioAuditoria,
       transaccion,
       version,
@@ -111,18 +133,6 @@ export class AntecedenteService extends BaseService {
       idEvaluacionNutricionalOrigen,
       fechaCierre,
     })
-
-    if (archivos?.length) {
-      for (const archivo of archivos) {
-        await this.archivoAdjuntoService.crearArchivo({
-          idHistoriaClinica,
-          data: archivo,
-          usuarioAuditoria,
-          transaccion,
-          idAntecedente: nuevoAntecedente.id,
-        })
-      }
-    }
 
     const antecedenteCreado = await this.antecedenteRepository.buscarPorId(
       nuevoAntecedente.id,
@@ -158,13 +168,23 @@ export class AntecedenteService extends BaseService {
       return await this.antecedenteRepository.runTransaction(op)
     }
 
-    const { archivos, estadoRegistro, ...camposClinicos } = data
+    const { estadoRegistro, ...camposClinicos } = data
 
-    if (archivos?.length) {
-      throw new BadRequestException(
-        'Los archivos se deben adjuntar mediante el endpoint específico.'
-      )
+    const historiaClinica = await this.historiaClinicaRepository.buscarPorId(
+      idHistoriaClinica,
+      transaccion
+    )
+
+    if (!historiaClinica) {
+      throw new NotFoundException(Messages.HISTORIA_CLINICA_NOT_FOUND)
     }
+
+    const camposSanitizados = this.aplicarReglasGenero(
+      camposClinicos,
+      this.esGeneroFemenino(
+        historiaClinica.paciente?.usuario?.persona?.genero ?? undefined
+      )
+    )
 
     if (
       estadoRegistro &&
@@ -191,7 +211,7 @@ export class AntecedenteService extends BaseService {
 
     await this.antecedenteRepository.actualizarAntecedente({
       id: antecedenteActual.id,
-      data: camposClinicos,
+      data: camposSanitizados,
       usuarioAuditoria,
       transaccion,
     })
@@ -308,17 +328,21 @@ export class AntecedenteService extends BaseService {
     return this.formatarRespuestaAntecedente(antecedente)
   }
 
-  async adjuntarArchivo({
+  async adjuntarArchivos({
     idHistoriaClinica,
     version,
-    data,
+    archivos,
     usuarioAuditoria,
   }: {
     idHistoriaClinica: string
     version: number
-    data: ArchivoAdjuntoDto
+    archivos: EvaluacionArchivoTemporal[]
     usuarioAuditoria: string
-  }): Promise<ArchivoAdjuntoResponse> {
+  }): Promise<ArchivoAdjuntoResponse[]> {
+    if (!archivos.length) {
+      return []
+    }
+
     return await this.antecedenteRepository.runTransaction(
       async (transaccion) => {
         const antecedente = await this.antecedenteRepository.buscarPorVersion(
@@ -331,15 +355,16 @@ export class AntecedenteService extends BaseService {
           throw new NotFoundException(Messages.ANTECEDENTE_VERSION_NOT_FOUND)
         }
 
-        const archivo = await this.archivoAdjuntoService.crearArchivo({
-          idHistoriaClinica,
-          data,
-          usuarioAuditoria,
-          idAntecedente: antecedente.id,
-          transaccion,
-        })
+        const adjuntos =
+          await this.evaluacionArchivosService.adjuntarArchivosAntecedente({
+            archivos,
+            idAntecedente: antecedente.id,
+            idHistoriaClinica,
+            usuarioAuditoria,
+            transaccion,
+          })
 
-        return this.mapArchivoAdjunto(archivo)
+        return adjuntos.map((archivo) => this.mapArchivoAdjunto(archivo))
       }
     )
   }
@@ -384,6 +409,80 @@ export class AntecedenteService extends BaseService {
 
         return { id: archivo.id }
       }
+    )
+  }
+
+  async obtenerArchivoDescargable({
+    idHistoriaClinica,
+    version,
+    idArchivo,
+    solicitante,
+  }: {
+    idHistoriaClinica: string
+    version: number
+    idArchivo: string
+    solicitante: PassportUser
+  }): Promise<ArchivoDescargable> {
+    const antecedente = await this.antecedenteRepository.buscarPorVersion(
+      idHistoriaClinica,
+      version
+    )
+
+    if (!antecedente) {
+      throw new NotFoundException(Messages.ANTECEDENTE_VERSION_NOT_FOUND)
+    }
+
+    const archivo = antecedente.archivos?.find(
+      (item) => String(item.id) === String(idArchivo)
+    )
+
+    if (!archivo) {
+      throw new NotFoundException(Messages.ANTECEDENTE_ARCHIVO_NOT_FOUND)
+    }
+
+    const roles = new Set(
+      (solicitante.roles ?? []).map((rol) => rol.toUpperCase())
+    )
+
+    const esAdmin = roles.has(RolEnum.ADMINISTRADOR)
+    const esNutricionista = roles.has(RolEnum.NUTRICIONISTA)
+    const esPacientePropietario =
+      roles.has(RolEnum.PACIENTE) &&
+      solicitante.idUsuarioRol &&
+      antecedente.historiaClinica?.idPaciente === solicitante.idUsuarioRol
+
+    if (!(esAdmin || esNutricionista || esPacientePropietario)) {
+      throw new ForbiddenException(
+        'No tiene permisos para acceder a este archivo adjunto'
+      )
+    }
+
+    const rutaFinal =
+      await this.evaluacionArchivosService.obtenerRutaFinal(archivo)
+
+    const mimeType = archivo.tipoArchivo ?? 'application/octet-stream'
+    const nombreArchivo = archivo.nombreArchivo
+
+    if (rutaFinal) {
+      return {
+        tipo: 'path',
+        path: rutaFinal,
+        nombreArchivo,
+        mimeType,
+      }
+    }
+
+    if (archivo.contenidoBase64) {
+      return {
+        tipo: 'buffer',
+        buffer: Buffer.from(archivo.contenidoBase64, 'base64'),
+        nombreArchivo,
+        mimeType,
+      }
+    }
+
+    throw new NotFoundException(
+      'El archivo adjunto no tiene contenido disponible para descargar'
     )
   }
 
@@ -436,6 +535,31 @@ export class AntecedenteService extends BaseService {
     }
   }
 
+  private aplicarReglasGenero<T extends Partial<CreateAntecedenteDto>>(
+    data: T,
+    esPacienteFemenino: boolean
+  ): T {
+    if (esPacienteFemenino) {
+      return data
+    }
+
+    return {
+      ...data,
+      fechaUltimaMenstruacion: null,
+      menstruacionRegular: null,
+      metodoAnticonceptivo: null,
+      colicos: null,
+    } as T
+  }
+
+  private esGeneroFemenino(genero?: string | null): boolean {
+    if (!genero) {
+      return false
+    }
+
+    return genero.trim().toLowerCase().startsWith('f')
+  }
+
   private mapArchivoAdjunto(archivo: ArchivoAdjunto): ArchivoAdjuntoResponse {
     return {
       id: archivo.id,
@@ -446,6 +570,7 @@ export class AntecedenteService extends BaseService {
       fechaCreacion: archivo.fechaCreacion,
       idHistoriaClinica: archivo.idHistoriaClinica,
       idEvaluacionNutricional: archivo.idEvaluacionNutricional ?? null,
+      idAntecedente: archivo.idAntecedente ?? null,
       metadatos: archivo.metadatos ?? null,
     }
   }

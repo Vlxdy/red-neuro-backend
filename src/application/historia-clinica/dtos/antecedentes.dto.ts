@@ -12,7 +12,6 @@ import {
   AntecedenteEstadoRegistro,
   AntecedenteFuenteDatos,
 } from '../constants/antecedentes.constants'
-import { ArchivoAdjuntoDto } from './historia-clinica.dto'
 
 export class CreateAntecedenteDto {
   // DATOS FAMILIARES
@@ -154,17 +153,8 @@ export class CreateAntecedenteDto {
   @IsOptional()
   @IsEnum(AntecedenteFuenteDatos)
   fuenteDatos?: AntecedenteFuenteDatos
-
-  @ApiPropertyOptional({
-    description: 'Archivos adjuntos asociados al antecedente',
-    type: [ArchivoAdjuntoDto],
-  })
-  @IsOptional()
-  archivos?: ArchivoAdjuntoDto[]
 }
-
 export class UpdateAntecedenteDto extends PartialType(CreateAntecedenteDto) {}
-
 export class CerrarAntecedenteDto {
   @ApiPropertyOptional({
     description: 'Motivo de cierre o actualización final',

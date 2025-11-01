@@ -267,6 +267,7 @@ export class AntecedenteRepository {
     return (transaccion || this.dataSource)
       .getRepository(Antecedente)
       .createQueryBuilder('antecedente')
+      .leftJoinAndSelect('antecedente.historiaClinica', 'historiaClinica')
       .leftJoinAndSelect(
         'antecedente.archivos',
         'archivo',
