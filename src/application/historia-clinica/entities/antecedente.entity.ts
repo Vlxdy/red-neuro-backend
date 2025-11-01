@@ -11,6 +11,10 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Status } from '@/common/constants'
 import { HistoriaClinica } from './historia-clinica.entity'
 import { ArchivoAdjunto } from './archivos-adjunto.entity'
+import {
+  AntecedenteEstadoRegistro,
+  AntecedenteFuenteDatos,
+} from '../constants/antecedentes.constants'
 
 @Entity({
   name: 'antecedentes',
@@ -128,6 +132,56 @@ export class Antecedente extends AuditoriaEntity {
     comment: 'Identificador del historial clínico asociado',
   })
   idHistoriaClinica: string
+
+  @Column({
+    name: 'estado_registro',
+    type: 'varchar',
+    length: 20,
+    default: AntecedenteEstadoRegistro.BORRADOR,
+    comment: 'Estado de completitud del antecedente',
+  })
+  estadoRegistro: AntecedenteEstadoRegistro
+
+  @Column({
+    name: 'motivo_actualizacion',
+    type: 'text',
+    nullable: true,
+    comment: 'Motivo de la última actualización del antecedente',
+  })
+  motivoActualizacion?: string | null
+
+  @Column({
+    name: 'version',
+    type: 'int',
+    default: 1,
+    comment: 'Número de versión del antecedente',
+  })
+  version: number
+
+  @Column({
+    name: 'fuente_datos',
+    type: 'varchar',
+    length: 30,
+    default: AntecedenteFuenteDatos.PROFESIONAL,
+    comment: 'Fuente de los datos registrados',
+  })
+  fuenteDatos: AntecedenteFuenteDatos
+
+  @Column({
+    name: 'id_evaluacion_nutricional_origen',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Evaluación nutricional que origina la versión del antecedente',
+  })
+  idEvaluacionNutricionalOrigen?: string | null
+
+  @Column({
+    name: 'fecha_cierre',
+    type: 'timestamp without time zone',
+    nullable: true,
+    comment: 'Fecha en la que el antecedente pasó a estado completo',
+  })
+  fechaCierre?: Date | null
 
   @ManyToOne(() => HistoriaClinica, (historial) => historial.antecedente)
   @JoinColumn({ name: 'id_historia_clinica' })

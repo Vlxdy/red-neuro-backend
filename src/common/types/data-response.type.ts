@@ -166,8 +166,15 @@ export interface AntecedenteResponse {
 
   id: string
   fechaCreacion: Date
+  fechaModificacion?: Date | null
+  fechaCierre?: Date | null
   idHistoriaClinica: string
   estado: string
+  estadoRegistro: string
+  motivoActualizacion?: string | null
+  version: number
+  fuenteDatos: string
+  idEvaluacionNutricionalOrigen?: string | null
 
   archivos?: ArchivoAdjuntoResponse[] | null
 }

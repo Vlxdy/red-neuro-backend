@@ -4,6 +4,7 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumberString,
+  IsObject,
   IsOptional,
   IsString,
   Length,
@@ -11,6 +12,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger'
 import { Validate } from 'class-validator'
 import { CrearEvaluacionDto } from './evaluacion.dto'
+import { ArchivoAdjuntoMetadatos } from '../entities/archivos-adjunto.entity'
 
 export class ArchivoAdjuntoDto {
   @ApiProperty({
@@ -39,6 +41,14 @@ export class ArchivoAdjuntoDto {
   @IsString()
   @Length(0, 1000000)
   contenidoBase64: string // sin prefijo: solo el base64 puro
+
+  @ApiProperty({
+    description: 'Metadatos asociados al archivo adjunto',
+    required: false,
+  })
+  @IsOptional()
+  @IsObject()
+  metadatos?: ArchivoAdjuntoMetadatos
 }
 
 export class ExamenesSolicitadosDto {
