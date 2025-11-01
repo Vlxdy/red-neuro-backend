@@ -544,6 +544,7 @@ export class EvaluacionNutricionalService extends BaseService {
       contenidoBase64: archivo.contenidoBase64 ?? null,
       idHistoriaClinica: archivo.idHistoriaClinica,
       idEvaluacionNutricional: archivo.idEvaluacionNutricional ?? null,
+      idAntecedente: (archivo as any).idAntecedente ?? null,
       metadatos: archivo.metadatos ?? null,
       fechaCreacion: archivo.fechaCreacion,
     }))

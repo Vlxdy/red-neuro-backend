@@ -273,11 +273,11 @@ export class AntecedenteService extends BaseService {
         motivoActualizacion:
           data.motivoActualizacion ??
           antecedenteActual.motivoActualizacion ??
-          null,
+          undefined,
         idEvaluacionNutricionalOrigen:
           typeof data.idEvaluacionNutricionalOrigen !== 'undefined'
             ? data.idEvaluacionNutricionalOrigen
-            : (antecedenteActual.idEvaluacionNutricionalOrigen ?? null),
+            : (antecedenteActual.idEvaluacionNutricionalOrigen ?? undefined),
         fuenteDatos: data.fuenteDatos ?? antecedenteActual.fuenteDatos,
         fechaCierre: new Date(),
       },

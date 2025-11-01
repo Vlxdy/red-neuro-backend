@@ -78,6 +78,16 @@ export class modulo1611497480901 implements MigrationInterface {
               orden: 3,
             },
           },
+          {
+            nombre: 'Mis antecedentes',
+            url: '/admin/antecedentes',
+            label: 'Mis antecedentes',
+            propiedades: {
+              icono: 'history_edu',
+              descripcion: 'Antecedentes de salud',
+              orden: 4,
+            },
+          },
 
           // {
           //   nombre: 'recomendaciones',
