@@ -90,6 +90,69 @@ class ListarCitasResponseDataDto {
   total: number
 }
 
+export class CitaDetalleResponseDto extends CitaListadoItemResponseDto {
+  @ApiProperty({ example: '23' })
+  idPaciente: string
+
+  @ApiProperty({ example: '7' })
+  idMedico: string
+
+  @ApiPropertyOptional({
+    description:
+      'Último comentario registrado por el nutricionista para la cita',
+    example: 'Recuerda traer tus últimos análisis.',
+    nullable: true,
+  })
+  comentarioNutricionista?: string | null
+
+  @ApiPropertyOptional({
+    description: 'Fecha en la que la cita fue confirmada y quedó bloqueada',
+    example: '2024-07-10T14:00:00.000Z',
+    nullable: true,
+  })
+  lockedAt?: Date | string | null
+
+  @ApiProperty({
+    description:
+      'Cantidad de reversiones de pendiente a borrador dentro de la ventana controlada',
+    example: 0,
+  })
+  reversionesPendiente: number
+
+  @ApiPropertyOptional({
+    description: 'Última fecha en la que se actualizó la ventana de reversión',
+    example: '2024-07-09T10:30:00.000Z',
+    nullable: true,
+  })
+  reversionPendienteActualizadaEn?: Date | string | null
+
+  @ApiProperty({
+    description:
+      'Cantidad de reprogramaciones realizadas después de un rechazo',
+    example: 1,
+  })
+  reprogramacionesDesdeRechazo: number
+
+  @ApiProperty({
+    description: 'Cantidad total de reprogramaciones realizadas sobre la cita',
+    example: 2,
+  })
+  reprogramacionesTotales: number
+
+  @ApiProperty({
+    description: 'Fecha de creación del registro de la cita',
+    example: '2024-07-05T12:15:30.000Z',
+  })
+  fechaCreacion: Date | string
+
+  @ApiPropertyOptional({
+    description: 'Fecha de última modificación del registro de la cita',
+    example: '2024-07-11T09:45:00.000Z',
+    nullable: true,
+  })
+  fechaModificacion?: Date | string | null
+}
+
 export class ListarCitasSuccessResponseDto {
   @ApiProperty({ example: true })
   finalizado: boolean

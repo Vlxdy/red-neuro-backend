@@ -24,6 +24,20 @@ export class CitasRepository {
       .getOne()
   }
 
+  async buscarDetallePorId(id: string, transaccion?: EntityManager) {
+    return await (transaccion || this.dataSource)
+      .getRepository(Cita)
+      .createQueryBuilder('citas')
+      .leftJoinAndSelect('citas.medico', 'medico')
+      .leftJoinAndSelect('medico.usuario', 'usuarioMedico')
+      .leftJoinAndSelect('usuarioMedico.persona', 'personaMedico')
+      .leftJoinAndSelect('citas.paciente', 'paciente')
+      .leftJoinAndSelect('paciente.usuario', 'usuarioPaciente')
+      .leftJoinAndSelect('usuarioPaciente.persona', 'personaPaciente')
+      .where('citas.id = :id', { id })
+      .getOne()
+  }
+
   async actualizar({
     id,
     datosDto,

@@ -26,7 +26,10 @@ import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
 import { MedicosService } from './medicos.service'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado } from '../constant'
-import { CitaResponse } from '@/common/types/data-response.type'
+import {
+  CitaDetalleResponse,
+  CitaResponse,
+} from '@/common/types/data-response.type'
 import { formatearUsuarioRolRespuesta } from '../utils/formateos'
 import { NotificacionService } from './notificacion.service'
 import dayjs, { Dayjs } from 'dayjs'
@@ -1051,6 +1054,32 @@ export class CitasService extends BaseService {
   //   })
   // }
 
+  async obtenerDetalleCita({
+    idCita,
+    idRol,
+    idUsuarioRol,
+  }: {
+    idCita: string
+    idRol: string
+    idUsuarioRol: string
+  }): Promise<CitaDetalleResponse> {
+    const cita = await this.citasRepositorio.buscarDetallePorId(idCita)
+
+    if (!cita) {
+      throw new NotFoundException('Cita no encontrada')
+    }
+
+    if (this.esPaciente(idRol)) {
+      this.validarAccesoPaciente(cita, idUsuarioRol)
+    } else if (this.esNutricionista(idRol)) {
+      this.validarAccesoProfesional(cita, idUsuarioRol, false)
+    } else if (!this.esAdministrador(idRol)) {
+      throw new ForbiddenException('No tienes permisos para ver la cita.')
+    }
+
+    return this.formatearDetalleCita(cita)
+  }
+
   async obtenerHistorialCita({
     idCita,
     idRol,
@@ -1489,6 +1518,31 @@ export class CitasService extends BaseService {
       estado: cita.estado,
       paciente: formatearUsuarioRolRespuesta(cita.paciente),
       medico: cita.medico ? formatearUsuarioRolRespuesta(cita.medico) : null,
+    }
+  }
+
+  private formatearDetalleCita(cita: Cita): CitaDetalleResponse {
+    return {
+      id: cita.id,
+      detalle: cita.detalle,
+      fechaInicio: cita.fechaInicio,
+      fechaFin: cita.fechaFin,
+      estado: cita.estado,
+      paciente: cita.paciente
+        ? formatearUsuarioRolRespuesta(cita.paciente)
+        : null,
+      medico: cita.medico ? formatearUsuarioRolRespuesta(cita.medico) : null,
+      idPaciente: cita.idPaciente,
+      idMedico: cita.idMedico,
+      comentarioNutricionista: cita.comentarioNutricionista ?? null,
+      lockedAt: cita.lockedAt ?? null,
+      reversionesPendiente: cita.reversionesPendiente,
+      reversionPendienteActualizadaEn:
+        cita.reversionPendienteActualizadaEn ?? null,
+      reprogramacionesDesdeRechazo: cita.reprogramacionesDesdeRechazo,
+      reprogramacionesTotales: cita.reprogramacionesTotales,
+      fechaCreacion: cita.fechaCreacion,
+      fechaModificacion: cita.fechaModificacion ?? null,
     }
   }
 }

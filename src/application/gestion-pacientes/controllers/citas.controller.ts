@@ -18,6 +18,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -28,6 +29,7 @@ import {
   AprobarCitaDto,
   CancelarCitaDto,
   CrearCitaDto,
+  CitaDetalleResponseDto,
   HistorialCitaItemResponseDto,
   ListarCitasQueryDto,
   ListarCitasPorRangoQueryDto,
@@ -164,6 +166,34 @@ export class CitasController extends BaseController {
     })
 
     return this.successListRows(respuesta as any)
+  }
+
+  @ApiOperation({
+    summary: 'Obtener los detalles completos de una cita médica',
+    description:
+      'Permite consultar la información detallada de una cita de acuerdo a los permisos del paciente, nutricionista o administrador.',
+  })
+  @ApiOkResponse({
+    description: 'Detalle de la cita recuperado correctamente.',
+    type: CitaDetalleResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'El usuario no tiene permisos para consultar esta cita.',
+  })
+  @ApiNotFoundResponse({ description: 'Cita no encontrada.' })
+  @Get(':id')
+  async obtenerCita(@Param() param: ParamIdDto, @Req() req: Request) {
+    const idRol = this.getRol(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    const { id: idCita } = param
+
+    const detalle = await this.citasService.obtenerDetalleCita({
+      idCita,
+      idRol,
+      idUsuarioRol,
+    })
+
+    return this.success(detalle)
   }
 
   @ApiOperation({ summary: 'Actualizar los datos de una cita' })
