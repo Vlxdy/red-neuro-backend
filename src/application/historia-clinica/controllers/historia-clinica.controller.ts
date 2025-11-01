@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -18,7 +19,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger'
 import { HistoriaClinicaService } from '../services/historia-clinico.service'
 import { EvaluacionNutricionalService } from '../services/evaluacion-nutricional.service'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import {
   CreateEvaluacionAntropometricaDto,
   QueryEvaluacionesDto,
@@ -39,7 +40,17 @@ import {
 } from '../constants/evaluacion-archivos.constants'
 import { v4 as uuid } from 'uuid'
 import { EvaluacionArchivosService } from '../services/evaluacion-archivos.service'
-import { fileFilter } from '@/utils/archivos'
+import { chatFileFilter, fileFilter } from '@/utils/archivos'
+import {
+  CHAT_TEMP_DIR,
+  getChatMaxFileSizeBytes,
+  getChatMaxFiles,
+} from '../constants/comentario-archivos.constants'
+import {
+  ComentarioArchivosService,
+  ComentarioArchivoTemporal,
+} from '../services/comentario-archivos.service'
+import { enviarArchivoAdjunto } from '../utils/comentario-archivo-response.util'
 
 @ApiTags('Historia clinica')
 @ApiBearerAuth()
@@ -52,7 +63,8 @@ export class HistoriaClinicaController extends BaseController {
     private evaluacionNutricionalService: EvaluacionNutricionalService,
     private comentarioService: ComentarioService,
     private antecedenteService: AntecedenteService,
-    private readonly evaluacionArchivosService: EvaluacionArchivosService
+    private readonly evaluacionArchivosService: EvaluacionArchivosService,
+    private readonly comentarioArchivosService: ComentarioArchivosService
   ) {
     super()
   }
@@ -143,29 +155,105 @@ export class HistoriaClinicaController extends BaseController {
   @Get(':id/comentarios')
   async listarComentarios(
     @Param() params: ParamIdDto,
+    @Req() req: Request,
     @Query() paginacionQueryDto: PaginacionQueryDto
   ) {
     const { id: idHistoriaClinica } = params
-    const result = await this.comentarioService.listarPorRecurso(
+    const result = await this.comentarioService.listarPorRecurso({
       paginacionQueryDto,
-      idHistoriaClinica
-    )
+      idHistoriaClinica,
+      actor: {
+        idUsuarioRol: this.getUsuarioRol(req),
+        idRol: this.getRol(req),
+      },
+    })
     return this.successListRows(result)
   }
 
+  @Get(':id/comentarios/:comentarioId/archivos/:archivoId')
+  async descargarArchivoComentario(
+    @Param('id') idHistoriaClinica: string,
+    @Param('comentarioId') comentarioId: string,
+    @Param('archivoId') archivoId: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
+    if (!req.user) {
+      throw new BadRequestException('No se pudo identificar al usuario')
+    }
+
+    const archivo = await this.comentarioService.obtenerArchivoDescargable({
+      idComentario: comentarioId,
+      idArchivo: archivoId,
+      solicitante: req.user,
+      idHistoriaClinica,
+    })
+
+    return enviarArchivoAdjunto(res, archivo)
+  }
+
   @Post(':id/comentarios')
+  @UseInterceptors(
+    FilesInterceptor('archivos', getChatMaxFiles(), {
+      storage: diskStorage({
+        destination: async (_req, _file, cb) => {
+          await fs.mkdir(CHAT_TEMP_DIR, { recursive: true })
+          cb(null, CHAT_TEMP_DIR)
+        },
+        filename: (_req, file, cb) => {
+          cb(null, `${uuid()}${extname(file.originalname)}`)
+        },
+      }),
+      fileFilter: chatFileFilter,
+      limits: {
+        files: getChatMaxFiles(),
+        fileSize: getChatMaxFileSizeBytes(),
+      },
+    })
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        archivos: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+      additionalProperties: true,
+    },
+  })
   async crearComentario(
     @Req() req: Request,
     @Body() comentarioDto: CrearComentarioDto,
-    @Param() params: ParamIdDto
+    @Param() params: ParamIdDto,
+    @UploadedFiles() archivos: Express.Multer.File[]
   ) {
     const usuarioAuditoria = this.getUser(req)
     const { id: idHistoriaClinica } = params
+    let archivosTemporales: ComentarioArchivoTemporal[] = []
+    try {
+      archivosTemporales = this.comentarioArchivosService.mapUploadedFiles(
+        archivos ?? []
+      )
+    } catch (error) {
+      throw new BadRequestException(
+        error instanceof Error ? error.message : String(error)
+      )
+    }
     const result = await this.comentarioService.crear({
-      idUsuarioRol: this.getUsuarioRol(req),
       comentarioDto,
       idHistoriaClinica,
       usuarioAuditoria,
+      actor: {
+        idUsuarioRol: this.getUsuarioRol(req),
+        idRol: this.getRol(req),
+      },
+      archivos: archivosTemporales,
     })
     return this.successCreate(result)
   }

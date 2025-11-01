@@ -11,6 +11,7 @@ import { Status } from '@/common/constants'
 import { HistoriaClinica } from './historia-clinica.entity'
 import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 import { Antecedente } from './antecedente.entity'
+import { Comentario } from './comentario.entity'
 
 export interface ArchivoAdjuntoMetadatos {
   ruta: string
@@ -101,6 +102,18 @@ export class ArchivoAdjunto extends AuditoriaEntity {
   @ManyToOne(() => Antecedente, (antecedente) => antecedente.archivos)
   @JoinColumn({ name: 'id_antecedente' })
   antecedente: Antecedente
+
+  @Column({
+    name: 'id_comentario',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Identificador del comentario asociado',
+  })
+  idComentario: string | null
+
+  @ManyToOne(() => Comentario, (comentario) => comentario.archivos)
+  @JoinColumn({ name: 'id_comentario' })
+  comentario: Comentario
 
   @Column({
     name: 'metadatos',

@@ -1,10 +1,11 @@
-import { DataSource } from 'typeorm'
+import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
 import { Status } from 'src/common/constants'
 import dayjs from 'dayjs'
 import { Comentario } from '../entities/comentario.entity'
 import { CrearComentarioDto } from '../dtos/comentario.dto'
+import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
 
 @Injectable()
 export class ComentarioRepository {
@@ -15,11 +16,13 @@ export class ComentarioRepository {
     idUsuarioRol,
     comentarioDto,
     usuarioAuditoria,
+    transaccion,
   }: {
     idHistoriaClinica: string
     idUsuarioRol: string
     comentarioDto: CrearComentarioDto
     usuarioAuditoria: string
+    transaccion?: EntityManager
   }) {
     const newComentario = new Comentario({
       ...comentarioDto,
@@ -28,7 +31,10 @@ export class ComentarioRepository {
       usuarioCreacion: usuarioAuditoria,
       fechaCreacion: dayjs().toDate(),
     })
-    return await this.dataSource.getRepository(Comentario).save(newComentario)
+    const repository = transaccion
+      ? transaccion.getRepository(Comentario)
+      : this.dataSource.getRepository(Comentario)
+    return await repository.save(newComentario)
   }
 
   async responderComentario({
@@ -36,19 +42,28 @@ export class ComentarioRepository {
     idComentarioPadre,
     usuarioAuditoria,
     idUsuarioRol,
+    idHistoriaClinica,
+    transaccion,
   }: {
     comentarioDto: CrearComentarioDto
     idComentarioPadre: string
     usuarioAuditoria: string
     idUsuarioRol: string
+    idHistoriaClinica: string
+    transaccion?: EntityManager
   }) {
     const newComentario = new Comentario({
       ...comentarioDto,
       idComentarioPadre,
       usuarioCreacion: usuarioAuditoria,
       idUsuarioRol,
+      idHistoriaClinica,
+      fechaCreacion: dayjs().toDate(),
     })
-    return await this.dataSource.getRepository(Comentario).save(newComentario)
+    const repository = transaccion
+      ? transaccion.getRepository(Comentario)
+      : this.dataSource.getRepository(Comentario)
+    return await repository.save(newComentario)
   }
 
   async actualizar(
@@ -73,48 +88,44 @@ export class ComentarioRepository {
     const query = this.dataSource
       .getRepository(Comentario)
       .createQueryBuilder('comentario')
-      .leftJoin('comentario.usuarioRol', 'usuarioRol')
-      .leftJoin('usuarioRol.usuario', 'usuario')
-      .leftJoin('usuario.persona', 'persona')
-      .leftJoin(
+      .leftJoinAndSelect('comentario.usuarioRol', 'usuarioRol')
+      .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
+      .leftJoinAndSelect('usuario.persona', 'persona')
+      .leftJoinAndSelect('usuarioRol.rol', 'rol')
+      .leftJoinAndSelect(
+        'comentario.archivos',
+        'archivosComentario',
+        'archivosComentario.estado = :estadoArchivo'
+      )
+      .leftJoinAndSelect(
         'comentario.respuestas',
         'respuesta',
         'respuesta.estado = :estadoRespuesta',
         { estadoRespuesta: Status.ACTIVE }
       )
-      .leftJoin('respuesta.usuarioRol', 'usuarioRolRespuesta')
-      .leftJoin('usuarioRolRespuesta.usuario', 'user')
-      .leftJoin('user.persona', 'person')
-      .select([
-        'comentario.id',
-        'comentario.contenido',
-        'comentario.fechaCreacion',
-        'respuesta.id',
-        'respuesta.contenido',
-        'respuesta.fechaCreacion',
-        'usuario.id',
-        'usuario.urlFoto',
-        'persona.nombres',
-        'persona.primerApellido',
-        'persona.segundoApellido',
-        'user.id',
-        'user.urlFoto',
-        'person.nombres',
-        'person.primerApellido',
-        'person.segundoApellido',
-        'usuarioRol.id',
-        'usuarioRol.rol',
-        'usuarioRolRespuesta.id',
-        'usuarioRolRespuesta.rol',
-      ])
-      .where({ idHistoriaClinica })
-      .andWhere({ estado: Status.ACTIVE })
-      .orderBy({
-        'comentario.id': 'DESC',
+      .leftJoinAndSelect('respuesta.usuarioRol', 'usuarioRolRespuesta')
+      .leftJoinAndSelect('usuarioRolRespuesta.usuario', 'usuarioRespuesta')
+      .leftJoinAndSelect('usuarioRespuesta.persona', 'personaRespuesta')
+      .leftJoinAndSelect('usuarioRolRespuesta.rol', 'rolRespuesta')
+      .leftJoinAndSelect(
+        'respuesta.archivos',
+        'archivosRespuesta',
+        'archivosRespuesta.estado = :estadoArchivo'
+      )
+      .where('comentario.idHistoriaClinica = :idHistoriaClinica', {
+        idHistoriaClinica,
       })
+      .andWhere('comentario.estado = :estado', { estado: Status.ACTIVE })
+      .orderBy('comentario.fechaCreacion', 'ASC')
+      .addOrderBy('respuesta.fechaCreacion', 'ASC')
       .take(limite)
       .skip(saltar)
-    return await query.getManyAndCount()
+    return await query
+      .setParameters({
+        estadoArchivo: Status.ACTIVE,
+        estadoRespuesta: Status.ACTIVE,
+      })
+      .getManyAndCount()
   }
 
   async buscarPorId(id: string) {
@@ -122,6 +133,59 @@ export class ComentarioRepository {
       .getRepository(Comentario)
       .createQueryBuilder('comentario')
       .where({ id })
+      .getOne()
+  }
+
+  async obtenerDetalle(id: string) {
+    return await this.dataSource
+      .getRepository(Comentario)
+      .createQueryBuilder('comentario')
+      .leftJoinAndSelect('comentario.usuarioRol', 'usuarioRol')
+      .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
+      .leftJoinAndSelect('usuario.persona', 'persona')
+      .leftJoinAndSelect('usuarioRol.rol', 'rol')
+      .leftJoinAndSelect(
+        'comentario.archivos',
+        'archivosComentario',
+        'archivosComentario.estado = :estadoArchivo'
+      )
+      .leftJoinAndSelect(
+        'comentario.respuestas',
+        'respuesta',
+        'respuesta.estado = :estadoRespuesta',
+        { estadoRespuesta: Status.ACTIVE }
+      )
+      .leftJoinAndSelect('respuesta.usuarioRol', 'usuarioRolRespuesta')
+      .leftJoinAndSelect('usuarioRolRespuesta.usuario', 'usuarioRespuesta')
+      .leftJoinAndSelect('usuarioRespuesta.persona', 'personaRespuesta')
+      .leftJoinAndSelect('usuarioRolRespuesta.rol', 'rolRespuesta')
+      .leftJoinAndSelect(
+        'respuesta.archivos',
+        'archivosRespuesta',
+        'archivosRespuesta.estado = :estadoArchivo'
+      )
+      .where('comentario.id = :id', { id })
+      .setParameters({
+        estadoArchivo: Status.ACTIVE,
+        estadoRespuesta: Status.ACTIVE,
+      })
+      .getOne()
+  }
+
+  async runTransaction<T>(op: (manager: EntityManager) => Promise<T>) {
+    return await this.dataSource.manager.transaction(op)
+  }
+
+  async buscarArchivoPorId(id: string) {
+    return await this.dataSource
+      .getRepository(ArchivoAdjunto)
+      .createQueryBuilder('archivo')
+      .leftJoinAndSelect('archivo.comentario', 'comentario')
+      .leftJoinAndSelect('archivo.historiaClinica', 'historiaClinica')
+      .where('archivo.id = :id', { id })
+      .andWhere('archivo.estado = :estadoArchivo', {
+        estadoArchivo: Status.ACTIVE,
+      })
       .getOne()
   }
 }

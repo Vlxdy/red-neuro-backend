@@ -55,11 +55,20 @@ import { AlimentoController } from './planes-alimentarios/controller/alimento.co
 import { NotificacionController } from './gestion-pacientes/controllers/notificaciones.controller'
 import { AntecedentesController } from './historia-clinica/controllers/antecedentes.controller'
 import { ConfigService } from '@nestjs/config'
+import { JwtModule } from '@nestjs/jwt'
+import { ComentarioGateway } from './historia-clinica/gateways/comentario.gateway'
+import { ComentarioArchivosService } from './historia-clinica/services/comentario-archivos.service'
 
 @Module({
   imports: [
     ParametroModule,
     PrinterModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      verifyOptions: {
+        ignoreExpiration: false,
+      },
+    }),
     TypeOrmModule.forFeature([
       EvaluacionNutricional,
       EvaluacionAntropometrica,
@@ -78,6 +87,8 @@ import { ConfigService } from '@nestjs/config'
     ArchivoRepository,
     ComentarioRepository,
     ComentarioService,
+    ComentarioGateway,
+    ComentarioArchivosService,
     AntecedenteRepository,
     AntecedenteService,
     PacientesService,
