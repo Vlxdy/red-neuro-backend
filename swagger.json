@@ -1949,15 +1949,69 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CrearComentarioDto"
+                "type": "object",
+                "properties": {
+                  "archivos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "additionalProperties": true
               }
             }
           }
         },
         "responses": {
           "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Historia clinica"
+        ]
+      }
+    },
+    "/historia-clinica/{id}/comentarios/{comentarioId}/archivos/{archivoId}": {
+      "get": {
+        "operationId": "HistoriaClinicaController_descargarArchivoComentario",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "comentarioId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "archivoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "description": ""
           }
         },
@@ -2488,9 +2542,19 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CrearComentarioDto"
+                "type": "object",
+                "properties": {
+                  "archivos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "additionalProperties": true
               }
             }
           }
@@ -2547,6 +2611,43 @@
             "name": "ordenRaw",
             "required": false,
             "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Comentarios"
+        ]
+      }
+    },
+    "/comentarios/{id}/archivos/{archivoId}": {
+      "get": {
+        "operationId": "ComentarioController_descargarArchivo",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "archivoId",
+            "required": true,
+            "in": "path",
             "schema": {
               "type": "string"
             }
@@ -5327,17 +5428,6 @@
           "id"
         ]
       },
-      "CrearComentarioDto": {
-        "type": "object",
-        "properties": {
-          "contenido": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "contenido"
-        ]
-      },
       "CreateAntecedenteDto": {
         "type": "object",
         "properties": {
@@ -5596,6 +5686,17 @@
             ]
           }
         }
+      },
+      "CrearComentarioDto": {
+        "type": "object",
+        "properties": {
+          "contenido": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contenido"
+        ]
       },
       "PersonaPacienteDto": {
         "type": "object",

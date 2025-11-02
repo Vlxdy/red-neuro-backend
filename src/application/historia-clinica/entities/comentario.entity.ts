@@ -13,6 +13,7 @@ import {
 import { UtilService } from '../../../common/lib/util.service'
 import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { ArchivoAdjunto } from './archivos-adjunto.entity'
 
 export const ComentarioEstado = {
   ACTIVE: Status.ACTIVE,
@@ -84,6 +85,9 @@ export class Comentario extends AuditoriaEntity {
 
   @OneToMany(() => Comentario, (respuesta) => respuesta.comentarioPadre)
   respuestas: Comentario[]
+
+  @OneToMany(() => ArchivoAdjunto, (archivo) => archivo.comentario)
+  archivos: ArchivoAdjunto[]
 
   constructor(data?: Partial<Comentario>) {
     super(data)

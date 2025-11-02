@@ -1,10 +1,11 @@
 import { BadRequestException } from '@nestjs/common'
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface'
 import { FileFilterCallback } from 'multer'
+import { Request } from 'express'
 
 /**
- * Lista de MIME types válidos.
- * Incluye PDF, imágenes y documentos (Word, Excel, OpenDocument, etc.)
+ * Lista de MIME types válidos para evaluaciones y antecedentes.
+ * Incluye PDF, imágenes y documentos (Word, Excel, OpenDocument, etc.).
  */
 const ALLOWED_MIME_TYPES: ReadonlySet<string> = new Set([
   // PDF
@@ -28,19 +29,55 @@ const ALLOWED_MIME_TYPES: ReadonlySet<string> = new Set([
   'application/vnd.oasis.opendocument.spreadsheet',
 ])
 
-export const fileFilter: MulterOptions['fileFilter'] = (
-  _req: Request,
-  file: Express.Multer.File,
-  cb: FileFilterCallback
-): void => {
-  if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
-    cb(null, true)
-  } else {
-    cb(
-      new BadRequestException(
-        `El tipo de archivo "${file.mimetype}" no está permitido. 
-Solo se aceptan PDF, imágenes y documentos (Word, Excel).`
-      )
-    )
+/**
+ * Lista extendida de MIME types válidos para el chat.
+ * Incluye PDF, imágenes, audio y video en formatos comunes.
+ */
+const CHAT_ALLOWED_MIME_TYPES: ReadonlySet<string> = new Set([
+  ...ALLOWED_MIME_TYPES,
+  // Audio
+  'audio/mpeg',
+  'audio/mp3',
+  'audio/wav',
+  'audio/x-wav',
+  'audio/webm',
+  'audio/ogg',
+  'audio/aac',
+  'audio/flac',
+  'audio/x-flac',
+  'audio/mp4',
+  // Video
+  'video/mp4',
+  'video/webm',
+  'video/ogg',
+  'video/quicktime',
+  'video/x-msvideo',
+  'video/mpeg',
+])
+
+const buildFileFilter =
+  (allowedMimeTypes: ReadonlySet<string>, mensajeError: string) =>
+  (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    if (allowedMimeTypes.has(file.mimetype)) {
+      cb(null, true)
+    } else {
+      cb(new BadRequestException(mensajeError))
+    }
   }
-}
+
+export const fileFilter: MulterOptions['fileFilter'] = buildFileFilter(
+  ALLOWED_MIME_TYPES,
+  'El tipo de archivo no está permitido. Solo se aceptan PDF, imágenes y documentos (Word, Excel, OpenDocument).'
+)
+
+export const chatFileFilter: MulterOptions['fileFilter'] = buildFileFilter(
+  CHAT_ALLOWED_MIME_TYPES,
+  'El tipo de archivo no está permitido. Solo se aceptan PDF, imágenes, audios y videos en formatos comunes.'
+)
+
+export const getChatAllowedMimeTypes = () => Array.from(CHAT_ALLOWED_MIME_TYPES)
+
+export const getChatMaxPreviewableMimeTypes = () =>
+  Array.from(CHAT_ALLOWED_MIME_TYPES).filter(
+    (mime) => mime.startsWith('image/') || mime === 'application/pdf'
+  )
