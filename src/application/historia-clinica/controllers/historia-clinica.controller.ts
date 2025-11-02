@@ -185,7 +185,7 @@ export class HistoriaClinicaController extends BaseController {
     const archivo = await this.comentarioService.obtenerArchivoDescargable({
       idComentario: comentarioId,
       idArchivo: archivoId,
-      solicitante: req.user,
+      solicitante: req.user as any,
       idHistoriaClinica,
     })
 

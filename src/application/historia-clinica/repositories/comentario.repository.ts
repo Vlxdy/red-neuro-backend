@@ -116,8 +116,8 @@ export class ComentarioRepository {
         idHistoriaClinica,
       })
       .andWhere('comentario.estado = :estado', { estado: Status.ACTIVE })
-      .orderBy('comentario.fechaCreacion', 'ASC')
-      .addOrderBy('respuesta.fechaCreacion', 'ASC')
+      .orderBy('comentario.fechaCreacion', 'DESC')
+      .addOrderBy('respuesta.fechaCreacion', 'DESC')
       .take(limite)
       .skip(saltar)
     return await query
@@ -136,8 +136,8 @@ export class ComentarioRepository {
       .getOne()
   }
 
-  async obtenerDetalle(id: string) {
-    return await this.dataSource
+  async obtenerDetalle(id: string, transaccion?: EntityManager) {
+    return await (transaccion || this.dataSource)
       .getRepository(Comentario)
       .createQueryBuilder('comentario')
       .leftJoinAndSelect('comentario.usuarioRol', 'usuarioRol')

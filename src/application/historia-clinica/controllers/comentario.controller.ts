@@ -32,7 +32,10 @@ import {
   getChatMaxFiles,
 } from '../constants/comentario-archivos.constants'
 import { chatFileFilter } from '@/utils/archivos'
-import { ComentarioArchivosService } from '../services/comentario-archivos.service'
+import {
+  ComentarioArchivosService,
+  ComentarioArchivoTemporal,
+} from '../services/comentario-archivos.service'
 import { enviarArchivoAdjunto } from '../utils/comentario-archivo-response.util'
 
 @ApiTags('Comentarios')
@@ -178,7 +181,7 @@ export class ComentarioController extends BaseController {
     const archivo = await this.comentarioService.obtenerArchivoDescargable({
       idComentario,
       idArchivo: archivoId,
-      solicitante: req.user,
+      solicitante: req.user as any,
     })
 
     return enviarArchivoAdjunto(res, archivo)

@@ -24,6 +24,7 @@ import {
 } from './comentario-archivos.service'
 import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
 import { ArchivoAdjuntoMetadataResponse } from '@/common/types/data-response.type'
+import { EntityManager } from 'typeorm'
 
 type ActorChat = {
   idRol: string
@@ -148,7 +149,10 @@ export class ComentarioService extends BaseService {
             transaccion,
           })
 
-          return await this.cargarComentarioDetalle(comentarioSaved.id)
+          return await this.cargarComentarioDetalle(
+            comentarioSaved.id,
+            transaccion
+          )
         }
       )
     } finally {
@@ -204,7 +208,10 @@ export class ComentarioService extends BaseService {
             transaccion,
           })
 
-          return await this.cargarComentarioDetalle(comentarioSaved.id)
+          return await this.cargarComentarioDetalle(
+            comentarioSaved.id,
+            transaccion
+          )
         }
       )
     } finally {
@@ -516,9 +523,14 @@ export class ComentarioService extends BaseService {
     }
   }
 
-  private async cargarComentarioDetalle(idComentario: string) {
-    const comentario =
-      await this.comentarioRepositorio.obtenerDetalle(idComentario)
+  private async cargarComentarioDetalle(
+    idComentario: string,
+    transaccion?: EntityManager
+  ) {
+    const comentario = await this.comentarioRepositorio.obtenerDetalle(
+      idComentario,
+      transaccion
+    )
     if (!comentario) {
       throw new NotFoundException(Messages.EXCEPTION_NOT_FOUND)
     }
