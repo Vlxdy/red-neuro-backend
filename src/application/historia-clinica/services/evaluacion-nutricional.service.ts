@@ -32,7 +32,7 @@ import {
   EvaluacionArchivosService,
   EvaluacionArchivoTemporal,
 } from './evaluacion-archivos.service'
-import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
+import { RolEnum } from '@/core/authorization/rol.enum'
 import { Status } from '@/common/constants'
 import { ArchivoDescargable } from '../types/archivo-descargable.type'
 
@@ -65,12 +65,14 @@ export class EvaluacionNutricionalService extends BaseService {
     data,
     usuarioAuditoria,
     idMedico,
+    usuarioRol,
     transaccion,
     archivos = [],
   }: {
     idHistoriaClinica: string
     data: CreateEvaluacionAntropometricaDto
     usuarioAuditoria: string
+    usuarioRol: string
     idMedico: string
     transaccion?: EntityManager
     archivos?: EvaluacionArchivoTemporal[]
@@ -80,6 +82,7 @@ export class EvaluacionNutricionalService extends BaseService {
         this.crearEvaluacion({
           idHistoriaClinica,
           data,
+          usuarioRol,
           usuarioAuditoria,
           idMedico,
           transaccion: manager,
@@ -142,7 +145,7 @@ export class EvaluacionNutricionalService extends BaseService {
     let idCita = data.idCita
     if (!idCita) {
       const citaCreada = await this.citasService.crearCita({
-        idRol: RolEnumId.NUTRICIONISTA,
+        idRol: usuarioRol,
         idUsuarioRol: idMedico,
         data: {
           idPaciente: historiaClinica.idPaciente,

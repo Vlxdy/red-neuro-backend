@@ -113,6 +113,7 @@ export class HistoriaClinicaController extends BaseController {
     const { id } = params
     const usuarioAuditoria = this.getUser(req)
     const idMedico = this.getUsuarioRol(req)
+    const usuarioRol = this.getRol(req)
     let archivosTemporales
     try {
       archivosTemporales = this.evaluacionArchivosService.mapUploadedFiles(
@@ -126,6 +127,7 @@ export class HistoriaClinicaController extends BaseController {
     const respuesta = await this.evaluacionNutricionalService.crearEvaluacion({
       idHistoriaClinica: id,
       data,
+      usuarioRol,
       usuarioAuditoria,
       idMedico,
       archivos: archivosTemporales,
