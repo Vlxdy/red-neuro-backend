@@ -23,7 +23,10 @@ import {
   PacientesAsignadosDto,
   UsuariosRegistradosResponse,
 } from '../dto/usuarios-registrados.dto'
-import { formatearUsuariosRolesRespuesta } from '../utils/formateos'
+import {
+  formatearPacientesPorAsignarRespuesta,
+  formatearUsuariosRolesRespuesta,
+} from '../utils/formateos'
 import { PrinterService } from '@/printer/printer.service'
 import {
   Content,
@@ -33,7 +36,10 @@ import {
 import { DateService } from '@/common/lib/data.service'
 import { EvaluacionNutricionalService } from '@/application/historia-clinica/services/evaluacion-nutricional.service'
 import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
-import { EvaluacionNutricionalResponde } from '@/common/types/data-response.type'
+import {
+  EvaluacionNutricionalResponde,
+  PacientePorAsignarResponse,
+} from '@/common/types/data-response.type'
 import dayjs from 'dayjs'
 import { ActualizarDatosPersonalesPacienteDto } from '../dto/actualizar-datos-paciente.dto'
 import {
@@ -94,14 +100,14 @@ export class PacientesService extends BaseService {
   }: {
     params: PaginacionQueryDto
     idMedico: string
-  }): Promise<[UsuariosRegistradosResponse[], number]> {
-    const [uduarios, total] =
+  }): Promise<[PacientePorAsignarResponse[], number]> {
+    const [usuarios, total] =
       await this.usuarioRegistradoRepositorio.listarPacientesPorAsignar({
         idPacientesOmitir: [idMedico],
         params,
       })
 
-    return [formatearUsuariosRolesRespuesta(uduarios), total]
+    return [formatearPacientesPorAsignarRespuesta(usuarios), total]
   }
 
   async listarPacientes(
