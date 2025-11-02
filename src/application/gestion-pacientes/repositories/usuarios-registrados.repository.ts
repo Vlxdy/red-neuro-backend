@@ -335,6 +335,7 @@ export class UsuariosRegistradosRepository {
         'usuario.correoElectronico',
         'usuario.estado',
         'usuario.fechaCreacion',
+        'usuario.urlFoto',
         'usuarioRol.id',
         'usuarioRol.estado',
         // 'usuarioRol.idAsignacion',
