@@ -3017,6 +3017,7 @@
     },
     "/medicos/{id}/pacientes-por-asignar": {
       "get": {
+        "description": "Sin filtro se devuelven únicamente los pacientes sin nutricionista. Al enviar un filtro de texto se incluyen coincidencias ya asignadas, ordenando siempre primero a los pacientes sin asignación.",
         "operationId": "MedicosController_listarPacienteParaAsignar",
         "parameters": [
           {
@@ -3044,6 +3045,7 @@
             "name": "filtro",
             "required": false,
             "in": "query",
+            "description": "Texto de búsqueda aplicado a nombre, usuario o documento. Al proporcionarlo se incluyen pacientes ya asignados que coincidan, mostrando el nutricionista responsable.",
             "schema": {
               "type": "string"
             }
@@ -3060,15 +3062,23 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Identificador del médico que realiza la asignación o consulta la disponibilidad.",
             "schema": {
-              "example": "12",
+              "example": "2",
               "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Listado paginado de pacientes priorizando aquellos sin nutricionista asignado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListarPacientesPorAsignarSuccessResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3076,7 +3086,7 @@
             "bearer": []
           }
         ],
-        "summary": "API para listar pacientes que no fueron asignados a un medico especifico",
+        "summary": "Listar pacientes disponibles para asignar a un nutricionista específico",
         "tags": [
           "Pacientes"
         ]
@@ -5850,6 +5860,197 @@
             ]
           }
         }
+      },
+      "PacientePorAsignarUsuarioResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "42",
+            "description": "Identificador único del registro usuario-rol."
+          },
+          "nombres": {
+            "type": "string",
+            "example": "María Fernanda"
+          },
+          "primerApellido": {
+            "type": "object",
+            "example": "Pérez",
+            "nullable": true
+          },
+          "segundoApellido": {
+            "type": "object",
+            "example": "Gutiérrez",
+            "nullable": true
+          },
+          "nroDocumento": {
+            "type": "string",
+            "example": "87654321"
+          },
+          "tipoDocumento": {
+            "type": "string",
+            "example": "CI"
+          },
+          "genero": {
+            "type": "object",
+            "example": "F",
+            "nullable": true
+          },
+          "correoElectronico": {
+            "type": "object",
+            "example": "maria.fernanda@example.com",
+            "nullable": true
+          },
+          "urlFoto": {
+            "type": "object",
+            "example": "/uploads/profile-photos/90eafb51-64a1-4fc2-942d-8f5f401324f1.jpg",
+            "nullable": true
+          },
+          "fechaNacimiento": {
+            "type": "string",
+            "example": "1994-05-12",
+            "nullable": true
+          },
+          "telefono": {
+            "type": "object",
+            "example": "+59170123456",
+            "nullable": true
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          }
+        },
+        "required": [
+          "id",
+          "nombres",
+          "nroDocumento",
+          "tipoDocumento",
+          "estado"
+        ]
+      },
+      "PacientePorAsignarItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "42",
+            "description": "Identificador único del registro usuario-rol."
+          },
+          "nombres": {
+            "type": "string",
+            "example": "María Fernanda"
+          },
+          "primerApellido": {
+            "type": "object",
+            "example": "Pérez",
+            "nullable": true
+          },
+          "segundoApellido": {
+            "type": "object",
+            "example": "Gutiérrez",
+            "nullable": true
+          },
+          "nroDocumento": {
+            "type": "string",
+            "example": "87654321"
+          },
+          "tipoDocumento": {
+            "type": "string",
+            "example": "CI"
+          },
+          "genero": {
+            "type": "object",
+            "example": "F",
+            "nullable": true
+          },
+          "correoElectronico": {
+            "type": "object",
+            "example": "maria.fernanda@example.com",
+            "nullable": true
+          },
+          "urlFoto": {
+            "type": "object",
+            "example": "/uploads/profile-photos/90eafb51-64a1-4fc2-942d-8f5f401324f1.jpg",
+            "nullable": true
+          },
+          "fechaNacimiento": {
+            "type": "string",
+            "example": "1994-05-12",
+            "nullable": true
+          },
+          "telefono": {
+            "type": "object",
+            "example": "+59170123456",
+            "nullable": true
+          },
+          "estado": {
+            "type": "string",
+            "example": "ACTIVO"
+          },
+          "estaAsignado": {
+            "type": "boolean",
+            "example": false,
+            "description": "Indica si el paciente ya cuenta con un nutricionista asignado."
+          },
+          "nutricionistaAsignado": {
+            "nullable": true,
+            "description": "Información básica del nutricionista asignado cuando el paciente ya fue vinculado.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PacientePorAsignarUsuarioResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "nombres",
+          "nroDocumento",
+          "tipoDocumento",
+          "estado",
+          "estaAsignado"
+        ]
+      },
+      "PacientesPorAsignarResponseDataDto": {
+        "type": "object",
+        "properties": {
+          "filas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PacientePorAsignarItemResponseDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "filas",
+          "total"
+        ]
+      },
+      "ListarPacientesPorAsignarSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "finalizado": {
+            "type": "boolean",
+            "example": true
+          },
+          "mensaje": {
+            "type": "string",
+            "example": "Consulta exitosa"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/PacientesPorAsignarResponseDataDto"
+          }
+        },
+        "required": [
+          "finalizado",
+          "mensaje",
+          "datos"
+        ]
       },
       "CrearAsignacionDto": {
         "type": "object",

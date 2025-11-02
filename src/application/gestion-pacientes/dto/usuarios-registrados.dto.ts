@@ -68,7 +68,7 @@ export class PacientePorAsignarUsuarioResponseDto {
   correoElectronico?: string | null
 
   @ApiPropertyOptional({
-    example: 'https://cdn.example.com/avatars/pacientes/42.png',
+    example: '/uploads/profile-photos/90eafb51-64a1-4fc2-942d-8f5f401324f1.jpg',
     nullable: true,
   })
   urlFoto?: string | null
