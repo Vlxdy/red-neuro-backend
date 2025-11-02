@@ -1,4 +1,7 @@
-import { UsuarioRolResponse } from '@/common/types/data-response.type'
+import {
+  PacientePorAsignarResponse,
+  UsuarioRolResponse,
+} from '@/common/types/data-response.type'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
 export function formatearUsuariosRolesRespuesta(
@@ -28,4 +31,22 @@ export function formatearUsuarioRolRespuesta(
     fechaNacimiento: usuarioRol.usuario.persona.fechaNacimiento,
     telefono: usuarioRol.usuario.persona.telefono,
   }
+}
+
+export function formatearPacientesPorAsignarRespuesta(
+  usuariosRol: UsuarioRol[]
+): Array<PacientePorAsignarResponse> {
+  return usuariosRol.map((usuarioRol) => {
+    const respuestaBase = formatearUsuarioRolRespuesta(usuarioRol)
+    const asignacionActiva = usuarioRol.asignacionPacientes?.[0]
+    const nutricionistaAsignado = asignacionActiva?.medico
+      ? formatearUsuarioRolRespuesta(asignacionActiva.medico)
+      : null
+
+    return {
+      ...respuestaBase,
+      estaAsignado: Boolean(asignacionActiva),
+      nutricionistaAsignado,
+    }
+  })
 }

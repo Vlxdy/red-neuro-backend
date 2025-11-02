@@ -13,6 +13,11 @@ export interface UsuarioRolResponse {
   estado: string
 }
 
+export interface PacientePorAsignarResponse extends UsuarioRolResponse {
+  estaAsignado: boolean
+  nutricionistaAsignado?: UsuarioRolResponse | null
+}
+
 export interface HistoriaClinicaResponse {
   id: string
   idPaciente: string

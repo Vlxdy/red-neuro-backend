@@ -6,6 +6,7 @@ import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { RolEstado, UsuarioRolEstado } from '@/core/authorization/constant'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { UsuarioEstado } from '@/core/usuario/constant'
+import { AsignacionEstado } from '../constant'
 
 @Injectable()
 export class UsuariosRegistradosRepository {
@@ -289,7 +290,7 @@ export class UsuariosRegistradosRepository {
   }: {
     params: PaginacionQueryDto
     idPacientesOmitir?: string[]
-  }): Promise<[any[], number]> {
+  }): Promise<[UsuarioRol[], number]> {
     const { limite, saltar, filtro, orden, sentido } = params
 
     // Query base para reutilizar
@@ -314,6 +315,17 @@ export class UsuariosRegistradosRepository {
         }
       )
       .leftJoin('usuario.persona', 'persona')
+      .leftJoinAndSelect(
+        'usuarioRol.asignacionPacientes',
+        'asignacion',
+        'asignacion.estado = :estadoAsignacion',
+        {
+          estadoAsignacion: AsignacionEstado.ACTIVO,
+        }
+      )
+      .leftJoinAndSelect('asignacion.medico', 'nutricionistaRol')
+      .leftJoinAndSelect('nutricionistaRol.usuario', 'nutricionistaUsuario')
+      .leftJoinAndSelect('nutricionistaUsuario.persona', 'nutricionistaPersona')
       .where('usuarioRol.estado = :estadoUsuarioRol', {
         estadoUsuarioRol: UsuarioRolEstado.ACTIVE,
       })
@@ -330,6 +342,18 @@ export class UsuariosRegistradosRepository {
         'rol.rol',
         'rol.nombre',
         'persona',
+        'asignacion.id',
+        'asignacion.idMedico',
+        'asignacion.idPaciente',
+        'nutricionistaRol.id',
+        'nutricionistaRol.estado',
+        'nutricionistaUsuario.id',
+        'nutricionistaUsuario.usuario',
+        'nutricionistaUsuario.correoElectronico',
+        'nutricionistaUsuario.estado',
+        'nutricionistaUsuario.fechaCreacion',
+        'nutricionistaUsuario.urlFoto',
+        'nutricionistaPersona',
       ])
       // .addSelect(
       //   'CASE WHEN usuarioRol.idAsignacion IS NULL THEN 0 ELSE 1 END',
@@ -338,6 +362,11 @@ export class UsuariosRegistradosRepository {
       .take(limite)
       .skip(saltar)
     // .orderBy('asignado', 'ASC')
+
+    query.addSelect(
+      'CASE WHEN asignacion.id IS NULL THEN 0 ELSE 1 END',
+      'orden_asignacion'
+    )
 
     // Aplicar omitir IDs si corresponde
     if (idPacientesOmitir && idPacientesOmitir.length > 0) {
@@ -363,9 +392,12 @@ export class UsuariosRegistradosRepository {
             })
         })
       )
+    } else {
+      query.andWhere('asignacion.id IS NULL')
     }
 
     // Ordenamiento dinámico
+    query.addOrderBy('orden_asignacion', 'ASC')
     switch (orden) {
       case 'nroDocumento':
         query.addOrderBy('persona.nroDocumento', sentido)
