@@ -12,6 +12,36 @@ import { AsignacionEstado } from '../constant'
 export class UsuariosRegistradosRepository {
   constructor(private dataSource: DataSource) {}
 
+  async optenerUsuarioRegistradoId(id: string) {
+    const query = this.dataSource
+      .getRepository(Usuario)
+      .createQueryBuilder('usuario')
+      .innerJoinAndSelect(
+        'usuario.usuarioRol',
+        'usuarioRol',
+        'usuarioRol.estado = :estado and usuarioRol.id = :id',
+        { estado: UsuarioRolEstado.ACTIVE, id }
+      )
+      .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :estado', {
+        estado: RolEstado.ACTIVE,
+      })
+      .leftJoinAndSelect('usuario.persona', 'persona')
+      .select([
+        'usuario.id',
+        'usuario.usuario',
+        'usuario.correoElectronico',
+        'usuario.estado',
+        'usuario.fechaCreacion',
+        'usuarioRol',
+        'rol.id',
+        'rol.rol',
+        'rol.nombre',
+        'persona',
+      ])
+
+    return await query.getOne()
+  }
+
   async listarUsuariosPorRol(params: PaginacionQueryDto, rol: RolEnum) {
     const { limite, saltar, filtro, orden, sentido } = params
 

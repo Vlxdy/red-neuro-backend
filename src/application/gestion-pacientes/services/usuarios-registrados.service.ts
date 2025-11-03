@@ -1,13 +1,16 @@
 import { BaseService } from '@/common/base/base-service'
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { UsuariosRegistradosRepository } from '../repositories/usuarios-registrados.repository'
+import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
+import { formatearUsuarioRolRespuesta } from '../utils/formateos'
 
 @Injectable()
 export class UsuariosRegistradosService extends BaseService {
   constructor(
-    private usuarioRegistradoRepositorio: UsuariosRegistradosRepository
+    private usuarioRegistradoRepositorio: UsuariosRegistradosRepository,
+    private usuarioRolRepositorio: UsuarioRolRepository
   ) {
     super()
   }
@@ -31,5 +34,14 @@ export class UsuariosRegistradosService extends BaseService {
     })
 
     return [usuariosResponse, usuarios[1]]
+  }
+
+  async obtenerUsuarioRegistroId(id: string) {
+    const usuarioRol = await this.usuarioRolRepositorio.buscarPorId(id)
+    if (!usuarioRol) {
+      throw new NotFoundException('Usuario registrado no encontrado')
+    }
+
+    return formatearUsuarioRolRespuesta(usuarioRol)
   }
 }

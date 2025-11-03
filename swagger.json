@@ -3906,6 +3906,36 @@
         ]
       }
     },
+    "/usuarios-registrados/{id}": {
+      "get": {
+        "operationId": "UsuariosRegistradosController_obtenerUsuarioRegistrado",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API para obtener los datos de un usuario",
+        "tags": [
+          "Usuarios Registrados"
+        ]
+      }
+    },
     "/usuarios-registrados/{rol}": {
       "get": {
         "operationId": "UsuariosRegistradosController_listar",

@@ -11,6 +11,7 @@ export interface UsuarioRolResponse {
   fechaNacimiento?: Date | null
   telefono?: string | null
   estado: string
+  rol: string
 }
 
 export interface PacientePorAsignarResponse extends UsuarioRolResponse {
