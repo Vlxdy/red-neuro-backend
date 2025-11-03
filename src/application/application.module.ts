@@ -23,6 +23,7 @@ import { CitasService } from './gestion-pacientes/services/citas.service'
 import { PlanNutricionalService } from './planes-alimentarios/service/plan-nutricional.service'
 import { PlanNutricionalRepository } from './planes-alimentarios/repository/plan-nutricional.repository'
 import { AlimentoPlanNutricionalRepository } from './planes-alimentarios/repository/alimento-plan-nutricional.repository'
+import { PlanNutricionalSeguimientoRepository } from './planes-alimentarios/repository/plan-nutricional-seguimiento.repository'
 import { CarritoCompraService } from './planes-alimentarios/service/carrito-compra.service'
 import { CarritoCompraRepository } from './planes-alimentarios/repository/carrito-compra.repository'
 import { AlimentoService } from './planes-alimentarios/service/alimento.service'
@@ -105,6 +106,7 @@ import { ComentarioArchivosService } from './historia-clinica/services/comentari
     CitasService,
     PlanNutricionalService,
     PlanNutricionalRepository,
+    PlanNutricionalSeguimientoRepository,
     AlimentoPlanNutricionalRepository,
     CarritoCompraService,
     CarritoCompraRepository,

@@ -141,6 +141,50 @@ export class PlanNutricionalAlimentoResponseDto extends PlanAlimentoDto {
   urlImage?: string | null
 }
 
+export class PlanNutricionalSeguimientoItemDto {
+  @ApiProperty({ description: 'Identificador del alimento planificado' })
+  @IsNotEmpty()
+  @IsString()
+  idAlimentoPlanNutricional: string
+
+  @ApiProperty({ description: 'Indica si el alimento fue cumplido' })
+  @IsBoolean()
+  cumplido: boolean
+}
+
+export class PlanNutricionalSeguimientoItemResponseDto extends PlanNutricionalSeguimientoItemDto {
+  @ApiProperty({ description: 'Identificador del detalle de seguimiento' })
+  id: string
+
+  @ApiProperty({
+    description: 'Fecha y hora en la que se registró el estado',
+    type: String,
+  })
+  fechaRegistro: Date | string
+}
+
+export class PlanNutricionalSeguimientoResponseDto {
+  @ApiProperty({ description: 'Identificador del seguimiento' })
+  id: string
+
+  @ApiPropertyOptional({
+    description: 'Comentario del paciente respecto al día del plan',
+  })
+  comentario?: string | null
+
+  @ApiProperty({
+    description: 'Fecha en la que se registró el seguimiento',
+    type: String,
+  })
+  fechaRegistro: Date | string
+
+  @ApiPropertyOptional({
+    type: [PlanNutricionalSeguimientoItemResponseDto],
+    description: 'Checklist de alimentos marcados como cumplidos',
+  })
+  items?: PlanNutricionalSeguimientoItemResponseDto[]
+}
+
 export class CrearPlanNutricionalDto {
   @ApiProperty({ example: '2025-05-20', description: 'Fecha del plan diario' })
   @IsNotEmpty()
@@ -220,6 +264,26 @@ export class ActualizarPlanNutricionalDto {
   recomendaciones?: string
 }
 
+export class RegistrarSeguimientoPlanDto {
+  @ApiPropertyOptional({
+    description: 'Comentario del paciente sobre el cumplimiento del día',
+  })
+  @IsOptional()
+  @IsString()
+  comentario?: string
+
+  @ApiPropertyOptional({
+    description:
+      'Checklist de alimentos cumplidos. Si no se envía, se mantendrán los valores actuales.',
+    type: [PlanNutricionalSeguimientoItemDto],
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PlanNutricionalSeguimientoItemDto)
+  items?: PlanNutricionalSeguimientoItemDto[]
+}
+
 export class PlanNutricionalDetalleResponseDto {
   @ApiPropertyOptional({ description: 'Identificador del plan nutricional' })
   id?: string
@@ -263,6 +327,12 @@ export class PlanNutricionalDetalleResponseDto {
     description: 'Detalle de alimentos que componen el plan',
   })
   alimentos: PlanNutricionalAlimentoResponseDto[]
+
+  @ApiPropertyOptional({
+    type: PlanNutricionalSeguimientoResponseDto,
+    description: 'Resumen del seguimiento diario registrado por el paciente',
+  })
+  seguimiento?: PlanNutricionalSeguimientoResponseDto | null
 }
 
 export class PlanNutricionalGeneradoResponseDto extends PlanNutricionalDetalleResponseDto {

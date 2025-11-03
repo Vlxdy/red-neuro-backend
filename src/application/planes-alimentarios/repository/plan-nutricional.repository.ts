@@ -4,6 +4,8 @@ import { Brackets, DataSource, EntityManager } from 'typeorm'
 import {
   AlimentoPlanNutricionalEstado,
   PlanNutricionalEstado,
+  PlanNutricionalSeguimientoEstado,
+  PlanNutricionalSeguimientoItemEstado,
 } from '../constant'
 import { PlanNutricional } from '../entity/plan-nutricional.entity'
 
@@ -51,6 +53,21 @@ export class PlanNutricionalRepository {
         }
       )
       .leftJoinAndSelect('alimentoPlanNutricional.alimento', 'alimento')
+      .leftJoinAndSelect('plan.paciente', 'asignacion')
+      .leftJoinAndSelect(
+        'plan.seguimiento',
+        'seguimiento',
+        'seguimiento.estado = :estadoSeguimiento',
+        { estadoSeguimiento: PlanNutricionalSeguimientoEstado.ACTIVO }
+      )
+      .leftJoinAndSelect(
+        'seguimiento.items',
+        'seguimientoItems',
+        'seguimientoItems.estado = :estadoSeguimientoItem',
+        {
+          estadoSeguimientoItem: PlanNutricionalSeguimientoItemEstado.ACTIVO,
+        }
+      )
       .where('plan.id = :id', { id })
       .getOne()
   }
@@ -68,6 +85,21 @@ export class PlanNutricionalRepository {
         }
       )
       .leftJoinAndSelect('alimentoPlanNutricional.alimento', 'alimento')
+      .leftJoinAndSelect('plan.paciente', 'asignacion')
+      .leftJoinAndSelect(
+        'plan.seguimiento',
+        'seguimiento',
+        'seguimiento.estado = :estadoSeguimiento',
+        { estadoSeguimiento: PlanNutricionalSeguimientoEstado.ACTIVO }
+      )
+      .leftJoinAndSelect(
+        'seguimiento.items',
+        'seguimientoItems',
+        'seguimientoItems.estado = :estadoSeguimientoItem',
+        {
+          estadoSeguimientoItem: PlanNutricionalSeguimientoItemEstado.ACTIVO,
+        }
+      )
       .where({
         idPaciente,
         fecha,
@@ -145,6 +177,21 @@ export class PlanNutricionalRepository {
         }
       )
       .leftJoinAndSelect('alimentoPlanNutricional.alimento', 'alimento')
+      .leftJoinAndSelect('plan.paciente', 'asignacion')
+      .leftJoinAndSelect(
+        'plan.seguimiento',
+        'seguimiento',
+        'seguimiento.estado = :estadoSeguimiento',
+        { estadoSeguimiento: PlanNutricionalSeguimientoEstado.ACTIVO }
+      )
+      .leftJoinAndSelect(
+        'seguimiento.items',
+        'seguimientoItems',
+        'seguimientoItems.estado = :estadoSeguimientoItem',
+        {
+          estadoSeguimientoItem: PlanNutricionalSeguimientoItemEstado.ACTIVO,
+        }
+      )
       .where('plan.idPaciente = :idPaciente', { idPaciente })
       .andWhere('plan.estado = :estado', {
         estado: PlanNutricionalEstado.ACTIVO,
@@ -194,6 +241,21 @@ export class PlanNutricionalRepository {
         }
       )
       .leftJoinAndSelect('alimentoPlanNutricional.alimento', 'alimento')
+      .leftJoinAndSelect('plan.paciente', 'asignacion')
+      .leftJoinAndSelect(
+        'plan.seguimiento',
+        'seguimiento',
+        'seguimiento.estado = :estadoSeguimiento',
+        { estadoSeguimiento: PlanNutricionalSeguimientoEstado.ACTIVO }
+      )
+      .leftJoinAndSelect(
+        'seguimiento.items',
+        'seguimientoItems',
+        'seguimientoItems.estado = :estadoSeguimientoItem',
+        {
+          estadoSeguimientoItem: PlanNutricionalSeguimientoItemEstado.ACTIVO,
+        }
+      )
       .where('plan.idPaciente = :idPaciente', { idPaciente })
       .andWhere('plan.estado = :estado', {
         estado: PlanNutricionalEstado.ACTIVO,
