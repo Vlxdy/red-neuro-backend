@@ -1,7 +1,12 @@
 import { AsignacionRepository } from '@/application/gestion-pacientes/repositories/asignacion.repository'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { EvaluacionNutricionalResponde } from '@/common/types/data-response.type'
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import dayjs from 'dayjs'
 import {
@@ -10,6 +15,8 @@ import {
   GenerarPlanNutricionalDto,
   PlanAlimentoDto,
   PlanNutricionalGeneradoResponseDto,
+  PlanNutricionalSeguimientoResponseDto,
+  RegistrarSeguimientoPlanDto,
 } from '../dto/plan-nutricional.dto'
 import { AlimentoPlanNutricional } from '../entity/alimento-plan-nutricional.entity'
 import {
@@ -19,8 +26,13 @@ import {
   PlanNutricionalDistribucionMacronutrientes,
   PlanNutricionalTiempoCalorico,
 } from '../entity/plan-nutricional.entity'
+import {
+  PlanNutricionalSeguimiento,
+  PlanNutricionalSeguimientoItem,
+} from '../entity/plan-nutricional-seguimiento.entity'
 import { AlimentoPlanNutricionalRepository } from '../repository/alimento-plan-nutricional.repository'
 import { PlanNutricionalRepository } from '../repository/plan-nutricional.repository'
+import { PlanNutricionalSeguimientoRepository } from '../repository/plan-nutricional-seguimiento.repository'
 import { AlimentoService } from './alimento.service'
 import { CategoriaAlimento } from '../constant'
 import { Alimento, TipoAlimento } from '../entity/alimento.entity'
@@ -29,7 +41,8 @@ import { EvaluacionNutricionalService } from '@/application/historia-clinica/ser
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { Asignacion } from '@/application/gestion-pacientes/entities/asignados.entity'
-import { RolEnum } from '@/core/authorization/rol.enum'
+import { RolEnumId } from '@/core/authorization/rol.enum'
+import { BaseException } from '@/core/logger'
 
 interface PlanAlimentoGenerado {
   idAlimento: string
@@ -97,6 +110,7 @@ const MAX_SERVING = 3
 export class PlanNutricionalService {
   constructor(
     private readonly repository: PlanNutricionalRepository,
+    private readonly seguimientoRepository: PlanNutricionalSeguimientoRepository,
     private readonly alimentoPlanNutricionalRepository: AlimentoPlanNutricionalRepository,
     private readonly asignacionRepository: AsignacionRepository,
     private readonly alimentosService: AlimentoService,
@@ -242,20 +256,23 @@ export class PlanNutricionalService {
   async buscarPorUsuarioRolYFecha(
     idUsuarioRol: string,
     fecha: string,
-    rol: RolEnum
+    rolId: RolEnumId
   ): Promise<{
     encontrado: boolean
     planNutricional: PlanNutricionalGeneradoResponseDto | null
   }> {
-    let idPaciente: string
-    if (rol === RolEnum.NUTRICIONISTA) {
-      const asignacion = await this.obtenerAsignacionPorUsuarioRol(idUsuarioRol)
-      idPaciente = asignacion.id
-    } else {
-      idPaciente = idUsuarioRol
+    const asignacion = await this.obtenerAsignacionPorUsuarioRol(idUsuarioRol)
+
+    if (
+      rolId === RolEnumId.PACIENTE &&
+      asignacion.idPaciente !== idUsuarioRol
+    ) {
+      throw new ForbiddenException(
+        'No tiene permisos para consultar este plan nutricional.'
+      )
     }
     const planNutricional = await this.repository.buscarPorPacienteYFecha(
-      idPaciente,
+      asignacion.id,
       fecha
     )
 
@@ -337,6 +354,107 @@ export class PlanNutricionalService {
 
     return alimentosDto
   }
+
+  async registrarSeguimiento(
+    idPlan: string,
+    data: RegistrarSeguimientoPlanDto,
+    actor: { idUsuario: string; idUsuarioRol: string; rolId: RolEnumId }
+  ): Promise<PlanNutricionalSeguimientoResponseDto> {
+    if (actor.rolId !== RolEnumId.PACIENTE) {
+      throw new ForbiddenException(
+        'Solo el paciente puede registrar el seguimiento del plan.'
+      )
+    }
+
+    return await this.repository.runTransaction(async (manager) => {
+      const plan = await this.repository.buscarPorId(idPlan, manager)
+      if (!plan) {
+        throw new NotFoundException('Plan nutricional no encontrado')
+      }
+
+      const asignacion = plan.paciente
+        ? plan.paciente
+        : await this.asignacionRepository.buscarPorId(plan.idPaciente)
+
+      if (!asignacion) {
+        throw new NotFoundException('Paciente no encontrado')
+      }
+
+      if (asignacion.idPaciente !== actor.idUsuarioRol) {
+        throw new ForbiddenException(
+          'No tiene permisos para actualizar el seguimiento de este plan.'
+        )
+      }
+
+      const comentario = this.normalizarComentario(data.comentario)
+      let seguimiento = await this.seguimientoRepository.buscarPorPlan(
+        plan.id,
+        manager
+      )
+
+      if (!seguimiento) {
+        const nuevoSeguimiento = new PlanNutricionalSeguimiento({
+          idPlanNutricional: plan.id,
+          idUsuarioRolPaciente: asignacion.idPaciente,
+          comentario,
+          usuarioCreacion: actor.idUsuario,
+        })
+        seguimiento = await this.seguimientoRepository.crear(
+          nuevoSeguimiento,
+          manager
+        )
+      } else {
+        await this.seguimientoRepository.actualizar(
+          seguimiento.id,
+          { comentario },
+          actor.idUsuario,
+          manager
+        )
+      }
+
+      if (typeof data.items !== 'undefined') {
+        const idsValidos = new Set(
+          (plan.alimentosPlanNutricional ?? []).map((alimento) => alimento.id)
+        )
+
+        for (const item of data.items) {
+          if (!idsValidos.has(item.idAlimentoPlanNutricional)) {
+            throw new NotFoundException(
+              'El alimento indicado no forma parte del plan nutricional.'
+            )
+          }
+        }
+
+        await this.seguimientoRepository.inactivarItemsPorSeguimiento(
+          seguimiento.id,
+          actor.idUsuario,
+          manager
+        )
+
+        for (const item of data.items) {
+          const detalle = new PlanNutricionalSeguimientoItem({
+            idSeguimiento: seguimiento.id,
+            idAlimentoPlanNutricional: item.idAlimentoPlanNutricional,
+            cumplido: item.cumplido,
+            usuarioCreacion: actor.idUsuario,
+          })
+          await this.seguimientoRepository.crearItem(detalle, manager)
+        }
+      }
+
+      const seguimientoActualizado =
+        await this.seguimientoRepository.buscarPorPlan(plan.id, manager)
+
+      return (
+        this.construirSeguimientoRespuesta(seguimientoActualizado) ?? {
+          id: seguimiento.id,
+          comentario,
+          fechaRegistro: seguimiento.fechaCreacion,
+          items: [],
+        }
+      )
+    })
+  }
   private async crearPlan(
     data: CrearPlanNutricionalDto,
     usuario: string,
@@ -414,6 +532,15 @@ export class PlanNutricionalService {
           transaccion,
         })
       : null
+
+    if (!evaluacion) {
+      throw new BaseException(new Error('SIN_EVALUACION'), {
+        mensaje:
+          'Se requiere registrar una evaluación nutricional antes de generar un plan.',
+        httpStatus: HttpStatus.PRECONDITION_FAILED,
+        clientInfo: { codigo: 'SIN_EVALUACION' },
+      })
+    }
 
     const usuarioRol = await this.usuarioRolRepository.buscarPorId(
       idUsuarioRol,
@@ -505,6 +632,36 @@ export class PlanNutricionalService {
     }
   }
 
+  private construirSeguimientoRespuesta(
+    seguimiento?: PlanNutricionalSeguimiento | null
+  ): PlanNutricionalSeguimientoResponseDto | null {
+    if (!seguimiento) {
+      return null
+    }
+
+    const items = (seguimiento.items ?? []).map((item) => ({
+      id: item.id,
+      idAlimentoPlanNutricional: item.idAlimentoPlanNutricional,
+      cumplido: item.cumplido,
+      fechaRegistro: item.fechaCreacion,
+    }))
+
+    return {
+      id: seguimiento.id,
+      comentario: seguimiento.comentario ?? null,
+      fechaRegistro: seguimiento.fechaCreacion,
+      items,
+    }
+  }
+
+  private normalizarComentario(comentario?: string | null) {
+    if (typeof comentario !== 'string') {
+      return null
+    }
+    const limpio = comentario.trim()
+    return limpio.length ? limpio : null
+  }
+
   private construirRespuesta(
     plan: PlanNutricional,
     persistido: boolean
@@ -533,6 +690,8 @@ export class PlanNutricionalService {
       }
     })
 
+    const seguimiento = this.construirSeguimientoRespuesta(plan.seguimiento)
+
     return {
       id: plan.id,
       fecha: plan.fecha,
@@ -550,6 +709,7 @@ export class PlanNutricionalService {
       esGeneradoAutomatico: plan.esGeneradoAutomatico,
       recomendaciones: plan.recomendaciones ?? null,
       alimentos,
+      seguimiento,
       persistido,
     }
   }
@@ -595,6 +755,7 @@ export class PlanNutricionalService {
       esGeneradoAutomatico: preparado.plan.esGeneradoAutomatico ?? false,
       recomendaciones: preparado.plan.recomendaciones ?? null,
       alimentos,
+      seguimiento: null,
       persistido: false,
     }
   }

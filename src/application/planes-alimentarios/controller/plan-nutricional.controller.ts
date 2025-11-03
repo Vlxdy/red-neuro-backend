@@ -4,9 +4,11 @@ import {
   RangoFechasQueryDto,
 } from '@/common/dto/paginacion-query.dto'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   ParseUUIDPipe,
@@ -30,17 +32,45 @@ import {
   GenerarPlanNutricionalDto,
   GetPlanNutricionalParamsDto,
   PlanNutricionalGeneradoResponseDto,
+  PlanNutricionalSeguimientoResponseDto,
+  RegistrarSeguimientoPlanDto,
 } from '../dto/plan-nutricional.dto'
 import { PlanNutricionalService } from '../service/plan-nutricional.service'
-import { RolEnum } from '@/core/authorization/rol.enum'
+import { RolEnumId } from '@/core/authorization/rol.enum'
 
 @ApiTags('Planes nutricionales')
 @ApiBearerAuth()
 @Controller('planes-nutricionales')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CasbinGuard)
 export class PlanNutricionalController extends BaseController {
   constructor(private readonly service: PlanNutricionalService) {
     super()
+  }
+
+  private asegurarProfesional(idRol: string) {
+    if (
+      idRol !== RolEnumId.ADMINISTRADOR &&
+      idRol !== RolEnumId.NUTRICIONISTA
+    ) {
+      throw new ForbiddenException(
+        'No tiene permisos para ejecutar esta acción.'
+      )
+    }
+  }
+
+  private validarConsultaPaciente(
+    idRol: string,
+    idUsuarioRolAutenticado: string,
+    idSolicitado: string
+  ) {
+    if (
+      idRol === RolEnumId.PACIENTE &&
+      idUsuarioRolAutenticado !== idSolicitado
+    ) {
+      throw new ForbiddenException(
+        'Solo puede consultar los planes asociados a su cuenta.'
+      )
+    }
   }
 
   @ApiOperation({
@@ -49,6 +79,8 @@ export class PlanNutricionalController extends BaseController {
   @ApiCreatedResponse({ type: PlanNutricionalGeneradoResponseDto })
   @Post('generar')
   async generar(@Body() data: GenerarPlanNutricionalDto, @Req() req: Request) {
+    const idRol = this.getRol(req)
+    this.asegurarProfesional(idRol)
     this.getUser(req)
     const resultado = await this.service.generar(data)
     return this.success(resultado)
@@ -59,6 +91,8 @@ export class PlanNutricionalController extends BaseController {
   @Post()
   async crear(@Body() data: CrearPlanNutricionalDto, @Req() req: Request) {
     const usuario = this.getUser(req)
+    const idRol = this.getRol(req)
+    this.asegurarProfesional(idRol)
     const resultado = await this.service.crear(data, usuario)
     return this.successCreate(resultado)
   }
@@ -70,6 +104,8 @@ export class PlanNutricionalController extends BaseController {
     @Req() req: Request
   ) {
     const usuario = this.getUser(req)
+    const idRol = this.getRol(req)
+    this.asegurarProfesional(idRol)
     const resultado = await this.service.crearMultiple(data, usuario)
     return this.successCreate(resultado)
   }
@@ -83,6 +119,8 @@ export class PlanNutricionalController extends BaseController {
     @Req() req: Request
   ) {
     const usuario = this.getUser(req)
+    const idRol = this.getRol(req)
+    this.asegurarProfesional(idRol)
     const resultado = await this.service.actualizar(id, data, usuario)
     return this.successUpdate(resultado)
   }
@@ -91,14 +129,40 @@ export class PlanNutricionalController extends BaseController {
   @Patch(':id/inactivar')
   async inactivar(@Param('id') id: string, @Req() req: Request) {
     const usuario = this.getUser(req)
+    const idRol = this.getRol(req)
+    this.asegurarProfesional(idRol)
     const resultado = await this.service.inactivar(id, usuario)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({
+    summary: 'Registrar el seguimiento diario de un plan nutricional',
+  })
+  @ApiOkResponse({ type: PlanNutricionalSeguimientoResponseDto })
+  @Patch(':id/seguimiento')
+  async registrarSeguimiento(
+    @Param('id') id: string,
+    @Body() data: RegistrarSeguimientoPlanDto,
+    @Req() req: Request
+  ) {
+    const actor = {
+      idUsuario: this.getUser(req),
+      idUsuarioRol: this.getUsuarioRol(req),
+      rolId: this.getRol(req) as RolEnumId,
+    }
+    const resultado = await this.service.registrarSeguimiento(id, data, actor)
     return this.successUpdate(resultado)
   }
 
   @ApiOperation({ summary: 'Obtener un plan nutricional por su identificador' })
   @ApiOkResponse({ type: PlanNutricionalGeneradoResponseDto })
   @Get(':id')
-  async buscarPorId(@Param('id', ParseUUIDPipe) id: string) {
+  async buscarPorId(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request
+  ) {
+    const idRol = this.getRol(req)
+    this.asegurarProfesional(idRol)
     const resultado = await this.service.buscarPorId(id)
     return this.success(resultado)
   }
@@ -113,17 +177,24 @@ export class PlanNutricionalController extends BaseController {
   ) {
     const { idPaciente, fecha } = params
     const rolUsuario = this.getRol(req)
+    const idUsuarioRol = this.getUsuarioRol(req)
+    this.validarConsultaPaciente(rolUsuario, idUsuarioRol, idPaciente)
     const resultado = await this.service.buscarPorUsuarioRolYFecha(
       idPaciente,
       fecha,
-      rolUsuario as RolEnum
+      rolUsuario as RolEnumId
     )
     return this.success(resultado)
   }
 
   @ApiOperation({ summary: 'Listar todos los planes nutricionales' })
   @Get()
-  async listarTodos(@Query() paginacion: PaginacionQueryDto) {
+  async listarTodos(
+    @Query() paginacion: PaginacionQueryDto,
+    @Req() req: Request
+  ) {
+    const idRol = this.getRol(req)
+    this.asegurarProfesional(idRol)
     const resultado = await this.service.listarTodos(paginacion)
     return this.successListRows(resultado)
   }
@@ -132,8 +203,12 @@ export class PlanNutricionalController extends BaseController {
   @Get('/paciente/:idUsuarioRol')
   async listarPorPaciente(
     @Param('idUsuarioRol') idUsuarioRol: string,
-    @Query() paginacion: PaginacionQueryDto
+    @Query() paginacion: PaginacionQueryDto,
+    @Req() req: Request
   ) {
+    const idRol = this.getRol(req)
+    const idUsuarioAutenticado = this.getUsuarioRol(req)
+    this.validarConsultaPaciente(idRol, idUsuarioAutenticado, idUsuarioRol)
     const resultado = await this.service.listarPorIdPaciente(
       idUsuarioRol,
       paginacion
@@ -148,8 +223,12 @@ export class PlanNutricionalController extends BaseController {
   @Get('/paciente/:idUsuarioRol/carrito-compras')
   async listarPorPacienteEntreFechas(
     @Param('idUsuarioRol') idUsuarioRol: string,
-    @Query() { desde, hasta }: RangoFechasQueryDto
+    @Query() { desde, hasta }: RangoFechasQueryDto,
+    @Req() req: Request
   ) {
+    const idRol = this.getRol(req)
+    const idUsuarioAutenticado = this.getUsuarioRol(req)
+    this.validarConsultaPaciente(idRol, idUsuarioAutenticado, idUsuarioRol)
     const resultado = await this.service.listarPorIdPacienteEntreFechas(
       idUsuarioRol,
       desde,

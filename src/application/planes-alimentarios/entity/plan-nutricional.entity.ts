@@ -10,11 +10,13 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { PlanNutricionalEstado } from '../constant'
 import { AlimentoPlanNutricional } from './alimento-plan-nutricional.entity'
 import { TipoAlimento } from './alimento.entity'
+import { PlanNutricionalSeguimiento } from './plan-nutricional-seguimiento.entity'
 
 dotenv.config()
 
@@ -112,6 +114,9 @@ export class PlanNutricional extends AuditoriaEntity {
 
   @OneToMany(() => AlimentoPlanNutricional, (apn) => apn.planNutricional)
   alimentosPlanNutricional: AlimentoPlanNutricional[]
+
+  @OneToOne(() => PlanNutricionalSeguimiento, (seguimiento) => seguimiento.plan)
+  seguimiento?: PlanNutricionalSeguimiento
 
   constructor(data?: Partial<PlanNutricional>) {
     super(data)

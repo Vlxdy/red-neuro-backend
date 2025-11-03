@@ -29,6 +29,16 @@ export enum AlimentoPlanNutricionalEstado {
   INACTIVO = Status.INACTIVE,
 }
 
+export enum PlanNutricionalSeguimientoEstado {
+  ACTIVO = Status.ACTIVE,
+  INACTIVO = Status.INACTIVE,
+}
+
+export enum PlanNutricionalSeguimientoItemEstado {
+  ACTIVO = Status.ACTIVE,
+  INACTIVO = Status.INACTIVE,
+}
+
 export enum CategoriaAlimento {
   PROTEINA_ANIMAL = 'PROTEÍNA ANIMAL',
   CEREAL = 'CEREAL',
