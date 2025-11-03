@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  PreconditionFailedException,
 } from '@nestjs/common'
 import { EntityManager } from 'typeorm'
 import dayjs from 'dayjs'
@@ -460,6 +461,25 @@ export class PlanNutricionalService {
     usuario: string,
     transaccion: EntityManager
   ) {
+    const historiaClinica = await this.historiaClinicaService.buscarPorPaciente(
+      data.idUsuarioRol,
+      transaccion
+    )
+    if (!historiaClinica)
+      throw new PreconditionFailedException(
+        'No se encontro la historia Clinica'
+      )
+
+    const ultimaEvaluacion =
+      await this.evaluacionNutricionalService.ultimaEvaluacion({
+        idHistoriaClinica: historiaClinica.id,
+        transaccion,
+      })
+    if (!ultimaEvaluacion)
+      throw new PreconditionFailedException(
+        'Es necesario que se haga una evaluación nutricional antes de crear un plan alimentario'
+      )
+
     const preparado = await this.prepararPlan({
       idUsuarioRol: data.idUsuarioRol,
       fecha: data.fecha,
@@ -474,7 +494,7 @@ export class PlanNutricionalService {
       fecha: dayjs(data.fecha).format('YYYY-MM-DD'),
       usuarioCreacion: usuario,
       idEvaluacionNutricional: preparado.plan.idEvaluacionNutricional ?? null,
-      caloriasObjetivo: preparado.plan.caloriasObjetivo ?? null,
+      caloriasObjetivo: ultimaEvaluacion.requerimientoCalorico,
       distribucionMacronutrientes:
         preparado.plan.distribucionMacronutrientes ?? null,
       distribucionCalorica: preparado.plan.distribucionCalorica ?? null,
