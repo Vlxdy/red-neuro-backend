@@ -28,9 +28,11 @@ import {
   ActualizarPlanNutricionalDto,
   CrearPlanNutricionalDto,
   GenerarPlanNutricionalDto,
+  GetPlanNutricionalParamsDto,
   PlanNutricionalGeneradoResponseDto,
 } from '../dto/plan-nutricional.dto'
 import { PlanNutricionalService } from '../service/plan-nutricional.service'
+import { RolEnum } from '@/core/authorization/rol.enum'
 
 @ApiTags('Planes nutricionales')
 @ApiBearerAuth()
@@ -104,14 +106,17 @@ export class PlanNutricionalController extends BaseController {
   @ApiOperation({
     summary: 'Buscar plan nutricional activo por paciente y fecha',
   })
-  @Get('/paciente/:idUsuarioRol/fecha/:fecha')
+  @Get('/paciente/:idPaciente/fecha/:fecha')
   async buscarPorFecha(
-    @Param('idUsuarioRol') idUsuarioRol: string,
-    @Param('fecha') fecha: string
+    @Param() params: GetPlanNutricionalParamsDto,
+    @Req() req: Request
   ) {
+    const { idPaciente, fecha } = params
+    const rolUsuario = this.getRol(req)
     const resultado = await this.service.buscarPorUsuarioRolYFecha(
-      idUsuarioRol,
-      fecha
+      idPaciente,
+      fecha,
+      rolUsuario as RolEnum
     )
     return this.success(resultado)
   }

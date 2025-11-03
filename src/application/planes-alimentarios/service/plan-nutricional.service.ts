@@ -29,6 +29,7 @@ import { EvaluacionNutricionalService } from '@/application/historia-clinica/ser
 import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-rol.repository'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { Asignacion } from '@/application/gestion-pacientes/entities/asignados.entity'
+import { RolEnum } from '@/core/authorization/rol.enum'
 
 interface PlanAlimentoGenerado {
   idAlimento: string
@@ -240,15 +241,21 @@ export class PlanNutricionalService {
 
   async buscarPorUsuarioRolYFecha(
     idUsuarioRol: string,
-    fecha: string
+    fecha: string,
+    rol: RolEnum
   ): Promise<{
     encontrado: boolean
     planNutricional: PlanNutricionalGeneradoResponseDto | null
   }> {
-    const asignacion = await this.obtenerAsignacionPorUsuarioRol(idUsuarioRol)
-
+    let idPaciente: string
+    if (rol === RolEnum.NUTRICIONISTA) {
+      const asignacion = await this.obtenerAsignacionPorUsuarioRol(idUsuarioRol)
+      idPaciente = asignacion.id
+    } else {
+      idPaciente = idUsuarioRol
+    }
     const planNutricional = await this.repository.buscarPorPacienteYFecha(
-      asignacion.id,
+      idPaciente,
       fecha
     )
 

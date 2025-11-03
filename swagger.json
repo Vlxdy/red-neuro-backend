@@ -4281,15 +4281,17 @@
         ]
       }
     },
-    "/planes-nutricionales/paciente/{idUsuarioRol}/fecha/{fecha}": {
+    "/planes-nutricionales/paciente/{idPaciente}/fecha/{fecha}": {
       "get": {
         "operationId": "PlanNutricionalController_buscarPorFecha",
         "parameters": [
           {
-            "name": "idUsuarioRol",
+            "name": "idPaciente",
             "required": true,
             "in": "path",
+            "description": "Identificador del paciente (numérico, pero recibido como string)",
             "schema": {
+              "example": "30",
               "type": "string"
             }
           },
@@ -4297,7 +4299,9 @@
             "name": "fecha",
             "required": true,
             "in": "path",
+            "description": "Fecha del plan nutricional en formato ISO (YYYY-MM-DD)",
             "schema": {
+              "example": "2025-11-02",
               "type": "string"
             }
           }

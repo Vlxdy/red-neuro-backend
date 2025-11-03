@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   ValidateNested,
 } from '@/common/validation'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
@@ -270,4 +271,27 @@ export class PlanNutricionalGeneradoResponseDto extends PlanNutricionalDetalleRe
       'Indica si el plan ha sido persistido en base de datos o es una previsualización',
   })
   persistido: boolean
+}
+
+export class GetPlanNutricionalParamsDto {
+  @ApiProperty({
+    description:
+      'Identificador del paciente (numérico, pero recibido como string)',
+    example: '30',
+  })
+  @IsString({ message: 'El idPaciente debe ser una cadena de texto' })
+  @Matches(/^\d+$/, {
+    message: 'El idPaciente debe contener solo dígitos numéricos',
+  })
+  idPaciente: string
+
+  @ApiProperty({
+    description: 'Fecha del plan nutricional en formato ISO (YYYY-MM-DD)',
+    example: '2025-11-02',
+  })
+  @IsString({ message: 'La fecha debe ser una cadena de texto' })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'La fecha debe tener el formato válido YYYY-MM-DD',
+  })
+  fecha: string
 }
