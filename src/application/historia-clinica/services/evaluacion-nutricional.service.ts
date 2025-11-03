@@ -107,6 +107,7 @@ export class EvaluacionNutricionalService extends BaseService {
       peso: data.peso,
       talla: data.talla,
       imc: imcCalculado,
+      requerimientoCalorico: data.requerimientoCalorico,
       diagnosticoNutricional: data.diagnosticoNutricional,
       observaciones: data.observaciones,
       usuarioCreacion: usuarioAuditoria,
@@ -257,6 +258,10 @@ export class EvaluacionNutricionalService extends BaseService {
 
     if (data.peso && data.talla) {
       evaluacion.imc = this.calcularImc(data.peso, data.talla)
+    }
+
+    if (data.requerimientoCalorico !== undefined) {
+      evaluacion.requerimientoCalorico = data.requerimientoCalorico
     }
 
     if (data.diagnosticoNutricional !== undefined) {
@@ -523,6 +528,7 @@ export class EvaluacionNutricionalService extends BaseService {
       peso: evaluacion.peso ?? null,
       talla: evaluacion.talla ?? null,
       imc: evaluacion.imc ?? null,
+      requerimientoCalorico: evaluacion.requerimientoCalorico ?? null,
       diagnosticoNutricional: evaluacion.diagnosticoNutricional ?? null,
       observaciones: evaluacion.observaciones ?? null,
       archivos: this.mapArchivos(evaluacion.archivos),

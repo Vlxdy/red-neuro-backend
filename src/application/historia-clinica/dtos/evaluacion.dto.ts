@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsArray,
   IsBoolean,
@@ -317,6 +317,17 @@ export class CreateEvaluacionDto {
   @Max(2.5)
   talla: number
 
+  @ApiProperty({
+    description: 'Requerimiento calórico estimado del paciente en kcal/día',
+    minimum: 0,
+    maximum: 9999.99,
+  })
+  @TransformToNumber()
+  @IsNumber()
+  @Min(0)
+  @Max(9999.99)
+  requerimientoCalorico: number
+
   @ApiPropertyOptional({ description: 'Diagnóstico nutricional' })
   @IsOptional()
   @IsString()
@@ -414,6 +425,18 @@ export class UpdateEvaluacionDto {
   @Min(1)
   @Max(100)
   imc?: number
+
+  @ApiPropertyOptional({
+    description: 'Requerimiento calórico estimado del paciente en kcal/día',
+    minimum: 0,
+    maximum: 9999.99,
+  })
+  @IsOptional()
+  @TransformToNumber()
+  @IsNumber()
+  @Min(0)
+  @Max(9999.99)
+  requerimientoCalorico?: number
 
   @ApiPropertyOptional({ description: 'Diagnóstico nutricional' })
   @IsOptional()
