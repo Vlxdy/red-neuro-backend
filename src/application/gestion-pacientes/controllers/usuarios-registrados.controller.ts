@@ -13,23 +13,14 @@ import { ParamIdDto } from '@/common/dto/params-id.dto'
 @ApiTags('Usuarios Registrados')
 @ApiBearerAuth()
 @Controller('usuarios-registrados')
+@UseGuards(JwtAuthGuard, CasbinGuard)
 export class UsuariosRegistradosController extends BaseController {
   constructor(private usuariosRegistrados: UsuariosRegistradosService) {
     super()
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'API para obtener los datos de un usuario' })
-  @Get(':id')
-  async obtenerUsuarioRegistrado(@Param() params: ParamIdDto) {
-    const { id } = params
-    const result = await this.usuariosRegistrados.obtenerUsuarioRegistroId(id)
-    return this.success(result)
-  }
-
-  @UseGuards(JwtAuthGuard, CasbinGuard)
   @ApiOperation({ summary: 'API para listar usuarios por rol' })
-  @Get(':rol')
+  @Get('rol/:rol')
   async listar(
     @Query() paginacionQueryDto: PaginacionQueryDto,
     @Param() params: ListarUsuariosRegistradosDto
@@ -40,5 +31,13 @@ export class UsuariosRegistradosController extends BaseController {
       rol
     )
     return this.successListRows(result as any)
+  }
+
+  @ApiOperation({ summary: 'API para obtener los datos de un usuario' })
+  @Get(':id')
+  async obtenerUsuarioRegistrado(@Param() params: ParamIdDto) {
+    const { id } = params
+    const result = await this.usuariosRegistrados.obtenerUsuarioRegistroId(id)
+    return this.success(result)
   }
 }

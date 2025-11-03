@@ -30,7 +30,7 @@ export function formatearUsuarioRolRespuesta(
     urlFoto: usuarioRol.usuario.urlFoto,
     fechaNacimiento: usuarioRol.usuario.persona.fechaNacimiento,
     telefono: usuarioRol.usuario.persona.telefono,
-    rol: usuarioRol.rol.nombre,
+    rol: usuarioRol.rol?.nombre,
   }
 }
 

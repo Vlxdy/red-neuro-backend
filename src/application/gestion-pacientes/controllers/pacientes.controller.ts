@@ -84,8 +84,6 @@ export class PacientesController extends BaseController {
     @Req() req: Request
   ) {
     const idUsuarioRol = this.getUsuarioRol(req)
-    // const usuarioAuditoria = this.getUser(req)
-
     const result = await this.pacientesService.listarPacientePorMedico(
       paginacionQueryDto,
       idUsuarioRol

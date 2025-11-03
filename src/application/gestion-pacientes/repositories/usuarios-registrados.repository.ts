@@ -155,18 +155,7 @@ export class UsuariosRegistradosRepository {
         estado: RolEstado.ACTIVE,
       })
       .leftJoinAndSelect('usuario.persona', 'persona')
-      .select([
-        'usuario.id',
-        'usuario.usuario',
-        'usuario.correoElectronico',
-        'usuario.estado',
-        'usuario.fechaCreacion',
-        'usuarioRol',
-        'rol.id',
-        'rol.rol',
-        'rol.nombre',
-        'persona',
-      ])
+      .select(['usuario', 'usuarioRol', 'rol', 'persona'])
       .where('asignacionPacientes.idMedico = :idMedico', { idMedico })
       .andWhere('usuarioRol.estado = :estado', {
         estado: UsuarioRolEstado.ACTIVE,
