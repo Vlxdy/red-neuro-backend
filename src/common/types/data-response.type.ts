@@ -106,6 +106,7 @@ export interface EvaluacionNutricionalResponde {
   peso?: number | null
   talla?: number | null
   imc?: number | null
+  requerimientoCalorico?: number | null
   diagnosticoNutricional?: string | null
   observaciones?: string | null
   archivos?: ArchivoAdjuntoResponse[] | null

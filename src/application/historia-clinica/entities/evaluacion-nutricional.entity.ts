@@ -64,6 +64,15 @@ export class EvaluacionNutricional extends AuditoriaEntity {
   @Column('text', { name: 'observaciones', nullable: true })
   observaciones?: string
 
+  @Column('numeric', {
+    name: 'requerimiento_calorico',
+    precision: 6,
+    scale: 2,
+    nullable: false,
+    comment: 'Requerimiento calórico estimado del paciente en kcal/día',
+  })
+  requerimientoCalorico: number
+
   @Column('bigint', { name: 'id_cita', nullable: true })
   idCita?: string
 
