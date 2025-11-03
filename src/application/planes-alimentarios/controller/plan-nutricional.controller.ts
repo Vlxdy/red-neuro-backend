@@ -4,7 +4,6 @@ import {
   RangoFechasQueryDto,
 } from '@/common/dto/paginacion-query.dto'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
-import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import {
   Body,
   Controller,
@@ -41,7 +40,7 @@ import { RolEnumId } from '@/core/authorization/rol.enum'
 @ApiTags('Planes nutricionales')
 @ApiBearerAuth()
 @Controller('planes-nutricionales')
-@UseGuards(JwtAuthGuard, CasbinGuard)
+@UseGuards(JwtAuthGuard)
 export class PlanNutricionalController extends BaseController {
   constructor(private readonly service: PlanNutricionalService) {
     super()

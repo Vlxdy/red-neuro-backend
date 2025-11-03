@@ -2,7 +2,7 @@ import apiAdmin from './loginAdmin'
 import type { AxiosInstance } from 'axios'
 export async function getNutricionistasPorFiltro(pagina = 1, limite = 10) {
   try {
-    const res = await apiAdmin.get('/usuarios-registrados/NUTRICIONISTA', {
+    const res = await apiAdmin.get('/usuarios-registrados/rol/NUTRICIONISTA', {
       params: {
         pagina,
         limite,
@@ -57,6 +57,7 @@ export async function getPacientesPorAsignar(
       '❌ Error al obtener pacientes por asignar:',
       err.response?.data || err.message
     )
+    console.error(err)
     throw err
   }
 }

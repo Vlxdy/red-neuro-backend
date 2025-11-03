@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
-import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { BaseController } from '@/common/base'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
@@ -28,7 +27,7 @@ import { ActualizarPlanAlimentarioDto, CrearPlanAlimentarioDto } from '../dto'
 @ApiTags('Planes Alimentarios')
 @ApiBearerAuth()
 @Controller('planes-alimentarios')
-@UseGuards(JwtAuthGuard, CasbinGuard)
+@UseGuards(JwtAuthGuard)
 export class PlanesAlimentariosController extends BaseController {
   constructor(private planAlimentarioService: PlanesAlimentariosService) {
     super()

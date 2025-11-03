@@ -4281,6 +4281,35 @@
         ]
       }
     },
+    "/planes-nutricionales/{id}/seguimiento": {
+      "patch": {
+        "operationId": "PlanNutricionalController_registrarSeguimiento",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Registrar el seguimiento diario de un plan nutricional",
+        "tags": [
+          "Planes nutricionales"
+        ]
+      }
+    },
     "/planes-nutricionales/paciente/{idPaciente}/fecha/{fecha}": {
       "get": {
         "operationId": "PlanNutricionalController_buscarPorFecha",

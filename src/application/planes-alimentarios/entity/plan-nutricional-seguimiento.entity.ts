@@ -1,9 +1,7 @@
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
-import { UtilService } from '@/common/lib/util.service'
 import dotenv from 'dotenv'
 import {
   BeforeInsert,
-  Check,
   Column,
   Entity,
   JoinColumn,
@@ -21,7 +19,6 @@ import { AlimentoPlanNutricional } from './alimento-plan-nutricional.entity'
 
 dotenv.config()
 
-@Check(UtilService.buildStatusCheck(PlanNutricionalSeguimientoEstado))
 @Entity({
   name: 'plan_nutricional_seguimiento',
   schema: process.env.DB_SCHEMA_PLAN_NUTRICIONAL,
@@ -79,7 +76,6 @@ export class PlanNutricionalSeguimiento extends AuditoriaEntity {
   }
 }
 
-@Check(UtilService.buildStatusCheck(PlanNutricionalSeguimientoItemEstado))
 @Entity({
   name: 'plan_nutricional_seguimiento_item',
   schema: process.env.DB_SCHEMA_PLAN_NUTRICIONAL,
