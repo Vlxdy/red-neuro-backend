@@ -175,6 +175,7 @@ export class EvaluacionNutricionalService extends BaseService {
           data: { estado: CitasEstado.COMPLETADA },
           idMedico: historiaClinica.idMedico,
           usuarioAuditoria,
+          idUsuarioRol: idMedico,
           transaccion,
         })
       }

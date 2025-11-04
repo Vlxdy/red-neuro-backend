@@ -117,6 +117,7 @@ export class CitasService extends BaseService {
     estadoAnterior,
     estadoNuevo,
     comentario,
+    idEjecutor,
     idRolEjecutor,
     usuarioAuditoria,
     transaccion,
@@ -125,6 +126,7 @@ export class CitasService extends BaseService {
     estadoAnterior?: CitasEstado | null
     estadoNuevo: CitasEstado
     comentario?: string | null
+    idEjecutor: string
     idRolEjecutor: string
     usuarioAuditoria: string
     transaccion: EntityManager
@@ -135,6 +137,7 @@ export class CitasService extends BaseService {
       estadoNuevo,
       comentario: comentario || null,
       rolEjecutor: this.obtenerNombreRol(idRolEjecutor),
+      idEjecutor: idEjecutor,
       usuarioAuditoria,
       transaccion,
     })
@@ -536,6 +539,7 @@ export class CitasService extends BaseService {
         estadoNuevo: cita.estado as CitasEstado,
         comentario: 'Cita creada por el paciente en borrador.',
         idRolEjecutor: idRol,
+        idEjecutor: idUsuarioRol,
         usuarioAuditoria,
         transaccion: tx,
       })
@@ -586,8 +590,9 @@ export class CitasService extends BaseService {
         estadoNuevo: cita.estado as CitasEstado,
         comentario: 'El paciente envió la cita para revisión.',
         idRolEjecutor: idRol,
-        usuarioAuditoria,
+        idEjecutor: idUsuarioRol,
         transaccion: tx,
+        usuarioAuditoria,
       })
 
       const mensaje = `Nueva solicitud de cita para el ${this.formatearFechaCita(
@@ -671,6 +676,7 @@ export class CitasService extends BaseService {
         estadoNuevo: cita.estado as CitasEstado,
         comentario: data.motivo,
         idRolEjecutor: idRol,
+        idEjecutor: idUsuarioRol,
         usuarioAuditoria,
         transaccion: tx,
       })
@@ -754,6 +760,7 @@ export class CitasService extends BaseService {
           data.comentario ||
           'El paciente reabrió la cita para realizar ajustes.',
         idRolEjecutor: idRol,
+        idEjecutor: idUsuarioRol,
         usuarioAuditoria,
         transaccion: tx,
       })
@@ -811,6 +818,7 @@ export class CitasService extends BaseService {
         estadoNuevo: cita.estado as CitasEstado,
         comentario: data.comentario || 'Cita confirmada por el nutricionista.',
         idRolEjecutor: idRol,
+        idEjecutor: idUsuarioRol,
         usuarioAuditoria,
         transaccion: tx,
       })
@@ -881,6 +889,7 @@ export class CitasService extends BaseService {
         estadoNuevo: cita.estado as CitasEstado,
         comentario: data.comentario,
         idRolEjecutor: idRol,
+        idEjecutor: idUsuarioRol,
         usuarioAuditoria,
         transaccion: tx,
       })
@@ -957,6 +966,7 @@ export class CitasService extends BaseService {
         estadoNuevo: cita.estado as CitasEstado,
         comentario: data.comentario,
         idRolEjecutor: idRol,
+        idEjecutor: idUsuarioRol,
         usuarioAuditoria,
         transaccion: tx,
       })
@@ -1111,7 +1121,7 @@ export class CitasService extends BaseService {
       estado: registro.estado as CitasEstado,
       comentario: registro.comentario || null,
       rolEjecutor: registro.rolEjecutor,
-      usuarioEjecutor: registro.usuarioEjecutor,
+      usuarioEjecutor: formatearUsuarioRolRespuesta(registro.usuarioEjecutor),
       fechaCreacion: registro.fechaCreacion,
     }))
   }
@@ -1170,6 +1180,7 @@ export class CitasService extends BaseService {
         comentario: 'El paciente actualizó los detalles de la cita.',
         idRolEjecutor: idRol,
         usuarioAuditoria,
+        idEjecutor: idUsuarioRol,
         transaccion: tx,
       })
     })
@@ -1273,6 +1284,7 @@ export class CitasService extends BaseService {
         : 'Cita confirmada directamente por el nutricionista.',
       idRolEjecutor: idRol,
       usuarioAuditoria,
+      idEjecutor: idUsuarioRol,
       transaccion,
     })
 
@@ -1294,12 +1306,14 @@ export class CitasService extends BaseService {
     idCita,
     data,
     idMedico,
+    idUsuarioRol,
     usuarioAuditoria,
     transaccion,
   }: {
     idCita: string
     idMedico: string
     data: ActualizarCitaDto
+    idUsuarioRol: string
     usuarioAuditoria: string
     transaccion?: EntityManager
   }) {
@@ -1309,6 +1323,7 @@ export class CitasService extends BaseService {
           idCita,
           data,
           idMedico,
+          idUsuarioRol,
           usuarioAuditoria,
           transaccion: nuevaTransaccion,
         })
@@ -1371,6 +1386,7 @@ export class CitasService extends BaseService {
             : 'La cita fue marcada como no asistida.',
         idRolEjecutor: RolEnumId.NUTRICIONISTA,
         usuarioAuditoria,
+        idEjecutor: idMedico,
         transaccion,
       })
     }
@@ -1426,10 +1442,18 @@ export class CitasService extends BaseService {
     })
   }
 
-  async revisarCita(usuarioAuditoria: string, transaccion?: EntityManager) {
+  async revisarCita(
+    usuarioAuditoria: string,
+    idUsuarioRol: string,
+    transaccion?: EntityManager
+  ) {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.revisarCita(usuarioAuditoria, nuevaTransaccion)
+        return await this.revisarCita(
+          usuarioAuditoria,
+          idUsuarioRol,
+          nuevaTransaccion
+        )
       }
       return await this.citasRepositorio.runTransaction(op)
     }
@@ -1464,6 +1488,7 @@ export class CitasService extends BaseService {
           idCita: cita.id,
           data: { estado: CitasEstado.NO_ASISTIO },
           usuarioAuditoria: cita.idMedico,
+          idUsuarioRol,
           idMedico: cita.idMedico,
         })
       }

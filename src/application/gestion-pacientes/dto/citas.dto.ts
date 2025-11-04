@@ -11,6 +11,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
 import { CitasEstado } from '../constant'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { UsuarioRolResponse } from '@/common/types/data-response.type'
 
 class CitaUsuarioRolResponseDto {
   @ApiProperty({ example: '23' })
@@ -463,7 +464,7 @@ export class HistorialCitaItemResponseDto {
   rolEjecutor: string
 
   @ApiProperty({ example: '45' })
-  usuarioEjecutor: string
+  usuarioEjecutor: UsuarioRolResponse
 
   @ApiProperty({
     example: '2024-07-18T15:00:00.000Z',

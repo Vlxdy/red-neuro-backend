@@ -211,3 +211,13 @@ export interface NotificacionResponse {
   fechaCreacion: Date | string
   medico?: UsuarioRolResponse | null
 }
+
+export interface HistorialCitasResponse {
+  id: string
+  estadoAnterior: string
+  estado: string
+  comentario: string | null
+  rolEjecutor: string
+  usuarioEjecutor: UsuarioRolResponse
+  fechaCreacion: Date | string
+}

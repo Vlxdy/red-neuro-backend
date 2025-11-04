@@ -12,6 +12,7 @@ import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Cita } from './cita.entity'
 import { CitasEstado } from '../constant'
+import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
 dotenv.config()
 
@@ -58,12 +59,18 @@ export class HistorialCita extends AuditoriaEntity {
   rolEjecutor: string
 
   @Column({
-    name: 'usuario_ejecutor',
+    name: 'id_ejecutor',
     type: 'bigint',
     nullable: false,
     comment: 'Identificador del usuario que ejecutó la acción',
   })
-  usuarioEjecutor: string
+  idEjecutor: string
+
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.historialCitas, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'id_ejecutor', referencedColumnName: 'id' })
+  usuarioEjecutor: UsuarioRol
 
   @Column({
     name: 'comentario',

@@ -21,6 +21,7 @@ import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
 import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
 import { Comentario } from '@/application/historia-clinica/entities/comentario.entity'
 import { Notificacion } from '@/application/gestion-pacientes/entities/notificacion.entity'
+import { HistorialCita } from '@/application/gestion-pacientes/entities/cita-historial.entity'
 
 dotenv.config()
 
@@ -87,6 +88,12 @@ export class UsuarioRol extends AuditoriaEntity {
 
   @OneToMany(() => HistoriaClinica, (historiaClinica) => historiaClinica.medico)
   historiaClinicaMedico: HistoriaClinica[]
+
+  @OneToMany(
+    () => HistorialCita,
+    (historialCita) => historialCita.usuarioEjecutor
+  )
+  historialCitas: HistorialCita[]
 
   @OneToMany(
     () => PlanAlimentario,

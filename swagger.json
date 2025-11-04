@@ -6627,7 +6627,7 @@
             "example": "PACIENTE"
           },
           "usuarioEjecutor": {
-            "type": "string",
+            "type": "object",
             "example": "45"
           },
           "fechaCreacion": {

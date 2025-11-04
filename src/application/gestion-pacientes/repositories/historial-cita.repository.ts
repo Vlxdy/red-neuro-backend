@@ -13,6 +13,7 @@ export class HistorialCitaRepository {
     estadoNuevo,
     comentario,
     rolEjecutor,
+    idEjecutor,
     usuarioAuditoria,
     transaccion,
   }: {
@@ -21,6 +22,7 @@ export class HistorialCitaRepository {
     estadoNuevo: CitasEstado
     comentario?: string | null
     rolEjecutor: string
+    idEjecutor: string
     usuarioAuditoria: string
     transaccion: EntityManager
   }) {
@@ -30,7 +32,7 @@ export class HistorialCitaRepository {
       estadoAnterior: estadoAnterior || null,
       comentario: comentario || null,
       rolEjecutor,
-      usuarioEjecutor: usuarioAuditoria,
+      idEjecutor,
       usuarioCreacion: usuarioAuditoria,
     })
 
@@ -47,6 +49,9 @@ export class HistorialCitaRepository {
     return await (transaccion || this.dataSource)
       .getRepository(HistorialCita)
       .createQueryBuilder('historial')
+      .leftJoinAndSelect('historial.usuarioEjecutor', 'usuarioEjecutor')
+      .leftJoinAndSelect('usuarioEjecutor.usuario', 'usuario')
+      .leftJoinAndSelect('usuario.persona', 'persona')
       .where({ idCita })
       .orderBy('historial.fechaCreacion', 'DESC')
       .getMany()

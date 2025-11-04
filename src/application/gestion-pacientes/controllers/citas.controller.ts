@@ -222,6 +222,7 @@ export class CitasController extends BaseController {
       data,
       idCita,
       idMedico: idUsuarioRol,
+      idUsuarioRol,
       usuarioAuditoria,
     })
     return this.successUpdate(respuesta)
@@ -396,7 +397,7 @@ export class CitasController extends BaseController {
   @ApiOperation({ summary: 'API para activar el cron de citas' })
   @Get('/cron-activar')
   async activarCitasCron() {
-    const respuesta = await this.citasService.revisarCita('0')
+    const respuesta = await this.citasService.revisarCita('0', '0')
     return this.successCreate(respuesta)
   }
 }
