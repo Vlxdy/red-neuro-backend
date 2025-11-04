@@ -42,7 +42,7 @@ import { Order } from '@/common/constants'
 const REVERSION_VENTANA_DIAS = 7
 const REVERSION_MAXIMA = 2
 const REPROGRAMACIONES_RECHAZO_MAXIMAS = 2
-const HORAS_CANCELACION_PACIENTE_APROBADA = 24
+const HORAS_CANCELACION_PACIENTE_CONFIRMADA = 24
 const HORAS_REPROGRAMACION_PROFESIONAL = 2
 
 @Injectable()
@@ -572,7 +572,7 @@ export class CitasService extends BaseService {
       }
 
       const estadoAnterior = cita.estado as CitasEstado
-      cita.estado = CitasEstado.PENDIENTE
+      cita.estado = CitasEstado.SOLICITADA
 
       await this.guardarCita({
         cita,
@@ -629,9 +629,9 @@ export class CitasService extends BaseService {
         if (
           ![
             CitasEstado.BORRADOR,
-            CitasEstado.PENDIENTE,
+            CitasEstado.SOLICITADA,
             CitasEstado.RECHAZADA,
-            CitasEstado.APROBADA,
+            CitasEstado.CONFIRMADA,
           ].includes(cita.estado as CitasEstado)
         ) {
           throw new PreconditionFailedException(
@@ -639,11 +639,11 @@ export class CitasService extends BaseService {
           )
         }
 
-        if (cita.estado === CitasEstado.APROBADA) {
+        if (cita.estado === CitasEstado.CONFIRMADA) {
           const horasRestantes = dayjs(cita.fechaInicio).diff(dayjs(), 'hour')
-          if (horasRestantes < HORAS_CANCELACION_PACIENTE_APROBADA) {
+          if (horasRestantes < HORAS_CANCELACION_PACIENTE_CONFIRMADA) {
             throw new PreconditionFailedException(
-              'Solo puedes cancelar citas aprobadas con al menos 24 horas de anticipación.'
+              'Solo puedes cancelar citas confirmadas con al menos 24 horas de anticipación.'
             )
           }
         }
@@ -713,7 +713,7 @@ export class CitasService extends BaseService {
 
       const estadoAnterior = cita.estado as CitasEstado
 
-      if (estadoAnterior === CitasEstado.PENDIENTE) {
+      if (estadoAnterior === CitasEstado.SOLICITADA) {
         this.actualizarVentanaReversion(cita)
         const reversionesActuales = cita.reversionesPendiente || 0
         if (reversionesActuales >= REVERSION_MAXIMA) {
@@ -787,14 +787,14 @@ export class CitasService extends BaseService {
         this.esAdministrador(idRol)
       )
 
-      if (cita.estado !== CitasEstado.PENDIENTE) {
+      if (cita.estado !== CitasEstado.SOLICITADA) {
         throw new PreconditionFailedException(
-          'Solo se pueden aprobar citas que estén pendientes.'
+          'Solo se pueden aprobar citas que estén solicitadas.'
         )
       }
 
       const estadoAnterior = cita.estado as CitasEstado
-      cita.estado = CitasEstado.APROBADA
+      cita.estado = CitasEstado.CONFIRMADA
       cita.lockedAt = new Date()
       cita.comentarioNutricionista = data.comentario || null
       cita.reprogramacionesDesdeRechazo = 0
@@ -809,7 +809,7 @@ export class CitasService extends BaseService {
         cita,
         estadoAnterior,
         estadoNuevo: cita.estado as CitasEstado,
-        comentario: data.comentario || 'Cita aprobada por el nutricionista.',
+        comentario: data.comentario || 'Cita confirmada por el nutricionista.',
         idRolEjecutor: idRol,
         usuarioAuditoria,
         transaccion: tx,
@@ -857,9 +857,9 @@ export class CitasService extends BaseService {
         this.esAdministrador(idRol)
       )
 
-      if (cita.estado !== CitasEstado.PENDIENTE) {
+      if (cita.estado !== CitasEstado.SOLICITADA) {
         throw new PreconditionFailedException(
-          'Solo se pueden rechazar citas que estén pendientes.'
+          'Solo se pueden rechazar citas que estén solicitadas.'
         )
       }
 
@@ -923,7 +923,7 @@ export class CitasService extends BaseService {
       const esAdmin = this.esAdministrador(idRol)
       this.validarAccesoProfesional(cita, idUsuarioRol, esAdmin)
 
-      if (cita.estado !== CitasEstado.APROBADA) {
+      if (cita.estado !== CitasEstado.CONFIRMADA) {
         throw new PreconditionFailedException(
           'Solo se pueden reprogramar citas aprobadas.'
         )
@@ -1256,7 +1256,7 @@ export class CitasService extends BaseService {
       data,
       usuarioAuditoria,
       transaccion,
-      estado: CitasEstado.APROBADA,
+      estado: CitasEstado.CONFIRMADA,
       lockedAt: new Date(),
       comentarioNutricionista: data.detalle,
       reprogramacionesDesdeRechazo: 0,

@@ -3355,8 +3355,8 @@
             "description": "Estados de las citas a incluir en la búsqueda",
             "schema": {
               "example": [
-                "APROBADA",
-                "PENDIENTE"
+                "CONFIRMADA",
+                "SOLICITADA"
               ],
               "type": "array",
               "items": {
@@ -3364,12 +3364,13 @@
                 "enum": [
                   "INACTIVO",
                   "BORRADOR",
-                  "PENDIENTE",
-                  "APROBADA",
-                  "RECHAZADA",
-                  "CANCELADA",
+                  "SOLICITADA",
+                  "CONFIRMADA",
+                  "EN_CURSO",
                   "COMPLETADA",
-                  "NO_ASISTIO"
+                  "NO_ASISTIO",
+                  "CANCELADA",
+                  "RECHAZADA"
                 ]
               }
             }
@@ -3470,8 +3471,8 @@
             "description": "Estados de las citas a incluir en la agenda paginada",
             "schema": {
               "example": [
-                "APROBADA",
-                "PENDIENTE"
+                "CONFIRMADA",
+                "SOLICITADA"
               ],
               "type": "array",
               "items": {
@@ -3479,12 +3480,13 @@
                 "enum": [
                   "INACTIVO",
                   "BORRADOR",
-                  "PENDIENTE",
-                  "APROBADA",
-                  "RECHAZADA",
-                  "CANCELADA",
+                  "SOLICITADA",
+                  "CONFIRMADA",
+                  "EN_CURSO",
                   "COMPLETADA",
-                  "NO_ASISTIO"
+                  "NO_ASISTIO",
+                  "CANCELADA",
+                  "RECHAZADA"
                 ]
               }
             }
@@ -6591,12 +6593,13 @@
             "enum": [
               "INACTIVO",
               "BORRADOR",
-              "PENDIENTE",
-              "APROBADA",
-              "RECHAZADA",
-              "CANCELADA",
+              "SOLICITADA",
+              "CONFIRMADA",
+              "EN_CURSO",
               "COMPLETADA",
-              "NO_ASISTIO"
+              "NO_ASISTIO",
+              "CANCELADA",
+              "RECHAZADA"
             ],
             "nullable": true
           },
@@ -6605,12 +6608,13 @@
             "enum": [
               "INACTIVO",
               "BORRADOR",
-              "PENDIENTE",
-              "APROBADA",
-              "RECHAZADA",
-              "CANCELADA",
+              "SOLICITADA",
+              "CONFIRMADA",
+              "EN_CURSO",
               "COMPLETADA",
-              "NO_ASISTIO"
+              "NO_ASISTIO",
+              "CANCELADA",
+              "RECHAZADA"
             ]
           },
           "comentario": {

@@ -564,7 +564,7 @@ export class CitasRepository {
       .leftJoinAndSelect('citas.paciente', 'paciente')
       .leftJoinAndSelect('citas.notificacion', 'notificacion')
       .where('citas.estado = :estado', {
-        estado: CitasEstado.PENDIENTE,
+        estado: CitasEstado.SOLICITADA,
       })
       .getMany()
   }

@@ -9,12 +9,13 @@ export enum AsignacionEstado {
 export enum CitasEstado {
   INACTIVO = 'INACTIVO',
   BORRADOR = 'BORRADOR',
-  PENDIENTE = 'PENDIENTE',
-  APROBADA = 'APROBADA',
-  RECHAZADA = 'RECHAZADA',
-  CANCELADA = 'CANCELADA',
+  SOLICITADA = 'SOLICITADA',
+  CONFIRMADA = 'CONFIRMADA',
+  EN_CURSO = 'EN_CURSO',
   COMPLETADA = 'COMPLETADA',
   NO_ASISTIO = 'NO_ASISTIO',
+  CANCELADA = 'CANCELADA',
+  RECHAZADA = 'RECHAZADA',
 }
 
 export enum EvaluacionNutricionalEstado {

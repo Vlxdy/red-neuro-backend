@@ -248,7 +248,7 @@ export class ListarCitasPorRangoQueryDto extends ListarCitasQueryDto {
     description: 'Estados de las citas a incluir en la búsqueda',
     enum: CitasEstado,
     isArray: true,
-    example: [CitasEstado.APROBADA, CitasEstado.PENDIENTE],
+    example: [CitasEstado.CONFIRMADA, CitasEstado.SOLICITADA],
   })
   @Transform(({ value }) =>
     value === undefined ? undefined : Array.isArray(value) ? value : [value]
@@ -290,7 +290,7 @@ export class ListarAgendaCitasQueryDto extends PaginacionQueryDto {
     description: 'Estados de las citas a incluir en la agenda paginada',
     enum: CitasEstado,
     isArray: true,
-    example: [CitasEstado.APROBADA, CitasEstado.PENDIENTE],
+    example: [CitasEstado.CONFIRMADA, CitasEstado.SOLICITADA],
   })
   @Transform(({ value }) =>
     value === undefined ? undefined : Array.isArray(value) ? value : [value]
