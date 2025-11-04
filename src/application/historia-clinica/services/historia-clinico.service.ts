@@ -12,7 +12,7 @@ import { HistoriaClinica } from '../entities/historia-clinica.entity'
 import { formatearUsuarioRolRespuesta } from '@/application/gestion-pacientes/utils/formateos'
 import { HistoriaClinicaResponse } from '@/common/types/data-response.type'
 import { AntecedenteService } from './antecedentes.service'
-import { EvaluacionNutricionalService } from './evaluacion-nutricional.service'
+import { EvaluacionNutricionalService } from '../../evaluaciones/services/evaluacion-nutricional.service'
 
 @Injectable()
 export class HistoriaClinicaService extends BaseService {

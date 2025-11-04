@@ -4294,9 +4294,26 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarSeguimientoPlanDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanNutricionalSeguimientoResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -6860,6 +6877,61 @@
           "grasa"
         ]
       },
+      "PlanNutricionalSeguimientoItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "idAlimentoPlanNutricional": {
+            "type": "string",
+            "description": "Identificador del alimento planificado"
+          },
+          "cumplido": {
+            "type": "boolean",
+            "description": "Indica si el alimento fue cumplido"
+          },
+          "id": {
+            "type": "string",
+            "description": "Identificador del detalle de seguimiento"
+          },
+          "fechaRegistro": {
+            "type": "string",
+            "description": "Fecha y hora en la que se registró el estado"
+          }
+        },
+        "required": [
+          "idAlimentoPlanNutricional",
+          "cumplido",
+          "id",
+          "fechaRegistro"
+        ]
+      },
+      "PlanNutricionalSeguimientoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador del seguimiento"
+          },
+          "comentario": {
+            "type": "object",
+            "description": "Comentario del paciente respecto al día del plan"
+          },
+          "fechaRegistro": {
+            "type": "string",
+            "description": "Fecha en la que se registró el seguimiento"
+          },
+          "items": {
+            "description": "Checklist de alimentos marcados como cumplidos",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanNutricionalSeguimientoItemResponseDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "fechaRegistro"
+        ]
+      },
       "PlanNutricionalGeneradoResponseDto": {
         "type": "object",
         "properties": {
@@ -6903,6 +6975,14 @@
             "items": {
               "$ref": "#/components/schemas/PlanNutricionalAlimentoResponseDto"
             }
+          },
+          "seguimiento": {
+            "description": "Resumen del seguimiento diario registrado por el paciente",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PlanNutricionalSeguimientoResponseDto"
+              }
+            ]
           },
           "persistido": {
             "type": "boolean",
@@ -6995,6 +7075,39 @@
           "recomendaciones": {
             "type": "string",
             "description": "Recomendaciones actualizadas"
+          }
+        }
+      },
+      "PlanNutricionalSeguimientoItemDto": {
+        "type": "object",
+        "properties": {
+          "idAlimentoPlanNutricional": {
+            "type": "string",
+            "description": "Identificador del alimento planificado"
+          },
+          "cumplido": {
+            "type": "boolean",
+            "description": "Indica si el alimento fue cumplido"
+          }
+        },
+        "required": [
+          "idAlimentoPlanNutricional",
+          "cumplido"
+        ]
+      },
+      "RegistrarSeguimientoPlanDto": {
+        "type": "object",
+        "properties": {
+          "comentario": {
+            "type": "string",
+            "description": "Comentario del paciente sobre el cumplimiento del día"
+          },
+          "items": {
+            "description": "Checklist de alimentos cumplidos. Si no se envía, se mantendrán los valores actuales.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanNutricionalSeguimientoItemDto"
+            }
           }
         }
       },

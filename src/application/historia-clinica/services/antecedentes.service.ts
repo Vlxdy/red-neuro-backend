@@ -27,12 +27,13 @@ import { ArchivoRepository } from '../repositories/archivo.repository'
 import { Status } from '@/common/constants'
 import { Messages } from '@/common/constants/response-messages'
 import { HistoriaClinicaRepository } from '../repositories/historia-clinica.repository'
+
+import { ArchivoDescargable } from '../types/archivo-descargable.type'
+import { RolEnum } from '@/core/authorization/rol.enum'
 import {
   EvaluacionArchivosService,
   EvaluacionArchivoTemporal,
-} from './evaluacion-archivos.service'
-import { ArchivoDescargable } from '../types/archivo-descargable.type'
-import { RolEnum } from '@/core/authorization/rol.enum'
+} from '@/application/evaluaciones/services/evaluacion-archivos.service'
 
 @Injectable()
 export class AntecedenteService extends BaseService {

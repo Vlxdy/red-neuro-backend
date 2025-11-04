@@ -30,7 +30,7 @@ import {
   ActualizarEvaluacionAntropometricaDto,
   EvaluacionInclude,
   QueryEvaluacionesDto,
-} from '../dtos/evaluacion.dto'
+} from '../../historia-clinica/dtos/evaluacion.dto'
 import { FilesInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
 import { extname } from 'path'
@@ -41,8 +41,8 @@ import {
   getEvalNutriMaxFiles,
 } from '../constants/evaluacion-archivos.constants'
 import { promises as fs } from 'fs'
-import { EvaluacionArchivosService } from '../services/evaluacion-archivos.service'
 import { fileFilter } from '@/utils/archivos'
+import { EvaluacionArchivosService } from '../services/evaluacion-archivos.service'
 
 @ApiTags('Evaluaciones')
 @ApiBearerAuth()
@@ -205,25 +205,4 @@ export class EvaluacionesController extends BaseController {
       })
     return this.successCreate(respuesta)
   }
-
-  // @ApiOperation({
-  //   summary: 'API para obtener todas las evaluaciones nutricionales',
-  // })
-  // @Get()
-  // async obtenerEvaluaciones(@Req() req: Request) {
-  //   const usuarioAuditoria = this.getUser(req)
-  //   const respuesta =
-  //     await this.evaluacionesNutricionalesService.obtenerEvaluacionesNutricionales(
-  //       usuarioAuditoria
-  //     )
-  //   return this.successListRows(respuesta)
-  // }
-
-  // @ApiOperation({ summary: 'API para asignar medicos a los pacientes' })
-  // @Post()
-  // async crearCita(@Body() data: CrearCitaDto, @Req() req: Request) {
-  //   const usuarioAuditoria = this.getUser(req)
-  //   const respuesta = await this.citasService.crearCita(data, usuarioAuditoria)
-  //   return this.successCreate(respuesta)
-  // }
 }

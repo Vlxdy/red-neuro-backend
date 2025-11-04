@@ -9,21 +9,16 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DataSource, EntityManager, Repository } from 'typeorm'
-import { EvaluacionNutricional } from '../entities/evaluacion-nutricional.entity'
-import { EvaluacionAntropometrica } from '../entities/eval-antropometrica.entity'
-import { EvaluacionBioquimica } from '../entities/eval-bioquimica.entity'
-import { EvaluacionDietetica } from '../entities/eval-dietetica.entity'
-import { EvaluacionClinica } from '../entities/eval-clinica.entity'
-import { EvaluacionPsicosocial } from '../entities/eval-psicosocial.entity'
-import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
+
+import { ArchivoAdjunto } from '../../historia-clinica/entities/archivos-adjunto.entity'
 import {
   ActualizarEvaluacionAntropometricaDto,
   CreateEvaluacionAntropometricaDto,
   EvaluacionInclude,
   EVALUACION_RELACIONES,
   QueryEvaluacionesDto,
-} from '../dtos/evaluacion.dto'
-import { HistoriaClinicaService } from './historia-clinico.service'
+} from '../../historia-clinica/dtos/evaluacion.dto'
+import { HistoriaClinicaService } from '../../historia-clinica/services/historia-clinico.service'
 import { CitasService } from '@/application/gestion-pacientes/services/citas.service'
 import dayjs from 'dayjs'
 import { CitasEstado } from '@/application/gestion-pacientes/constant'
@@ -34,7 +29,13 @@ import {
 } from './evaluacion-archivos.service'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { Status } from '@/common/constants'
-import { ArchivoDescargable } from '../types/archivo-descargable.type'
+import { ArchivoDescargable } from '../../historia-clinica/types/archivo-descargable.type'
+import { EvaluacionNutricional } from '@/application/evaluaciones/entities/evaluacion-nutricional.entity'
+import { EvaluacionAntropometrica } from '@/application/evaluaciones/entities/eval-antropometrica.entity'
+import { EvaluacionBioquimica } from '@/application/evaluaciones/entities/eval-bioquimica.entity'
+import { EvaluacionDietetica } from '@/application/evaluaciones/entities/eval-dietetica.entity'
+import { EvaluacionClinica } from '@/application/evaluaciones/entities/eval-clinica.entity'
+import { EvaluacionPsicosocial } from '@/application/evaluaciones/entities/eval-psicosocial.entity'
 
 @Injectable()
 export class EvaluacionNutricionalService extends BaseService {

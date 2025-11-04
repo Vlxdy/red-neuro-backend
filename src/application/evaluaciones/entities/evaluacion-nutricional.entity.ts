@@ -12,13 +12,13 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import dotenv from 'dotenv'
-import { HistoriaClinica } from './historia-clinica.entity'
 import { EvaluacionAntropometrica } from './eval-antropometrica.entity'
 import { EvaluacionBioquimica } from './eval-bioquimica.entity'
 import { EvaluacionDietetica } from './eval-dietetica.entity'
 import { EvaluacionClinica } from './eval-clinica.entity'
 import { EvaluacionPsicosocial } from './eval-psicosocial.entity'
-import { ArchivoAdjunto } from './archivos-adjunto.entity'
+import { ArchivoAdjunto } from '@/application/historia-clinica/entities/archivos-adjunto.entity'
+import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
 
 dotenv.config()
 

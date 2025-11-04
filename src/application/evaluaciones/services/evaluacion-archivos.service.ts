@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import path from 'path'
 import fs from 'fs/promises'
@@ -11,7 +11,8 @@ import {
   getEvalNutriMaxFiles,
   getEvalNutriMaxFileSizeBytes,
 } from '../constants/evaluacion-archivos.constants'
-import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
+import { ArchivoAdjunto } from '@/application/historia-clinica/entities/archivos-adjunto.entity'
+import { BaseService } from '@/common/base'
 
 export interface EvaluacionArchivoTemporal {
   path: string
@@ -22,14 +23,14 @@ export interface EvaluacionArchivoTemporal {
 }
 
 @Injectable()
-export class EvaluacionArchivosService {
-  private readonly logger = new Logger(EvaluacionArchivosService.name)
+export class EvaluacionArchivosService extends BaseService {
   private readonly storageRoot: string
   private readonly tempDir: string
   private readonly finalBaseDir: string
   private readonly normalizedStorageRoot: string
 
   constructor(private readonly configService: ConfigService) {
+    super()
     const storageFromConfig = this.configService.get<string>('STORAGE_NFS_PATH')
     this.storageRoot = storageFromConfig
       ? path.isAbsolute(storageFromConfig)

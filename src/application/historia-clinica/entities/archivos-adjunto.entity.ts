@@ -9,9 +9,9 @@ import {
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Status } from '@/common/constants'
 import { HistoriaClinica } from './historia-clinica.entity'
-import { EvaluacionNutricional } from './evaluacion-nutricional.entity'
 import { Antecedente } from './antecedente.entity'
 import { Comentario } from './comentario.entity'
+import { EvaluacionNutricional } from '@/application/evaluaciones/entities/evaluacion-nutricional.entity'
 
 export interface ArchivoAdjuntoMetadatos {
   ruta: string

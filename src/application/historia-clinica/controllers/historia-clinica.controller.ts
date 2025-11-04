@@ -17,7 +17,7 @@ import { BaseController } from '@/common/base'
 
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger'
 import { HistoriaClinicaService } from '../services/historia-clinico.service'
-import { EvaluacionNutricionalService } from '../services/evaluacion-nutricional.service'
+import { EvaluacionNutricionalService } from '../../evaluaciones/services/evaluacion-nutricional.service'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request, Response } from 'express'
 import {
@@ -33,13 +33,9 @@ import { FilesInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
 import { extname } from 'path'
 import { promises as fs } from 'fs'
-import {
-  EVAL_NUTRI_TEMP_DIR,
-  getEvalNutriMaxFileSizeBytes,
-  getEvalNutriMaxFiles,
-} from '../constants/evaluacion-archivos.constants'
+
 import { v4 as uuid } from 'uuid'
-import { EvaluacionArchivosService } from '../services/evaluacion-archivos.service'
+
 import { chatFileFilter, fileFilter } from '@/utils/archivos'
 import {
   CHAT_TEMP_DIR,
@@ -51,6 +47,12 @@ import {
   ComentarioArchivoTemporal,
 } from '../services/comentario-archivos.service'
 import { enviarArchivoAdjunto } from '../utils/comentario-archivo-response.util'
+import { EvaluacionArchivosService } from '@/application/evaluaciones/services/evaluacion-archivos.service'
+import {
+  EVAL_NUTRI_TEMP_DIR,
+  getEvalNutriMaxFiles,
+  getEvalNutriMaxFileSizeBytes,
+} from '@/application/evaluaciones/constants/evaluacion-archivos.constants'
 
 @ApiTags('Historia clinica')
 @ApiBearerAuth()

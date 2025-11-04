@@ -44,12 +44,12 @@ import {
   EVAL_NUTRI_TEMP_DIR,
   getEvalNutriMaxFiles,
   getEvalNutriMaxFileSizeBytes,
-} from '../constants/evaluacion-archivos.constants'
+} from '../../evaluaciones/constants/evaluacion-archivos.constants'
 import { fileFilter } from '@/utils/archivos'
 import {
   EvaluacionArchivosService,
   EvaluacionArchivoTemporal,
-} from '../services/evaluacion-archivos.service'
+} from '../../evaluaciones/services/evaluacion-archivos.service'
 
 @ApiTags('Antecedentes clínicos')
 @ApiBearerAuth()

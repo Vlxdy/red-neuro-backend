@@ -15,7 +15,7 @@ import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { CitasEstado } from '../constant'
 import { HistorialCita } from './cita-historial.entity'
 import { Notificacion } from './notificacion.entity'
-import { EvaluacionNutricional } from '@/application/historia-clinica/entities/evaluacion-nutricional.entity'
+import { EvaluacionNutricional } from '@/application/evaluaciones/entities/evaluacion-nutricional.entity'
 
 dotenv.config()
 

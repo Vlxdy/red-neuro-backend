@@ -34,7 +34,7 @@ import {
   TDocumentDefinitions,
 } from 'pdfmake/interfaces'
 import { DateService } from '@/common/lib/data.service'
-import { EvaluacionNutricionalService } from '@/application/historia-clinica/services/evaluacion-nutricional.service'
+import { EvaluacionNutricionalService } from '@/application/evaluaciones/services/evaluacion-nutricional.service'
 import { HistoriaClinicaService } from '@/application/historia-clinica/services/historia-clinico.service'
 import {
   EvaluacionNutricionalResponde,
