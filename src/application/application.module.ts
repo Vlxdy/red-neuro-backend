@@ -4,7 +4,6 @@ import { ParametroModule } from './parametro/parametro.module'
 import { PrinterModule } from '@/printer/printer.module'
 import { HistoriaClinicaService } from './historia-clinica/services/historia-clinico.service'
 import { HistoriaClinicaRepository } from './historia-clinica/repositories/historia-clinica.repository'
-import { ArchivoAdjuntoService } from './historia-clinica/services/archivo-adjunto.service'
 import { ArchivoRepository } from './historia-clinica/repositories/archivo.repository'
 import { ComentarioRepository } from './historia-clinica/repositories/comentario.repository'
 import { ComentarioService } from './historia-clinica/services/comentario.service'
@@ -84,7 +83,6 @@ import { EvaluacionArchivosService } from './evaluaciones/services/evaluacion-ar
     ConfigService,
     HistoriaClinicaService,
     HistoriaClinicaRepository,
-    ArchivoAdjuntoService,
     ArchivoRepository,
     ComentarioRepository,
     ComentarioService,
