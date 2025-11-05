@@ -166,9 +166,7 @@ export class EvaluacionNutricionalService extends BaseService {
       const cita = await this.citasService.buscarPorId(idCita, transaccion)
       if (cita) {
         if (data.forzarFecha) {
-          evaluacion.fechaEvaluacion = dayjs(cita.fechaInicio).format(
-            'YYYY-MM-DD'
-          )
+          evaluacion.fechaEvaluacion = dayjs(cita.fechaInicio).toString()
         }
         await this.citasService.actualizarCita({
           idCita: cita.id,
@@ -178,6 +176,8 @@ export class EvaluacionNutricionalService extends BaseService {
           idUsuarioRol: idMedico,
           transaccion,
         })
+
+        await transaccion.getRepository(EvaluacionNutricional).save(evaluacion)
       }
     }
 
