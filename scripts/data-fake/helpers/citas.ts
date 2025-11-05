@@ -38,16 +38,27 @@ export async function crearCita({
     // If we get a response but no ID, it's still an issue
     throw new Error('No se recibió el ID de la cita creada en la respuesta.')
   } catch (err: any) {
-    // Type 'err' as 'any' or 'unknown'
     const errorMessage =
       err.response?.data?.message || err.message || 'Error desconocido'
+
     console.error(
-      `       ❌ Error al crear cita para paciente ${idPaciente} (${dayjs(fechaInicio).format('DD/MM HH:mm')}): ${errorMessage}`
+      `❌ Error al crear cita para paciente ${idPaciente} (${dayjs(fechaInicio).format('DD/MM HH:mm')}): ${errorMessage}`
     )
-    throw err // Re-throw to propagate the error up to `generarCitas`
+
+    // Si el error tiene un cuerpo JSON completo, mostrarlo formateado
+    if (err.response?.data && typeof err.response.data === 'object') {
+      console.log(detalle, fechaInicio, idPaciente)
+
+      console.error(
+        '🧩 Cuerpo completo del error:',
+        JSON.stringify(err.response.data, null, 2)
+      )
+    } else if (typeof err.response?.data === 'string') {
+      console.error('🧩 Respuesta del servidor (texto):', err.response.data)
+    }
+    throw err
   }
 }
-
 type Cita = { inicio: string; fin: string }
 type CitaGenerada = {
   fechaInicio: string

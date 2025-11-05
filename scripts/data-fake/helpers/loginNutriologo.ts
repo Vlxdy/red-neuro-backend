@@ -19,8 +19,11 @@ export async function loginYConfigurarTokenNutriologo(
     if (!token) {
       throw new Error('No se recibió access_token en la respuesta.')
     }
-    apiNutriologo.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    console.log(
+      `   ✅ Autenticación exitosa para el usuario NUTRICIONISTA: ${usuario}`
+    )
     console.log('🔐 Token JWT configurado')
+    apiNutriologo.defaults.headers.common['Authorization'] = `Bearer ${token}`
     // return token
   } catch (err) {
     console.error('❌ Error al autenticar:', err.response?.data || err.message)

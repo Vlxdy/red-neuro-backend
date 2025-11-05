@@ -1,31 +1,29 @@
 import dayjs from 'dayjs'
-import {
-  DatosNutricionalesFake,
-  generarDiagnosticoNutricional,
-} from '../utils/evaluacion'
-import { PacienteCitasGeneradas } from './citas'
-import { getHistoriaClinicaPorPaciente } from './historia'
 import defaultApi from './loginNutriologo'
 import type { AxiosInstance } from 'axios'
 import { Genero } from '@/common/constants'
+import { PacienteCitasGeneradas } from './citas'
+
+interface DatosEvaluacionNutricional {
+  fechaEvaluacion: string
+  peso: number
+  talla: number
+  imc: number
+  requerimientoCalorico: number
+  diagnosticoNutricional: string
+  observaciones: string
+  idCita: string
+}
 
 interface CrearEvaluacionNutricionalParams {
   idHistoria: string
-  diagnostico: string
-  peso: number
-  pesoObjetivo: number
-  estatura: number
-  idCita: string
+  datos: DatosEvaluacionNutricional
   api?: AxiosInstance
 }
 
 export async function crearEvaluacionNutricional({
   idHistoria,
-  diagnostico,
-  peso,
-  pesoObjetivo,
-  estatura,
-  idCita,
+  datos,
   api = defaultApi,
 }: CrearEvaluacionNutricionalParams): Promise<any> {
   // Specify return type if known, e.g., Promise<EvaluacionNutricionalResponse>
@@ -34,11 +32,7 @@ export async function crearEvaluacionNutricional({
     const res = await api.post(
       `/historia-clinica/${idHistoria}/evaluacion-nutricional`,
       {
-        diagnostico,
-        peso,
-        pesoObjetivo,
-        estatura,
-        idCita,
+        ...datos,
         forzarFecha: true,
       }
     )
@@ -49,113 +43,139 @@ export async function crearEvaluacionNutricional({
       err.response?.data?.message || err.message || 'Error desconocido'
     // Log detailed error with indentation and context
     console.error(
-      `       ❌ Error al crear evaluación para Historia ${idHistoria} (Cita: ${idCita}): ${errorMessage}`
+      `       ❌ Error al crear evaluación para Historia ${idHistoria} (Cita: ${datos.idCita}): ${errorMessage}`
     )
     throw err // Re-throw to propagate the error up to `generarEvaluacionNutricional`
   }
 }
 
-export async function generarEvaluacionNutricional({
-  pacientesCitasGeneradas,
-}: {
-  pacientesCitasGeneradas: Array<PacienteCitasGeneradas>
-}) {
-  let totalEvaluacionesCreadas = 0
-  console.log(
-    `   Iniciando generación de evaluaciones nutricionales para ${pacientesCitasGeneradas.length} pacientes...`
-  )
+interface Evaluacion {
+  fechaEvaluacion: string
+  peso: number
+  talla: number
+  imc: number
+  requerimientoCalorico: number
+  diagnosticoNutricional: string
+  observaciones: string
+}
 
-  for await (const element of pacientesCitasGeneradas) {
-    const paciente = element.paciente
-    const citas = element.citas
-    const pacienteIdentifier =
-      paciente.nroDocumento || paciente.correoElectronico || paciente.id
-    console.log(
-      `     🔄 Procesando evaluaciones para paciente: ${paciente.nombres} ${paciente.primerApellido} (${pacienteIdentifier})`
-    )
+/**
+ * Genera evaluaciones nutricionales realistas basadas en edad, sexo y fechas de cita.
+ */
+export function generarEvaluaciones(
+  fechaNacimiento: string,
+  sexo: Genero,
+  fechasCitas: string[]
+): Evaluacion[] {
+  const evaluaciones: Evaluacion[] = []
+  let talla = estimarTallaInicial(fechaNacimiento, sexo)
+  let peso = estimarPesoInicial(talla)
 
-    const evaluacionesGeneradasParaPaciente: Array<DatosNutricionalesFake> = [] // Store generated fake data for continuity
+  for (const fecha of fechasCitas.sort()) {
+    const edad = dayjs(fecha).diff(dayjs(fechaNacimiento), 'year')
 
-    let evaluacionesCountForThisPaciente = 0
-
-    for await (const cita of citas) {
-      // Only process future or current appointments for consistency in the test.
-      // Or consider if you truly want to simulate past appointments.
-      // Based on your original code: `if (!dayjs(cita.fechaInicio).isBefore(dayjs())) continue`
-      // I'll keep the logic, but note the current date is June 10, 2025.
-      if (!dayjs(cita.fechaInicio).isBefore(dayjs())) {
-        console.log(
-          `       ⚠️ Saltando evaluación para cita ${cita.id} (${cita.detalle}): La fecha (${dayjs(cita.fechaInicio).format('DD/MM/YYYY')}) no es anterior a la actual.`
-        )
-        continue
-      }
-
-      const historia = await getHistoriaClinicaPorPaciente({
-        idPaciente: paciente.id,
-      })
-
-      if (!historia || !historia.id) {
-        console.error(
-          `       ❌ No se encontró historia clínica para el paciente ${pacienteIdentifier}. Saltando evaluaciones para este paciente.`
-        )
-        break // Break from current patient's appointments if no history found
-      }
-
-      const fechaNacimiento = paciente.fechaNacimiento
-      const edad = dayjs().diff(dayjs(fechaNacimiento), 'year')
-
-      // Get previous evaluation data for continuity or an empty object if it's the first
-      const previousEvaluationData =
-        evaluacionesGeneradasParaPaciente.length > 0
-          ? evaluacionesGeneradasParaPaciente[
-              evaluacionesGeneradasParaPaciente.length - 1
-            ]
-          : {}
-
-      const evaluacionGeneradaData = generarDiagnosticoNutricional(
-        (paciente.genero as Genero) ?? Genero.MASCULINO,
-        {
-          edad,
-          ...previousEvaluationData,
-        }
-      )
-
-      try {
-        await crearEvaluacionNutricional({
-          idHistoria: historia.id,
-          diagnostico: `${evaluacionGeneradaData.clasificacion} - ${evaluacionGeneradaData.comentario}`,
-          peso: parseFloat(evaluacionGeneradaData.peso.replace(' kg', '')),
-          pesoObjetivo: parseFloat(
-            evaluacionGeneradaData.pesoObjetivo.replace(' kg', '')
-          ),
-          estatura: parseInt(evaluacionGeneradaData.altura.replace(' cm', '')),
-          idCita: cita.id,
-        })
-
-        // Store generated data for the next iteration for this patient
-        evaluacionesGeneradasParaPaciente.push(evaluacionGeneradaData)
-
-        // This log is for successful individual evaluation creation within the patient's context
-        console.log(`       ✅ Evaluación creada para cita (ID: ${cita.id}).`)
-        evaluacionesCountForThisPaciente++
-        totalEvaluacionesCreadas++
-      } catch (innerError) {
-        // Error already logged by crearEvaluacionNutricional. Continue to next cita.
-      }
+    // Ajuste de altura realista
+    if (edad < 18) {
+      talla += Math.random() * 0.005 // crece lentamente (<0.5 cm)
+    } else if (Math.random() < 0.2) {
+      talla += (Math.random() - 0.5) * 0.005 // pequeña variación por medición
     }
-    if (evaluacionesCountForThisPaciente > 0) {
-      console.log(
-        `     ✅ ${evaluacionesCountForThisPaciente} evaluaciones creadas para el paciente ${pacienteIdentifier}.`
-      )
-    } else {
-      console.warn(
-        `     ⚠️ No se pudo crear ninguna evaluación para el paciente ${pacienteIdentifier}.`
-      )
-    }
+
+    // Ajuste de peso realista
+    const deltaPeso = (Math.random() - 0.5) * 2 // variación entre -1kg y +1kg
+    peso = Math.max(35, peso + deltaPeso)
+
+    // Cálculos derivados
+    const imc = +(peso / (talla * talla)).toFixed(2)
+    const requerimientoCalorico = +(
+      24 *
+      peso *
+      (sexo === 'M' ? random(1.0, 1.2) : random(0.9, 1.1))
+    ).toFixed(1)
+
+    const diagnostico = diagnosticoSegunIMC(imc)
+    const observaciones = observacionSegunCambio(evaluaciones.at(-1)?.imc, imc)
+
+    evaluaciones.push({
+      fechaEvaluacion: fecha,
+      peso: +peso.toFixed(1),
+      talla: +talla.toFixed(2),
+      imc,
+      requerimientoCalorico,
+      diagnosticoNutricional: diagnostico,
+      observaciones,
+    })
   }
 
-  console.log(
-    `   Finalizada la generación de evaluaciones nutricionales. Total de evaluaciones creadas: ${totalEvaluacionesCreadas}.`
+  return evaluaciones
+}
+
+// ------------------ Funciones auxiliares ------------------
+
+function estimarTallaInicial(fechaNacimiento: string, sexo: 'M' | 'F') {
+  const edad = dayjs().diff(dayjs(fechaNacimiento), 'year')
+  if (edad < 12) return random(1.3, 1.5)
+  if (edad < 18) return random(1.5, 1.7)
+  return sexo === Genero.MASCULINO ? random(1.65, 1.8) : random(1.55, 1.7)
+}
+
+function estimarPesoInicial(talla: number) {
+  const imc = random(19, 24)
+  return imc * talla * talla
+}
+
+function diagnosticoSegunIMC(imc: number): string {
+  if (imc < 18.5) return 'Bajo peso — requiere aumento calórico.'
+  if (imc < 25) return 'Normal — mantener hábitos saludables.'
+  if (imc < 30) return 'Sobrepeso — mejorar alimentación y actividad física.'
+  return 'Obesidad — requiere seguimiento nutricional intensivo.'
+}
+
+function observacionSegunCambio(
+  imcPrevio?: number,
+  imcActual?: number
+): string {
+  if (!imcPrevio) return 'Primera evaluación registrada.'
+  const diff = imcActual! - imcPrevio
+  if (diff > 0.5)
+    return 'Se nota un leve aumento en el IMC respecto a la cita anterior.'
+  if (diff < -0.5)
+    return 'Se observa una ligera mejora en los indicadores nutricionales.'
+  return 'El estado nutricional se mantiene estable.'
+}
+
+function random(min: number, max: number) {
+  return Math.random() * (max - min) + min
+}
+
+interface GenerarEvaluacionNutricionalParams {
+  citasGenerasdas: PacienteCitasGeneradas
+  historia: any
+  api?: AxiosInstance
+}
+
+export async function generarEvaluacionNutricional({
+  citasGenerasdas,
+  historia,
+  api,
+}: GenerarEvaluacionNutricionalParams) {
+  const { citas } = citasGenerasdas
+  const evaluaciones = generarEvaluaciones(
+    historia.paciente.fechaNacimiento,
+    historia.paciente.genero,
+    citas.map((c) => c.fechaInicio)
   )
-  return totalEvaluacionesCreadas // Return count for summary if needed
+
+  for (let i = 0; i < citas.length; i++) {
+    await crearEvaluacionNutricional({
+      idHistoria: historia.id,
+      datos: {
+        ...evaluaciones[i],
+        idCita: citas[i].id,
+      },
+      api,
+    })
+  }
+
+  return
 }

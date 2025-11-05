@@ -5,17 +5,19 @@ import {
   asignarPacientes,
   getNutricionistasPorFiltro,
   getPacientesPorAsignar,
+  getPacientesPorMedico,
 } from './helpers/obtener.usuarios'
 import { UsuarioRolResponse } from '@/common/types/data-response.type'
 import { loginYConfigurarTokenNutriologo } from './helpers/loginNutriologo'
 import dayjs from 'dayjs'
 import { generarCitas } from './helpers/citas'
-import { generarEvaluacionNutricional } from './helpers/evaluacion'
 import { personasFake } from './data/usuarios.fake'
 import {
   crearArmarUsuario,
   registrarUsuariosEnGrupos,
 } from './helpers/usuarios'
+import { generarEvaluacionNutricional } from './helpers/evaluacion'
+import { getHistoriaClinicaPorPaciente } from './helpers/historia'
 
 const separator = '------------------------------------------------------'
 
@@ -213,7 +215,7 @@ export async function step6_generateAppointmentsAndEvaluations(
     return false // Indicate a non-critical exit for the step
   }
   console.log('   🔄 Generando citas para pacientes asignados...')
-  const pacientesAsignadosParaCitas = await getPacientesPorAsignar({
+  const pacientesAsignadosParaCitas = await getPacientesPorMedico({
     limite: 20,
     idMedico: globalMedico.id,
   })
@@ -236,9 +238,15 @@ export async function step6_generateAppointmentsAndEvaluations(
     console.log(
       '   🔄 Creando evaluaciones nutricionales para las citas generadas...'
     )
-    await generarEvaluacionNutricional({
-      pacientesCitasGeneradas: pacientesCitaGenerada,
-    })
+    for await (const element of pacientesCitaGenerada) {
+      const historia = await getHistoriaClinicaPorPaciente({
+        idPaciente: element.paciente.id,
+      })
+      await generarEvaluacionNutricional({
+        citasGenerasdas: element,
+        historia,
+      })
+    }
     evaluacionesCreadasCount = citasGeneradasCount
     console.log(
       `   ✅ ${evaluacionesCreadasCount} evaluaciones nutricionales creadas exitosamente.`

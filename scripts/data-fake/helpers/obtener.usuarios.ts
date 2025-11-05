@@ -62,6 +62,32 @@ export async function getPacientesPorAsignar(
   }
 }
 
+export async function getPacientesPorMedico(
+  params: GetPacientesPorAsignarParams
+) {
+  const { idMedico, pagina = 1, limite = 10 } = params
+
+  try {
+    const res = await apiAdmin.get(`/medicos/${idMedico}/pacientes`, {
+      params: { pagina, limite },
+    })
+
+    const pacientes = res.data?.datos
+    if (!Array.isArray(pacientes.filas)) {
+      throw new Error('No se encontró una lista de pacientes en datos.')
+    }
+
+    return pacientes.filas
+  } catch (err) {
+    console.error(
+      '❌ Error al obtener pacientes por asignar:',
+      err.response?.data || err.message
+    )
+    console.error(err)
+    throw err
+  }
+}
+
 interface AsignarPacientesParams {
   idMedico: string
   idPacientes: string[]
