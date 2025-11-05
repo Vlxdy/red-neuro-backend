@@ -16,7 +16,7 @@ export function generarCitasSinSolapamiento(
   const nuevasCitas: Cita[] = []
   const base = dayjs(fechaBase).startOf('day').weekday(1) // lunes de esa semana
 
-  for (let semana = 0; semana < 5; semana++) {
+  for (let semana = 0; semana < 15; semana++) {
     const semanaInicio = base.add(semana, 'week')
     let citaAgendada = false
 

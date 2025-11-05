@@ -159,6 +159,7 @@ export async function generarEvaluacionNutricional({
   historia,
   api,
 }: GenerarEvaluacionNutricionalParams) {
+  let evaluacionGeneradas: number = 0
   const { citas } = citasGenerasdas
   const evaluaciones = generarEvaluaciones(
     historia.paciente.fechaNacimiento,
@@ -167,15 +168,18 @@ export async function generarEvaluacionNutricional({
   )
 
   for (let i = 0; i < citas.length; i++) {
-    await crearEvaluacionNutricional({
-      idHistoria: historia.id,
-      datos: {
-        ...evaluaciones[i],
-        idCita: citas[i].id,
-      },
-      api,
-    })
+    if (dayjs(citas[i].fechaInicio).isBefore(dayjs())) {
+      await crearEvaluacionNutricional({
+        idHistoria: historia.id,
+        datos: {
+          ...evaluaciones[i],
+          idCita: citas[i].id,
+        },
+        api,
+      })
+      evaluacionGeneradas++
+    }
   }
 
-  return
+  return evaluacionGeneradas
 }

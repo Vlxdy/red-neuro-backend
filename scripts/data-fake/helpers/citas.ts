@@ -70,13 +70,18 @@ export type PacienteCitasGeneradas = {
   citas: Array<CitaGenerada>
 }
 
+export interface DataDevuelto {
+  PacienteCitasCreadas: Array<PacienteCitasGeneradas>
+  TotalCitasCreada: number
+}
+
 export async function generarCitas({
   pacientes,
   fechaBase,
 }: {
   fechaBase: string
   pacientes: UsuarioRolResponse[]
-}): Promise<Array<PacienteCitasGeneradas>> {
+}): Promise<DataDevuelto> {
   const allGeneratedCitas: Cita[] = [] // Track all generated citas to prevent overlaps
   const response: Array<PacienteCitasGeneradas> = []
   let totalCitasCreated = 0
@@ -151,5 +156,8 @@ export async function generarCitas({
   console.log(
     `   Finalizada la generación de citas. Total de citas creadas: ${totalCitasCreated}.`
   )
-  return response
+  return {
+    PacienteCitasCreadas: response,
+    TotalCitasCreada: totalCitasCreated,
+  }
 }

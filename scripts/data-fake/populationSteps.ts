@@ -150,7 +150,7 @@ export async function step4_assignPatientsToNutritionist(
   )
   const pacientesPorAsignar: UsuarioRolResponse[] =
     await getPacientesPorAsignar({
-      limite: 20,
+      limite: 50,
       idMedico: globalMedico.id,
     })
 
@@ -202,7 +202,6 @@ export async function step5_authenticateNutriologist(
 export async function step6_generateAppointmentsAndEvaluations(
   summary: string[]
 ): Promise<void | boolean> {
-  let citasGeneradasCount = 0
   let evaluacionesCreadasCount = 0
 
   if (!globalMedico) {
@@ -216,14 +215,15 @@ export async function step6_generateAppointmentsAndEvaluations(
   }
   console.log('   🔄 Generando citas para pacientes asignados...')
   const pacientesAsignadosParaCitas = await getPacientesPorMedico({
-    limite: 20,
+    limite: 50,
     idMedico: globalMedico.id,
   })
 
-  const pacientesCitaGenerada = await generarCitas({
-    fechaBase: dayjs().add(-1, 'month').toString(),
-    pacientes: pacientesAsignadosParaCitas,
-  })
+  const { PacienteCitasCreadas: pacientesCitaGenerada, TotalCitasCreada } =
+    await generarCitas({
+      fechaBase: dayjs().add(-3, 'month').toString(),
+      pacientes: pacientesAsignadosParaCitas,
+    })
 
   if (!pacientesCitaGenerada || pacientesCitaGenerada.length === 0) {
     console.warn('   ⚠️ No se generaron citas para los pacientes asignados.')
@@ -232,8 +232,7 @@ export async function step6_generateAppointmentsAndEvaluations(
     )
     return false // Indicate a non-critical exit for the step
   } else {
-    citasGeneradasCount = pacientesCitaGenerada.length
-    console.log(`   ✅ ${citasGeneradasCount} citas generadas correctamente.`)
+    console.log(`   ✅ ${TotalCitasCreada} citas generadas correctamente.`)
 
     console.log(
       '   🔄 Creando evaluaciones nutricionales para las citas generadas...'
@@ -242,17 +241,17 @@ export async function step6_generateAppointmentsAndEvaluations(
       const historia = await getHistoriaClinicaPorPaciente({
         idPaciente: element.paciente.id,
       })
-      await generarEvaluacionNutricional({
+      const evaluacionesGeneradas = await generarEvaluacionNutricional({
         citasGenerasdas: element,
         historia,
       })
+      evaluacionesCreadasCount += evaluacionesGeneradas
     }
-    evaluacionesCreadasCount = citasGeneradasCount
     console.log(
       `   ✅ ${evaluacionesCreadasCount} evaluaciones nutricionales creadas exitosamente.`
     )
     summary.push(
-      `✅ Paso 6: Generación de Citas y Evaluaciones - ${citasGeneradasCount} citas y ${evaluacionesCreadasCount} evaluaciones`
+      `✅ Paso 6: Generación de Citas y Evaluaciones - ${TotalCitasCreada} citas y ${evaluacionesCreadasCount} evaluaciones`
     )
   }
 }
