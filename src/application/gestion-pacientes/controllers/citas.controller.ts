@@ -30,7 +30,6 @@ import {
   CancelarCitaDto,
   CrearCitaDto,
   CitaDetalleResponseDto,
-  HistorialCitaItemResponseDto,
   ListarCitasQueryDto,
   ListarCitasPorRangoQueryDto,
   ListarAgendaCitasQueryDto,
@@ -44,6 +43,7 @@ import { Request } from 'express'
 import { CitasService } from '../services/citas.service'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { RolEnumId } from '@/core/authorization/rol.enum'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @ApiTags('Citas')
 @ApiBearerAuth()
@@ -363,11 +363,13 @@ export class CitasController extends BaseController {
   @ApiOperation({ summary: 'Consultar el historial de eventos de una cita' })
   @ApiOkResponse({
     description: 'Historial de la cita.',
-    type: HistorialCitaItemResponseDto,
-    isArray: true,
   })
   @Get(':id/historial')
-  async obtenerHistorial(@Param() param: ParamIdDto, @Req() req: Request) {
+  async obtenerHistorial(
+    @Param() param: ParamIdDto,
+    @Req() req: Request,
+    @Query() paginacionQuery: PaginacionQueryDto
+  ) {
     const idRol = this.getRol(req)
     const idUsuarioRol = this.getUsuarioRol(req)
     const { id: idCita } = param
@@ -376,9 +378,10 @@ export class CitasController extends BaseController {
       idCita,
       idRol,
       idUsuarioRol,
+      paginacionQuery,
     })
 
-    return this.success(historial)
+    return this.successListRows(historial)
   }
 
   @ApiOperation({ summary: 'API para eliminar una cita' })

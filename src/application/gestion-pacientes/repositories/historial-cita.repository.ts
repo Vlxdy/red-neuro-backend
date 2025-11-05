@@ -2,6 +2,7 @@ import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { HistorialCita } from '../entities/cita-historial.entity'
 import { CitasEstado } from '../constant'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 @Injectable()
 export class HistorialCitaRepository {
@@ -42,19 +43,37 @@ export class HistorialCitaRepository {
   async listarPorCita({
     idCita,
     transaccion,
+    paginacionQuery,
   }: {
     idCita: string
     transaccion?: EntityManager
+    paginacionQuery: PaginacionQueryDto
   }) {
-    return await (transaccion || this.dataSource)
+    const { limite, saltar, orden, sentido } = paginacionQuery
+
+    const query = (transaccion || this.dataSource)
       .getRepository(HistorialCita)
       .createQueryBuilder('historial')
       .leftJoinAndSelect('historial.usuarioEjecutor', 'usuarioEjecutor')
       .leftJoinAndSelect('usuarioEjecutor.usuario', 'usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
       .where({ idCita })
-      .orderBy('historial.fechaCreacion', 'DESC')
-      .getMany()
+
+      .take(limite)
+      .skip(saltar)
+    if (orden) {
+      switch (orden) {
+        case 'fechaCreacion':
+          query.addOrderBy('historial.fechaCreacion', sentido)
+          break
+        case 'estado':
+          query.addOrderBy('historial.estado', sentido)
+          break
+        default:
+          query.addOrderBy('historial.fechaCreacion', 'DESC')
+      }
+    }
+    return await query.getManyAndCount()
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {

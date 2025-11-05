@@ -3860,21 +3860,48 @@
               "example": "12",
               "type": "string"
             }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Historial de la cita.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/HistorialCitaItemResponseDto"
-                  }
-                }
-              }
-            }
+            "description": "Historial de la cita."
           }
         },
         "security": [
@@ -6579,70 +6606,6 @@
           "fechaInicio",
           "fechaFin",
           "comentario"
-        ]
-      },
-      "HistorialCitaItemResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "example": "12"
-          },
-          "estadoAnterior": {
-            "type": "string",
-            "enum": [
-              "INACTIVO",
-              "BORRADOR",
-              "SOLICITADA",
-              "CONFIRMADA",
-              "EN_CURSO",
-              "COMPLETADA",
-              "NO_ASISTIO",
-              "CANCELADA",
-              "RECHAZADA"
-            ],
-            "nullable": true
-          },
-          "estado": {
-            "type": "string",
-            "enum": [
-              "INACTIVO",
-              "BORRADOR",
-              "SOLICITADA",
-              "CONFIRMADA",
-              "EN_CURSO",
-              "COMPLETADA",
-              "NO_ASISTIO",
-              "CANCELADA",
-              "RECHAZADA"
-            ]
-          },
-          "comentario": {
-            "type": "object",
-            "example": "El paciente solicitó cambiar el horario para la tarde.",
-            "nullable": true
-          },
-          "rolEjecutor": {
-            "type": "string",
-            "example": "PACIENTE"
-          },
-          "usuarioEjecutor": {
-            "type": "object",
-            "example": "45"
-          },
-          "fechaCreacion": {
-            "format": "date-time",
-            "type": "string",
-            "example": "2024-07-18T15:00:00.000Z",
-            "description": "Fecha en la que se registró el evento"
-          }
-        },
-        "required": [
-          "id",
-          "estado",
-          "rolEjecutor",
-          "usuarioEjecutor",
-          "fechaCreacion"
         ]
       },
       "GenerarPlanNutricionalDto": {

@@ -1094,11 +1094,13 @@ export class CitasService extends BaseService {
     idCita,
     idRol,
     idUsuarioRol,
+    paginacionQuery,
   }: {
     idCita: string
     idRol: string
     idUsuarioRol: string
-  }): Promise<HistorialCitaItemResponseDto[]> {
+    paginacionQuery: PaginacionQueryDto
+  }): Promise<[HistorialCitaItemResponseDto[], number]> {
     const cita = await this.obtenerCitaExistente(idCita)
 
     if (this.esPaciente(idRol)) {
@@ -1111,19 +1113,24 @@ export class CitasService extends BaseService {
       )
     }
 
-    const historial = await this.historialCitaRepositorio.listarPorCita({
-      idCita,
-    })
+    const [historial, cantidad] =
+      await this.historialCitaRepositorio.listarPorCita({
+        idCita,
+        paginacionQuery,
+      })
 
-    return historial.map((registro) => ({
-      id: registro.id,
-      estadoAnterior: (registro.estadoAnterior || null) as CitasEstado | null,
-      estado: registro.estado as CitasEstado,
-      comentario: registro.comentario || null,
-      rolEjecutor: registro.rolEjecutor,
-      usuarioEjecutor: formatearUsuarioRolRespuesta(registro.usuarioEjecutor),
-      fechaCreacion: registro.fechaCreacion,
-    }))
+    return [
+      historial.map((registro) => ({
+        id: registro.id,
+        estadoAnterior: (registro.estadoAnterior || null) as CitasEstado | null,
+        estado: registro.estado as CitasEstado,
+        comentario: registro.comentario || null,
+        rolEjecutor: registro.rolEjecutor,
+        usuarioEjecutor: formatearUsuarioRolRespuesta(registro.usuarioEjecutor),
+        fechaCreacion: registro.fechaCreacion,
+      })),
+      cantidad,
+    ]
   }
 
   async actualizarCitaPaciente({
@@ -1147,11 +1154,7 @@ export class CitasService extends BaseService {
       const cita = await this.obtenerCitaExistente(idCita, tx)
       this.validarAccesoPaciente(cita, idUsuarioRol)
 
-      if (
-        ![CitasEstado.BORRADOR, CitasEstado.RECHAZADA].includes(
-          cita.estado as CitasEstado
-        )
-      ) {
+      if (![CitasEstado.BORRADOR].includes(cita.estado as CitasEstado)) {
         throw new PreconditionFailedException(
           'Solo se pueden editar citas en estado BORRADOR o RECHAZADA.'
         )
@@ -1173,16 +1176,16 @@ export class CitasService extends BaseService {
         transaccion: tx,
       })
 
-      await this.registrarHistorial({
-        cita,
-        estadoAnterior: cita.estado as CitasEstado,
-        estadoNuevo: cita.estado as CitasEstado,
-        comentario: 'El paciente actualizó los detalles de la cita.',
-        idRolEjecutor: idRol,
-        usuarioAuditoria,
-        idEjecutor: idUsuarioRol,
-        transaccion: tx,
-      })
+      // await this.registrarHistorial({
+      //   cita,
+      //   estadoAnterior: cita.estado as CitasEstado,
+      //   estadoNuevo: cita.estado as CitasEstado,
+      //   comentario: 'El paciente actualizó los detalles de la cita.',
+      //   idRolEjecutor: idRol,
+      //   usuarioAuditoria,
+      //   idEjecutor: idUsuarioRol,
+      //   transaccion: tx,
+      // })
     })
   }
 
