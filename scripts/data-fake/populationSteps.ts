@@ -18,6 +18,7 @@ import {
 } from './helpers/usuarios'
 import { generarEvaluacionNutricional } from './helpers/evaluacion'
 import { getHistoriaClinicaPorPaciente } from './helpers/historia'
+import { crearPlanNutricional } from './helpers/planes_nutricionales'
 
 const separator = '------------------------------------------------------'
 
@@ -250,6 +251,23 @@ export async function step6_generateAppointmentsAndEvaluations(
     console.log(
       `   ✅ ${evaluacionesCreadasCount} evaluaciones nutricionales creadas exitosamente.`
     )
+
+    let contadorPlanesNutricionales = 0
+    for await (const element of pacientesAsignadosParaCitas) {
+      try {
+        await crearPlanNutricional({ idUsuarioRol: element.id })
+        contadorPlanesNutricionales++
+      } catch (error) {
+        // Error already logged in crearPlanNutricional
+        console.error(
+          `   ⚠️ Error al crear plan nutricional para paciente ${element.id}: ${error.message}`
+        )
+      }
+    }
+    console.log(
+      `   ✅ Planes nutricionales creados para ${contadorPlanesNutricionales} pacientes.`
+    )
+
     summary.push(
       `✅ Paso 6: Generación de Citas y Evaluaciones - ${TotalCitasCreada} citas y ${evaluacionesCreadasCount} evaluaciones`
     )

@@ -137,6 +137,8 @@ export class PlanNutricionalService {
   }
 
   async crearMultiple(data: CrearPlanNutricionalDto[], usuario: string) {
+    console.log(data)
+
     const op = async (transaccion: EntityManager) => {
       const promises = data.map(async (plan) => {
         await this.crearPlan(plan, usuario, transaccion)
