@@ -6,6 +6,10 @@ import {
 import { Alimento } from '@/application/planes-alimentarios/entity/alimento.entity'
 import { USUARIO_SISTEMA } from '@/common/constants'
 import { MigrationInterface, QueryRunner } from 'typeorm'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 export class CrearAlimentos1748188643089 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -20,8 +24,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 3,
         carbohidratos: 0,
         proteinas: 31,
-        urlImage:
-          'https://images.unsplash.com/photo-1604908812336-0032ef8d2ca2?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/pechuga-pollo.jpg',
       },
       {
         nombre: 'Avena',
@@ -33,8 +36,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 3,
         carbohidratos: 27,
         proteinas: 5,
-        urlImage:
-          'https://images.unsplash.com/photo-1613145994443-7a6d9972a4be?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/avena.jpg',
       },
       {
         nombre: 'Manzana',
@@ -46,8 +48,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 0,
         carbohidratos: 25,
         proteinas: 0,
-        urlImage:
-          'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/manzana-roja.jpg',
       },
       {
         nombre: 'Aceite de oliva',
@@ -60,8 +61,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 4,
         carbohidratos: 0,
         proteinas: 0,
-        urlImage:
-          'https://www.eldeber.com.bo/sites/default/efsfiles/2025-05/whatsapp-image-2025-05-27-at-9.36.18-am.jpeg',
+        urlImage: '/uploads/food/aceite-oliva.jpg',
       },
       {
         nombre: 'Yogurt natural',
@@ -74,8 +74,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 2,
         carbohidratos: 10,
         proteinas: 5,
-        urlImage:
-          'https://images.unsplash.com/photo-1582452973360-634c60cf9e49?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/yogurt-natural.jpg',
       },
       {
         nombre: 'Lentejas cocidas',
@@ -87,8 +86,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 0.4,
         carbohidratos: 20,
         proteinas: 9,
-        urlImage:
-          'https://images.unsplash.com/photo-1604908554161-3d8c0d1c2b1e?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/lentejas.jpg',
       },
       {
         nombre: 'Espinaca fresca',
@@ -101,8 +99,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 0.1,
         carbohidratos: 1,
         proteinas: 0.9,
-        urlImage:
-          'https://images.unsplash.com/photo-1584270355151-020d03615f7e?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/espinaca.jpg',
       },
       {
         nombre: 'Banana',
@@ -115,8 +112,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 0.3,
         carbohidratos: 27,
         proteinas: 1.3,
-        urlImage:
-          'https://images.unsplash.com/photo-1574226516831-e1dff420e8f8?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/bananas.jpg',
       },
       {
         nombre: 'Nueces',
@@ -129,8 +125,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 20,
         carbohidratos: 4,
         proteinas: 5,
-        urlImage:
-          'https://images.unsplash.com/photo-1576092768244-90b66c94f87b?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/nueces.jpg',
       },
       {
         nombre: 'Agua',
@@ -143,8 +138,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 0,
         carbohidratos: 0,
         proteinas: 0,
-        urlImage:
-          'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/agua.jpg',
       },
       {
         nombre: 'Stevia',
@@ -157,8 +151,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 0,
         carbohidratos: 0,
         proteinas: 0,
-        urlImage:
-          'https://images.unsplash.com/photo-1612036780573-6b0f54434206?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/stevia.jpg',
       },
       {
         nombre: 'Perejil fresco',
@@ -170,8 +163,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 0,
         carbohidratos: 0.2,
         proteinas: 0.1,
-        urlImage:
-          'https://images.unsplash.com/photo-1587049352845-080c3c0ed3d3?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/perejil.jpg',
       },
       {
         nombre: 'Queso fresco',
@@ -183,8 +175,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 5,
         carbohidratos: 1,
         proteinas: 6,
-        urlImage:
-          'https://images.unsplash.com/photo-1582719478470-bc1e7c7b5b9f?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/queso.jpg',
       },
       {
         nombre: 'Pan integral',
@@ -196,8 +187,7 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 1,
         carbohidratos: 12,
         proteinas: 3,
-        urlImage:
-          'https://images.unsplash.com/photo-1604917877939-f2b00be59b57?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/pan-integral.jpg',
       },
       {
         nombre: 'Huevo cocido',
@@ -209,10 +199,39 @@ export class CrearAlimentos1748188643089 implements MigrationInterface {
         grasa: 5,
         carbohidratos: 0.6,
         proteinas: 6,
-        urlImage:
-          'https://images.unsplash.com/photo-1612197525698-7c39fa62e420?auto=format&fit=crop&w=600&q=80',
+        urlImage: '/uploads/food/huevo-cocido.jpg',
       },
     ]
+
+    const srcDir = path.resolve(__dirname, '../assets/food')
+    const uploadDir = path.resolve(
+      `${process.env.STORAGE_NFS_PATH}/uploads/food`
+    )
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
+
+    // 🔹 Copiar solo las imágenes necesarias
+    for (const item of items) {
+      const fileName = path.basename(item.urlImage) // pan-integral.jpg
+      const srcFile = path.join(srcDir, fileName)
+      const destFile = path.join(uploadDir, fileName)
+
+      try {
+        if (!fs.existsSync(srcFile)) {
+          console.warn(`⚠️ Imagen no encontrada: ${srcFile}`)
+          continue
+        }
+
+        // Copiar si no existe ya
+        if (!fs.existsSync(destFile)) {
+          fs.copyFileSync(srcFile, destFile)
+          console.log(`✅ Copiada imagen: ${fileName}`)
+        } else {
+          console.log(`ℹ️ Ya existe: ${fileName}`)
+        }
+      } catch (error) {
+        console.error(`❌ Error al copiar ${fileName}:`, error)
+      }
+    }
     const alimentos = items.map((item) => {
       return new Alimento({
         ...item,

@@ -35,4 +35,14 @@ export class FileService {
       return null
     }
   }
+  async getFoodPath(filename: string): Promise<string | null> {
+    const filePath = path.join(this.storagePath, 'uploads', 'food', filename)
+
+    try {
+      await fs.access(filePath) // Verifica que el archivo existe
+      return filePath
+    } catch {
+      return null
+    }
+  }
 }

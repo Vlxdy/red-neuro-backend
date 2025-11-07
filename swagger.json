@@ -1478,6 +1478,29 @@
         ]
       }
     },
+    "/uploads/food/{filename}": {
+      "get": {
+        "operationId": "FileController_serveAlimentos",
+        "parameters": [
+          {
+            "name": "filename",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "File"
+        ]
+      }
+    },
     "/evaluacion-nutricional": {
       "get": {
         "operationId": "EvaluacionesController_listarEvaluaciones",

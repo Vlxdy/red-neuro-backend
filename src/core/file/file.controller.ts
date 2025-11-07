@@ -17,4 +17,16 @@ export class FileController {
     }
     res.sendFile(filePath)
   }
+
+  @Get('food/:filename')
+  async serveAlimentos(
+    @Param('filename') filename: string,
+    @Res() res: Response
+  ) {
+    const filePath = await this.fileService.getFoodPath(filename)
+    if (!filePath) {
+      throw new NotFoundException('Imagen no encontrada')
+    }
+    res.sendFile(filePath)
+  }
 }
