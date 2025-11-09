@@ -41,17 +41,17 @@ Esta guía resume los componentes y flujos necesarios en el frontend para soport
    - Si el backend responde con estado `RECHAZADA`, mostrar banner con el comentario del nutricionista y el contador de reprogramaciones restantes.
    - Acciones disponibles: "Editar propuesta" (retorna a `BORRADOR`, descontando un intento) o "Cancelar cita" (`POST /citas/:id/cancelar`).
 4. **Cancelar cita**
-   - Disponible en `BORRADOR`, `PENDIENTE` y `RECHAZADA`.
+   - Disponible en `BORRADOR`, `SOLICITADA` y `RECHAZADA`.
    - Confirmación modal para prevenir cancelaciones accidentales.
 5. **Cita aprobada**
-   - Estado `APROBADA` bloquea los inputs.
+   - Estado `CONFIRMADA` bloquea los inputs.
    - Mostrar CTA para agregar a calendario externo (opcional) y botón de "Cancelar" solo si políticas lo permiten (hasta 24h antes).
    - Indicar que cambios posteriores requieren contactar a soporte/nutricionista.
 
 ## Flujo del nutricionista
 
 1. **Bandeja de pendientes**
-   - Componente `PendingAppointmentsList` que consume `GET /nutricionistas/:id/citas?estado=PENDIENTE`.
+   - Componente `PendingAppointmentsList` que consume `GET /nutricionistas/:id/citas?estado=SOLICITADA`.
    - Permite filtrar por fecha y paciente.
 2. **Aprobar cita**
    - Botón "Aprobar" ejecuta `POST /citas/:id/aprobar`.
@@ -82,14 +82,14 @@ Esta guía resume los componentes y flujos necesarios en el frontend para soport
 
 ## Estados y permisos en UI
 
-| Estado | Paciente | Nutricionista | Administrador |
-| ------ | -------- | ------------- | ------------- |
-| `BORRADOR` | Editar, cancelar, enviar (mostrar contador de reversiones disponibles cuando aplique) | Visualizar | Visualizar |
-| `PENDIENTE` | Ver, cancelar, volver a borrador (máx. 2 veces/7 días) | Aprobar, rechazar, volver a borrador | Aprobar, rechazar, volver a borrador |
-| `APROBADA` | Ver, cancelar (hasta 24h antes) | Ver, reprogramar (hasta 2h antes), cancelar | Ver, reprogramar/cancelar sin restricción (requiere comentario) |
-| `RECHAZADA` | Editar (restando intentos), cancelar | Ver historial, enviar comentarios adicionales | Ver historial, reabrir |
-| `CANCELADA` | Ver historial | Ver historial | Ver historial |
-| `COMPLETADA` | Ver historial | Ver historial | Ver historial |
+| Estado       | Paciente                                                                              | Nutricionista                                 | Administrador                                                   |
+| ------------ | ------------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------- |
+| `BORRADOR`   | Editar, cancelar, enviar (mostrar contador de reversiones disponibles cuando aplique) | Visualizar                                    | Visualizar                                                      |
+| `SOLICITADA` | Ver, cancelar, volver a borrador (máx. 2 veces/7 días)                                | Aprobar, rechazar, volver a borrador          | Aprobar, rechazar, volver a borrador                            |
+| `CONFIRMADA` | Ver, cancelar (hasta 24h antes)                                                       | Ver, reprogramar (hasta 2h antes), cancelar   | Ver, reprogramar/cancelar sin restricción (requiere comentario) |
+| `RECHAZADA`  | Editar (restando intentos), cancelar                                                  | Ver historial, enviar comentarios adicionales | Ver historial, reabrir                                          |
+| `CANCELADA`  | Ver historial                                                                         | Ver historial                                 | Ver historial                                                   |
+| `COMPLETADA` | Ver historial                                                                         | Ver historial                                 | Ver historial                                                   |
 
 ## Requerimientos de UX
 

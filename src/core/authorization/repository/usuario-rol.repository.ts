@@ -7,6 +7,7 @@ import { RolEstado, UsuarioRolEstado } from '@/core/authorization/constant'
 import { PersonaEstado, UsuarioEstado } from '@/core/usuario/constant'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { RolEnum } from '../rol.enum'
+import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
 
 @Injectable()
 export class UsuarioRolRepository {
@@ -205,5 +206,19 @@ export class UsuarioRolRepository {
       )
     }
     return await query.getManyAndCount()
+  }
+
+  async obtenerHistoriaPorUsuarioRol(
+    idPaciente: string,
+    transaccion?: EntityManager
+  ) {
+    return await (transaccion || this.dataSource)
+      .getRepository(HistoriaClinica)
+      .createQueryBuilder('historiaClinica')
+      .where({ idPaciente })
+      .andWhere('historiaClinica.estado = :estado', {
+        estado: 'ACTIVO',
+      })
+      .getOne()
   }
 }

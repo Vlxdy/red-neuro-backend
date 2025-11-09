@@ -38,6 +38,7 @@ import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
 import { FileValidationService } from '@/common/lib/file-validation.service'
 import path from 'path'
 import fs from 'node:fs/promises'
+import { RolEnum } from '@/core/authorization/rol.enum'
 
 @Injectable()
 export class UsuarioService extends BaseService {
@@ -1013,29 +1014,41 @@ export class UsuarioService extends BaseService {
       throw new NotFoundException(Messages.INVALID_USER)
     }
 
+    const roles = await Promise.all(
+      usuario.usuarioRol
+        .filter((value) => value.estado === UsuarioRolEstado.ACTIVE)
+        .map(async (usuarioRol) => {
+          const { id, rol, nombre, descripcion } = usuarioRol.rol
+          const modulos =
+            await this.authorizationService.obtenerPermisosPorRol(rol)
+          let idHistoriaClinica: string | null = null
+
+          if (rol === RolEnum.PACIENTE) {
+            const historiaClinica =
+              await this.usuarioRolRepositorio.obtenerHistoriaPorUsuarioRol(
+                usuarioRol.id
+              )
+            idHistoriaClinica = historiaClinica ? historiaClinica.id : null
+          }
+          return {
+            idRol: id,
+            idUsuarioRol: usuarioRol.id,
+            rol,
+            nombre,
+            descripcion,
+            modulos,
+            idHistoriaClinica,
+          }
+        })
+    )
+
     return {
       id: usuario.id,
       usuario: usuario.usuario,
       correoElectronico: usuario.correoElectronico,
       urlFoto: usuario.urlFoto,
       estado: usuario.estado,
-      roles: await Promise.all(
-        usuario.usuarioRol
-          .filter((value) => value.estado === UsuarioRolEstado.ACTIVE)
-          .map(async (usuarioRol) => {
-            const { id, rol, nombre, descripcion } = usuarioRol.rol
-            const modulos =
-              await this.authorizationService.obtenerPermisosPorRol(rol)
-            return {
-              idRol: id,
-              idUsuarioRol: usuarioRol.id,
-              rol,
-              nombre,
-              descripcion,
-              modulos,
-            }
-          })
-      ),
+      roles,
       persona: usuario.persona,
     }
   }
@@ -1277,7 +1290,14 @@ export class UsuarioService extends BaseService {
   }
 
   obtenerRolActual(
-    roles: Array<{ idRol: string; rol: string; idUsuarioRol: string }>,
+    roles: Array<{
+      idRol: string
+      rol: string
+      idUsuarioRol: string
+      nombre: string
+      descripcion: string
+      idHistoriaClinica?: string | null
+    }>,
     idRol: string | null | undefined
   ) {
     if (roles.length < 1) {
