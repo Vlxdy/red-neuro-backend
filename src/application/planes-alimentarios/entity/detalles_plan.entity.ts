@@ -18,7 +18,7 @@ dotenv.config()
 @Check(UtilService.buildStatusCheck(DetallePlanEstado))
 @Entity({
   name: 'detalles_planes',
-  schema: process.env.DB_SCHEMA,
+  schema: process.env.DB_SCHEMA_PLAN_NUTRICIONAL,
 })
 export class DetallePlan extends AuditoriaEntity {
   @PrimaryGeneratedColumn({

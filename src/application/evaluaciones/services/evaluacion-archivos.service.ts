@@ -11,7 +11,7 @@ import {
   getEvalNutriMaxFiles,
   getEvalNutriMaxFileSizeBytes,
 } from '../constants/evaluacion-archivos.constants'
-import { ArchivoAdjunto } from '@/application/historia-clinica/entities/archivos-adjunto.entity'
+import { ArchivoAdjunto } from '@/application/archivos-adjunto/entities/archivos-adjunto.entity'
 import { BaseService } from '@/common/base'
 
 export interface EvaluacionArchivoTemporal {

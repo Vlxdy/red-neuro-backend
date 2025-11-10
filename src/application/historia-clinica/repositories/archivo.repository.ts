@@ -1,7 +1,7 @@
 import { DataSource, EntityManager } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { ArchivoAdjuntoDto } from '../dtos/historia-clinica.dto'
-import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 
 @Injectable()
 export class ArchivoRepository {

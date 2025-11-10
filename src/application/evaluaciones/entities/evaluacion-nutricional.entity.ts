@@ -17,14 +17,14 @@ import { EvaluacionBioquimica } from './eval-bioquimica.entity'
 import { EvaluacionDietetica } from './eval-dietetica.entity'
 import { EvaluacionClinica } from './eval-clinica.entity'
 import { EvaluacionPsicosocial } from './eval-psicosocial.entity'
-import { ArchivoAdjunto } from '@/application/historia-clinica/entities/archivos-adjunto.entity'
+import { ArchivoAdjunto } from '@/application/archivos-adjunto/entities/archivos-adjunto.entity'
 import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
 
 dotenv.config()
 
 @Entity({
   name: 'evaluaciones_nutricionales',
-  schema: process.env.DB_SCHEMA_HISTORIA_CLINICA,
+  schema: process.env.DB_SCHEMA_EVALUACION,
 })
 export class EvaluacionNutricional extends AuditoriaEntity {
   @PrimaryGeneratedColumn({

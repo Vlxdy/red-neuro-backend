@@ -13,7 +13,7 @@ import {
 import { UtilService } from '../../../common/lib/util.service'
 import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
-import { ArchivoAdjunto } from './archivos-adjunto.entity'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 
 export const ComentarioEstado = {
   ACTIVE: Status.ACTIVE,

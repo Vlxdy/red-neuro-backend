@@ -19,7 +19,7 @@ import { Request, Response } from 'express'
 import { JwtAuthGuard } from 'src/core/authentication/guards/jwt-auth.guard'
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger'
 import { ComentarioService } from '../services/comentario.service'
-import { CrearComentarioDto } from '../dtos/comentario.dto'
+import { CrearComentarioDto } from '../../historia-clinica/dtos/comentario.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { FilesInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
@@ -30,13 +30,13 @@ import {
   CHAT_TEMP_DIR,
   getChatMaxFileSizeBytes,
   getChatMaxFiles,
-} from '../constants/comentario-archivos.constants'
+} from '../../historia-clinica/constants/comentario-archivos.constants'
 import { chatFileFilter } from '@/utils/archivos'
 import {
   ComentarioArchivosService,
   ComentarioArchivoTemporal,
 } from '../services/comentario-archivos.service'
-import { enviarArchivoAdjunto } from '../utils/comentario-archivo-response.util'
+import { enviarArchivoAdjunto } from '../../historia-clinica/utils/comentario-archivo-response.util'
 
 @ApiTags('Comentarios')
 @ApiBearerAuth()

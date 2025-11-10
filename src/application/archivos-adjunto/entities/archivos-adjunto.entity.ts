@@ -8,9 +8,9 @@ import {
 } from 'typeorm'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Status } from '@/common/constants'
-import { HistoriaClinica } from './historia-clinica.entity'
-import { Antecedente } from './antecedente.entity'
-import { Comentario } from './comentario.entity'
+import { HistoriaClinica } from '../../historia-clinica/entities/historia-clinica.entity'
+import { Antecedente } from '../../historia-clinica/entities/antecedente.entity'
+import { Comentario } from '../../comunicacion/entities/comentario.entity'
 import { EvaluacionNutricional } from '@/application/evaluaciones/entities/evaluacion-nutricional.entity'
 
 export interface ArchivoAdjuntoMetadatos {
@@ -22,7 +22,7 @@ export interface ArchivoAdjuntoMetadatos {
 
 @Entity({
   name: 'archivos_adjuntos',
-  schema: process.env.DB_SCHEMA_HISTORIA_CLINICA,
+  schema: process.env.DB_SCHEMA_ARCHIVOS,
 })
 export class ArchivoAdjunto extends AuditoriaEntity {
   @PrimaryGeneratedColumn({

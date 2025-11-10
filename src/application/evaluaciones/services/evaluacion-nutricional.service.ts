@@ -10,7 +10,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm'
 import { DataSource, EntityManager, Repository } from 'typeorm'
 
-import { ArchivoAdjunto } from '../../historia-clinica/entities/archivos-adjunto.entity'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 import {
   ActualizarEvaluacionAntropometricaDto,
   CreateEvaluacionAntropometricaDto,

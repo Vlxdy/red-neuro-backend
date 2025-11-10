@@ -20,7 +20,7 @@ dotenv.config()
 @Check(UtilService.buildStatusCheck(PlanAlimentarioEstado))
 @Entity({
   name: 'planes_alimentarios',
-  schema: process.env.DB_SCHEMA,
+  schema: process.env.DB_SCHEMA_PLAN_NUTRICIONAL,
 })
 export class PlanAlimentario extends AuditoriaEntity {
   @PrimaryGeneratedColumn({

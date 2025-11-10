@@ -10,11 +10,11 @@ import {
   BeforeInsert,
   OneToOne,
 } from 'typeorm'
-import { ArchivoAdjunto } from './archivos-adjunto.entity'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 import { Status } from '@/common/constants'
 
 import { Antecedente } from './antecedente.entity'
-import { Comentario } from '@/application/historia-clinica/entities/comentario.entity'
+import { Comentario } from '@/application/comunicacion/entities/comentario.entity'
 import { EvaluacionNutricional } from '@/application/evaluaciones/entities/evaluacion-nutricional.entity'
 
 @Entity({

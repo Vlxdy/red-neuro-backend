@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common'
 import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
 import { Status } from 'src/common/constants'
 import dayjs from 'dayjs'
-import { Comentario } from '../entities/comentario.entity'
+import { Comentario } from '../../comunicacion/entities/comentario.entity'
 import { CrearComentarioDto } from '../dtos/comentario.dto'
-import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 
 @Injectable()
 export class ComentarioRepository {

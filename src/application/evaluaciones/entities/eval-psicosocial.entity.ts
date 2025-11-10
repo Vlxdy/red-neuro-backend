@@ -15,7 +15,7 @@ dotenv.config()
 
 @Entity({
   name: 'evaluaciones_psicosociales',
-  schema: process.env.DB_SCHEMA_HISTORIA_CLINICA,
+  schema: process.env.DB_SCHEMA_EVALUACION,
 })
 export class EvaluacionPsicosocial extends AuditoriaEntity {
   @PrimaryGeneratedColumn('uuid')

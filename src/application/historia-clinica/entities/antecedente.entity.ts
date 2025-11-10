@@ -10,7 +10,7 @@ import {
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Status } from '@/common/constants'
 import { HistoriaClinica } from './historia-clinica.entity'
-import { ArchivoAdjunto } from './archivos-adjunto.entity'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 import {
   AntecedenteEstadoRegistro,
   AntecedenteFuenteDatos,

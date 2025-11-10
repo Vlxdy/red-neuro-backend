@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { ComentarioArchivoDescarga } from '../services/comentario.service'
+import { ComentarioArchivoDescarga } from '../../comunicacion/services/comentario.service'
 
 export function enviarArchivoAdjunto(
   res: Response,

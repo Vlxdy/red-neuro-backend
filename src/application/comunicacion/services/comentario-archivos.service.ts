@@ -11,8 +11,8 @@ import {
   getChatMaxFiles,
   getChatMaxFileSizeMb,
   CHAT_STORAGE_ROOT,
-} from '../constants/comentario-archivos.constants'
-import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
+} from '../../historia-clinica/constants/comentario-archivos.constants'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 
 export interface ComentarioArchivoTemporal {
   path: string

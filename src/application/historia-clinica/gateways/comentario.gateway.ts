@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets'
 import { JwtService } from '@nestjs/jwt'
 import { Server, Socket } from 'socket.io'
-import { ComentarioChatDto } from '../services/comentario.service'
+import { ComentarioChatDto } from '../../comunicacion/services/comentario.service'
 
 type ComentarioCambioPayload =
   | {

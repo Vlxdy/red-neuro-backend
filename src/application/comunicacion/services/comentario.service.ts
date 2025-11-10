@@ -9,20 +9,20 @@ import {
 import { Messages } from '../../../common/constants/response-messages'
 import { Status } from '../../../common/constants'
 import { PaginacionQueryDto } from '../../../common/dto/paginacion-query.dto'
-import { ComentarioRepository } from '../repositories/comentario.repository'
-import { CrearComentarioDto } from '../dtos/comentario.dto'
+import { ComentarioRepository } from '../../historia-clinica/repositories/comentario.repository'
+import { CrearComentarioDto } from '../../historia-clinica/dtos/comentario.dto'
 import { PacientesService } from '@/application/gestion-pacientes/services/pacientes.service'
-import { HistoriaClinicaService } from './historia-clinico.service'
+import { HistoriaClinicaService } from '../../historia-clinica/services/historia-clinico.service'
 import { RolEnumId } from '@/core/authorization/rol.enum'
 import { AsignacionService } from '@/application/gestion-pacientes/services/asignacion.service'
-import { ComentarioGateway } from '../gateways/comentario.gateway'
+import { ComentarioGateway } from '../../historia-clinica/gateways/comentario.gateway'
 import { Comentario } from '../entities/comentario.entity'
-import { HistoriaClinica } from '../entities/historia-clinica.entity'
+import { HistoriaClinica } from '../../historia-clinica/entities/historia-clinica.entity'
 import {
   ComentarioArchivosService,
   ComentarioArchivoTemporal,
 } from './comentario-archivos.service'
-import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 import { ArchivoAdjuntoMetadataResponse } from '@/common/types/data-response.type'
 import { EntityManager } from 'typeorm'
 

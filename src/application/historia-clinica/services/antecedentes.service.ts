@@ -22,7 +22,7 @@ import {
   AntecedenteResponse,
   ArchivoAdjuntoResponse,
 } from '@/common/types/data-response.type'
-import { ArchivoAdjunto } from '../entities/archivos-adjunto.entity'
+import { ArchivoAdjunto } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 import { ArchivoRepository } from '../repositories/archivo.repository'
 import { Status } from '@/common/constants'
 import { Messages } from '@/common/constants/response-messages'

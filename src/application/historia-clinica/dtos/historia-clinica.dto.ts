@@ -12,7 +12,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger'
 import { Validate } from 'class-validator'
 import { CrearEvaluacionDto } from './evaluacion.dto'
-import { ArchivoAdjuntoMetadatos } from '../entities/archivos-adjunto.entity'
+import { ArchivoAdjuntoMetadatos } from '../../archivos-adjunto/entities/archivos-adjunto.entity'
 
 export class ArchivoAdjuntoDto {
   @ApiProperty({

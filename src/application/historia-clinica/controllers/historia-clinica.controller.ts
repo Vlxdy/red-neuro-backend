@@ -24,7 +24,7 @@ import {
   CreateEvaluacionAntropometricaDto,
   QueryEvaluacionesDto,
 } from '../dtos/evaluacion.dto'
-import { ComentarioService } from '../services/comentario.service'
+import { ComentarioService } from '../../comunicacion/services/comentario.service'
 import { CrearComentarioDto } from '../dtos/comentario.dto'
 import { AntecedenteService } from '../services/antecedentes.service'
 import { CreateAntecedenteDto } from '../dtos/antecedentes.dto'
@@ -45,7 +45,7 @@ import {
 import {
   ComentarioArchivosService,
   ComentarioArchivoTemporal,
-} from '../services/comentario-archivos.service'
+} from '../../comunicacion/services/comentario-archivos.service'
 import { enviarArchivoAdjunto } from '../utils/comentario-archivo-response.util'
 import { EvaluacionArchivosService } from '@/application/evaluaciones/services/evaluacion-archivos.service'
 import {

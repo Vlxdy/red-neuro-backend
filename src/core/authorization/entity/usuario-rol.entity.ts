@@ -19,7 +19,7 @@ import { Asignacion } from '@/application/gestion-pacientes/entities/asignados.e
 import { PlanAlimentario } from '@/application/planes-alimentarios/entity'
 import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
 import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
-import { Comentario } from '@/application/historia-clinica/entities/comentario.entity'
+import { Comentario } from '@/application/comunicacion/entities/comentario.entity'
 import { Notificacion } from '@/application/gestion-pacientes/entities/notificacion.entity'
 import { HistorialCita } from '@/application/gestion-pacientes/entities/cita-historial.entity'
 

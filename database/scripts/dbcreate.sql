@@ -17,3 +17,5 @@ CREATE SCHEMA parametricas;
 CREATE SCHEMA historicos;
 CREATE SCHEMA historias_clinicas;
 CREATE SCHEMA planes_nutricionales;
+CREATE SCHEMA evaluaciones;
+CREATE SCHEMA archivos_adjuntos;

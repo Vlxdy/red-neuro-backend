@@ -4,8 +4,8 @@
 
 | Nombre       | Versión | Descripción                                            | Instalación                                      |
 | ------------ | ------- | ------------------------------------------------------ | ------------------------------------------------ |
-| `PostgreSQL` | ^16     | Gestor de base de datos.                               | https://www.postgresql.org/download/linux/debian |
-| `NodeJS`     | ^20     | Entorno de programación de JavaScript.                 | `nvm install 20` https://github.com/nvm-sh/nvm   |
+| `PostgreSQL` | ^17     | Gestor de base de datos.                               | https://www.postgresql.org/download/linux/debian |
+| `NodeJS`     | ^22     | Entorno de programación de JavaScript.                 | `nvm install 22` https://github.com/nvm-sh/nvm   |
 | `NPM`        | ^10     | Gestor de paquetes de NodeJS.                          | `npm install -g npm@10`                          |
 | `PM2`        | ^5.3    | Gestor avanzado de procesos de producción para NodeJS. | `npm install -g pm2@5.3`                         |
 
