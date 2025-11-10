@@ -251,7 +251,7 @@ export async function step6_generateAppointmentsAndEvaluations(
     console.log(
       `   ✅ ${evaluacionesCreadasCount} evaluaciones nutricionales creadas exitosamente.`
     )
-
+    console.log('   🔄 Creando planes nutricionales...')
     let contadorPlanesNutricionales = 0
     for await (const element of pacientesAsignadosParaCitas) {
       try {

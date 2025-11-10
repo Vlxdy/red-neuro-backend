@@ -13,7 +13,6 @@ ALTER ROLE postgres SET TIMEZONE TO 'America/La_Paz';
 -- creamos los esquemas correspondientes
 CREATE SCHEMA proyecto;
 CREATE SCHEMA usuarios;
-CREATE SCHEMA parametricas;
 CREATE SCHEMA historicos;
 CREATE SCHEMA historias_clinicas;
 CREATE SCHEMA planes_nutricionales;
