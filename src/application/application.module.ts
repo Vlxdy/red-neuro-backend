@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { ParametroModule } from './parametro/parametro.module'
 import { PrinterModule } from '@/printer/printer.module'
 import { HistoriaClinicaService } from './historia-clinica/services/historia-clinico.service'
 import { HistoriaClinicaRepository } from './historia-clinica/repositories/historia-clinica.repository'
@@ -61,7 +60,6 @@ import { EvaluacionArchivosService } from './evaluaciones/services/evaluacion-ar
 
 @Module({
   imports: [
-    ParametroModule,
     PrinterModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,

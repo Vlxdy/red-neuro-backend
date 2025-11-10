@@ -48,7 +48,7 @@ const bootstrap = async () => {
   const configService = app.get(ConfigService)
 
   // swagger
-  if (configService.get('NODE_ENV') !== 'production') {
+  if (configService.get('NODE_ENV') !== 'development') {
     createSwagger(app)
   }
 
