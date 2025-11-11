@@ -44,6 +44,7 @@ import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { Asignacion } from '@/application/gestion-pacientes/entities/asignados.entity'
 import { RolEnumId } from '@/core/authorization/rol.enum'
 import { BaseException } from '@/core/logger'
+import { PlanNutricionalDto } from '../dto/carrito-compra.dto'
 
 interface PlanAlimentoGenerado {
   idAlimento: string
@@ -337,12 +338,17 @@ export class PlanNutricionalService {
         calorias: apn.alimento.calorias,
         cantidadReferencial: apn.alimento.cantidadReferencial,
         idAlimento: apn.alimento.id,
+        urlImage: apn.alimento.urlImage,
+        descripcion: apn.alimento.descripcion,
+        carbohidratos: apn.alimento.carbohidratos,
+        grasa: apn.alimento.grasa,
+        proteinas: apn.alimento.proteinas,
       }))
     })
 
     const alimentosNutricionales = planesNutricionales.flat()
 
-    const alimentosDto: any[] = []
+    const alimentosDto: PlanNutricionalDto[] = []
 
     alimentosNutricionales.forEach((alimento) => {
       const alimentoExistente = alimentosDto.find(
