@@ -1,4 +1,3 @@
-import { TipoAlimento } from '@/application/planes-alimentarios/entity/alimento.entity'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { Order } from '../constants'
@@ -89,8 +88,4 @@ export class PaginacionQueryDto {
   get saltar(): number {
     return (this.pagina - 1) * this.limite
   }
-}
-
-export class PaginacionAlimentosQueryDto extends PaginacionQueryDto {
-  tipo: TipoAlimento
 }

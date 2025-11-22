@@ -38,7 +38,6 @@ import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
 import { FileValidationService } from '@/common/lib/file-validation.service'
 import path from 'path'
 import fs from 'node:fs/promises'
-import { RolEnum } from '@/core/authorization/rol.enum'
 
 @Injectable()
 export class UsuarioService extends BaseService {
@@ -1021,15 +1020,7 @@ export class UsuarioService extends BaseService {
           const { id, rol, nombre, descripcion } = usuarioRol.rol
           const modulos =
             await this.authorizationService.obtenerPermisosPorRol(rol)
-          let idHistoriaClinica: string | null = null
 
-          if (rol === RolEnum.PACIENTE) {
-            const historiaClinica =
-              await this.usuarioRolRepositorio.obtenerHistoriaPorUsuarioRol(
-                usuarioRol.id
-              )
-            idHistoriaClinica = historiaClinica ? historiaClinica.id : null
-          }
           return {
             idRol: id,
             idUsuarioRol: usuarioRol.id,
@@ -1037,7 +1028,6 @@ export class UsuarioService extends BaseService {
             nombre,
             descripcion,
             modulos,
-            idHistoriaClinica,
           }
         })
     )

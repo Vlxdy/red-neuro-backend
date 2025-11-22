@@ -5,8 +5,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { Rol } from './rol.entity'
@@ -15,13 +13,6 @@ import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
-import { Asignacion } from '@/application/gestion-pacientes/entities/asignados.entity'
-import { PlanAlimentario } from '@/application/planes-alimentarios/entity'
-import { Cita } from '@/application/gestion-pacientes/entities/cita.entity'
-import { HistoriaClinica } from '@/application/historia-clinica/entities/historia-clinica.entity'
-import { Comentario } from '@/application/comunicacion/entities/comentario.entity'
-import { Notificacion } from '@/application/gestion-pacientes/entities/notificacion.entity'
-import { HistorialCita } from '@/application/gestion-pacientes/entities/cita-historial.entity'
 
 dotenv.config()
 
@@ -58,51 +49,6 @@ export class UsuarioRol extends AuditoriaEntity {
   @ManyToOne(() => Usuario, (usuario) => usuario.usuarioRol)
   @JoinColumn({ name: 'id_usuario', referencedColumnName: 'id' })
   usuario: Usuario
-
-  @OneToMany(() => Cita, (cita) => cita.paciente)
-  citasPaciente: Cita[]
-
-  @OneToMany(() => Cita, (cita) => cita.medico)
-  citasMedico: Cita[]
-
-  @OneToMany(() => Asignacion, (asignacion) => asignacion.medico)
-  asignacionMedicos: Asignacion[]
-
-  @OneToMany(() => Asignacion, (asignacion) => asignacion.paciente)
-  asignacionPacientes: Asignacion[]
-
-  @OneToMany(() => PlanAlimentario, (planAlimentario) => planAlimentario.medico)
-  planAlimentarioMedicos: PlanAlimentario[]
-
-  @OneToOne(
-    () => HistoriaClinica,
-    (historiaClinica) => historiaClinica.paciente
-  )
-  historiaClinica: HistoriaClinica[]
-
-  @OneToMany(() => Notificacion, (notificacion) => notificacion.paciente)
-  notificacion: Notificacion[]
-
-  @OneToMany(() => Notificacion, (notificacion) => notificacion.medico)
-  notificacionMedico: Notificacion[]
-
-  @OneToMany(() => HistoriaClinica, (historiaClinica) => historiaClinica.medico)
-  historiaClinicaMedico: HistoriaClinica[]
-
-  @OneToMany(
-    () => HistorialCita,
-    (historialCita) => historialCita.usuarioEjecutor
-  )
-  historialCitas: HistorialCita[]
-
-  @OneToMany(
-    () => PlanAlimentario,
-    (planAlimentario) => planAlimentario.paciente
-  )
-  planAlimentarioPacientes: PlanAlimentario[]
-
-  @OneToMany(() => Comentario, (comentario) => comentario.usuarioRol)
-  comentarios: Comentario[]
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)
