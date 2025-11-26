@@ -15,8 +15,14 @@ export class rol1611498173795 implements MigrationInterface {
       },
       {
         // id: '2',
-        rol: RolEnum.NUTRICIONISTA,
-        nombre: 'Nutricionista',
+        rol: RolEnum.SUPERVISOR,
+        nombre: 'Supervisor',
+        descripcion:
+          'Responsable de la gestión y supervisión general del sistema.',
+      },
+      {
+        rol: RolEnum.PERSONAL_MEDICO,
+        nombre: 'Personal Médico',
         descripcion:
           'Profesional de la salud especializado en nutrición y dietética.',
       },
