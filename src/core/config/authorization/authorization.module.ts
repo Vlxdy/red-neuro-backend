@@ -1,44 +1,22 @@
-import TypeORMAdapter from 'typeorm-adapter'
 import { Module } from '@nestjs/common'
-import { AUTHZ_ENFORCER, AuthZModule } from 'nest-authz'
-import { join } from 'path'
-import { newEnforcer } from 'casbin'
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { ConfigModule } from '@nestjs/config'
+import { CasbinService } from '../casbin/casbin.service'
+import { CASBIN_ENFORCER, CasbinProvider } from '../casbin/casbin.provider'
+import { AuthorizationService } from '@/core/authorization/controller/authorization.service'
+import { ModuloService } from '@/core/authorization/service/modulo.service'
+import { ModuloRepository } from '@/core/authorization/repository/modulo.repository'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 @Module({
-  imports: [
-    ConfigModule,
-    AuthZModule.register({
-      imports: [ConfigModule],
-      enforcerProvider: {
-        provide: AUTHZ_ENFORCER,
-        useFactory: async (configService: ConfigService) => {
-          const adapter = await TypeORMAdapter.newAdapter({
-            type: 'postgres',
-            host: configService.get('DB_HOST'),
-            port: configService.get('DB_PORT'),
-            username: configService.get('DB_USERNAME'),
-            password: configService.get('DB_PASSWORD'),
-            database: configService.get('DB_DATABASE'),
-            schema: configService.get('DB_SCHEMA_USUARIOS'),
-            logging: false,
-            synchronize: false,
-          })
-          const enforcer = await newEnforcer(
-            join(__dirname, 'model.conf'),
-            adapter
-          )
-          enforcer.enableLog(false)
-          await enforcer.loadPolicy()
-          return enforcer
-        },
-        inject: [ConfigService],
-      },
-      userFromContext: (ctx) => {
-        const request = ctx.switchToHttp().getRequest()
-        return request.user && request.user.username
-      },
-    }),
+  imports: [ConfigModule],
+  providers: [
+    CasbinProvider,
+    ModuloService,
+    ModuloRepository,
+    CasbinService,
+    AuthorizationService,
+    CasbinGuard,
   ],
+  exports: [CasbinService, CasbinGuard, CASBIN_ENFORCER],
 })
 export class AuthorizationConfigModule {}

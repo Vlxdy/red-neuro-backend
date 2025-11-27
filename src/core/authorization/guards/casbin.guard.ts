@@ -1,4 +1,4 @@
-import { LoggerService } from '@/core/logger'
+import { CASBIN_ENFORCER } from '@/core/config/casbin/casbin.provider'
 import {
   CanActivate,
   ExecutionContext,
@@ -7,37 +7,33 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common'
-import { AUTHZ_ENFORCER } from 'nest-authz'
-import { Request } from 'express'
-import { Enforcer } from 'casbin/lib/cjs/enforcer'
+import { Enforcer } from 'casbin'
 
 @Injectable()
 export class CasbinGuard implements CanActivate {
-  protected logger = LoggerService.getInstance()
+  constructor(
+    @Inject(CASBIN_ENFORCER)
+    private enforcer: Enforcer
+  ) {}
 
-  constructor(@Inject(AUTHZ_ENFORCER) private enforcer: Enforcer) {}
+  async canActivate(ctx: ExecutionContext) {
+    const req = ctx.switchToHttp().getRequest()
 
-  async canActivate(context: ExecutionContext) {
-    const {
-      user,
-      originalUrl,
-      query,
-      route,
-      method: action,
-    } = context.switchToHttp().getRequest() as Request
-    const resource = Object.keys(query).length ? route.path : originalUrl
-
-    if (!user) {
+    if (!req.user) {
       throw new UnauthorizedException()
     }
 
-    const isPermitted = await this.enforcer.enforce(user.rol, resource, action)
-    if (isPermitted) {
-      return true
+    const action = req.method
+    const resource = Object.keys(req.query).length
+      ? req.route.path
+      : req.originalUrl
+
+    const allowed = await this.enforcer.enforce(req.user.rol, resource, action)
+
+    if (!allowed) {
+      throw new ForbiddenException('Permisos insuficientes (CASBIN)')
     }
 
-    throw new ForbiddenException('Permisos insuficientes (CASBIN)', {
-      cause: `CASBIN ${action} ${resource} -> false`,
-    })
+    return true
   }
 }

@@ -1,16 +1,17 @@
 import { BaseService } from '@/common/base'
 import { Injectable, Query } from '@nestjs/common'
-import { AuthZManagementService } from 'nest-authz'
+// import { AuthZManagementService } from 'nest-authz'
 import { FiltrosPoliticasDto } from '../dto/filtros-politicas.dto'
 import { ModuloService } from '../service/modulo.service'
 import { PoliticaDto } from '../dto/politica.dto'
+import { CasbinService } from '@/core/config/casbin/casbin.service'
 
 type politicasResultType = [Array<PoliticaDto>, number]
 
 @Injectable()
 export class AuthorizationService extends BaseService {
   constructor(
-    private readonly authZManagerService: AuthZManagementService,
+    private readonly casbin: CasbinService,
     private readonly moduloService: ModuloService
   ) {
     super()
@@ -22,7 +23,7 @@ export class AuthorizationService extends BaseService {
     const { limite, pagina, filtro, aplicacion, orden, descendente } =
       paginacionQueryDto
 
-    const politicas = await this.authZManagerService.getPolicy()
+    const politicas = await this.casbin.getPolicy()
 
     let result = politicas.map((politica) => ({
       sujeto: politica[0],
@@ -85,31 +86,28 @@ export class AuthorizationService extends BaseService {
 
   async crearPolitica(politica: PoliticaDto) {
     const { sujeto, objeto, accion, app } = politica
-    await this.authZManagerService.addPolicy(sujeto, objeto, accion, app)
+    await this.casbin.addPolicy(sujeto, objeto, accion, app)
     return politica
   }
 
   async actualizarPolitica(politica: PoliticaDto, politicaNueva: PoliticaDto) {
     const { sujeto, objeto, accion, app } = politicaNueva
     await this.eliminarPolitica(politica)
-    await this.authZManagerService.addPolicy(sujeto, objeto, accion, app)
+    await this.casbin.addPolicy(sujeto, objeto, accion, app)
   }
 
   async eliminarPolitica(politica: PoliticaDto) {
     const { sujeto, objeto, accion, app } = politica
-    await this.authZManagerService.removePolicy(sujeto, objeto, accion, app)
+    await this.casbin.removePolicy(sujeto, objeto, accion, app)
     return politica
   }
 
   async obtenerRoles() {
-    return await this.authZManagerService.getFilteredPolicy(3, 'frontend')
+    return await this.casbin.getFilteredPolicy(3, 'frontend')
   }
 
   async obtenerPermisosPorRol(rol: string) {
-    const politicas = await this.authZManagerService.getFilteredPolicy(
-      3,
-      'frontend'
-    )
+    const politicas = await this.casbin.getFilteredPolicy(3, 'frontend')
     const modulos = await this.moduloService.listarTodo()
     const politicasRol = politicas.filter((politica) => politica[0] === rol)
     return modulos

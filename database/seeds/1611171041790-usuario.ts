@@ -25,6 +25,21 @@ export class usuario1611171041790 implements MigrationInterface {
           telefono: '73254479',
         },
       },
+      {
+        //id: 2,
+        usuario: 'MEDICO',
+        correoElectonico: 'MEDICO@yopmail.com',
+        persona: {
+          nombres: 'MEDICO',
+          primerApellido: 'MEDICO',
+          segundoApellido: 'MEDICO',
+          tipoDocumento: TipoDocumento.CI,
+          nroDocumento: '9270815',
+          fechaNacimiento: '1994-03-29',
+          genero: Genero.MASCULINO,
+          telefono: '73254479',
+        },
+      },
     ]
 
     for (const item of items) {

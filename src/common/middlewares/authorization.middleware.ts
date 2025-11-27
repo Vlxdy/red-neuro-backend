@@ -1,22 +1,22 @@
+import { CasbinService } from '@/core/config/casbin/casbin.service'
 import { Injectable, NestMiddleware } from '@nestjs/common'
-import { NextFunction, Request, Response } from 'express'
-import { AuthZManagementService } from 'nest-authz'
 
 @Injectable()
 export class AuthorizationMiddleware implements NestMiddleware {
-  constructor(private readonly rbacSrv: AuthZManagementService) {}
+  constructor(private readonly rbac: CasbinService) {}
 
-  async use(req: Request, res: Response, next: NextFunction) {
-    const { originalUrl: resource, method: action } = req
-    // obtener rol del token
-    const rol = 'ADMINISTRADOR'
+  async use(req, res, next) {
+    const rol = req.user?.rol ?? 'PUBLIC'
+    const action = req.method
+    const resource = req.originalUrl
     const app = 'backend'
-    const isValid = await this.rbacSrv.hasPolicy(rol, resource, action, app)
-    if (!isValid) {
-      return res.status(403).json({
-        mensaje: 'No autorizado',
-      })
+
+    const ok = await this.rbac.hasPolicy(rol, resource, action, app)
+
+    if (!ok) {
+      return res.status(403).json({ mensaje: 'No autorizado' })
     }
+
     next()
   }
 }
