@@ -169,7 +169,7 @@ export class BaseException extends Error {
           : typeof error === 'object'
             ? JSON.stringify(error)
             : String(error)
-    } catch (err) {
+    } catch {
       causa = ''
     }
 

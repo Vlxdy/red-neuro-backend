@@ -13,13 +13,9 @@ import { ConfigService } from '@nestjs/config'
 import { RefreshTokensRepository } from '../repository/refreshTokens.repository'
 
 import { Cron } from '@nestjs/schedule'
-
-import dotenv from 'dotenv'
 import { Messages } from '@/common/constants/response-messages'
 import { TextService } from '@/common/lib/text.service'
 import { UsuarioService } from '@/core/usuario/service/usuario.service'
-
-dotenv.config()
 
 @Injectable()
 export class RefreshTokensService extends BaseService {

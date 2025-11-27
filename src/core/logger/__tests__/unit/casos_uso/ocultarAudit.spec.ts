@@ -1,6 +1,6 @@
 import { LogEntry, LoggerService } from '../../..'
 import { delay, readLogFile } from '../../utils'
-import { objetoConDatosSensibles } from './ocultarInfo'
+import { objetoConDatosSensibles } from './ocultarInfo.spec'
 
 const logger = LoggerService.getInstance()
 

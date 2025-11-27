@@ -8,8 +8,9 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "target": "ES2021",
-    "typeRoots": ["./src/types/index.d.ts", "./node_modules/@types"],
+    "target": "ES2023",
+    // "typeRoots": ["./src/types", "./node_modules/@types"],
+    "types": ["node"],
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -17,9 +18,7 @@
     "strictNullChecks": true,
     "skipLibCheck": true,
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
+      "@/*": ["src/*"]
     }
   }
 }

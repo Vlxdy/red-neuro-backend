@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import * as fileType from 'file-type'
 import * as fs from 'fs/promises'
-import { MimeType } from 'file-type/core'
+import { fileTypeFromBuffer } from 'file-type'
 
 interface ValidationResult {
   isValid: boolean
@@ -19,8 +18,8 @@ export class FileValidationService {
       'image/webp',
       'image/heif',
       'image/heic',
-    ] as Array<MimeType>,
-    pdf: ['application/pdf'] as Array<MimeType>,
+    ] as Array<string>,
+    pdf: ['application/pdf'] as Array<string>,
     // Agregar más categorías según sea necesario
   }
 
@@ -68,7 +67,7 @@ export class FileValidationService {
       const buffer = await fs.readFile(file.path)
 
       // Verificar el tipo de archivo
-      const fileTypeResult = await fileType.fromBuffer(buffer)
+      const fileTypeResult = await fileTypeFromBuffer(buffer)
       if (
         !fileTypeResult ||
         !this.isAllowedMimeType(fileTypeResult.mime, fileCategory)
@@ -89,7 +88,7 @@ export class FileValidationService {
       }
 
       return { isValid: true }
-    } catch (error) {
+    } catch {
       return {
         isValid: false,
         error: 'Error al procesar el archivo',
@@ -104,7 +103,7 @@ export class FileValidationService {
     mimeType: string,
     category: keyof typeof this.allowedMimeTypes
   ): boolean {
-    return this.allowedMimeTypes[category].includes(mimeType as MimeType)
+    return this.allowedMimeTypes[category].includes(mimeType as string)
   }
 
   /**

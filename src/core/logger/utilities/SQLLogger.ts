@@ -96,7 +96,7 @@ export class SQLLogger extends AdvancedConsoleLogger {
       }
 
       return queryParsed
-    } catch (err) {
+    } catch {
       return parameters && parameters.length > 0
         ? `${query} -- PARAMETERS: ${this.stringifyParams(parameters)}`
         : query

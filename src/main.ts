@@ -11,7 +11,6 @@ import { INestApplication } from '@nestjs/common'
 import { CustomValidationPipe } from '@/common/pipes'
 import { TypeormStore } from 'connect-typeorm'
 import { Session } from '@/core/authentication/entity/session.entity'
-import dotenv from 'dotenv'
 import { writeFileSync } from 'fs'
 import path from 'path'
 import {
@@ -23,8 +22,6 @@ import {
 import { DataSource } from 'typeorm'
 import { LoggerModule, printInfo, printLogo, printRoutes } from '@/core/logger'
 import packageJson from '../package.json'
-
-dotenv.config()
 
 export const SessionAppDataSource = new DataSource({
   type: 'postgres',

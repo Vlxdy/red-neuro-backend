@@ -20,7 +20,6 @@ import { UsuarioRolEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class AuthenticationService extends BaseService {
-  // eslint-disable-next-line max-params
   constructor(
     private readonly personaService: PersonaService,
     private readonly usuarioService: UsuarioService,

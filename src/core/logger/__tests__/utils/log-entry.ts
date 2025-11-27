@@ -10,7 +10,7 @@ const checkFileExists = async (filePath: string) => {
     await fs.access(filePath, constants.F_OK)
     console.log(`El archivo ${filePath} existe`)
     return true
-  } catch (err) {
+  } catch {
     console.log(`El archivo ${filePath} no existe`)
     return false
   }

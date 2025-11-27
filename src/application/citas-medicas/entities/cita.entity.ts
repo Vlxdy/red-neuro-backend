@@ -9,7 +9,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import dotenv from 'dotenv'
+import 'bootstrap/env'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
@@ -17,8 +17,6 @@ import { HistorialCita } from './cita-historial.entity'
 
 import { CitasEstado } from '../constants'
 import { Notificacion } from './notificacion.entity'
-
-dotenv.config()
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
 @Entity({ name: 'citas', schema: process.env.DB_SCHEMA })

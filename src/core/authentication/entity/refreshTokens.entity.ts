@@ -1,7 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm'
-import dotenv from 'dotenv'
-
-dotenv.config()
+import 'bootstrap/env'
 
 @Entity({ schema: process.env.DB_SCHEMA_USUARIOS })
 export class RefreshTokens {

@@ -8,12 +8,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Cita } from './cita.entity'
 import { CitasEstado, CitasHistorialEstado } from '../constants'
-
-dotenv.config()
+import 'bootstrap/env'
 
 @Check(UtilService.buildStatusCheck(CitasHistorialEstado))
 @Entity({ name: 'historial_citas', schema: process.env.DB_SCHEMA })

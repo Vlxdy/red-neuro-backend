@@ -1,5 +1,5 @@
 import { AppController } from './app.controller'
-import { MiddlewareConsumer, Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
 import { HttpExceptionFilter } from '@/common/filters/http-exception.filter'
@@ -10,9 +10,6 @@ import { LoggerMiddleware } from '@/common/middlewares'
 import { LoggerModule } from '@/core/logger'
 import packageJson from '../package.json'
 import { AppInterceptor } from '@/common/interceptors'
-
-import dotenv from 'dotenv'
-dotenv.config()
 
 const loggingEnabled = String(process.env.LOG_ENABLED) === 'true'
 const logToConsoleEnabled = String(process.env.LOG_CONSOLE) === 'true'
@@ -47,7 +44,9 @@ const logToLokiEnabled = String(process.env.LOG_LOKI_ENABLED) === 'true'
             }
           : undefined,
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ScheduleModule.forRoot(),
     CoreModule,
     ApplicationModule,
@@ -66,6 +65,8 @@ const logToLokiEnabled = String(process.env.LOG_LOKI_ENABLED) === 'true'
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*')
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes({ path: '*path', method: RequestMethod.ALL })
   }
 }

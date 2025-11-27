@@ -13,7 +13,7 @@ export class FileService {
     try {
       const stats = await fs.stat(filePath)
       return stats.isFile()
-    } catch (e) {
+    } catch {
       return false
     }
   }
@@ -27,7 +27,7 @@ export class FileService {
     try {
       const stats = await fs.stat(filePath)
       return stats.isDirectory()
-    } catch (e) {
+    } catch {
       return false
     }
   }

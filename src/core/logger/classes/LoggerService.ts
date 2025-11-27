@@ -300,7 +300,6 @@ export class LoggerService {
       })
       this.saveLog(exceptionInfo)
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e)
     }
   }
@@ -316,7 +315,6 @@ export class LoggerService {
       })
       this.saveLog(exceptionInfo)
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e)
     }
   }
@@ -331,7 +329,6 @@ export class LoggerService {
       })
       this.saveLog(logInfo)
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e)
     }
   }
@@ -343,7 +340,6 @@ export class LoggerService {
       const auditInfo = this.buildAudit(level, contexto, ...params)
       this.saveAudit(auditInfo)
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e)
     }
   }

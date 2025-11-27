@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { fromFile } from 'file-type'
+import { fileTypeFromFile } from 'file-type'
 
 @Injectable()
 export class FileTypeService {
@@ -9,7 +9,7 @@ export class FileTypeService {
    */
   static async fileType(path: string) {
     try {
-      const result = await fromFile(path)
+      const result = await fileTypeFromFile(path)
       return result || null
     } catch (e) {
       console.error(`Error obteniendo el tipo de archivo: ${e.message}`)
