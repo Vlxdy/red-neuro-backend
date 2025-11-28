@@ -22,6 +22,7 @@ import {
 import { DataSource } from 'typeorm'
 import { LoggerModule, printInfo, printLogo, printRoutes } from '@/core/logger'
 import packageJson from '../package.json'
+import { addGlobalErrorResponses } from './common/dto/swagger/global-errors-responses'
 
 export const SessionAppDataSource = new DataSource({
   type: 'postgres',
@@ -119,7 +120,8 @@ function createSwagger(app: INestApplication) {
     .addBearerAuth()
     .build()
 
-  const document = SwaggerModule.createDocument(app, options)
+  let document = SwaggerModule.createDocument(app, options)
+  document = addGlobalErrorResponses(document)
   SwaggerModule.setup(SWAGGER_API_ROOT, app, document)
   const outputPath = path.join(process.cwd(), 'swagger.json')
   writeFileSync(outputPath, JSON.stringify(document, null, 2), {

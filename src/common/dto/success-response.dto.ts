@@ -1,12 +1,5 @@
-import { IsOptional } from '../validation'
+import { BaseResponseDto } from './swagger/base-response.dto'
 
-export class SuccessResponseDto<T> {
-  @IsOptional()
-  finalizado: boolean
-
-  @IsOptional()
-  mensaje: string
-
-  @IsOptional()
-  datos: T
+export class SuccessResponseDto<T> extends BaseResponseDto<T> {
+  declare datos: T
 }
