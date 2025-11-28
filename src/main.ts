@@ -43,9 +43,8 @@ const bootstrap = async () => {
   await LoggerModule.initialize(app)
 
   const configService = app.get(ConfigService)
-
   // swagger
-  if (configService.get('NODE_ENV') !== 'development') {
+  if (configService.get('NODE_ENV') === 'development') {
     createSwagger(app)
   }
 
