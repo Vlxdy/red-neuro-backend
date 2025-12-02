@@ -1,18 +1,12 @@
-import {
-  Controller,
-  Get,
-  Inject,
-  PreconditionFailedException,
-} from '@nestjs/common'
+import { Controller, Get, Inject } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BaseController } from '@/common/base'
 import packageJson from '../package.json'
 import dayjs from 'dayjs'
-import { ApiExtraModels, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ApiBaseResponse } from './common/decorators/api-base-responde.decorator'
 import { EstadoDto } from './dto/app.dto'
 import { BaseResponseDto } from './common/dto/swagger/base-response.dto'
-import { ErrorResponseDto } from './common/dto/error-response.dto'
 
 @Controller()
 @ApiTags('Estado')
@@ -23,12 +17,9 @@ export class AppController extends BaseController {
 
   @ApiOperation({ summary: 'API para obtener el estado de la aplicación' })
   @ApiBaseResponse(EstadoDto)
-  @ApiExtraModels(ErrorResponseDto)
   @Get('/estado')
   verificarEstado(): BaseResponseDto<EstadoDto> {
     const now = dayjs()
-
-    throw new PreconditionFailedException('Error de prueba')
 
     const estado: EstadoDto = {
       servicio: packageJson.name,
