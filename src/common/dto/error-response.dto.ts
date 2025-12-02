@@ -28,10 +28,7 @@ export class ErrorResponseDto {
   mensaje: string
 
   @ApiProperty({
-    example: {
-      campo: 'email',
-      detalle: 'El email no tiene el formato correcto',
-    },
+    example: null,
     description:
       'Información adicional útil para el cliente. Puede incluir detalles específicos del error.',
     required: false,

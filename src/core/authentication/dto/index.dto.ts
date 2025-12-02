@@ -135,9 +135,6 @@ export class AuthResponseDto extends UsuarioAutenticadoDto {
 
   @ApiProperty({ example: 'ADMINISTRADOR' })
   rol: string
-
-  @ApiProperty({ example: '12345', nullable: true })
-  idHistoriaClinica?: string | null
 }
 
 export class AccessTokenDto {

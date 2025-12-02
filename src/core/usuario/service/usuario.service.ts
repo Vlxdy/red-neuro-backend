@@ -1298,7 +1298,6 @@ export class UsuarioService extends BaseService {
       idUsuarioRol: string
       nombre?: string | null
       descripcion?: string | null
-      idHistoriaClinica?: string | null
     }>,
     idRol: string | null | undefined
   ) {

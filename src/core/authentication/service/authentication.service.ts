@@ -161,7 +161,6 @@ export class AuthenticationService extends BaseService {
       idUsuarioRol: rol.idUsuarioRol,
       idRol: rol.idRol,
       rol: rol.rol,
-      idHistoriaClinica: rol.idHistoriaClinica,
     }
     return {
       refresh_token: { id: refreshToken.id },
