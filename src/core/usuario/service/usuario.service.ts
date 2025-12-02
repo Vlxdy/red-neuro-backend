@@ -1296,8 +1296,8 @@ export class UsuarioService extends BaseService {
       idRol: string
       rol: string
       idUsuarioRol: string
-      nombre: string
-      descripcion: string
+      nombre?: string | null
+      descripcion?: string | null
       idHistoriaClinica?: string | null
     }>,
     idRol: string | null | undefined

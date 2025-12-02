@@ -127,8 +127,8 @@ export class AuthResponseDto extends UsuarioAutenticadoDto {
   @ApiProperty({ description: 'Token de acceso generado para el usuario' })
   access_token: string
 
-  @ApiProperty({ example: '2' })
-  idUsuarioRol: string
+  @ApiProperty({ example: '2', nullable: true })
+  idUsuarioRol?: string
 
   @ApiProperty({ example: '1' })
   idRol: string

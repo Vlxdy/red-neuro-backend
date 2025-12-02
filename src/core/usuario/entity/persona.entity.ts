@@ -92,7 +92,7 @@ export class Persona extends AuditoriaEntity {
     nullable: true,
     comment: 'Fecha de nacimiento de la persona',
   })
-  fechaNacimiento: Date
+  fechaNacimiento: Date | null
 
   @Column({
     length: 50,
