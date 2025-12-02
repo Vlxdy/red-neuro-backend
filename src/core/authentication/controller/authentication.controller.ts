@@ -18,8 +18,16 @@ import { AuthenticationService } from '../service/authentication.service'
 import { RefreshTokensService } from '../service/refreshTokens.service'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
 import { ConfigService } from '@nestjs/config'
-import { AuthDto, CambioRolDto } from '../dto/index.dto'
+import {
+  AccessTokenDto,
+  AuthDto,
+  AuthResponseDto,
+  CambioRolDto,
+  EmptyDto,
+} from '../dto/index.dto'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBaseResponse } from '@/common/decorators/api-base-responde.decorator'
+import { BaseResponseDto } from '@/common/dto/swagger/base-response.dto'
 
 @Controller()
 @ApiTags('Autenticación')
@@ -34,9 +42,13 @@ export class AuthenticationController extends BaseController {
 
   @ApiOperation({ summary: 'API para autenticación con usuario y contraseña' })
   @ApiBody({ description: 'Autenticación de usuarios', type: AuthDto })
+  @ApiBaseResponse(AuthResponseDto)
   @UseGuards(LocalAuthGuard)
   @Post('auth')
-  async login(@Req() req: Request, @Res() res: Response) {
+  async login(
+    @Req() req: Request,
+    @Res() res: Response
+  ): Promise<Response<BaseResponseDto<AuthResponseDto>>> {
     if (!req.user) {
       throw new BadRequestException(
         `Es necesario que esté autenticado para consumir este recurso.`
@@ -53,7 +65,7 @@ export class AuthenticationController extends BaseController {
         CookieService.makeConfig(this.configService)
       )
       .status(200)
-      .send({ finalizado: true, mensaje: 'ok', datos: result.data })
+      .send(this.success<AuthResponseDto>(result.data))
   }
 
   @ApiBearerAuth()
@@ -63,7 +75,7 @@ export class AuthenticationController extends BaseController {
     @Req() req: Request,
     @Res() res: Response,
     @Body() body: CambioRolDto
-  ) {
+  ): Promise<Response<BaseResponseDto<AuthResponseDto>>> {
     if (!req.user) {
       throw new BadRequestException(
         `Es necesario que esté autenticado para consumir este recurso.`
@@ -79,20 +91,25 @@ export class AuthenticationController extends BaseController {
         CookieService.makeConfig(this.configService)
       )
       .status(200)
-      .send({ finalizado: true, mensaje: 'ok', datos: result.data })
+      .send(this.success<AuthResponseDto>(result.data))
   }
 
   @ApiOperation({ summary: 'API para autenticación con ciudadania digital' })
   @Get('ciudadania-auth')
-  async loginCiudadania() {
-    //
+  @ApiBaseResponse(EmptyDto)
+  loginCiudadania(): BaseResponseDto<EmptyDto> {
+    return this.success({} as EmptyDto)
   }
 
   @ApiOperation({ summary: 'API para autorización con Ciudadanía Digital' })
   @Get('ciudadania-autorizar')
-  async loginCiudadaniaCallback(@Req() req: Request, @Res() res: Response) {
+  @ApiBaseResponse(AccessTokenDto)
+  async loginCiudadaniaCallback(
+    @Req() req: Request,
+    @Res() res: Response
+  ): Promise<Response<BaseResponseDto<AccessTokenDto>>> {
     if (!req.user) {
-      return res.status(200).json({})
+      return res.status(200).json(this.success<EmptyDto>({} as EmptyDto))
     }
 
     const user = req.user
@@ -112,12 +129,14 @@ export class AuthenticationController extends BaseController {
           CookieService.makeConfig(this.configService)
         )
         .status(200)
-        .json({
-          access_token: result.data.access_token,
-        })
+        .json(
+          this.success<AccessTokenDto>({
+            access_token: result.data.access_token,
+          })
+        )
     } catch (error) {
       this.logger.error('[ciudadania-autorizar] Error en autenticación ', error)
-      await this.logoutCiudadania(req, res)
+      return await this.logoutCiudadania(req, res)
     }
   }
 
@@ -125,11 +144,18 @@ export class AuthenticationController extends BaseController {
   @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
   @Get('logout')
-  async salirCiudadania(@Req() req: Request, @Res() res: Response) {
-    await this.logoutCiudadania(req, res)
+  @ApiBaseResponse(EmptyDto)
+  async salirCiudadania(
+    @Req() req: Request,
+    @Res() res: Response
+  ): Promise<Response<BaseResponseDto<EmptyDto>>> {
+    return await this.logoutCiudadania(req, res)
   }
 
-  async logoutCiudadania(@Req() req: Request, @Res() res: Response) {
+  async logoutCiudadania(
+    @Req() req: Request,
+    @Res() res: Response
+  ): Promise<Response<BaseResponseDto<EmptyDto>>> {
     const jid = req.cookies.jid || ''
     if (jid) {
       await this.refreshTokensService.removeByid(jid)
@@ -156,9 +182,9 @@ export class AuthenticationController extends BaseController {
 
     // Ciudadanía v2
     if (!idToken) {
-      return res.status(200).json()
+      return res.status(200).json(this.success<EmptyDto>({} as EmptyDto))
     }
 
-    return res.status(200).json({})
+    return res.status(200).json(this.success<EmptyDto>({} as EmptyDto))
   }
 }

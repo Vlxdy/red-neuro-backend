@@ -1,4 +1,9 @@
-import { TokenDto } from '../dto/index.dto'
+import {
+  AuthResponseDto,
+  DeleteResultDto,
+  EmptyDto,
+  TokenDto,
+} from '../dto/index.dto'
 import {
   Body,
   Controller,
@@ -23,6 +28,8 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger'
+import { ApiBaseResponse } from '@/common/decorators/api-base-responde.decorator'
+import { BaseResponseDto } from '@/common/dto/swagger/base-response.dto'
 
 @Controller()
 @ApiTags('Refresh Token')
@@ -40,12 +47,13 @@ export class RefreshTokensController extends BaseController {
   @ApiBody({
     type: TokenDto,
   })
+  @ApiBaseResponse(AuthResponseDto)
   @Post('token')
   async getAccessToken(
     @Req() req: Request,
     @Res() res: Response,
     @Body() body: TokenDto
-  ) {
+  ): Promise<Response<BaseResponseDto<AuthResponseDto>>> {
     const jid = req.cookies['jid']
     const result = await this.refreshTokensService.createAccessToken(jid, body)
 
@@ -58,9 +66,7 @@ export class RefreshTokensController extends BaseController {
         CookieService.makeConfig(this.configService)
       )
     }
-    return res
-      .status(200)
-      .json({ finalizado: true, mensaje: 'ok', datos: result.data })
+    return res.status(200).json(this.success<AuthResponseDto>(result.data))
   }
 
   @ApiOperation({
@@ -73,7 +79,12 @@ export class RefreshTokensController extends BaseController {
   @ApiBearerAuth()
   @UseGuards(LocalAuthGuard)
   @Delete(':id')
-  eliminarRefreshToken(@Param('id') id: string) {
-    return this.refreshTokensService.removeByid(id)
+  @ApiBaseResponse(DeleteResultDto)
+  eliminarRefreshToken(
+    @Param('id') id: string
+  ): Promise<BaseResponseDto<DeleteResultDto | EmptyDto>> {
+    return this.refreshTokensService
+      .removeByid(id)
+      .then((result) => this.successDelete(result as DeleteResultDto))
   }
 }
