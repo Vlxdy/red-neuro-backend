@@ -3,6 +3,7 @@ import { Persona } from '../entity/persona.entity'
 import { PersonaDto } from '../dto/persona.dto'
 import { Injectable } from '@nestjs/common'
 import { PersonaEstado } from '@/core/usuario/constant'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
 @Injectable()
 export class PersonaRepository {
@@ -41,7 +42,7 @@ export class PersonaRepository {
       transaction?.getRepository(Persona) ??
       this.dataSource.getRepository(Persona)
 
-    const datosActualizar: Partial<Persona> = {
+    const datosActualizar: QueryDeepPartialEntity<Persona> = {
       usuarioModificacion: usuarioAuditoria,
     }
 

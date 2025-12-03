@@ -99,10 +99,9 @@ export class RolRepository {
   }
 
   async actualizar(id: string, rolDto: CrearRolDto, usuarioAuditoria: string) {
-    const datosActualizar = new Rol({
+    return await this.dataSource.getRepository(Rol).update(id, {
       ...rolDto,
       usuarioModificacion: usuarioAuditoria,
     })
-    return await this.dataSource.getRepository(Rol).update(id, datosActualizar)
   }
 }

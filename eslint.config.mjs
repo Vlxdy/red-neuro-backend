@@ -42,5 +42,6 @@ export default [
       // === Prettier ===
       'prettier/prettier': 'error',
     },
+    ignores: ['**/*.spec.ts'],
   },
 ];

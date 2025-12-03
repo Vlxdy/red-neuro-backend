@@ -37,6 +37,7 @@ export async function crearCita({
     }
     // If we get a response but no ID, it's still an issue
     throw new Error('No se recibió el ID de la cita creada en la respuesta.')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     const errorMessage =
       err.response?.data?.message || err.message || 'Error desconocido'
@@ -130,6 +131,7 @@ export async function generarCitas({
           })
           citasCountForThisPaciente++
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (innerError) {
         // Error already logged by crearCita. We can choose to continue or break for this patient.
         // For now, we'll continue trying to create other appointments for the same patient.

@@ -12,7 +12,7 @@ const make =
 const makeWithOptions =
   (_function, _message) =>
   (
-    options?: any,
+    options?: unknown,
     validationOptions?: validator.ValidationOptions
   ): PropertyDecorator =>
     _function(options, { ...validationOptions, message: () => _message })
@@ -20,8 +20,8 @@ const makeWithOptions =
 const makeWithTwoOptions =
   (_function, _message) =>
   (
-    options1?: any,
-    options2?: any,
+    options1?: unknown,
+    options2?: unknown,
     validationOptions?: validator.ValidationOptions
   ): PropertyDecorator =>
     _function(options1, options2, {

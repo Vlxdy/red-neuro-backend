@@ -1,22 +1,23 @@
-import { RequestMethod } from '@nestjs/common'
+import { RequestMethod, Type } from '@nestjs/common'
+import { ModulesContainer } from '@nestjs/core'
 import { COLOR } from '@/core/logger/constants'
 import { stdoutWrite } from '@/core/logger/tools'
 
-export function _printRoutes(modules: any) {
+export function _printRoutes(modules: ModulesContainer) {
   stdoutWrite('\n')
 
   let found = false
 
-  modules.forEach((moduleRef: any) => {
+  for (const moduleRef of modules.values()) {
     const moduleName = moduleRef.metatype?.name ?? 'UnknownModule'
-    const controllers = moduleRef.controllers
 
-    controllers.forEach((wrapper: any) => {
+    for (const wrapper of moduleRef.controllers.values()) {
       const controller = wrapper.instance
-      if (!controller) return
+      if (!controller) continue
 
       const controllerPath =
-        Reflect.getMetadata('path', controller.constructor) || ''
+        Reflect.getMetadata('path', controller.constructor as Type<unknown>) ||
+        ''
 
       const proto = Object.getPrototypeOf(controller)
 
@@ -25,14 +26,17 @@ export function _printRoutes(modules: any) {
           m !== 'constructor' && Reflect.getMetadataKeys(proto[m]).length > 0
       )
 
-      methods.forEach((methodName) => {
+      for (const methodName of methods) {
         const handler = proto[methodName]
 
-        const subPath = Reflect.getMetadata('path', handler) || ''
+        const subPath: string = Reflect.getMetadata('path', handler) || ''
 
-        const requestMethod = Reflect.getMetadata('method', handler)
+        const requestMethod: RequestMethod | undefined = Reflect.getMetadata(
+          'method',
+          handler
+        )
 
-        if (requestMethod === undefined) return
+        if (requestMethod === undefined) continue
 
         const method = RequestMethod[requestMethod].toUpperCase()
 
@@ -40,7 +44,6 @@ export function _printRoutes(modules: any) {
           .replace(/\/+/g, '/')
           .replace(/\/$/, '')
 
-        // ===== PRINT ROUTE =====
         const colorMethod = getColor(method) + method.padEnd(7, ' ')
         const msg =
           `${COLOR.LIGHT_GREY} - ${colorMethod}` +
@@ -49,9 +52,9 @@ export function _printRoutes(modules: any) {
 
         stdoutWrite(msg + '\n')
         found = true
-      })
-    })
-  })
+      }
+    }
+  }
 
   if (!found) {
     stdoutWrite(
@@ -64,10 +67,17 @@ export function _printRoutes(modules: any) {
 
 // === Helpers ===
 function getColor(method: string) {
-  if (method === 'GET') return COLOR.GREEN
-  if (method === 'POST') return COLOR.YELLOW
-  if (method === 'PUT') return COLOR.CYAN
-  if (method === 'PATCH') return COLOR.CYAN
-  if (method === 'DELETE') return COLOR.RED
-  return COLOR.RESET
+  switch (method) {
+    case 'GET':
+      return COLOR.GREEN
+    case 'POST':
+      return COLOR.YELLOW
+    case 'PUT':
+    case 'PATCH':
+      return COLOR.CYAN
+    case 'DELETE':
+      return COLOR.RED
+    default:
+      return COLOR.RESET
+  }
 }
