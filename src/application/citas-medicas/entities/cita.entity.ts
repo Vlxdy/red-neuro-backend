@@ -17,6 +17,8 @@ import { HistorialCita } from './cita-historial.entity'
 
 import { CitasEstado } from '../constants'
 import { Notificacion } from './notificacion.entity'
+import { Agrupador } from './agrupador.entity'
+import { CitaEtiqueta } from './cita-etiqueta.entity'
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
 @Entity({ name: 'citas', schema: process.env.DB_SCHEMA })
@@ -138,6 +140,25 @@ export class Cita extends AuditoriaEntity {
   // })
   // @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
   // paciente: UsuarioRol
+
+  @Column({
+    name: 'id_agrupador',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Clave foránea que referencia al agrupador asociado a la cita',
+  })
+  idAgrupador?: string | null
+
+  @ManyToOne(() => Agrupador, (agrupador) => agrupador.citas, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_agrupador', referencedColumnName: 'id' })
+  agrupador?: Agrupador | null
+
+  @OneToMany(() => CitaEtiqueta, (citaEtiqueta) => citaEtiqueta.cita, {
+    cascade: true,
+  })
+  citaEtiquetas?: CitaEtiqueta[]
 
   @OneToMany(() => HistorialCita, (historialCita) => historialCita.cita)
   historial: HistorialCita[]
