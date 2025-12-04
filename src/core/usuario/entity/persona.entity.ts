@@ -124,8 +124,8 @@ export class Persona extends AuditoriaEntity {
 
   constructor(data?: Partial<Persona>) {
     super(data)
+    Object.assign(this, data)
   }
-
   @BeforeInsert()
   insertarEstado() {
     this.estado = this.estado || PersonaEstado.ACTIVE

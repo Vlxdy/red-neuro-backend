@@ -69,6 +69,7 @@ export class UsuarioRol extends AuditoriaEntity {
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)
+    Object.assign(this, data)
   }
 
   @BeforeInsert()

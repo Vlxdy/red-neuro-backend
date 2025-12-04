@@ -43,6 +43,7 @@ export class Rol extends AuditoriaEntity {
 
   constructor(data?: Partial<Rol>) {
     super(data)
+    Object.assign(this, data)
   }
 
   @BeforeInsert()
