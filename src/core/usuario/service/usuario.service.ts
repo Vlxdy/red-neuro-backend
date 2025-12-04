@@ -38,6 +38,13 @@ import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
 import { FileValidationService } from '@/common/lib/file-validation.service'
 import path from 'path'
 import fs from 'node:fs/promises'
+import { Usuario } from '../entity/usuario.entity'
+import {
+  RolAutenticadoDto,
+  UsuarioAutenticadoDto,
+} from '@/core/authentication/dto/index.dto'
+
+type ListaUsuarios = Awaited<ReturnType<UsuarioRepository['listar']>>
 
 @Injectable()
 export class UsuarioService extends BaseService {
@@ -58,11 +65,13 @@ export class UsuarioService extends BaseService {
     super()
   }
 
-  async listar(@Query() paginacionQueryDto: FiltrosUsuarioDto) {
+  async listar(
+    @Query() paginacionQueryDto: FiltrosUsuarioDto
+  ): Promise<ListaUsuarios> {
     return await this.usuarioRepositorio.listar(paginacionQueryDto)
   }
 
-  async buscarUsuario(usuario: string) {
+  async buscarUsuario(usuario: string): Promise<Usuario | null> {
     return await this.usuarioRepositorio.buscarUsuario(usuario)
   }
 
@@ -997,7 +1006,10 @@ export class UsuarioService extends BaseService {
     }
   }
 
-  async buscarUsuarioPerfil(id: string, idRol: string) {
+  async buscarUsuarioPerfil(
+    id: string,
+    idRol: string
+  ): Promise<UsuarioAutenticadoDto & { idRol: string }> {
     const perfil = await this.buscarUsuarioId(id)
     return { ...perfil, idRol }
   }
@@ -1006,14 +1018,14 @@ export class UsuarioService extends BaseService {
     return await this.usuarioRepositorio.buscarUsuarioPersonaPorId(id)
   }
 
-  async buscarUsuarioId(id: string) {
+  async buscarUsuarioId(id: string): Promise<UsuarioAutenticadoDto> {
     const usuario = await this.usuarioRepositorio.buscarUsuarioRolPorId(id)
 
     if (!usuario) {
       throw new NotFoundException(Messages.INVALID_USER)
     }
 
-    const roles = await Promise.all(
+    const roles: RolAutenticadoDto[] = await Promise.all(
       usuario.usuarioRol
         .filter((value) => value.estado === UsuarioRolEstado.ACTIVE)
         .map(async (usuarioRol) => {
@@ -1043,7 +1055,7 @@ export class UsuarioService extends BaseService {
     }
   }
 
-  async buscarUsuarioPorCI(persona: PersonaDto) {
+  async buscarUsuarioPorCI(persona: PersonaDto): Promise<Usuario | null> {
     return await this.usuarioRepositorio.buscarUsuarioPorCI(
       persona.nroDocumento
     )
@@ -1284,9 +1296,8 @@ export class UsuarioService extends BaseService {
       idRol: string
       rol: string
       idUsuarioRol: string
-      nombre: string
-      descripcion: string
-      idHistoriaClinica?: string | null
+      nombre?: string | null
+      descripcion?: string | null
     }>,
     idRol: string | null | undefined
   ) {

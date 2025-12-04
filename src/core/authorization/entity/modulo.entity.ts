@@ -72,6 +72,7 @@ export class Modulo extends AuditoriaEntity {
 
   constructor(data?: Partial<Modulo>) {
     super(data)
+    Object.assign(this, data)
   }
 
   @BeforeInsert()

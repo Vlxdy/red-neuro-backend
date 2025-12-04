@@ -1,4 +1,5 @@
-import { TokenDto } from '../dto/index.dto'
+import { RefreshTokens } from '../entity/refreshTokens.entity'
+import { RefreshTokenResponse, TokenDto } from '../dto/index.dto'
 import { BaseService } from '@/common/base'
 import {
   Inject,
@@ -9,6 +10,7 @@ import {
 import { JwtService } from '@nestjs/jwt'
 import dayjs from 'dayjs'
 import { ConfigService } from '@nestjs/config'
+import { DeleteResult } from 'typeorm'
 
 import { RefreshTokensRepository } from '../repository/refreshTokens.repository'
 
@@ -29,7 +31,7 @@ export class RefreshTokensService extends BaseService {
     super()
   }
 
-  create(grantId: string) {
+  create(grantId: string): Promise<RefreshTokens> {
     const ttl = parseInt(
       this.configService.get('REFRESH_TOKEN_EXPIRES_IN') || '3600000',
       10
@@ -45,7 +47,10 @@ export class RefreshTokensService extends BaseService {
     })
   }
 
-  async createAccessToken(refreshTokenId: string, datos: TokenDto) {
+  async createAccessToken(
+    refreshTokenId: string,
+    datos: TokenDto
+  ): Promise<RefreshTokenResponse> {
     const refreshToken =
       await this.refreshTokensRepository.findById(refreshTokenId)
 
@@ -122,7 +127,7 @@ export class RefreshTokensService extends BaseService {
     }
   }
 
-  async removeByid(id: string) {
+  async removeByid(id: string): Promise<DeleteResult | Record<string, never>> {
     const refreshToken = await this.refreshTokensRepository.findById(id)
     if (!refreshToken) {
       return {}
@@ -131,7 +136,7 @@ export class RefreshTokensService extends BaseService {
   }
 
   @Cron(process.env.REFRESH_TOKEN_REVISIONS || '0')
-  eliminarCaducos() {
+  eliminarCaducos(): Promise<DeleteResult> {
     return this.refreshTokensRepository.eliminarTokensCaducos()
   }
 }

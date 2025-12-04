@@ -9,7 +9,12 @@ import { Messages } from '@/common/constants/response-messages'
 import dayjs from 'dayjs'
 import { ConfigService } from '@nestjs/config'
 import { TemplateEmailService } from '@/common/templates/templates-email.service'
-import { CambioRolDto } from '../dto/index.dto'
+import {
+  AuthenticatedOidcResponse,
+  AuthenticatedResponse,
+  AuthenticatedUser,
+  CambioRolDto,
+} from '../dto/index.dto'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { PersonaService } from '@/core/usuario/service/persona.service'
 import { UsuarioService } from '@/core/usuario/service/usuario.service'
@@ -31,7 +36,7 @@ export class AuthenticationService extends BaseService {
     super()
   }
 
-  private async verificarBloqueo(usuario: Usuario) {
+  private async verificarBloqueo(usuario: Usuario): Promise<boolean> {
     if (usuario.intentos < Configurations.WRONG_LOGIN_LIMIT) {
       return false
     }
@@ -76,7 +81,7 @@ export class AuthenticationService extends BaseService {
     return true
   }
 
-  async generarIntentoBloqueo(usuario: Usuario) {
+  async generarIntentoBloqueo(usuario: Usuario): Promise<void> {
     if (dayjs().isAfter(usuario.fechaBloqueo)) {
       // restaurar datos bloqueo
       await this.usuarioService.actualizarDatosBloqueo(usuario.id, null, null)
@@ -87,7 +92,10 @@ export class AuthenticationService extends BaseService {
     await this.usuarioService.actualizarContadorBloqueos(usuario.id, intento)
   }
 
-  async validarUsuario(usuario: string, contrasena: string) {
+  async validarUsuario(
+    usuario: string,
+    contrasena: string
+  ): Promise<AuthenticatedUser | null> {
     const respuesta = await this.usuarioService.buscarUsuario(usuario)
 
     if (!respuesta) {
@@ -132,7 +140,7 @@ export class AuthenticationService extends BaseService {
     }
   }
 
-  async autenticar(user: PassportUser) {
+  async autenticar(user: PassportUser): Promise<AuthenticatedResponse> {
     const usuario = await this.usuarioService.buscarUsuarioId(user.id)
 
     const rol = this.usuarioService.obtenerRolActual(usuario.roles, user.idRol)
@@ -153,7 +161,6 @@ export class AuthenticationService extends BaseService {
       idUsuarioRol: rol.idUsuarioRol,
       idRol: rol.idRol,
       rol: rol.rol,
-      idHistoriaClinica: rol.idHistoriaClinica,
     }
     return {
       refresh_token: { id: refreshToken.id },
@@ -161,7 +168,10 @@ export class AuthenticationService extends BaseService {
     }
   }
 
-  async cambiarRol(user: PassportUser, data: CambioRolDto) {
+  async cambiarRol(
+    user: PassportUser,
+    data: CambioRolDto
+  ): Promise<AuthenticatedResponse> {
     const usuarioRol = {
       ...user,
       idRol: data.idRol,
@@ -170,7 +180,9 @@ export class AuthenticationService extends BaseService {
     return await this.autenticar(usuarioRol)
   }
 
-  async validarUsuarioOidc(persona: PersonaDto) {
+  async validarUsuarioOidc(
+    persona: PersonaDto
+  ): Promise<AuthenticatedUser | null> {
     const respuesta = await this.usuarioService.buscarUsuarioPorCI(persona)
 
     if (!respuesta) {
@@ -208,7 +220,7 @@ export class AuthenticationService extends BaseService {
     datosUsuario: {
       correoElectronico: string
     }
-  ) {
+  ): Promise<AuthenticatedUser | null> {
     const respuesta = await this.usuarioService.buscarUsuarioPorCI(persona)
 
     if (!respuesta) {
@@ -310,7 +322,7 @@ export class AuthenticationService extends BaseService {
     }
   }
 
-  async autenticarOidc(user: PassportUser) {
+  async autenticarOidc(user: PassportUser): Promise<AuthenticatedOidcResponse> {
     const usuario = await this.usuarioService.buscarUsuarioId(user.id)
 
     const rol = this.usuarioService.obtenerRolActual(usuario.roles, user.idRol)

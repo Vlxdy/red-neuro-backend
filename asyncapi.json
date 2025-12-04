@@ -1,0 +1,52 @@
+{
+  "asyncapi": "2.5.0",
+  "info": {
+    "title": "AsyncAPI - WebSockets",
+    "description": "Documentación de eventos WebSocket",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": {
+    "ws-gateway": {
+      "url": "ws://localhost:4500",
+      "protocol": "socket.io"
+    }
+  },
+  "components": {
+    "schemas": {
+      "SystemPingDto": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "example": "frontend-app",
+            "description": "Identificador del cliente que realiza el ping"
+          },
+          "version": {
+            "type": "string",
+            "example": "1.0.0",
+            "description": "Versión de la app cliente"
+          }
+        },
+        "required": [
+          "clientId",
+          "version"
+        ]
+      }
+    }
+  },
+  "channels": {
+    "system:ping": {
+      "subscribe": {
+        "summary": "El cliente prueba la conexión con el sistema",
+        "message": {
+          "name": "SystemPing",
+          "payload": {
+            "$ref": "#/components/schemas/SystemPingDto"
+          }
+        }
+      }
+    }
+  }
+}

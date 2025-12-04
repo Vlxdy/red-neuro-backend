@@ -35,7 +35,7 @@ export class UsuarioRol extends AuditoriaEntity {
     nullable: true,
     comment: 'Configuración del usuario',
   })
-  configuracion?: Record<string, any>
+  configuracion?: Record<string, unknown>
 
   @Column({
     name: 'id_rol',
@@ -69,6 +69,7 @@ export class UsuarioRol extends AuditoriaEntity {
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)
+    Object.assign(this, data)
   }
 
   @BeforeInsert()

@@ -22,6 +22,7 @@ import {
 import { DataSource } from 'typeorm'
 import { LoggerModule, printInfo, printLogo, printRoutes } from '@/core/logger'
 import packageJson from '../package.json'
+import { AsyncApiModule, AsyncApiDocumentBuilder } from 'nestjs-asyncapi'
 
 export const SessionAppDataSource = new DataSource({
   type: 'postgres',
@@ -43,10 +44,10 @@ const bootstrap = async () => {
   await LoggerModule.initialize(app)
 
   const configService = app.get(ConfigService)
-
-  // swagger
-  if (configService.get('NODE_ENV') !== 'development') {
+  // habilitar documentación SOLO en desarrollo
+  if (configService.get('NODE_ENV') === 'development') {
     createSwagger(app)
+    await createAsyncApi(app)
   }
 
   await SessionAppDataSource.initialize()
@@ -128,6 +129,34 @@ function createSwagger(app: INestApplication) {
   })
 
   console.log(`📄 Swagger JSON exportado en: ${outputPath}`)
+}
+
+async function createAsyncApi(app: INestApplication) {
+  const asyncApiOptions = new AsyncApiDocumentBuilder()
+    .setTitle('AsyncAPI - WebSockets')
+    .setDescription('Documentación de eventos WebSocket')
+    .setVersion('1.0.0')
+    .addServer('ws-gateway', {
+      url: `ws://localhost:${process.env.PORT}`,
+      protocol: 'socket.io',
+    })
+    .build()
+
+  const asyncApiDocument = await AsyncApiModule.createDocument(
+    app,
+    asyncApiOptions
+  )
+
+  // UI similar a Swagger
+  await AsyncApiModule.setup('/async-api', app, asyncApiDocument)
+
+  // exportar asyncapi.json
+  const outputPath = path.join(process.cwd(), 'asyncapi.json')
+  writeFileSync(outputPath, JSON.stringify(asyncApiDocument, null, 2), {
+    encoding: 'utf8',
+  })
+
+  console.log(`📄 AsyncAPI JSON exportado en: ${outputPath}`)
 }
 
 void bootstrap()

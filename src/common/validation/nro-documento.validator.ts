@@ -7,6 +7,11 @@ const doc = /[0-9]{4,10}/
 
 export const NRO_DOC = 'nroDocumento'
 
+export interface NroDocumentoOptions {
+  complemento?: boolean
+  extranjero?: boolean
+}
+
 /**
  * Verífica si una cadena es un número de documento válido
  * @param value cadena a validar
@@ -17,10 +22,7 @@ export const NRO_DOC = 'nroDocumento'
  */
 export function nroDocumento(
   value?: string | null,
-  {
-    complemento = true,
-    extranjero = true,
-  }: { complemento?: boolean; extranjero?: boolean } = {}
+  { complemento = true, extranjero = true }: NroDocumentoOptions = {}
 ): boolean {
   const regex = new RegExp(
     '^' +
@@ -33,7 +35,7 @@ export function nroDocumento(
 }
 
 export function NroDocumento(
-  options?: any,
+  options?: NroDocumentoOptions,
   validationsOptions?: ValidationOptions
 ): PropertyDecorator {
   return ValidateBy(

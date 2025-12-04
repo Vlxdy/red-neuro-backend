@@ -135,6 +135,7 @@ export class Usuario extends AuditoriaEntity {
 
   constructor(data?: Partial<Usuario>) {
     super(data)
+    Object.assign(this, data)
   }
 
   @BeforeInsert()

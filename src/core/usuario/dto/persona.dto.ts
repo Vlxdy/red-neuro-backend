@@ -33,17 +33,20 @@ export class PersonaDto {
   @ValidateIf((o) => !o.segundoApellido)
   @NombreApellido()
   @Transform(({ value }) => value?.trim().toUpperCase())
-  primerApellido?: string
+  @IsOptional()
+  primerApellido?: string | null
 
   @ApiProperty({ example: 'ALMARAZ' })
   @ValidateIf((o) => !o.primerApellido)
   @NombreApellido()
   @Transform(({ value }) => value?.trim().toUpperCase())
-  segundoApellido?: string
+  @IsOptional()
+  segundoApellido?: string | null
 
   @ApiProperty({ example: '2002-05-04' })
   @IsDateString()
-  fechaNacimiento: Date
+  @IsOptional()
+  fechaNacimiento?: Date | null
 
   @ApiProperty({ example: '71234567' })
   @IsOptional()

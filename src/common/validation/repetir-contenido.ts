@@ -4,25 +4,26 @@ import {
   ValidationArguments,
 } from 'class-validator'
 
-export function RepetirContenido(
-  property: string,
+export function RepetirContenido<T>(
+  property: keyof T,
   validationOptions?: ValidationOptions
 ) {
-  return function (object: any, propertyName: string) {
+  return function (object: T, propertyName: string) {
     registerDecorator({
       name: 'repetirContenido',
-      target: object.constructor,
+      target: (object as Record<string, unknown>).constructor,
       propertyName,
       options: validationOptions,
       constraints: [property],
       validator: {
-        validate(value: any, args: ValidationArguments) {
-          const [relatedPropertyName] = args.constraints
-          const relatedValue = (args.object as any)[relatedPropertyName]
-          return value === relatedValue
+        validate(value: unknown, args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints as [keyof T]
+          const dto = args.object as T
+          return value === dto[relatedPropertyName]
         },
         defaultMessage(args: ValidationArguments) {
-          return `${args.property} debe coincidir con ${args.constraints[0]}`
+          const [relatedPropertyName] = args.constraints as [keyof T]
+          return `${args.property} debe coincidir con ${String(relatedPropertyName)}`
         },
       },
     })

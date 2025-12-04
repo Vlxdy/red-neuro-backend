@@ -10,10 +10,12 @@ import { LoggerParams } from './LoggerParams'
 import { stdoutWrite } from '../tools'
 
 export class LoggerConfig {
-  static getMainStream(loggerParams: LoggerParams): pino.MultiStreamRes {
+  static getMainStream(
+    loggerParams: LoggerParams
+  ): pino.MultiStreamRes<string> {
     const basicLevels: Level[] = LoggerParams.LEVELS
 
-    const fileStream: pino.StreamEntry[] =
+    const fileStream: pino.StreamEntry<string>[] =
       LoggerParams.LOG_FILE_ENABLED && loggerParams.fileParams
         ? LoggerConfig.fileStream(
             loggerParams.fileParams,
@@ -23,7 +25,7 @@ export class LoggerConfig {
           )
         : []
 
-    const lokiStream =
+    const lokiStream: pino.StreamEntry<string>[] =
       LoggerParams.LOG_LOKI_ENABLED && loggerParams.lokiParams
         ? LoggerConfig.lokiStream(
             loggerParams.lokiParams,
@@ -33,19 +35,25 @@ export class LoggerConfig {
           )
         : []
 
-    const consoleStream = LoggerParams.LOG_CONSOLE_ENABLED
-      ? LoggerConfig.consoleStream(basicLevels, [])
-      : []
+    const consoleStream: pino.StreamEntry<string>[] =
+      LoggerParams.LOG_CONSOLE_ENABLED
+        ? LoggerConfig.consoleStream(basicLevels, [])
+        : []
 
-    return multistream([...fileStream, ...lokiStream, ...consoleStream], {
-      dedupe: true,
-    })
+    return multistream<string>(
+      [...fileStream, ...lokiStream, ...consoleStream],
+      {
+        dedupe: true,
+      }
+    )
   }
 
-  static getAuditStream(loggerParams: LoggerParams): pino.MultiStreamRes {
+  static getAuditStream(
+    loggerParams: LoggerParams
+  ): pino.MultiStreamRes<string> {
     const auditLevels: string[] = LoggerParams.AUDIT
 
-    const fileStream: pino.StreamEntry[] =
+    const fileStream: pino.StreamEntry<string>[] =
       LoggerParams.LOG_FILE_ENABLED && loggerParams.fileParams
         ? LoggerConfig.fileStream(
             loggerParams.fileParams,
@@ -87,8 +95,8 @@ export class LoggerConfig {
     appName: string,
     basicLevelList: Level[],
     auditContextList: string[]
-  ): pino.StreamEntry[] {
-    const streamList: pino.StreamEntry[] = []
+  ): pino.StreamEntry<string>[] {
+    const streamList: pino.StreamEntry<string>[] = []
     const auditFile = path.resolve(fileParams.path, appName, 'audit.json')
 
     const buildStream = (filename: string) => {
@@ -124,11 +132,11 @@ export class LoggerConfig {
         const input = fs.createReadStream(oldFile)
         const output = fs.createWriteStream(oldFile + '.gz')
 
-        input.on('error', (error: any) => {
+        input.on('error', (error: NodeJS.ErrnoException) => {
           console.error('Error al leer el archivo:', error)
         })
 
-        output.on('error', (error: any) => {
+        output.on('error', (error: NodeJS.ErrnoException) => {
           console.error('Error al escribir el archivo comprimido:', error)
         })
 
@@ -174,7 +182,7 @@ export class LoggerConfig {
       )
       streamList.push({
         stream: buildStream(filename),
-        level: auditLevels[level] as any,
+        level,
       })
     }
 
@@ -186,8 +194,8 @@ export class LoggerConfig {
     appName: string,
     basicLevelList: Level[],
     auditContextList: string[]
-  ): pino.StreamEntry[] {
-    const streamList: pino.StreamEntry[] = []
+  ): pino.StreamEntry<string>[] {
+    const streamList: pino.StreamEntry<string>[] = []
 
     const buildStream = () => {
       const stream = pino.transport<LokiOptions>({
@@ -241,7 +249,7 @@ export class LoggerConfig {
       const levelNumber = auditLevels[level]
       if (!levelNumber) continue
       streamList.push({
-        level: auditLevels[level] as any,
+        level,
         stream: lokiAuditStream,
       })
     }
@@ -252,8 +260,8 @@ export class LoggerConfig {
   private static consoleStream(
     basicLevelList: Level[],
     auditContextList: string[]
-  ) {
-    const srteamList: pino.StreamEntry[] = []
+  ): pino.StreamEntry<string>[] {
+    const srteamList: pino.StreamEntry<string>[] = []
 
     // FOR BASIC LOG
     for (const level of basicLevelList) {
@@ -277,7 +285,7 @@ export class LoggerConfig {
       const levelNumber = auditLevels[level]
       if (!levelNumber) continue
       srteamList.push({
-        level: auditLevels[level] as any,
+        level,
         stream: {
           write: (jsonStr: string) => {
             const { str } = JSON.parse(jsonStr) as LogData

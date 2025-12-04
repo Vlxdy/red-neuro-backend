@@ -10,6 +10,7 @@ import dayjs from 'dayjs'
 import { UsuarioDto } from '../dto/usuario.dto'
 import { UsuarioEstado } from '@/core/usuario/constant'
 import { RolEstado, UsuarioRolEstado } from '@/core/authorization/constant'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
 @Injectable()
 export class UsuarioRepository {
@@ -300,11 +301,11 @@ export class UsuarioRepository {
       ? transaction.getRepository(Usuario)
       : this.dataSource.getRepository(Usuario)
 
-    const datosActualizar = new Usuario({
-      estado: usuarioDto.estado || undefined,
-      correoElectronico: usuarioDto.correoElectronico || undefined,
-      contrasena: usuarioDto.contrasena || undefined,
-      intentos: usuarioDto.intentos || undefined,
+    const datosActualizar: QueryDeepPartialEntity<Usuario> = {
+      estado: usuarioDto.estado ?? undefined,
+      correoElectronico: usuarioDto.correoElectronico ?? undefined,
+      contrasena: usuarioDto.contrasena ?? undefined,
+      intentos: usuarioDto.intentos ?? undefined,
       fechaBloqueo: usuarioDto.fechaBloqueo
         ? dayjs(usuarioDto.fechaBloqueo).toDate()
         : undefined,
@@ -314,7 +315,8 @@ export class UsuarioRepository {
       codigoActivacion: usuarioDto.codigoActivacion,
       usuarioModificacion: usuarioAuditoria,
       urlFoto: usuarioDto.urlFoto,
-    })
+    }
+
     return await repo.update(idUsuario, datosActualizar)
   }
 
@@ -462,19 +464,32 @@ export class UsuarioRepository {
     persona: PersonaDto,
     transaction?: EntityManager
   ) {
-    const datosActualizar = new Persona({
-      ...persona,
-    })
-    return await (
-      transaction?.getRepository(Usuario) ??
-      this.dataSource.getRepository(Usuario)
-    )
+    const repo =
+      transaction?.getRepository(Persona) ??
+      this.dataSource.getRepository(Persona)
+
+    const datosActualizar: QueryDeepPartialEntity<Persona> = {
+      nombres: persona.nombres,
+      primerApellido: persona.primerApellido,
+      segundoApellido: persona.segundoApellido,
+      fechaNacimiento: persona.fechaNacimiento,
+      telefono: persona.telefono,
+      genero: persona.genero,
+      tipoDocumento: persona.tipoDocumento,
+      nroDocumento: persona.nroDocumento,
+    }
+
+    // Limpia valores undefined
+    const datosLimpios = Object.fromEntries(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Object.entries(datosActualizar).filter(([_, v]) => v !== undefined)
+    ) as QueryDeepPartialEntity<Persona>
+
+    return await repo
       .createQueryBuilder()
       .update(Persona)
-      .set(datosActualizar)
-      .where('id = :id', {
-        id: idPersona,
-      })
+      .set(datosLimpios)
+      .where('id = :id', { id: idPersona })
       .execute()
   }
 

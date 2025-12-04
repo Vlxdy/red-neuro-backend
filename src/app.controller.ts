@@ -4,6 +4,9 @@ import { BaseController } from '@/common/base'
 import packageJson from '../package.json'
 import dayjs from 'dayjs'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBaseResponse } from './common/decorators/api-base-responde.decorator'
+import { EstadoDto } from './dto/app.dto'
+import { BaseResponseDto } from './common/dto/swagger/base-response.dto'
 
 @Controller()
 @ApiTags('Estado')
@@ -13,19 +16,22 @@ export class AppController extends BaseController {
   }
 
   @ApiOperation({ summary: 'API para obtener el estado de la aplicación' })
+  @ApiBaseResponse(EstadoDto)
   @Get('/estado')
-  verificarEstado() {
+  verificarEstado(): BaseResponseDto<EstadoDto> {
     const now = dayjs()
-    return {
+
+    const estado: EstadoDto = {
       servicio: packageJson.name,
       version: packageJson.version,
-      entorno: this.configService.get('NODE_ENV'),
+      entorno: this.configService.get('NODE_ENV') || '-',
       estado: 'Servicio funcionando correctamente',
-      commit_sha: this.configService.get('CI_COMMIT_SHORT_SHA'),
-      mensaje: this.configService.get('CI_COMMIT_MESSAGE'),
-      branch: this.configService.get('CI_COMMIT_REF_NAME'),
+      commit_sha: this.configService.get('CI_COMMIT_SHORT_SHA') || null,
+      mensaje: this.configService.get('CI_COMMIT_MESSAGE') || null,
+      branch: this.configService.get('CI_COMMIT_REF_NAME') || null,
       fecha: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
       hora: now.valueOf(),
     }
+    return this.success(estado)
   }
 }

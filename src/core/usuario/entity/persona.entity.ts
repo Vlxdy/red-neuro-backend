@@ -92,7 +92,7 @@ export class Persona extends AuditoriaEntity {
     nullable: true,
     comment: 'Fecha de nacimiento de la persona',
   })
-  fechaNacimiento: Date
+  fechaNacimiento: Date | null
 
   @Column({
     length: 50,
@@ -124,8 +124,8 @@ export class Persona extends AuditoriaEntity {
 
   constructor(data?: Partial<Persona>) {
     super(data)
+    Object.assign(this, data)
   }
-
   @BeforeInsert()
   insertarEstado() {
     this.estado = this.estado || PersonaEstado.ACTIVE
