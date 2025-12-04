@@ -16,3 +16,13 @@ export enum CitasHistorialEstado {
   INACTIVO = Status.INACTIVE,
   ACTIVO = Status.ACTIVE,
 }
+
+export enum EtiquetaEstado {
+  INACTIVO = Status.INACTIVE,
+  ACTIVO = Status.ACTIVE,
+}
+
+export enum AgrupadorEstado {
+  INACTIVO = Status.INACTIVE,
+  ACTIVO = Status.ACTIVE,
+}

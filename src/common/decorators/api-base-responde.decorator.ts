@@ -18,3 +18,22 @@ export const ApiBaseResponse = <TModel extends Type<unknown>>(model: TModel) =>
       },
     })
   )
+
+export const ApiBaseResponseArray = <TModel extends Type<unknown>>(
+  model: TModel
+) =>
+  applyDecorators(
+    ApiExtraModels(BaseResponseDto, model),
+    ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(BaseResponseDto) },
+          {
+            properties: {
+              datos: { type: 'array', items: { $ref: getSchemaPath(model) } },
+            },
+          },
+        ],
+      },
+    })
+  )

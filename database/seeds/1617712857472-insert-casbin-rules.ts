@@ -108,6 +108,49 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/usuarios/cuenta/foto': { [RolEnum.TODOS]: 'PATCH' },
 
       '/api/usuarios/cuenta/contrasena': { [RolEnum.TODOS]: 'PATCH' },
+
+      // Gestión de citas médicas
+      '/api/citas': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.SUPERVISOR]: 'GET|POST',
+      },
+      '/api/citas/mis-citas': {
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
+      '/api/citas/:id': {
+        [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
+        [RolEnum.SUPERVISOR]: 'GET|PATCH',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
+      '/api/citas/:id/estado': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.SUPERVISOR]: 'PATCH',
+        [RolEnum.PERSONAL_MEDICO]: 'PATCH',
+      },
+      '/api/citas/:id/reprogramar': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.SUPERVISOR]: 'PATCH',
+        [RolEnum.PERSONAL_MEDICO]: 'PATCH',
+      },
+      '/api/citas/:id/cancelar': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.SUPERVISOR]: 'PATCH',
+      },
+      '/api/citas/:id/etiquetas': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.SUPERVISOR]: 'PATCH',
+        [RolEnum.PERSONAL_MEDICO]: 'PATCH',
+      },
+      '/api/citas/:id/agrupador': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.SUPERVISOR]: 'PATCH',
+      },
+
+      // Etiquetas y agrupadores
+      '/api/etiquetas': { [RolEnum.ADMINISTRADOR]: 'GET|POST' },
+      '/api/etiquetas/:id': { [RolEnum.ADMINISTRADOR]: 'GET|PATCH|DELETE' },
+      '/api/agrupadores': { [RolEnum.ADMINISTRADOR]: 'GET|POST' },
+      '/api/agrupadores/:id': { [RolEnum.ADMINISTRADOR]: 'GET|PATCH|DELETE' },
     }
 
     const registrarCasbin = async (
