@@ -344,7 +344,7 @@ export class CitasMedicasService extends BaseService {
     return cita
   }
 
-  actualizarAgrupador(
+  actualizarAgrupadorCita(
     id: string,
     dto: ActualizarAgrupadorCitaDto
   ): CitaListado {

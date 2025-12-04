@@ -60,3 +60,11 @@ export class EtiquetaResponseDto {
   @ApiProperty({ description: 'Estado del registro', example: 'ACTIVO' })
   estado!: string
 }
+
+export class EtiquetaDeleteResponseDto {
+  @ApiProperty({
+    description: 'Identificador único de la etiqueta',
+    example: '10',
+  })
+  id!: string
+}

@@ -68,3 +68,11 @@ export class AgrupadorResponseDto {
   })
   colorHex!: string
 }
+
+export class AgrupadorDeleteResponseDto {
+  @ApiProperty({
+    description: 'Identificador único del ambiente/agrupador',
+    example: '5',
+  })
+  id!: string
+}

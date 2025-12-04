@@ -31,6 +31,7 @@ import {
   FiltrosCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
 
 @Controller('citas')
 @ApiTags('Gestión de Citas')
@@ -64,7 +65,7 @@ export class CitasController extends BaseController {
   @ApiOperation({ summary: 'Obtiene el detalle de una cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Get(':id')
-  obtener(@Param('id') id: string): BaseResponseDto<CitaResponseDto> {
+  obtener(@Param() { id }: ParamIdDto): BaseResponseDto<CitaResponseDto> {
     const resultado = this.citasService.obtenerCita(id)
     return this.success(resultado)
   }
@@ -81,7 +82,7 @@ export class CitasController extends BaseController {
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id')
   actualizar(
-    @Param('id') id: string,
+    @Param() { id }: ParamIdDto,
     @Body() dto: ActualizarCitaDto
   ): BaseResponseDto<CitaResponseDto> {
     const resultado = this.citasService.actualizarCita(id, dto)
@@ -92,7 +93,7 @@ export class CitasController extends BaseController {
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/estado')
   actualizarEstado(
-    @Param('id') id: string,
+    @Param() { id }: ParamIdDto,
     @Body() dto: ActualizarEstadoCitaDto
   ): BaseResponseDto<CitaResponseDto> {
     const resultado = this.citasService.actualizarEstadoCita(id, dto)
@@ -103,7 +104,7 @@ export class CitasController extends BaseController {
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/reprogramar')
   reprogramar(
-    @Param('id') id: string,
+    @Param() { id }: ParamIdDto,
     @Body() dto: ReprogramarCitaDto
   ): BaseResponseDto<CitaResponseDto> {
     const resultado = this.citasService.reprogramarCita(id, dto)
@@ -114,7 +115,7 @@ export class CitasController extends BaseController {
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/cancelar')
   cancelar(
-    @Param('id') id: string,
+    @Param() { id }: ParamIdDto,
     @Body() dto: CancelarCitaDto
   ): BaseResponseDto<CitaResponseDto> {
     const resultado = this.citasService.cancelarCita(id, dto)
@@ -125,7 +126,7 @@ export class CitasController extends BaseController {
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/etiquetas')
   actualizarEtiquetas(
-    @Param('id') id: string,
+    @Param() { id }: ParamIdDto,
     @Body() dto: ActualizarEtiquetasCitaDto
   ): BaseResponseDto<CitaResponseDto> {
     const resultado = this.citasService.actualizarEtiquetas(id, dto)
@@ -136,10 +137,10 @@ export class CitasController extends BaseController {
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/agrupador')
   actualizarAgrupador(
-    @Param('id') id: string,
+    @Param() { id }: ParamIdDto,
     @Body() dto: ActualizarAgrupadorCitaDto
   ): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.actualizarAgrupador(id, dto)
+    const resultado = this.citasService.actualizarAgrupadorCita(id, dto)
     return this.successUpdate(resultado)
   }
 }

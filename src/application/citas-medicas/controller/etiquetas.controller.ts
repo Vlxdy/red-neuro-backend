@@ -21,8 +21,10 @@ import { CitasMedicasService } from '../citas-medicas.service'
 import {
   ActualizarEtiquetaDto,
   CrearEtiquetaDto,
+  EtiquetaDeleteResponseDto,
   EtiquetaResponseDto,
 } from '../dto/etiqueta.dto'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
 
 @Controller('etiquetas')
 @ApiTags('Etiquetas de Citas')
@@ -44,7 +46,7 @@ export class EtiquetasController extends BaseController {
   @ApiOperation({ summary: 'Obtiene una etiqueta por su identificador' })
   @ApiBaseResponse(EtiquetaResponseDto)
   @Get(':id')
-  obtener(@Param('id') id: string): BaseResponseDto<EtiquetaResponseDto> {
+  obtener(@Param() { id }: ParamIdDto): BaseResponseDto<EtiquetaResponseDto> {
     const resultado = this.citasService.obtenerEtiqueta(id)
     return this.success(resultado)
   }
@@ -61,7 +63,7 @@ export class EtiquetasController extends BaseController {
   @ApiBaseResponse(EtiquetaResponseDto)
   @Patch(':id')
   actualizar(
-    @Param('id') id: string,
+    @Param() { id }: ParamIdDto,
     @Body() dto: ActualizarEtiquetaDto
   ): BaseResponseDto<EtiquetaResponseDto> {
     const resultado = this.citasService.actualizarEtiqueta(id, dto)
@@ -71,9 +73,11 @@ export class EtiquetasController extends BaseController {
   @ApiOperation({
     summary: 'Elimina una etiqueta y la retira de las citas asociadas',
   })
-  @ApiBaseResponse(EtiquetaResponseDto)
+  @ApiBaseResponse(EtiquetaDeleteResponseDto)
   @Delete(':id')
-  eliminar(@Param('id') id: string): BaseResponseDto<EtiquetaResponseDto> {
+  eliminar(
+    @Param() { id }: ParamIdDto
+  ): BaseResponseDto<EtiquetaDeleteResponseDto> {
     const resultado = this.citasService.eliminarEtiqueta(id)
     return this.successDelete(resultado)
   }

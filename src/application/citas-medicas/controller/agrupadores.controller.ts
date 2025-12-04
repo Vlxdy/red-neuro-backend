@@ -20,9 +20,11 @@ import {
 import { CitasMedicasService } from '../citas-medicas.service'
 import {
   ActualizarAgrupadorDto,
+  AgrupadorDeleteResponseDto,
   AgrupadorResponseDto,
   CrearAgrupadorDto,
 } from '../dto/agrupador.dto'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
 
 @Controller('agrupadores')
 @ApiTags('Ambientes / Agrupadores de Citas')
@@ -44,7 +46,7 @@ export class AgrupadoresController extends BaseController {
   @ApiOperation({ summary: 'Obtiene un ambiente/agrupador específico' })
   @ApiBaseResponse(AgrupadorResponseDto)
   @Get(':id')
-  obtener(@Param('id') id: string): BaseResponseDto<AgrupadorResponseDto> {
+  obtener(@Param() { id }: ParamIdDto): BaseResponseDto<AgrupadorResponseDto> {
     const resultado = this.citasService.obtenerAgrupador(id)
     return this.success(resultado)
   }
@@ -63,7 +65,7 @@ export class AgrupadoresController extends BaseController {
   @ApiBaseResponse(AgrupadorResponseDto)
   @Patch(':id')
   actualizar(
-    @Param('id') id: string,
+    @Param() { id }: ParamIdDto,
     @Body() dto: ActualizarAgrupadorDto
   ): BaseResponseDto<AgrupadorResponseDto> {
     const resultado = this.citasService.actualizarAgrupador(id, dto)
@@ -71,9 +73,11 @@ export class AgrupadoresController extends BaseController {
   }
 
   @ApiOperation({ summary: 'Elimina un ambiente/agrupador' })
-  @ApiBaseResponse(AgrupadorResponseDto)
+  @ApiBaseResponse(AgrupadorDeleteResponseDto)
   @Delete(':id')
-  eliminar(@Param('id') id: string): BaseResponseDto<AgrupadorResponseDto> {
+  eliminar(
+    @Param() { id }: ParamIdDto
+  ): BaseResponseDto<AgrupadorDeleteResponseDto> {
     const resultado = this.citasService.eliminarAgrupador(id)
     return this.successDelete(resultado)
   }
