@@ -12,6 +12,16 @@ export class usuarioRol1611516017924 implements MigrationInterface {
       },
       {
         id: '2',
+        rol: '2', //(RolEnum.ADMINISTRADOR),
+        usuario: '1', //('ADMINISTRADOR'),
+      },
+      {
+        id: '3',
+        rol: '3', //(RolEnum.ADMINISTRADOR),
+        usuario: '1', //('ADMINISTRADOR'),
+      },
+      {
+        id: '4',
         rol: '3', //(RolEnum.ADMINISTRADOR),
         usuario: '2', //('ADMINISTRADOR'),
       },
