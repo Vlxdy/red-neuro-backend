@@ -18,6 +18,7 @@ import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import {
   ApiBaseResponse,
   ApiBaseResponseArray,
+  ApiBaseResponseListRows,
 } from '@/common/decorators/api-base-responde.decorator'
 import { CitasMedicasService } from '../citas-medicas.service'
 import {
@@ -29,6 +30,7 @@ import {
   CitaResponseDto,
   CrearCitaDto,
   FiltrosCitaDto,
+  FiltrosCitaPaginadoDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
@@ -48,6 +50,16 @@ export class CitasController extends BaseController {
   listar(@Query() filtros: FiltrosCitaDto): BaseResponseDto<CitaResponseDto[]> {
     const resultado = this.citasService.listarCitas(filtros)
     return this.successList(resultado)
+  }
+
+  @ApiOperation({
+    summary: 'Lista todas las citas paginadas con filtros opcionales',
+  })
+  @ApiBaseResponseListRows(CitaResponseDto)
+  @Get('paginado')
+  listarPaginado(@Query() filtros: FiltrosCitaPaginadoDto) {
+    const resultado = this.citasService.listarCitasPaginadas(filtros)
+    return this.successListRows(resultado)
   }
 
   @ApiOperation({ summary: 'Lista solamente las citas del médico autenticado' })

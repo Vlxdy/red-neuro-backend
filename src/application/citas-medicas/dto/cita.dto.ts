@@ -12,6 +12,7 @@ import {
 import { Type } from 'class-transformer'
 import { CitasEstado } from '../constants'
 import { EtiquetaResponseDto } from './etiqueta.dto'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 
 export class EtiquetaAsociacionDto {
   @ApiProperty({
@@ -44,6 +45,53 @@ export class EtiquetaAsociacionDto {
 }
 
 export class FiltrosCitaDto {
+  @ApiPropertyOptional({
+    description: 'Fecha de inicio (ISO)',
+    example: '2024-06-01T08:00:00Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaInicio?: string
+
+  @ApiPropertyOptional({
+    description: 'Fecha de fin (ISO)',
+    example: '2024-06-30T23:59:59Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaFin?: string
+
+  @ApiPropertyOptional({
+    description: 'Identificador del médico',
+    example: '12',
+  })
+  @IsOptional()
+  @IsString()
+  medicoId?: string
+
+  @ApiPropertyOptional({ enum: CitasEstado, description: 'Filtrar por estado' })
+  @IsOptional()
+  @IsEnum(CitasEstado)
+  estado?: CitasEstado
+
+  @ApiPropertyOptional({
+    description: 'Filtrar por etiqueta',
+    example: 'tag-1',
+  })
+  @IsOptional()
+  @IsString()
+  etiquetaId?: string
+
+  @ApiPropertyOptional({
+    description: 'Filtrar por agrupador',
+    example: 'grp-1',
+  })
+  @IsOptional()
+  @IsString()
+  agrupadorId?: string
+}
+
+export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
   @ApiPropertyOptional({
     description: 'Fecha de inicio (ISO)',
     example: '2024-06-01T08:00:00Z',

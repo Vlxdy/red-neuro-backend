@@ -14,6 +14,7 @@ import {
   CrearCitaDto,
   EtiquetaAsociacionDto,
   FiltrosCitaDto,
+  FiltrosCitaPaginadoDto,
   ReprogramarCitaDto,
 } from './dto/cita.dto'
 import { ActualizarEtiquetaDto, CrearEtiquetaDto } from './dto/etiqueta.dto'
@@ -269,6 +270,15 @@ export class CitasMedicasService extends BaseService {
         agrupadorOk
       )
     })
+  }
+
+  listarCitasPaginadas(
+    filtros: FiltrosCitaPaginadoDto
+  ): [CitaListado[], number] {
+    const citasFiltradas = this.listarCitas(filtros)
+    const { limite, saltar } = filtros
+    const filas = citasFiltradas.slice(saltar, saltar + limite)
+    return [filas, citasFiltradas.length]
   }
 
   listarMisCitas(medicoId: string, filtros: FiltrosCitaDto): CitaListado[] {
