@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
@@ -25,6 +26,7 @@ import {
   EtiquetaResponseDto,
 } from '../dto/etiqueta.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
+import { Request } from 'express'
 
 @Controller('etiquetas')
 @ApiTags('Etiquetas de Citas')
@@ -38,35 +40,50 @@ export class EtiquetasController extends BaseController {
   @ApiOperation({ summary: 'Lista todas las etiquetas disponibles' })
   @ApiBaseResponseArray(EtiquetaResponseDto)
   @Get()
-  listar(): BaseResponseDto<EtiquetaResponseDto[]> {
-    const resultado = this.citasService.listarEtiquetas()
+  async listar(): Promise<BaseResponseDto<EtiquetaResponseDto[]>> {
+    const resultado = await this.citasService.listarEtiquetas()
     return this.successList(resultado)
   }
 
   @ApiOperation({ summary: 'Obtiene una etiqueta por su identificador' })
   @ApiBaseResponse(EtiquetaResponseDto)
   @Get(':id')
-  obtener(@Param() { id }: ParamIdDto): BaseResponseDto<EtiquetaResponseDto> {
-    const resultado = this.citasService.obtenerEtiqueta(id)
+  async obtener(
+    @Param() { id }: ParamIdDto
+  ): Promise<BaseResponseDto<EtiquetaResponseDto>> {
+    const resultado = await this.citasService.obtenerEtiqueta(id)
     return this.success(resultado)
   }
 
   @ApiOperation({ summary: 'Crea una nueva etiqueta' })
   @ApiBaseResponse(EtiquetaResponseDto)
   @Post()
-  crear(@Body() dto: CrearEtiquetaDto): BaseResponseDto<EtiquetaResponseDto> {
-    const resultado = this.citasService.crearEtiqueta(dto)
+  async crear(
+    @Req() req: Request,
+    @Body() dto: CrearEtiquetaDto
+  ): Promise<BaseResponseDto<EtiquetaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.crearEtiqueta(
+      dto,
+      usuarioAuditoria
+    )
     return this.successCreate(resultado)
   }
 
   @ApiOperation({ summary: 'Actualiza una etiqueta existente' })
   @ApiBaseResponse(EtiquetaResponseDto)
   @Patch(':id')
-  actualizar(
+  async actualizar(
     @Param() { id }: ParamIdDto,
+    @Req() req: Request,
     @Body() dto: ActualizarEtiquetaDto
-  ): BaseResponseDto<EtiquetaResponseDto> {
-    const resultado = this.citasService.actualizarEtiqueta(id, dto)
+  ): Promise<BaseResponseDto<EtiquetaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.actualizarEtiqueta(
+      id,
+      dto,
+      usuarioAuditoria
+    )
     return this.successUpdate(resultado)
   }
 
@@ -75,10 +92,10 @@ export class EtiquetasController extends BaseController {
   })
   @ApiBaseResponse(EtiquetaDeleteResponseDto)
   @Delete(':id')
-  eliminar(
+  async eliminar(
     @Param() { id }: ParamIdDto
-  ): BaseResponseDto<EtiquetaDeleteResponseDto> {
-    const resultado = this.citasService.eliminarEtiqueta(id)
+  ): Promise<BaseResponseDto<EtiquetaDeleteResponseDto>> {
+    const resultado = await this.citasService.eliminarEtiqueta(id)
     return this.successDelete(resultado)
   }
 }

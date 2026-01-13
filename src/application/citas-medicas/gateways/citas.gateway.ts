@@ -50,11 +50,11 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     message: { name: 'CitaCreada', payload: MensajeCitaDto },
   })
   @SubscribeMessage('citas:create')
-  crearCita(
+  async crearCita(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeCitaDto
   ) {
-    const cita = this.citasService.crearCita(payload)
+    const cita = await this.citasService.crearCita(payload)
     this.server.emit('citas:created', cita)
     this.logger.debug(`citas:create recibido desde ${client.id}`)
     return cita
@@ -70,11 +70,14 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     message: { name: 'CitaEstadoActualizado', payload: MensajeEstadoCitaDto },
   })
   @SubscribeMessage('citas:estado')
-  actualizarEstado(
+  async actualizarEstado(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeEstadoCitaDto
   ) {
-    const cita = this.citasService.actualizarEstadoCita(payload.id, payload)
+    const cita = await this.citasService.actualizarEstadoCita(
+      payload.id,
+      payload
+    )
     this.server.emit('citas:estado-actualizado', cita)
     this.logger.debug(
       `citas:estado recibido desde ${client.id} -> ${payload.id}`
@@ -92,11 +95,11 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     message: { name: 'CitaReprogramada', payload: MensajeReprogramarCitaDto },
   })
   @SubscribeMessage('citas:reprogramar')
-  reprogramar(
+  async reprogramar(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeReprogramarCitaDto
   ) {
-    const cita = this.citasService.reprogramarCita(payload.id, payload)
+    const cita = await this.citasService.reprogramarCita(payload.id, payload)
     this.server.emit('citas:reprogramada', cita)
     this.logger.debug(
       `citas:reprogramar recibido desde ${client.id} -> ${payload.id}`
@@ -114,11 +117,11 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     message: { name: 'CitaCancelada', payload: MensajeCancelarCitaDto },
   })
   @SubscribeMessage('citas:cancelar')
-  cancelar(
+  async cancelar(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeCancelarCitaDto
   ) {
-    const cita = this.citasService.cancelarCita(payload.id, payload)
+    const cita = await this.citasService.cancelarCita(payload.id, payload)
     this.server.emit('citas:cancelada', cita)
     this.logger.debug(
       `citas:cancelar recibido desde ${client.id} -> ${payload.id}`
