@@ -18,6 +18,7 @@ import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import {
   ApiBaseResponse,
   ApiBaseResponseArray,
+  ApiBaseResponseListRows,
 } from '@/common/decorators/api-base-responde.decorator'
 import { CitasMedicasService } from '../citas-medicas.service'
 import {
@@ -29,6 +30,7 @@ import {
   CitaResponseDto,
   CrearCitaDto,
   FiltrosCitaDto,
+  FiltrosCitaPaginadoDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
@@ -45,102 +47,156 @@ export class CitasController extends BaseController {
   @ApiOperation({ summary: 'Lista todas las citas con filtros opcionales' })
   @ApiBaseResponseArray(CitaResponseDto)
   @Get()
-  listar(@Query() filtros: FiltrosCitaDto): BaseResponseDto<CitaResponseDto[]> {
-    const resultado = this.citasService.listarCitas(filtros)
+  async listar(
+    @Query() filtros: FiltrosCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto[]>> {
+    const resultado = await this.citasService.listarCitas(filtros)
     return this.successList(resultado)
+  }
+
+  @ApiOperation({
+    summary: 'Lista todas las citas paginadas con filtros opcionales',
+  })
+  @ApiBaseResponseListRows(CitaResponseDto)
+  @Get('paginado')
+  async listarPaginado(@Query() filtros: FiltrosCitaPaginadoDto) {
+    const resultado = await this.citasService.listarCitasPaginadas(filtros)
+    return this.successListRows(resultado)
   }
 
   @ApiOperation({ summary: 'Lista solamente las citas del médico autenticado' })
   @ApiBaseResponseArray(CitaResponseDto)
   @Get('mis-citas')
-  listarMisCitas(
+  async listarMisCitas(
     @Req() req: Request,
     @Query() filtros: FiltrosCitaDto
-  ): BaseResponseDto<CitaResponseDto[]> {
+  ): Promise<BaseResponseDto<CitaResponseDto[]>> {
     const medicoId = String(req.user?.id || '')
-    const resultado = this.citasService.listarMisCitas(medicoId, filtros)
+    const resultado = await this.citasService.listarMisCitas(medicoId, filtros)
     return this.successList(resultado)
   }
 
   @ApiOperation({ summary: 'Obtiene el detalle de una cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Get(':id')
-  obtener(@Param() { id }: ParamIdDto): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.obtenerCita(id)
+  async obtener(
+    @Param() { id }: ParamIdDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const resultado = await this.citasService.obtenerCita(id)
     return this.success(resultado)
   }
 
   @ApiOperation({ summary: 'Crea una nueva cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Post()
-  crear(@Body() dto: CrearCitaDto): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.crearCita(dto)
+  async crear(
+    @Req() req: Request,
+    @Body() dto: CrearCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.crearCita(dto, usuarioAuditoria)
     return this.successCreate(resultado)
   }
 
   @ApiOperation({ summary: 'Actualiza datos generales de la cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id')
-  actualizar(
+  async actualizar(
     @Param() { id }: ParamIdDto,
+    @Req() req: Request,
     @Body() dto: ActualizarCitaDto
-  ): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.actualizarCita(id, dto)
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.actualizarCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
     return this.successUpdate(resultado)
   }
 
   @ApiOperation({ summary: 'Actualiza únicamente el estado de la cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/estado')
-  actualizarEstado(
+  async actualizarEstado(
     @Param() { id }: ParamIdDto,
+    @Req() req: Request,
     @Body() dto: ActualizarEstadoCitaDto
-  ): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.actualizarEstadoCita(id, dto)
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.actualizarEstadoCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
     return this.successUpdate(resultado)
   }
 
   @ApiOperation({ summary: 'Reprograma la fecha y hora de la cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/reprogramar')
-  reprogramar(
+  async reprogramar(
     @Param() { id }: ParamIdDto,
+    @Req() req: Request,
     @Body() dto: ReprogramarCitaDto
-  ): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.reprogramarCita(id, dto)
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.reprogramarCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
     return this.successUpdate(resultado)
   }
 
   @ApiOperation({ summary: 'Cancela una cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/cancelar')
-  cancelar(
+  async cancelar(
     @Param() { id }: ParamIdDto,
+    @Req() req: Request,
     @Body() dto: CancelarCitaDto
-  ): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.cancelarCita(id, dto)
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.cancelarCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
     return this.successUpdate(resultado)
   }
 
   @ApiOperation({ summary: 'Define las etiquetas de una cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/etiquetas')
-  actualizarEtiquetas(
+  async actualizarEtiquetas(
     @Param() { id }: ParamIdDto,
+    @Req() req: Request,
     @Body() dto: ActualizarEtiquetasCitaDto
-  ): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.actualizarEtiquetas(id, dto)
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.actualizarEtiquetas(
+      id,
+      dto,
+      usuarioAuditoria
+    )
     return this.successUpdate(resultado)
   }
 
   @ApiOperation({ summary: 'Asigna un agrupador a la cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/agrupador')
-  actualizarAgrupador(
+  async actualizarAgrupador(
     @Param() { id }: ParamIdDto,
+    @Req() req: Request,
     @Body() dto: ActualizarAgrupadorCitaDto
-  ): BaseResponseDto<CitaResponseDto> {
-    const resultado = this.citasService.actualizarAgrupadorCita(id, dto)
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.actualizarAgrupadorCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
     return this.successUpdate(resultado)
   }
 }

@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Inject,
 } from '@nestjs/common'
 import { CitasEstado } from './constants'
 import {
@@ -14,10 +15,15 @@ import {
   CrearCitaDto,
   EtiquetaAsociacionDto,
   FiltrosCitaDto,
+  FiltrosCitaPaginadoDto,
   ReprogramarCitaDto,
 } from './dto/cita.dto'
 import { ActualizarEtiquetaDto, CrearEtiquetaDto } from './dto/etiqueta.dto'
 import { ActualizarAgrupadorDto, CrearAgrupadorDto } from './dto/agrupador.dto'
+import { Etiqueta } from './entities/etiqueta.entity'
+import { Agrupador } from './entities/agrupador.entity'
+import { Cita } from './entities/cita.entity'
+import { CitasMedicasRepository } from './repository/citas-medicas.repository'
 
 export type EtiquetaListado = {
   id: string
@@ -48,309 +54,353 @@ export type CitaListado = {
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
-  private etiquetas: EtiquetaListado[] = []
-  private agrupadores: AgrupadorListado[] = []
-  private citas: CitaListado[] = []
-
-  constructor() {
+  constructor(
+    @Inject(CitasMedicasRepository)
+    private readonly citasRepository: CitasMedicasRepository
+  ) {
     super()
-    this.seedDatos()
   }
 
-  private seedDatos() {
-    this.etiquetas = [
-      {
-        id: 'tag-urgente',
-        nombre: 'Urgente',
-        colorHex: '#ff3366',
-        estado: 'ACTIVO',
-      },
-      {
-        id: 'tag-control',
-        nombre: 'Control',
-        colorHex: '#0ea5e9',
-        estado: 'ACTIVO',
-      },
-    ]
-    this.agrupadores = [
-      {
-        id: 'grp-campana',
-        nombre: 'Campaña preventiva',
-        descripcion: 'Bloque general de campañas',
-        colorHex: '#145d8f',
-        estado: 'ACTIVO',
-      },
-    ]
-    this.citas = [
-      {
-        id: 'cita-001',
-        detalle: 'Evaluación inicial',
-        fechaInicio: new Date().toISOString(),
-        fechaFin: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-        estado: CitasEstado.CONFIRMADA,
-        medicoId: '42',
-        etiquetas: [this.etiquetas[1]],
-        agrupadorId: 'grp-campana',
-      },
-    ]
-  }
-
-  private generarId(prefijo: string): string {
-    return `${prefijo}-${Date.now()}-${Math.floor(Math.random() * 1000)}`
-  }
-
-  // ===== Etiquetas =====
-  listarEtiquetas(): EtiquetaListado[] {
-    return this.etiquetas
-  }
-
-  obtenerEtiqueta(id: string): EtiquetaListado {
-    const etiqueta = this.etiquetas.find((item) => item.id === id)
-    if (!etiqueta) {
-      throw new NotFoundException('La etiqueta solicitada no existe')
+  private mapEtiquetaListado(etiqueta: Etiqueta): EtiquetaListado {
+    return {
+      id: etiqueta.id,
+      nombre: etiqueta.nombre,
+      colorHex: etiqueta.colorHex,
+      estado: etiqueta.estado as 'ACTIVO' | 'INACTIVO',
     }
-    return etiqueta
   }
 
-  crearEtiqueta(dto: CrearEtiquetaDto): EtiquetaListado {
-    const existeNombre = this.etiquetas.some(
-      (item) => item.nombre.toLowerCase() === dto.nombre.toLowerCase()
-    )
-    if (existeNombre) {
-      throw new BadRequestException('Ya existe una etiqueta con ese nombre')
+  private mapAgrupadorListado(agrupador: Agrupador): AgrupadorListado {
+    return {
+      id: agrupador.id,
+      nombre: agrupador.nombre,
+      descripcion: agrupador.descripcion ?? undefined,
+      colorHex: agrupador.colorHex,
+      estado: agrupador.estado as 'ACTIVO' | 'INACTIVO',
     }
-    const nueva: EtiquetaListado = {
-      ...dto,
-      estado: 'ACTIVO',
-      id: this.generarId('tag'),
+  }
+
+  private mapCitaListado(cita: Cita): CitaListado {
+    return {
+      id: cita.id,
+      detalle: cita.detalle,
+      fechaInicio: cita.fechaInicio?.toISOString() ?? '',
+      fechaFin: cita.fechaFin?.toISOString() ?? '',
+      estado: cita.estado as CitasEstado,
+      medicoId: cita.idMedico,
+      agrupadorId: cita.idAgrupador ?? undefined,
+      etiquetas:
+        cita.citaEtiquetas?.map((citaEtiqueta) =>
+          this.mapEtiquetaListado(citaEtiqueta.etiqueta)
+        ) ?? [],
+      comentario: cita.comentarioNutricionista ?? undefined,
     }
-    this.etiquetas.push(nueva)
-    return nueva
   }
 
-  actualizarEtiqueta(id: string, dto: ActualizarEtiquetaDto): EtiquetaListado {
-    const etiqueta = this.obtenerEtiqueta(id)
-    Object.assign(etiqueta, dto)
-    return etiqueta
-  }
-
-  eliminarEtiqueta(id: string): { id: string } {
-    this.obtenerEtiqueta(id)
-    this.etiquetas = this.etiquetas.filter((item) => item.id !== id)
-    this.citas = this.citas.map((cita) => ({
-      ...cita,
-      etiquetas: cita.etiquetas.filter((tag) => tag.id !== id),
-    }))
-    return { id }
-  }
-
-  private obtenerEtiquetaPorNombre(
-    nombre: string
-  ): EtiquetaListado | undefined {
-    return this.etiquetas.find(
-      (item) => item.nombre.toLowerCase() === nombre.toLowerCase()
-    )
-  }
-
-  private resolverEtiquetaEntrada(
+  private async validarEtiquetaEntrada(
     entrada: EtiquetaAsociacionDto
-  ): EtiquetaListado {
-    if (entrada.id) {
-      return this.obtenerEtiqueta(entrada.id)
+  ): Promise<void> {
+    if (!entrada.id && !entrada.nombre) {
+      throw new BadRequestException(
+        'Debe especificar id o nombre de la etiqueta'
+      )
     }
 
-    if (entrada.nombre) {
-      const existente = this.obtenerEtiquetaPorNombre(entrada.nombre)
-      if (existente) {
-        return existente
-      }
-      if (!entrada.colorHex) {
+    if (entrada.nombre && !entrada.id && !entrada.colorHex) {
+      const existente = await this.citasRepository.obtenerEtiquetaPorNombre(
+        entrada.nombre
+      )
+      if (!existente) {
         throw new BadRequestException(
           'Para crear una etiqueta nueva se requiere colorHex'
         )
       }
-      const creada = this.crearEtiqueta({
-        nombre: entrada.nombre,
-        colorHex: entrada.colorHex,
-      })
-      return creada
     }
-
-    throw new BadRequestException('Debe especificar id o nombre de la etiqueta')
   }
 
-  private sincronizarEtiquetas(
-    entradas: EtiquetaAsociacionDto[]
-  ): EtiquetaListado[] {
-    const resultado: EtiquetaListado[] = []
-    entradas.forEach((entrada) => {
-      const etiqueta = this.resolverEtiquetaEntrada(entrada)
-      const duplicada = resultado.find((item) => item.id === etiqueta.id)
-      if (!duplicada) {
-        resultado.push(etiqueta)
-      }
-    })
-    return resultado
+  private async validarEtiquetas(entradas?: EtiquetaAsociacionDto[]) {
+    if (!entradas?.length) {
+      return
+    }
+
+    for (const entrada of entradas) {
+      await this.validarEtiquetaEntrada(entrada)
+    }
+  }
+
+  // ===== Etiquetas =====
+  async listarEtiquetas(): Promise<EtiquetaListado[]> {
+    const etiquetas = await this.citasRepository.listarEtiquetas()
+    return etiquetas.map((etiqueta) => this.mapEtiquetaListado(etiqueta))
+  }
+
+  async obtenerEtiqueta(id: string): Promise<EtiquetaListado> {
+    const etiqueta = await this.citasRepository.obtenerEtiquetaPorId(id)
+    if (!etiqueta) {
+      throw new NotFoundException('La etiqueta solicitada no existe')
+    }
+    return this.mapEtiquetaListado(etiqueta)
+  }
+
+  async crearEtiqueta(
+    dto: CrearEtiquetaDto,
+    usuarioAuditoria = '0'
+  ): Promise<EtiquetaListado> {
+    const existeNombre = await this.citasRepository.obtenerEtiquetaPorNombre(
+      dto.nombre
+    )
+    if (existeNombre) {
+      throw new BadRequestException('Ya existe una etiqueta con ese nombre')
+    }
+    const creada = await this.citasRepository.crearEtiqueta(
+      dto,
+      usuarioAuditoria
+    )
+    return this.mapEtiquetaListado(creada)
+  }
+
+  async actualizarEtiqueta(
+    id: string,
+    dto: ActualizarEtiquetaDto,
+    usuarioAuditoria = '0'
+  ): Promise<EtiquetaListado> {
+    const actualizada = await this.citasRepository.actualizarEtiqueta(
+      id,
+      dto,
+      usuarioAuditoria
+    )
+    if (!actualizada) {
+      throw new NotFoundException('La etiqueta solicitada no existe')
+    }
+    return this.mapEtiquetaListado(actualizada)
+  }
+
+  async eliminarEtiqueta(id: string): Promise<{ id: string }> {
+    const etiqueta = await this.citasRepository.obtenerEtiquetaPorId(id)
+    if (!etiqueta) {
+      throw new NotFoundException('La etiqueta solicitada no existe')
+    }
+    await this.citasRepository.eliminarEtiqueta(id)
+    return { id }
   }
 
   // ===== Agrupadores =====
-  listarAgrupadores(): AgrupadorListado[] {
-    return this.agrupadores
+  async listarAgrupadores(): Promise<AgrupadorListado[]> {
+    const agrupadores = await this.citasRepository.listarAgrupadores()
+    return agrupadores.map((agrupador) => this.mapAgrupadorListado(agrupador))
   }
 
-  obtenerAgrupador(id: string): AgrupadorListado {
-    const agrupador = this.agrupadores.find((item) => item.id === id)
+  async obtenerAgrupador(id: string): Promise<AgrupadorListado> {
+    const agrupador = await this.citasRepository.obtenerAgrupadorPorId(id)
     if (!agrupador) {
       throw new NotFoundException('El agrupador solicitado no existe')
     }
-    return agrupador
+    return this.mapAgrupadorListado(agrupador)
   }
 
-  crearAgrupador(dto: CrearAgrupadorDto): AgrupadorListado {
-    const existeNombre = this.agrupadores.some(
-      (item) => item.nombre.toLowerCase() === dto.nombre.toLowerCase()
+  async crearAgrupador(
+    dto: CrearAgrupadorDto,
+    usuarioAuditoria = '0'
+  ): Promise<AgrupadorListado> {
+    const existeNombre = await this.citasRepository.buscarAgrupadorPorNombre(
+      dto.nombre
     )
     if (existeNombre) {
       throw new BadRequestException('Ya existe un agrupador con ese nombre')
     }
-    const nuevo: AgrupadorListado = {
-      ...dto,
-      id: this.generarId('grp'),
-      estado: 'ACTIVO',
-    }
-    this.agrupadores.push(nuevo)
-    return nuevo
+    const creado = await this.citasRepository.crearAgrupador(
+      dto,
+      usuarioAuditoria
+    )
+    return this.mapAgrupadorListado(creado)
   }
 
-  actualizarAgrupador(
+  async actualizarAgrupador(
     id: string,
-    dto: ActualizarAgrupadorDto
-  ): AgrupadorListado {
-    const agrupador = this.obtenerAgrupador(id)
-    Object.assign(agrupador, dto)
-    return agrupador
+    dto: ActualizarAgrupadorDto,
+    usuarioAuditoria = '0'
+  ): Promise<AgrupadorListado> {
+    const actualizado = await this.citasRepository.actualizarAgrupador(
+      id,
+      dto,
+      usuarioAuditoria
+    )
+    if (!actualizado) {
+      throw new NotFoundException('El agrupador solicitado no existe')
+    }
+    return this.mapAgrupadorListado(actualizado)
   }
 
-  eliminarAgrupador(id: string): { id: string } {
-    this.obtenerAgrupador(id)
-    this.agrupadores = this.agrupadores.filter((item) => item.id !== id)
-    this.citas = this.citas.map((cita) => ({
-      ...cita,
-      agrupadorId: cita.agrupadorId === id ? undefined : cita.agrupadorId,
-    }))
+  async eliminarAgrupador(id: string): Promise<{ id: string }> {
+    const agrupador = await this.citasRepository.obtenerAgrupadorPorId(id)
+    if (!agrupador) {
+      throw new NotFoundException('El agrupador solicitado no existe')
+    }
+    await this.citasRepository.eliminarAgrupador(id)
     return { id }
   }
 
   // ===== Citas =====
-  listarCitas(filtros: FiltrosCitaDto): CitaListado[] {
-    return this.citas.filter((cita) => {
-      const fechaInicioOk = filtros.fechaInicio
-        ? new Date(cita.fechaInicio) >= new Date(filtros.fechaInicio)
-        : true
-      const fechaFinOk = filtros.fechaFin
-        ? new Date(cita.fechaFin) <= new Date(filtros.fechaFin)
-        : true
-      const medicoOk = filtros.medicoId
-        ? cita.medicoId === filtros.medicoId
-        : true
-      const estadoOk = filtros.estado ? cita.estado === filtros.estado : true
-      const etiquetaOk = filtros.etiquetaId
-        ? cita.etiquetas.some((tag) => tag.id === filtros.etiquetaId)
-        : true
-      const agrupadorOk = filtros.agrupadorId
-        ? cita.agrupadorId === filtros.agrupadorId
-        : true
-      return (
-        fechaInicioOk &&
-        fechaFinOk &&
-        medicoOk &&
-        estadoOk &&
-        etiquetaOk &&
-        agrupadorOk
-      )
-    })
+  async listarCitas(filtros: FiltrosCitaDto): Promise<CitaListado[]> {
+    const citas = await this.citasRepository.listarCitas(filtros)
+    return citas.map((cita) => this.mapCitaListado(cita))
   }
 
-  listarMisCitas(medicoId: string, filtros: FiltrosCitaDto): CitaListado[] {
-    return this.listarCitas({ ...filtros, medicoId })
+  async listarCitasPaginadas(
+    filtros: FiltrosCitaPaginadoDto
+  ): Promise<[CitaListado[], number]> {
+    const [citas, total] = await this.citasRepository.listarCitasPaginadas(
+      filtros
+    )
+
+    return [citas.map((cita) => this.mapCitaListado(cita)), total]
   }
 
-  obtenerCita(id: string): CitaListado {
-    const cita = this.citas.find((item) => item.id === id)
+  async listarMisCitas(
+    medicoId: string,
+    filtros: FiltrosCitaDto
+  ): Promise<CitaListado[]> {
+    return await this.listarCitas({ ...filtros, medicoId })
+  }
+
+  async obtenerCita(id: string): Promise<CitaListado> {
+    const cita = await this.citasRepository.obtenerCitaConRelaciones(id)
     if (!cita) {
       throw new NotFoundException('La cita solicitada no existe')
     }
-    return cita
+    return this.mapCitaListado(cita)
   }
 
-  crearCita(dto: CrearCitaDto): CitaListado {
-    const etiquetas = dto.etiquetas
-      ? this.sincronizarEtiquetas(dto.etiquetas)
-      : []
+  async crearCita(
+    dto: CrearCitaDto,
+    usuarioAuditoria = '0'
+  ): Promise<CitaListado> {
     if (dto.agrupadorId) {
-      this.obtenerAgrupador(dto.agrupadorId)
+      const agrupador = await this.citasRepository.obtenerAgrupadorPorId(
+        dto.agrupadorId
+      )
+      if (!agrupador) {
+        throw new NotFoundException('El agrupador solicitado no existe')
+      }
     }
-    const cita: CitaListado = {
-      ...dto,
-      id: this.generarId('cita'),
-      estado: CitasEstado.BORRADOR,
-      etiquetas,
+
+    await this.validarEtiquetas(dto.etiquetas)
+
+    const citaId = await this.citasRepository.crearCita(dto, usuarioAuditoria)
+    if (!citaId) {
+      throw new BadRequestException('No fue posible registrar la cita')
     }
-    this.citas.push(cita)
-    return cita
+
+    return await this.obtenerCita(citaId)
   }
 
-  actualizarCita(id: string, dto: ActualizarCitaDto): CitaListado {
-    const cita = this.obtenerCita(id)
-    if (dto.etiquetas) {
-      cita.etiquetas = this.sincronizarEtiquetas(dto.etiquetas)
-    }
-    Object.assign(cita, { ...dto, etiquetas: cita.etiquetas })
-    return cita
-  }
-
-  actualizarEstadoCita(id: string, dto: ActualizarEstadoCitaDto): CitaListado {
-    const cita = this.obtenerCita(id)
-    cita.estado = dto.estado
-    cita.comentario = dto.comentario
-    return cita
-  }
-
-  reprogramarCita(id: string, dto: ReprogramarCitaDto): CitaListado {
-    const cita = this.obtenerCita(id)
-    cita.fechaInicio = dto.fechaInicio
-    cita.fechaFin = dto.fechaFin
-    cita.comentario = dto.comentario
-    cita.estado =
-      CitasEstado.RECHAZADA === cita.estado
-        ? CitasEstado.SOLICITADA
-        : cita.estado
-    return cita
-  }
-
-  cancelarCita(id: string, dto: CancelarCitaDto): CitaListado {
-    const cita = this.obtenerCita(id)
-    cita.estado = CitasEstado.CANCELADA
-    cita.comentario = dto.comentario
-    return cita
-  }
-
-  actualizarEtiquetas(
+  async actualizarCita(
     id: string,
-    dto: ActualizarEtiquetasCitaDto
-  ): CitaListado {
-    const cita = this.obtenerCita(id)
-    cita.etiquetas = this.sincronizarEtiquetas(dto.etiquetas)
-    return cita
+    dto: ActualizarCitaDto,
+    usuarioAuditoria = '0'
+  ): Promise<CitaListado> {
+    if (dto.agrupadorId) {
+      const agrupador = await this.citasRepository.obtenerAgrupadorPorId(
+        dto.agrupadorId
+      )
+      if (!agrupador) {
+        throw new NotFoundException('El agrupador solicitado no existe')
+      }
+    }
+
+    await this.validarEtiquetas(dto.etiquetas)
+
+    const actualizado = await this.citasRepository.actualizarCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
+    if (!actualizado) {
+      throw new NotFoundException('La cita solicitada no existe')
+    }
+
+    return await this.obtenerCita(id)
   }
 
-  actualizarAgrupadorCita(
+  async actualizarEstadoCita(
     id: string,
-    dto: ActualizarAgrupadorCitaDto
-  ): CitaListado {
-    const cita = this.obtenerCita(id)
-    this.obtenerAgrupador(dto.agrupadorId)
-    cita.agrupadorId = dto.agrupadorId
-    return cita
+    dto: ActualizarEstadoCitaDto,
+    usuarioAuditoria = '0'
+  ): Promise<CitaListado> {
+    const actualizado = await this.citasRepository.actualizarEstadoCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
+    if (!actualizado) {
+      throw new NotFoundException('La cita solicitada no existe')
+    }
+    return await this.obtenerCita(id)
+  }
+
+  async reprogramarCita(
+    id: string,
+    dto: ReprogramarCitaDto,
+    usuarioAuditoria = '0'
+  ): Promise<CitaListado> {
+    const actualizado = await this.citasRepository.reprogramarCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
+    if (!actualizado) {
+      throw new NotFoundException('La cita solicitada no existe')
+    }
+    return await this.obtenerCita(id)
+  }
+
+  async cancelarCita(
+    id: string,
+    dto: CancelarCitaDto,
+    usuarioAuditoria = '0'
+  ): Promise<CitaListado> {
+    const actualizado = await this.citasRepository.cancelarCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
+    if (!actualizado) {
+      throw new NotFoundException('La cita solicitada no existe')
+    }
+    return await this.obtenerCita(id)
+  }
+
+  async actualizarEtiquetas(
+    id: string,
+    dto: ActualizarEtiquetasCitaDto,
+    usuarioAuditoria = '0'
+  ): Promise<CitaListado> {
+    await this.validarEtiquetas(dto.etiquetas)
+
+    const actualizado = await this.citasRepository.actualizarEtiquetas(
+      id,
+      dto,
+      usuarioAuditoria
+    )
+    if (!actualizado) {
+      throw new NotFoundException('La cita solicitada no existe')
+    }
+    return await this.obtenerCita(id)
+  }
+
+  async actualizarAgrupadorCita(
+    id: string,
+    dto: ActualizarAgrupadorCitaDto,
+    usuarioAuditoria = '0'
+  ): Promise<CitaListado> {
+    const actualizado = await this.citasRepository.actualizarAgrupadorCita(
+      id,
+      dto,
+      usuarioAuditoria
+    )
+    if (!actualizado) {
+      throw new NotFoundException('La cita solicitada no existe')
+    }
+    return await this.obtenerCita(id)
   }
 }

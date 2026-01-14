@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
@@ -25,6 +26,7 @@ import {
   CrearAgrupadorDto,
 } from '../dto/agrupador.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
+import { Request } from 'express'
 
 @Controller('agrupadores')
 @ApiTags('Ambientes / Agrupadores de Citas')
@@ -38,24 +40,33 @@ export class AgrupadoresController extends BaseController {
   @ApiOperation({ summary: 'Lista los ambientes o agrupadores configurados' })
   @ApiBaseResponseArray(AgrupadorResponseDto)
   @Get()
-  listar(): BaseResponseDto<AgrupadorResponseDto[]> {
-    const resultado = this.citasService.listarAgrupadores()
+  async listar(): Promise<BaseResponseDto<AgrupadorResponseDto[]>> {
+    const resultado = await this.citasService.listarAgrupadores()
     return this.successList(resultado)
   }
 
   @ApiOperation({ summary: 'Obtiene un ambiente/agrupador específico' })
   @ApiBaseResponse(AgrupadorResponseDto)
   @Get(':id')
-  obtener(@Param() { id }: ParamIdDto): BaseResponseDto<AgrupadorResponseDto> {
-    const resultado = this.citasService.obtenerAgrupador(id)
+  async obtener(
+    @Param() { id }: ParamIdDto
+  ): Promise<BaseResponseDto<AgrupadorResponseDto>> {
+    const resultado = await this.citasService.obtenerAgrupador(id)
     return this.success(resultado)
   }
 
   @ApiOperation({ summary: 'Crea un nuevo ambiente o agrupador' })
   @ApiBaseResponse(AgrupadorResponseDto)
   @Post()
-  crear(@Body() dto: CrearAgrupadorDto): BaseResponseDto<AgrupadorResponseDto> {
-    const resultado = this.citasService.crearAgrupador(dto)
+  async crear(
+    @Req() req: Request,
+    @Body() dto: CrearAgrupadorDto
+  ): Promise<BaseResponseDto<AgrupadorResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.crearAgrupador(
+      dto,
+      usuarioAuditoria
+    )
     return this.successCreate(resultado)
   }
 
@@ -64,21 +75,27 @@ export class AgrupadoresController extends BaseController {
   })
   @ApiBaseResponse(AgrupadorResponseDto)
   @Patch(':id')
-  actualizar(
+  async actualizar(
     @Param() { id }: ParamIdDto,
+    @Req() req: Request,
     @Body() dto: ActualizarAgrupadorDto
-  ): BaseResponseDto<AgrupadorResponseDto> {
-    const resultado = this.citasService.actualizarAgrupador(id, dto)
+  ): Promise<BaseResponseDto<AgrupadorResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.citasService.actualizarAgrupador(
+      id,
+      dto,
+      usuarioAuditoria
+    )
     return this.successUpdate(resultado)
   }
 
   @ApiOperation({ summary: 'Elimina un ambiente/agrupador' })
   @ApiBaseResponse(AgrupadorDeleteResponseDto)
   @Delete(':id')
-  eliminar(
+  async eliminar(
     @Param() { id }: ParamIdDto
-  ): BaseResponseDto<AgrupadorDeleteResponseDto> {
-    const resultado = this.citasService.eliminarAgrupador(id)
+  ): Promise<BaseResponseDto<AgrupadorDeleteResponseDto>> {
+    const resultado = await this.citasService.eliminarAgrupador(id)
     return this.successDelete(resultado)
   }
 }
