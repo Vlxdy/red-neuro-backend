@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common'
 import { PrinterModule } from '@/printer/printer.module'
 import { ConfigService } from '@nestjs/config'
-import { CitasMedicasModule } from './citas-medicas/citas-medicas.module'
+import { ConsultorioModule } from './consultorio/consultorio.module'
+import { CitasModule } from './citas/citas.module'
 
 @Module({
-  imports: [PrinterModule, CitasMedicasModule],
+  imports: [PrinterModule, CitasModule, ConsultorioModule],
   providers: [ConfigService],
 })
 export class ApplicationModule {}

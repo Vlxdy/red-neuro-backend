@@ -8,7 +8,7 @@ import {
 } from 'typeorm'
 import { Transaccion } from '../constants'
 
-export abstract class AuditoriaEntity extends BaseEntity {
+export abstract class AuditoriaEntity<Estado = string> extends BaseEntity {
   @Column({
     name: '_estado',
     length: 30,
@@ -16,7 +16,7 @@ export abstract class AuditoriaEntity extends BaseEntity {
     nullable: false,
     comment: 'Estado del registro',
   })
-  estado: string
+  estado: Estado
 
   @Column('varchar', {
     name: '_transaccion',

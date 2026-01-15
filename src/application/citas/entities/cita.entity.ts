@@ -17,12 +17,11 @@ import { HistorialCita } from './cita-historial.entity'
 
 import { CitasEstado } from '../constants'
 import { Notificacion } from './notificacion.entity'
-import { Agrupador } from './agrupador.entity'
-import { CitaEtiqueta } from './cita-etiqueta.entity'
+import { Consultorio } from '@/application/consultorio/entities/consultorio.entity'
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
 @Entity({ name: 'citas', schema: process.env.DB_SCHEMA })
-export class Cita extends AuditoriaEntity {
+export class Cita extends AuditoriaEntity<CitasEstado> {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
@@ -142,23 +141,18 @@ export class Cita extends AuditoriaEntity {
   // paciente: UsuarioRol
 
   @Column({
-    name: 'id_agrupador',
+    name: 'id_consultorio',
     type: 'bigint',
     nullable: true,
-    comment: 'Clave foránea que referencia al agrupador asociado a la cita',
+    comment: 'Clave foránea que referencia al consultorio asociado a la cita',
   })
-  idAgrupador?: string | null
+  idConsultorio?: string | null
 
-  @ManyToOne(() => Agrupador, (agrupador) => agrupador.citas, {
+  @ManyToOne(() => Consultorio, (consultorio) => consultorio.citas, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'id_agrupador', referencedColumnName: 'id' })
-  agrupador?: Agrupador | null
-
-  @OneToMany(() => CitaEtiqueta, (citaEtiqueta) => citaEtiqueta.cita, {
-    cascade: true,
-  })
-  citaEtiquetas?: CitaEtiqueta[]
+  consultorio?: Consultorio | null
 
   @OneToMany(() => HistorialCita, (historialCita) => historialCita.cita)
   historial: HistorialCita[]

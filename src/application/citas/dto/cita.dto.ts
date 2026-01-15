@@ -1,48 +1,15 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger'
 import {
-  IsArray,
   IsDateString,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
-  ValidateNested,
 } from 'class-validator'
-import { Type } from 'class-transformer'
 import { CitasEstado } from '../constants'
-import { EtiquetaResponseDto } from './etiqueta.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
-
-export class EtiquetaAsociacionDto {
-  @ApiProperty({
-    description:
-      'Identificador de una etiqueta existente. Use este campo o envíe nombre y colorHex',
-    required: false,
-    example: 'tag-urgente',
-  })
-  @IsOptional()
-  @IsString()
-  id?: string
-
-  @ApiProperty({
-    description: 'Nombre de la etiqueta a crear o reutilizar si ya existe',
-    required: false,
-    example: 'Prioritaria',
-  })
-  @IsOptional()
-  @IsString()
-  nombre?: string
-
-  @ApiPropertyOptional({
-    description:
-      'Color en hexadecimal, requerido cuando se crea una nueva etiqueta',
-    example: '#ff3366',
-  })
-  @IsOptional()
-  @IsString()
-  colorHex?: string
-}
+import { PersonalResponseDto } from '@/application/personal/dto/personal.dto'
 
 export class FiltrosCitaDto {
   @ApiPropertyOptional({
@@ -67,28 +34,12 @@ export class FiltrosCitaDto {
   })
   @IsOptional()
   @IsString()
-  medicoId?: string
+  idMedico?: string
 
   @ApiPropertyOptional({ enum: CitasEstado, description: 'Filtrar por estado' })
   @IsOptional()
   @IsEnum(CitasEstado)
   estado?: CitasEstado
-
-  @ApiPropertyOptional({
-    description: 'Filtrar por etiqueta',
-    example: 'tag-1',
-  })
-  @IsOptional()
-  @IsString()
-  etiquetaId?: string
-
-  @ApiPropertyOptional({
-    description: 'Filtrar por agrupador',
-    example: 'grp-1',
-  })
-  @IsOptional()
-  @IsString()
-  agrupadorId?: string
 }
 
 export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
@@ -114,28 +65,12 @@ export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
   })
   @IsOptional()
   @IsString()
-  medicoId?: string
+  idMedico?: string
 
   @ApiPropertyOptional({ enum: CitasEstado, description: 'Filtrar por estado' })
   @IsOptional()
   @IsEnum(CitasEstado)
   estado?: CitasEstado
-
-  @ApiPropertyOptional({
-    description: 'Filtrar por etiqueta',
-    example: 'tag-1',
-  })
-  @IsOptional()
-  @IsString()
-  etiquetaId?: string
-
-  @ApiPropertyOptional({
-    description: 'Filtrar por agrupador',
-    example: 'grp-1',
-  })
-  @IsOptional()
-  @IsString()
-  agrupadorId?: string
 }
 
 export class CrearCitaDto {
@@ -168,26 +103,7 @@ export class CrearCitaDto {
   })
   @IsString()
   @IsNotEmpty()
-  medicoId!: string
-
-  @ApiPropertyOptional({
-    description: 'Agrupador asociado (ambiente)',
-    example: 'grp-1',
-  })
-  @IsOptional()
-  @IsString()
-  agrupadorId?: string
-
-  @ApiPropertyOptional({
-    description:
-      'Etiquetas a asociar, permite enviar ids existentes o nombre/colorHex para crear la etiqueta si no existe',
-    type: [EtiquetaAsociacionDto],
-  })
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EtiquetaAsociacionDto)
-  etiquetas?: EtiquetaAsociacionDto[]
+  idMedico!: string
 }
 
 export class ActualizarCitaDto extends PartialType(CrearCitaDto) {}
@@ -233,24 +149,6 @@ export class CancelarCitaDto {
   @IsOptional()
   @IsString()
   comentario?: string
-}
-
-export class ActualizarEtiquetasCitaDto {
-  @ApiProperty({
-    description:
-      'Etiquetas a asociar. Si una etiqueta no existe se crea usando nombre y colorHex',
-    type: [EtiquetaAsociacionDto],
-  })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EtiquetaAsociacionDto)
-  etiquetas!: EtiquetaAsociacionDto[]
-}
-
-export class ActualizarAgrupadorCitaDto {
-  @ApiProperty({ description: 'Identificador del agrupador', example: 'grp-1' })
-  @IsString()
-  agrupadorId!: string
 }
 
 export class MensajeCitaDto extends CrearCitaDto {}
@@ -305,21 +203,14 @@ export class CitaResponseDto {
   medicoId!: string
 
   @ApiProperty({
-    description: 'Identificador del agrupador asociado',
-    example: 'grp-campana',
-    required: false,
-  })
-  agrupadorId?: string
-
-  @ApiProperty({
-    description: 'Etiquetas asociadas a la cita',
-    type: [EtiquetaResponseDto],
-  })
-  etiquetas!: EtiquetaResponseDto[]
-
-  @ApiProperty({
     description: 'Comentario opcional del cambio de estado',
     required: false,
   })
   comentario?: string
+
+  @ApiProperty({
+    description: 'Datos del profesional de salud asignado a la cita',
+    type: () => PersonalResponseDto,
+  })
+  medico?: PersonalResponseDto
 }

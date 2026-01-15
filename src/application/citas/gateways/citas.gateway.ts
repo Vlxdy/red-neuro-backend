@@ -10,7 +10,7 @@ import {
 import { Server, Socket } from 'socket.io'
 import { AsyncApiPub, AsyncApiSub } from 'nestjs-asyncapi'
 import { LoggerService } from '@/core/logger'
-import { CitasMedicasService } from '../citas-medicas.service'
+import { CitasMedicasService } from '../services/citas-medicas.service'
 import {
   MensajeCancelarCitaDto,
   MensajeCitaDto,

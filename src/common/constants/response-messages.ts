@@ -61,4 +61,7 @@ export enum Messages {
   ANTECEDENTE_ARCHIVO_NOT_FOUND = 'El archivo no se encuentra asociado al antecedente.',
   ANTECEDENTE_INVALID_STATE = 'No es posible actualizar un antecedente que no está en borrador.',
   ANTECEDENTE_DRAFT_EXISTS = 'Ya existe un antecedente en borrador para la historia clínica.',
+
+  // Mensajes de consultorio
+  CONSULTORIO_NOT_FOUND = 'El consultorio no se encuentra registrado.',
 }

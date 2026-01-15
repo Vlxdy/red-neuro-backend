@@ -20,11 +20,9 @@ import {
   ApiBaseResponseArray,
   ApiBaseResponseListRows,
 } from '@/common/decorators/api-base-responde.decorator'
-import { CitasMedicasService } from '../citas-medicas.service'
+import { CitasMedicasService } from '../services/citas-medicas.service'
 import {
-  ActualizarAgrupadorCitaDto,
   ActualizarCitaDto,
-  ActualizarEtiquetasCitaDto,
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
   CitaResponseDto,
@@ -71,8 +69,8 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
-    const medicoId = String(req.user?.id || '')
-    const resultado = await this.citasService.listarMisCitas(medicoId, filtros)
+    // const medicoId = String(req.user?.id || '')
+    const resultado = await this.citasService.listarMisCitas(filtros)
     return this.successList(resultado)
   }
 
@@ -159,40 +157,6 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const resultado = await this.citasService.cancelarCita(
-      id,
-      dto,
-      usuarioAuditoria
-    )
-    return this.successUpdate(resultado)
-  }
-
-  @ApiOperation({ summary: 'Define las etiquetas de una cita' })
-  @ApiBaseResponse(CitaResponseDto)
-  @Patch(':id/etiquetas')
-  async actualizarEtiquetas(
-    @Param() { id }: ParamIdDto,
-    @Req() req: Request,
-    @Body() dto: ActualizarEtiquetasCitaDto
-  ): Promise<BaseResponseDto<CitaResponseDto>> {
-    const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.citasService.actualizarEtiquetas(
-      id,
-      dto,
-      usuarioAuditoria
-    )
-    return this.successUpdate(resultado)
-  }
-
-  @ApiOperation({ summary: 'Asigna un agrupador a la cita' })
-  @ApiBaseResponse(CitaResponseDto)
-  @Patch(':id/agrupador')
-  async actualizarAgrupador(
-    @Param() { id }: ParamIdDto,
-    @Req() req: Request,
-    @Body() dto: ActualizarAgrupadorCitaDto
-  ): Promise<BaseResponseDto<CitaResponseDto>> {
-    const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.citasService.actualizarAgrupadorCita(
       id,
       dto,
       usuarioAuditoria

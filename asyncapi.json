@@ -15,26 +15,6 @@
   },
   "components": {
     "schemas": {
-      "EtiquetaAsociacionDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Identificador de una etiqueta existente. Use este campo o envíe nombre y colorHex",
-            "example": "tag-urgente"
-          },
-          "nombre": {
-            "type": "string",
-            "description": "Nombre de la etiqueta a crear o reutilizar si ya existe",
-            "example": "Prioritaria"
-          },
-          "colorHex": {
-            "type": "string",
-            "description": "Color en hexadecimal, requerido cuando se crea una nueva etiqueta",
-            "example": "#ff3366"
-          }
-        }
-      },
       "MensajeCitaDto": {
         "type": "object",
         "properties": {
@@ -53,29 +33,17 @@
             "description": "Fecha de fin (ISO)",
             "example": "2024-06-15T11:00:00Z"
           },
-          "medicoId": {
+          "idMedico": {
             "type": "string",
             "description": "Identificador del médico responsable",
             "example": "42"
-          },
-          "agrupadorId": {
-            "type": "string",
-            "description": "Agrupador asociado (ambiente)",
-            "example": "grp-1"
-          },
-          "etiquetas": {
-            "description": "Etiquetas a asociar, permite enviar ids existentes o nombre/colorHex para crear la etiqueta si no existe",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EtiquetaAsociacionDto"
-            }
           }
         },
         "required": [
           "detalle",
           "fechaInicio",
           "fechaFin",
-          "medicoId"
+          "idMedico"
         ]
       },
       "MensajeEstadoCitaDto": {

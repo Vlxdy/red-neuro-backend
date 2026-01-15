@@ -12,3 +12,8 @@ export class BaseResponseDto<T> {
   })
   datos: T
 }
+
+export type BaseResponseListRowsDto<T> = BaseResponseDto<{
+  total: number
+  filas: T[]
+}>

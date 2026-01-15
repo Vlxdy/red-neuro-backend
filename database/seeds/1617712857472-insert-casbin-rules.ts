@@ -136,21 +136,17 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
         [RolEnum.SUPERVISOR]: 'PATCH',
       },
-      '/api/citas/:id/etiquetas': {
-        [RolEnum.ADMINISTRADOR]: 'PATCH',
-        [RolEnum.SUPERVISOR]: 'PATCH',
-        [RolEnum.PERSONAL_MEDICO]: 'PATCH',
+      '/api/consultorios': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.SUPERVISOR]: 'GET',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
       },
-      '/api/citas/:id/agrupador': {
+      '/api/consultorios/:id': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
-        [RolEnum.SUPERVISOR]: 'PATCH',
       },
-
-      // Etiquetas y agrupadores
-      '/api/etiquetas': { [RolEnum.ADMINISTRADOR]: 'GET|POST' },
-      '/api/etiquetas/:id': { [RolEnum.ADMINISTRADOR]: 'GET|PATCH|DELETE' },
-      '/api/agrupadores': { [RolEnum.ADMINISTRADOR]: 'GET|POST' },
-      '/api/agrupadores/:id': { [RolEnum.ADMINISTRADOR]: 'GET|PATCH|DELETE' },
+      '/api/consultorios/:id/cambiar-estado': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+      },
     }
 
     const registrarCasbin = async (

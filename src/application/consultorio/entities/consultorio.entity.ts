@@ -9,16 +9,16 @@ import {
 } from 'typeorm'
 import 'bootstrap/env'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
-import { AgrupadorEstado } from '../constants'
-import { Cita } from './cita.entity'
+import { ConsultorioEstado } from '../constants'
+import { Cita } from '@/application/citas/entities/cita.entity'
 
-@Check(UtilService.buildStatusCheck(AgrupadorEstado))
-@Entity({ name: 'citas_agrupadores', schema: process.env.DB_SCHEMA })
-export class Agrupador extends AuditoriaEntity {
+@Check(UtilService.buildStatusCheck(ConsultorioEstado))
+@Entity({ name: 'consultorio', schema: process.env.DB_SCHEMA })
+export class Consultorio extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla de agrupadores de citas',
+    comment: 'Clave primaria de la tabla de consultorio de citas',
   })
   id: string
 
@@ -27,16 +27,16 @@ export class Agrupador extends AuditoriaEntity {
     length: 120,
     unique: true,
     nullable: false,
-    comment: 'Nombre legible del agrupador',
+    comment: 'Nombre consultorio',
   })
   nombre: string
 
   @Column({
     type: 'text',
     nullable: true,
-    comment: 'Descripción opcional del agrupador',
+    comment: 'Descripción opcional del consultorio',
   })
-  descripcion?: string | null
+  descripcion?: string
 
   @Column({
     name: 'color_hex',
@@ -47,16 +47,16 @@ export class Agrupador extends AuditoriaEntity {
   })
   colorHex: string
 
-  @OneToMany(() => Cita, (cita) => cita.agrupador)
+  @OneToMany(() => Cita, (cita) => cita.consultorio)
   citas: Cita[]
 
-  constructor(data?: Partial<Agrupador>) {
+  constructor(data?: Partial<Consultorio>) {
     super(data)
     Object.assign(this, data)
   }
 
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || AgrupadorEstado.ACTIVO
+    this.estado = this.estado || ConsultorioEstado.ACTIVO
   }
 }
