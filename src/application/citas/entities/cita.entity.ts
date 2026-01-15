@@ -18,6 +18,8 @@ import { HistorialCita } from './cita-historial.entity'
 import { CitasEstado } from '../constants'
 import { Notificacion } from './notificacion.entity'
 import { Consultorio } from '@/application/consultorio/entities/consultorio.entity'
+import { Especialidad } from '@/application/personal/entities/especialidad.entity'
+import { Estudio } from '@/application/estudio/entities/estudio.entity'
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
 @Entity({ name: 'citas', schema: process.env.DB_SCHEMA })
@@ -159,6 +161,43 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
 
   @OneToMany(() => Notificacion, (notificacion) => notificacion.cita)
   notificacion: Notificacion[]
+
+  @Column({
+    name: 'id_especialidad',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Clave foránea que referencia al consultorio asociado a la cita',
+  })
+  idEspecialidad?: string | null
+
+  @ManyToOne(() => Especialidad, (especialidad) => especialidad.citas, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_especialidad', referencedColumnName: 'id' })
+  especialidad?: Especialidad | null
+
+  @Column({
+    name: 'es_estudio',
+    type: 'boolean',
+    nullable: false,
+    comment: 'Indica si la cita es para un estudio',
+    default: false,
+  })
+  esEstudio: boolean
+
+  @Column({
+    name: 'id_estudio',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Clave foránea que referencia al estudio asociado a la cita',
+  })
+  idEstudio?: string | null
+
+  @ManyToOne(() => Estudio, (estudio) => estudio.citas, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_estudio', referencedColumnName: 'id' })
+  estudio?: Estudio | null
 
   @BeforeInsert()
   insertarEstado() {
