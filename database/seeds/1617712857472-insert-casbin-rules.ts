@@ -34,6 +34,17 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.PERSONAL_MEDICO]: 'read',
         [RolEnum.PACIENTE]: 'read',
       },
+      '/admin/especialidades': {
+        [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      },
+      '/admin/estudios': {
+        [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+      },
+      '/admin/citas': {
+        [RolEnum.ADMINISTRADOR]: 'read',
+        [RolEnum.SUPERVISOR]: 'read',
+        [RolEnum.PERSONAL_MEDICO]: 'read',
+      },
       // '/admin/roles': {
       //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       // },

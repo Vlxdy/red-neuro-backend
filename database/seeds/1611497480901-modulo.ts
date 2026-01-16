@@ -215,6 +215,26 @@ export class modulo1611497480901 implements MigrationInterface {
             },
           },
           {
+            nombre: 'especialidades',
+            url: '/admin/especialidades',
+            label: 'Especialidades',
+            propiedades: {
+              icono: 'medical_services',
+              descripcion: 'Control de especialidades del sistema',
+              orden: 1,
+            },
+          },
+          {
+            nombre: 'estudios',
+            url: '/admin/estudios',
+            label: 'Estudios',
+            propiedades: {
+              icono: 'medical_services',
+              descripcion: 'Control de estudios del sistema',
+              orden: 1,
+            },
+          },
+          {
             nombre: 'nutricionistas',
             url: '/admin/nutricionistas',
             label: 'Nutricionistas',

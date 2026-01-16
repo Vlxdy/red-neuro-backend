@@ -16,7 +16,6 @@ import {
   BaseResponseDto,
   BaseResponseListRowsDto,
 } from '@/common/dto/swagger/base-response.dto'
-import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import {
   ApiBaseResponse,
@@ -36,7 +35,7 @@ import { formatearEspecialidad } from '../utils/formateo-especialidad.utils'
 @Controller('especialidades')
 @ApiTags('Especialidades')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, CasbinGuard)
+@UseGuards(JwtAuthGuard)
 export class EspecialidadController extends BaseController {
   constructor(private readonly especialidadService: EspecialidadService) {
     super()
