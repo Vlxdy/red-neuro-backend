@@ -11,6 +11,7 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import 'bootstrap/env'
 import { EstudioEstado } from '../constants'
 import { Cita } from '@/application/citas/entities/cita.entity'
+import { EstudioEspecialidad } from './estudio-especialidad.entity'
 
 @Check(UtilService.buildStatusCheck(EstudioEstado))
 @Entity({ name: 'estudio', schema: process.env.DB_SCHEMA })
@@ -50,6 +51,12 @@ export class Estudio extends AuditoriaEntity<EstudioEstado> {
 
   @OneToMany(() => Cita, (cita) => cita.estudio)
   citas: Cita[]
+
+  @OneToMany(
+    () => EstudioEspecialidad,
+    (estudioEspecialidad) => estudioEspecialidad.estudio
+  )
+  estudioEspecialidades: EstudioEspecialidad[]
 
   @BeforeInsert()
   insertarEstado() {
