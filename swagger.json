@@ -2511,6 +2511,726 @@
         ]
       }
     },
+    "/estudios": {
+      "get": {
+        "operationId": "EstudioController_listar",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "number"
+                            },
+                            "filas": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/EstudioResponseDto"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista los estudios médicos configurados",
+        "tags": [
+          "Estudios"
+        ]
+      },
+      "post": {
+        "operationId": "EstudioController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearEstudioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EstudioResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crea un nuevo estudio médico",
+        "tags": [
+          "Estudios"
+        ]
+      }
+    },
+    "/estudios/{id}": {
+      "get": {
+        "operationId": "EstudioController_obtenerPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EstudioResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtiene el detalle de un estudio médico",
+        "tags": [
+          "Estudios"
+        ]
+      },
+      "patch": {
+        "operationId": "EstudioController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarEstudioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EstudioResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la información de un estudio médico",
+        "tags": [
+          "Estudios"
+        ]
+      },
+      "delete": {
+        "operationId": "EstudioController_eliminar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EstudioResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Elimina un estudio médico",
+        "tags": [
+          "Estudios"
+        ]
+      }
+    },
+    "/estudios/{id}/cambiar-estado": {
+      "patch": {
+        "operationId": "EstudioController_cambiarEstado",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EstudioResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cambiar estado del estudio médico",
+        "tags": [
+          "Estudios"
+        ]
+      }
+    },
+    "/estudios/{id}/especialidades": {
+      "post": {
+        "operationId": "EstudioController_asignarEspecialidad",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignarEspecialidadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EstudioResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Asocia una especialidad a un estudio médico",
+        "tags": [
+          "Estudios"
+        ]
+      }
+    },
+    "/especialidades": {
+      "get": {
+        "operationId": "EspecialidadController_listar",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "number"
+                            },
+                            "filas": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/EspecialidadResponseDto"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista las especialidades médicas configuradas",
+        "tags": [
+          "Especialidades"
+        ]
+      },
+      "post": {
+        "operationId": "EspecialidadController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearEspecialidadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EspecialidadResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crea una nueva especialidad médica",
+        "tags": [
+          "Especialidades"
+        ]
+      }
+    },
+    "/especialidades/{id}": {
+      "get": {
+        "operationId": "EspecialidadController_obtenerPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EspecialidadResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtiene el detalle de una especialidad médica",
+        "tags": [
+          "Especialidades"
+        ]
+      },
+      "patch": {
+        "operationId": "EspecialidadController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarEspecialidadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EspecialidadResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la información de una especialidad",
+        "tags": [
+          "Especialidades"
+        ]
+      },
+      "delete": {
+        "operationId": "EspecialidadController_eliminar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EspecialidadResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Elimina una especialidad médica",
+        "tags": [
+          "Especialidades"
+        ]
+      }
+    },
+    "/especialidades/{id}/cambiar-estado": {
+      "patch": {
+        "operationId": "EspecialidadController_cambiarEstado",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/EspecialidadResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cambiar estado de la especialidad",
+        "tags": [
+          "Especialidades"
+        ]
+      }
+    },
     "/docs/errors/estructura": {
       "get": {
         "description": "Todos los errores de la API siguen esta estructura JSON.",
@@ -3765,6 +4485,257 @@
           "estado": {
             "type": "string",
             "description": "Permite reactivar o desactivar el consultorio",
+            "example": "ACTIVO"
+          }
+        }
+      },
+      "EspecialidadResumenDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador único de la especialidad",
+            "example": "12"
+          },
+          "nombre": {
+            "type": "string",
+            "description": "Nombre visible de la especialidad médica",
+            "example": "Cardiología"
+          },
+          "colorHex": {
+            "type": "string",
+            "description": "Color principal de la especialidad en formato hexadecimal",
+            "example": "#0ea5e9"
+          }
+        },
+        "required": [
+          "id",
+          "nombre",
+          "colorHex"
+        ]
+      },
+      "EstudioResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador único del estudio médico",
+            "example": "8"
+          },
+          "nombre": {
+            "type": "string",
+            "description": "Nombre identificador del estudio médico",
+            "example": "Ecografía abdominal"
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción funcional del estudio",
+            "example": "Evaluación ecográfica de órganos abdominales"
+          },
+          "duracionMinutos": {
+            "type": "number",
+            "description": "Duración estimada del estudio en minutos",
+            "example": 30
+          },
+          "estado": {
+            "type": "string",
+            "description": "Estado del registro",
+            "example": "ACTIVO"
+          },
+          "especialidades": {
+            "description": "Especialidades asociadas al estudio",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EspecialidadResumenDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "nombre",
+          "descripcion",
+          "duracionMinutos",
+          "estado",
+          "especialidades"
+        ]
+      },
+      "CrearEstudioDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "description": "Nombre identificador del estudio médico",
+            "example": "Ecografía abdominal"
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción funcional del estudio",
+            "example": "Evaluación ecográfica de órganos abdominales"
+          },
+          "duracionMinutos": {
+            "type": "number",
+            "description": "Duración estimada del estudio en minutos",
+            "example": 30
+          }
+        },
+        "required": [
+          "nombre",
+          "descripcion",
+          "duracionMinutos"
+        ]
+      },
+      "ActualizarEstudioDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "description": "Nombre identificador del estudio médico",
+            "example": "Ecografía abdominal"
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción funcional del estudio",
+            "example": "Evaluación ecográfica de órganos abdominales"
+          },
+          "duracionMinutos": {
+            "type": "number",
+            "description": "Duración estimada del estudio en minutos",
+            "example": 30
+          },
+          "estado": {
+            "type": "string",
+            "description": "Permite reactivar o desactivar el estudio",
+            "example": "ACTIVO"
+          }
+        }
+      },
+      "AsignarEspecialidadDto": {
+        "type": "object",
+        "properties": {
+          "especialidadId": {
+            "type": "string",
+            "description": "Identificador de la especialidad a asociar al estudio",
+            "example": "2"
+          }
+        },
+        "required": [
+          "especialidadId"
+        ]
+      },
+      "EstudioResumenDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador único del estudio médico",
+            "example": "5"
+          },
+          "nombre": {
+            "type": "string",
+            "description": "Nombre identificador del estudio médico",
+            "example": "Radiografía de tórax"
+          },
+          "duracionMinutos": {
+            "type": "number",
+            "description": "Duración estimada del estudio en minutos",
+            "example": 20
+          }
+        },
+        "required": [
+          "id",
+          "nombre",
+          "duracionMinutos"
+        ]
+      },
+      "EspecialidadResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador único de la especialidad médica",
+            "example": "12"
+          },
+          "nombre": {
+            "type": "string",
+            "description": "Nombre visible de la especialidad médica",
+            "example": "Cardiología"
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción opcional de la especialidad médica",
+            "example": "Especialidad dedicada al diagnóstico de enfermedades cardíacas"
+          },
+          "estado": {
+            "type": "string",
+            "description": "Estado del registro",
+            "example": "ACTIVO"
+          },
+          "colorHex": {
+            "type": "string",
+            "description": "Color principal de la especialidad en formato hexadecimal",
+            "example": "#0ea5e9"
+          },
+          "estudios": {
+            "description": "Estudios asociados a la especialidad",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EstudioResumenDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "nombre",
+          "estado",
+          "colorHex",
+          "estudios"
+        ]
+      },
+      "CrearEspecialidadDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "description": "Nombre visible de la especialidad médica",
+            "example": "Cardiología"
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción opcional de la especialidad médica",
+            "example": "Especialidad dedicada al diagnóstico de enfermedades cardíacas"
+          },
+          "colorHex": {
+            "type": "string",
+            "description": "Color principal de la especialidad en formato hexadecimal",
+            "example": "#0ea5e9"
+          }
+        },
+        "required": [
+          "nombre",
+          "colorHex"
+        ]
+      },
+      "ActualizarEspecialidadDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "description": "Nombre visible de la especialidad médica",
+            "example": "Cardiología"
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción opcional de la especialidad médica",
+            "example": "Especialidad dedicada al diagnóstico de enfermedades cardíacas"
+          },
+          "colorHex": {
+            "type": "string",
+            "description": "Color principal de la especialidad en formato hexadecimal",
+            "example": "#0ea5e9"
+          },
+          "estado": {
+            "type": "string",
+            "description": "Permite reactivar o desactivar la especialidad",
             "example": "ACTIVO"
           }
         }

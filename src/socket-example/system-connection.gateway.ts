@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 
-import { AsyncApiSub } from 'nestjs-asyncapi'
+// import { AsyncApiSub } from 'nestjs-asyncapi'
 import { LoggerService } from '@/core/logger'
 import { SystemPingDto, SystemPongDto } from './dto/system-connection.dto'
 
@@ -34,14 +34,14 @@ export class SystemConnectionGateway
   }
 
   // ====== CLIENTE → SERVIDOR ======
-  @AsyncApiSub({
-    channel: 'system:ping',
-    summary: 'El cliente prueba la conexión con el sistema',
-    message: {
-      name: 'SystemPing',
-      payload: SystemPingDto,
-    },
-  })
+  // @AsyncApiSub({
+  //   channel: 'system:ping',
+  //   summary: 'El cliente prueba la conexión con el sistema',
+  //   message: {
+  //     name: 'SystemPing',
+  //     payload: SystemPingDto,
+  //   },
+  // })
   @SubscribeMessage('system:ping')
   handlePing(
     @ConnectedSocket() client: Socket,

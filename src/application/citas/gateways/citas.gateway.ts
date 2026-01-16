@@ -8,7 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { AsyncApiPub, AsyncApiSub } from 'nestjs-asyncapi'
+// import { AsyncApiPub, AsyncApiSub } from 'nestjs-asyncapi'
 import { LoggerService } from '@/core/logger'
 import { CitasMedicasService } from '../services/citas-medicas.service'
 import {
@@ -38,17 +38,17 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.warn(`Cliente desconectado de /citas: ${client.id}`)
   }
 
-  @AsyncApiSub({
-    channel: 'citas:create',
-    summary: 'Crear cita vía socket',
-    description:
-      'Permite al cliente crear citas y recibir la confirmación broadcast',
-    message: { name: 'CrearCitaSocket', payload: MensajeCitaDto },
-  })
-  @AsyncApiPub({
-    channel: 'citas:created',
-    message: { name: 'CitaCreada', payload: MensajeCitaDto },
-  })
+  // @AsyncApiSub({
+  //   channel: 'citas:create',
+  //   summary: 'Crear cita vía socket',
+  //   description:
+  //     'Permite al cliente crear citas y recibir la confirmación broadcast',
+  //   message: { name: 'CrearCitaSocket', payload: MensajeCitaDto },
+  // })
+  // @AsyncApiPub({
+  //   channel: 'citas:created',
+  //   message: { name: 'CitaCreada', payload: MensajeCitaDto },
+  // })
   @SubscribeMessage('citas:create')
   async crearCita(
     @ConnectedSocket() client: Socket,
@@ -60,15 +60,15 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return cita
   }
 
-  @AsyncApiSub({
-    channel: 'citas:estado',
-    summary: 'Cambiar estado de cita',
-    message: { name: 'ActualizarEstadoCita', payload: MensajeEstadoCitaDto },
-  })
-  @AsyncApiPub({
-    channel: 'citas:estado-actualizado',
-    message: { name: 'CitaEstadoActualizado', payload: MensajeEstadoCitaDto },
-  })
+  // @AsyncApiSub({
+  //   channel: 'citas:estado',
+  //   summary: 'Cambiar estado de cita',
+  //   message: { name: 'ActualizarEstadoCita', payload: MensajeEstadoCitaDto },
+  // })
+  // @AsyncApiPub({
+  //   channel: 'citas:estado-actualizado',
+  //   message: { name: 'CitaEstadoActualizado', payload: MensajeEstadoCitaDto },
+  // })
   @SubscribeMessage('citas:estado')
   async actualizarEstado(
     @ConnectedSocket() client: Socket,
@@ -85,15 +85,15 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return cita
   }
 
-  @AsyncApiSub({
-    channel: 'citas:reprogramar',
-    summary: 'Reprograma una cita',
-    message: { name: 'ReprogramarCita', payload: MensajeReprogramarCitaDto },
-  })
-  @AsyncApiPub({
-    channel: 'citas:reprogramada',
-    message: { name: 'CitaReprogramada', payload: MensajeReprogramarCitaDto },
-  })
+  // @AsyncApiSub({
+  //   channel: 'citas:reprogramar',
+  //   summary: 'Reprograma una cita',
+  //   message: { name: 'ReprogramarCita', payload: MensajeReprogramarCitaDto },
+  // })
+  // @AsyncApiPub({
+  //   channel: 'citas:reprogramada',
+  //   message: { name: 'CitaReprogramada', payload: MensajeReprogramarCitaDto },
+  // })
   @SubscribeMessage('citas:reprogramar')
   async reprogramar(
     @ConnectedSocket() client: Socket,
@@ -107,15 +107,15 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return cita
   }
 
-  @AsyncApiSub({
-    channel: 'citas:cancelar',
-    summary: 'Cancela una cita',
-    message: { name: 'CancelarCita', payload: MensajeCancelarCitaDto },
-  })
-  @AsyncApiPub({
-    channel: 'citas:cancelada',
-    message: { name: 'CitaCancelada', payload: MensajeCancelarCitaDto },
-  })
+  // @AsyncApiSub({
+  //   channel: 'citas:cancelar',
+  //   summary: 'Cancela una cita',
+  //   message: { name: 'CancelarCita', payload: MensajeCancelarCitaDto },
+  // })
+  // @AsyncApiPub({
+  //   channel: 'citas:cancelada',
+  //   message: { name: 'CitaCancelada', payload: MensajeCancelarCitaDto },
+  // })
   @SubscribeMessage('citas:cancelar')
   async cancelar(
     @ConnectedSocket() client: Socket,

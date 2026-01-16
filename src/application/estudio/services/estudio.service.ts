@@ -110,10 +110,8 @@ export class EstudioService extends BaseService {
     const estudio = await this.obtenerEstudioPorId(id, transaccion)
     await this.estudioRepository.eliminarEstudio(id, transaccion)
 
-    return formatearEstudio({
-      ...estudio,
-      usuarioModificacion: usuarioAuditoria,
-    })
+    estudio.usuarioModificacion = usuarioAuditoria
+    return formatearEstudio(estudio)
   }
 
   async cambiarEstadoEstudio(

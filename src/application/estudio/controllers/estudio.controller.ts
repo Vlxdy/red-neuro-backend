@@ -16,7 +16,6 @@ import {
   BaseResponseDto,
   BaseResponseListRowsDto,
 } from '@/common/dto/swagger/base-response.dto'
-import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import {
   ApiBaseResponse,
@@ -32,11 +31,13 @@ import {
   EstudioResponseDto,
 } from '../dto/estudio.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { formatearEstudio } from '../utils/formateo.estudio'
 
 @Controller('estudios')
 @ApiTags('Estudios')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, CasbinGuard)
+// @UseGuards(JwtAuthGuard, CasbinGuard)
+@UseGuards(JwtAuthGuard)
 export class EstudioController extends BaseController {
   constructor(private readonly estudioService: EstudioService) {
     super()
@@ -59,7 +60,7 @@ export class EstudioController extends BaseController {
     @Param() { id }: ParamIdDto
   ): Promise<BaseResponseDto<EstudioResponseDto>> {
     const resultado = await this.estudioService.obtenerEstudioPorId(id)
-    return this.success(resultado)
+    return this.success(formatearEstudio(resultado))
   }
 
   @ApiOperation({ summary: 'Crea un nuevo estudio médico' })

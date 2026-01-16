@@ -31,6 +31,7 @@ import {
   EspecialidadResponseDto,
 } from '../dto/especialidad.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { formatearEspecialidad } from '../utils/formateo-especialidad.utils'
 
 @Controller('especialidades')
 @ApiTags('Especialidades')
@@ -60,7 +61,7 @@ export class EspecialidadController extends BaseController {
   ): Promise<BaseResponseDto<EspecialidadResponseDto>> {
     const resultado =
       await this.especialidadService.obtenerEspecialidadPorId(id)
-    return this.success(resultado)
+    return this.success(formatearEspecialidad(resultado))
   }
 
   @ApiOperation({ summary: 'Crea una nueva especialidad médica' })

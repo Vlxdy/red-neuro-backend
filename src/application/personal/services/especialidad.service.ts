@@ -123,10 +123,8 @@ export class EspecialidadService extends BaseService {
     const especialidad = await this.obtenerEspecialidadPorId(id, transaccion)
     await this.especialidadRepository.eliminarEspecialidad(id, transaccion)
 
-    return formatearEspecialidad({
-      ...especialidad,
-      usuarioModificacion: usuarioAuditoria,
-    })
+    especialidad.usuarioModificacion = usuarioAuditoria
+    return formatearEspecialidad(especialidad)
   }
 
   async cambiarEstadoEspecialidad(
