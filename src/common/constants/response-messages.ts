@@ -64,4 +64,8 @@ export enum Messages {
 
   // Mensajes de consultorio
   CONSULTORIO_NOT_FOUND = 'El consultorio no se encuentra registrado.',
+
+  // Mensajes de estudios y especialidades
+  ESTUDIO_NOT_FOUND = 'El estudio no se encuentra registrado.',
+  ESPECIALIDAD_NOT_FOUND = 'La especialidad no se encuentra registrada.',
 }
