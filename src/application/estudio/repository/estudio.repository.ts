@@ -66,6 +66,59 @@ export class EstudioRepository {
     return await query.getManyAndCount()
   }
 
+  async listarEstudiosPorEspecialidadPaginado(
+    especialidadId: string,
+    paginacionQuery: PaginacionQueryDto
+  ) {
+    const { limite, saltar, filtro, orden, sentido } = paginacionQuery
+
+    const query = this.estudioRepository()
+      .createQueryBuilder('estudio')
+      .innerJoin(
+        'estudio.estudioEspecialidades',
+        'estudioEspecialidadFiltro',
+        'estudioEspecialidadFiltro.especialidadId = :especialidadId',
+        { especialidadId }
+      )
+      .leftJoinAndSelect('estudio.estudioEspecialidades', 'estudioEspecialidad')
+      .leftJoinAndSelect('estudioEspecialidad.especialidad', 'especialidad')
+      .distinct(true)
+      .take(limite)
+      .skip(saltar)
+
+    switch (orden) {
+      case 'nombre':
+        query.addOrderBy('estudio.nombre', sentido)
+        break
+      case 'descripcion':
+        query.addOrderBy('estudio.descripcion', sentido)
+        break
+      case 'duracionMinutos':
+        query.addOrderBy('estudio.duracionMinutos', sentido)
+        break
+      case 'estado':
+        query.addOrderBy('estudio.estado', sentido)
+        break
+      default:
+        query.addOrderBy('estudio.id', 'ASC')
+    }
+
+    if (filtro) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.orWhere('estudio.nombre ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+          qb.orWhere('estudio.descripcion ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
+        })
+      )
+    }
+
+    return await query.getManyAndCount()
+  }
+
   async obtenerEstudioPorId(id: string, manager?: EntityManager) {
     return await this.estudioRepository(manager).findOne({
       where: { id },
