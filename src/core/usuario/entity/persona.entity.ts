@@ -27,15 +27,6 @@ export class Persona extends AuditoriaEntity {
   id: string
 
   @Column({
-    name: 'uuid_ciudadano',
-    type: 'uuid',
-    nullable: true,
-    unique: true,
-    comment: 'UUID de Ciudadanía Digital',
-  })
-  uuidCiudadano?: string | null
-
-  @Column({
     length: 100,
     type: 'varchar',
     nullable: true,
@@ -71,18 +62,11 @@ export class Persona extends AuditoriaEntity {
   tipoDocumento: string
 
   @Column({
-    name: 'tipo_documento_otro',
-    type: 'varchar',
-    length: 50,
-    nullable: true,
-    comment: 'Otro tipo de documento de la persona, si existe',
-  })
-  tipoDocumentoOtro?: string | null
-
-  @Column({
     name: 'nro_documento',
     length: 50,
     comment: 'Número de documento de la persona',
+    nullable: true,
+    type: 'varchar',
   })
   nroDocumento: string
 
