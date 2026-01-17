@@ -30,6 +30,25 @@ export class EstudioService extends BaseService {
     return [formatearEstudios(estudios), total]
   }
 
+  async listarEstudiosPorEspecialidad(
+    especialidadId: string,
+    paginacionQuery: PaginacionQueryDto
+  ): Promise<[EstudioResponseDto[], number]> {
+    const especialidad =
+      await this.estudioRepository.obtenerEspecialidadPorId(especialidadId)
+
+    if (!especialidad) {
+      throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
+    }
+
+    const [estudios, total] =
+      await this.estudioRepository.listarEstudiosPorEspecialidadPaginado(
+        especialidadId,
+        paginacionQuery
+      )
+    return [formatearEstudios(estudios), total]
+  }
+
   async obtenerEstudioPorId(id: string, transaccion?: EntityManager) {
     const estudio = await this.estudioRepository.obtenerEstudioPorId(
       id,

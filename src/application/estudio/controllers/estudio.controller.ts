@@ -53,6 +53,22 @@ export class EstudioController extends BaseController {
     return this.successListRows(resultado)
   }
 
+  @ApiOperation({
+    summary: 'Lista los estudios médicos paginados por especialidad',
+  })
+  @ApiBaseResponseListRows(EstudioResponseDto)
+  @Get('especialidades/:id')
+  async listarPorEspecialidad(
+    @Param() { id }: ParamIdDto,
+    @Query() paginacionQuery: PaginacionQueryDto
+  ): Promise<BaseResponseListRowsDto<EstudioResponseDto>> {
+    const resultado = await this.estudioService.listarEstudiosPorEspecialidad(
+      id,
+      paginacionQuery
+    )
+    return this.successListRows(resultado)
+  }
+
   @ApiOperation({ summary: 'Obtiene el detalle de un estudio médico' })
   @ApiBaseResponse(EstudioResponseDto)
   @Get(':id')
