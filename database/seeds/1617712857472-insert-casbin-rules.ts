@@ -133,6 +133,11 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.SUPERVISOR]: 'GET|PATCH',
         [RolEnum.PERSONAL_MEDICO]: 'GET',
       },
+      '/api/citas/paginado': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.SUPERVISOR]: 'GET',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
       '/api/citas/:id/estado': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
         [RolEnum.SUPERVISOR]: 'PATCH',
@@ -156,6 +161,42 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
       },
       '/api/consultorios/:id/cambiar-estado': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+      },
+      // ESTUDIOS MÉDICOS
+      '/api/estudios': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.SUPERVISOR]: 'GET',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
+      '/api/estudios/especialidades/:id': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.SUPERVISOR]: 'GET',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
+      '/api/estudios/:id': {
+        [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
+        [RolEnum.SUPERVISOR]: 'GET',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
+      '/api/estudios/:id/especialidades': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/estudios/:id/cambiar-estado': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+      },
+      // ESPECIALIDADES MÉDICAS
+      '/api/especialidades': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.SUPERVISOR]: 'GET',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
+      '/api/especialidades/:id': {
+        [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
+        [RolEnum.SUPERVISOR]: 'GET',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
+      '/api/especialidades/:id/cambiar-estado': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
       },
     }

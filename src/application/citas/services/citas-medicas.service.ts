@@ -81,8 +81,14 @@ export class CitasMedicasService extends BaseService {
     return await this.listarCitas({ ...filtros })
   }
 
-  async obtenerCita(id: string): Promise<CitaResponseDto> {
-    const cita = await this.citasRepository.obtenerCitaConRelaciones(id)
+  async obtenerCita(
+    id: string,
+    transaccion?: EntityManager
+  ): Promise<CitaResponseDto> {
+    const cita = await this.citasRepository.obtenerCitaConRelaciones(
+      id,
+      transaccion
+    )
     if (!cita) {
       throw new NotFoundException('La cita solicitada no existe')
     }
@@ -163,7 +169,7 @@ export class CitasMedicasService extends BaseService {
       throw new BadRequestException('No fue posible registrar la cita')
     }
 
-    return await this.obtenerCita(citaId)
+    return await this.obtenerCita(citaId, transaccion)
   }
 
   async actualizarCita(

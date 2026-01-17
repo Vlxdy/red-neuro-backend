@@ -31,11 +31,12 @@ import {
 } from '../dto/especialidad.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { formatearEspecialidad } from '../utils/formateo-especialidad.utils'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 @Controller('especialidades')
 @ApiTags('Especialidades')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CasbinGuard)
 export class EspecialidadController extends BaseController {
   constructor(private readonly especialidadService: EspecialidadService) {
     super()

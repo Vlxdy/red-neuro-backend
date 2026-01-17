@@ -32,12 +32,12 @@ import {
 } from '../dto/estudio.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { formatearEstudio } from '../utils/formateo.estudio'
+import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 @Controller('estudios')
 @ApiTags('Estudios')
 @ApiBearerAuth()
-// @UseGuards(JwtAuthGuard, CasbinGuard)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CasbinGuard)
 export class EstudioController extends BaseController {
   constructor(private readonly estudioService: EstudioService) {
     super()
