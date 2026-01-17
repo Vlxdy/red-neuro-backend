@@ -128,19 +128,19 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
   medico: UsuarioRol
 
-  // @Column({
-  //   name: 'id_paciente',
-  //   type: 'bigint',
-  //   nullable: false,
-  //   comment: 'Clave foránea que referencia al paciente',
-  // })
-  // idPaciente: string
+  @Column({
+    name: 'id_paciente',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Clave foránea que referencia al paciente',
+  })
+  idPaciente?: string | null
 
-  // @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.citasPaciente, {
-  //   onDelete: 'CASCADE',
-  // })
-  // @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
-  // paciente: UsuarioRol
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.citasPaciente, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
+  paciente?: UsuarioRol | null
 
   @Column({
     name: 'id_consultorio',
@@ -153,7 +153,7 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   @ManyToOne(() => Consultorio, (consultorio) => consultorio.citas, {
     onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'id_agrupador', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'id_consultorio', referencedColumnName: 'id' })
   consultorio?: Consultorio | null
 
   @OneToMany(() => HistorialCita, (historialCita) => historialCita.cita)
