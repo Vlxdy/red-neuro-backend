@@ -1,6 +1,21 @@
-import { PersonalResponseDto } from '../dto/personal.dto'
+import {
+  EspecialidadPersonalDto,
+  PersonalResponseDto,
+} from '../dto/personal.dto'
 import dayjs from 'dayjs'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+
+const formatearEspecialidadPersonal = (
+  especialidad: UsuarioRol['usuarioRolEspecialidades'][number]['especialidad']
+): EspecialidadPersonalDto => {
+  return {
+    id: especialidad.id,
+    nombre: especialidad.nombre,
+    descripcion: especialidad.descripcion,
+    estado: especialidad.estado,
+    colorHex: especialidad.colorHex,
+  }
+}
 
 export function formatearPersonal(usuarioRol: UsuarioRol): PersonalResponseDto {
   const { usuario } = usuarioRol
@@ -15,7 +30,10 @@ export function formatearPersonal(usuarioRol: UsuarioRol): PersonalResponseDto {
     correoElectronico: usuario.correoElectronico,
     genero: usuario.persona.genero,
     urlFoto: usuario.urlFoto,
-    // especialidades: usuario.especialidades,
+    especialidades:
+      usuarioRol.usuarioRolEspecialidades?.map((usuarioEspecialidad) =>
+        formatearEspecialidadPersonal(usuarioEspecialidad.especialidad)
+      ) ?? [],
   }
 }
 

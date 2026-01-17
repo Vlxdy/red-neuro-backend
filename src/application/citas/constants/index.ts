@@ -21,3 +21,8 @@ export enum EtiquetaEstado {
   INACTIVO = Status.INACTIVE,
   ACTIVO = Status.ACTIVE,
 }
+
+export enum TipoCita {
+  CONSULTA = 'CONSULTA',
+  ESTUDIO = 'ESTUDIO',
+}

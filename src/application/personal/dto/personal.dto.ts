@@ -1,5 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger'
 
+export class EspecialidadPersonalDto {
+  @ApiProperty({
+    description: 'Identificador único de la especialidad médica',
+    example: '12',
+  })
+  id!: string
+
+  @ApiProperty({
+    description: 'Nombre visible de la especialidad médica',
+    example: 'Cardiología',
+  })
+  nombre!: string
+
+  @ApiProperty({
+    description: 'Descripción opcional de la especialidad médica',
+    example: 'Especialidad dedicada al diagnóstico de enfermedades cardíacas',
+    required: false,
+  })
+  descripcion?: string
+
+  @ApiProperty({ description: 'Estado del registro', example: 'ACTIVO' })
+  estado!: string
+
+  @ApiProperty({
+    description: 'Color principal de la especialidad en formato hexadecimal',
+    example: '#0ea5e9',
+  })
+  colorHex!: string
+}
+
 export class PersonalResponseDto {
   @ApiProperty({
     description: 'Identificador único del personal médico',
@@ -71,8 +101,9 @@ export class PersonalResponseDto {
 
   @ApiProperty({
     description: 'Especialidades médicas del profesional',
-    example: ['Pediatría', 'Neonatología'],
+    type: [EspecialidadPersonalDto],
+    example: [{ id: '1', nombre: 'Pediatría', colorHex: '#0ea5e9' }],
     required: false,
   })
-  especialidades?: string[]
+  especialidades?: EspecialidadPersonalDto[]
 }

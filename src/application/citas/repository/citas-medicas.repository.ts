@@ -3,14 +3,13 @@ import { DataSource, EntityManager, SelectQueryBuilder } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado } from '../constants'
 import {
-  ActualizarCitaDto,
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
-  CrearCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
+import { Estudio } from '@/application/estudio/entities/estudio.entity'
 
 @Injectable()
 export class CitasMedicasRepository {
@@ -26,11 +25,23 @@ export class CitasMedicasRepository {
   ): SelectQueryBuilder<Cita> {
     const query = this.citaRepository(manager)
       .createQueryBuilder('cita')
-      .leftJoinAndSelect('cita.citaEtiquetas', 'citaEtiqueta')
-      .leftJoinAndSelect('citaEtiqueta.etiqueta', 'etiqueta')
       .leftJoinAndSelect('cita.medico', 'medico')
       .leftJoinAndSelect('medico.usuario', 'usuarioMedico')
       .leftJoinAndSelect('usuarioMedico.persona', 'personaMedico')
+      .leftJoinAndSelect(
+        'medico.usuarioRolEspecialidades',
+        'medicoEspecialidad'
+      )
+      .leftJoinAndSelect(
+        'medicoEspecialidad.especialidad',
+        'especialidadMedico'
+      )
+      .leftJoinAndSelect('cita.paciente', 'paciente')
+      .leftJoinAndSelect('paciente.usuario', 'usuarioPaciente')
+      .leftJoinAndSelect('usuarioPaciente.persona', 'personaPaciente')
+      .leftJoinAndSelect('cita.consultorio', 'consultorio')
+      .leftJoinAndSelect('cita.especialidad', 'especialidad')
+      .leftJoinAndSelect('cita.estudio', 'estudio')
       .distinct(true)
 
     if (filtros.fechaInicio) {
@@ -79,17 +90,32 @@ export class CitasMedicasRepository {
   }
 
   async crearCita(
-    dto: CrearCitaDto,
+    data: {
+      detalle: string
+      fechaInicio: Date
+      fechaFin: Date
+      idMedico: string
+      idPaciente?: string | null
+      idConsultorio?: string | null
+      idEspecialidad?: string | null
+      idEstudio?: string | null
+      esEstudio: boolean
+    },
     usuarioAuditoria: string,
     transaccion: EntityManager
   ) {
     const cita = this.citaRepository(transaccion).create({
-      detalle: dto.detalle,
-      fechaInicio: new Date(dto.fechaInicio),
-      fechaFin: new Date(dto.fechaFin),
+      detalle: data.detalle,
+      fechaInicio: data.fechaInicio,
+      fechaFin: data.fechaFin,
       estado: CitasEstado.SOLICITADA,
       usuarioCreacion: usuarioAuditoria,
-      idMedico: dto.idMedico,
+      idMedico: data.idMedico,
+      idPaciente: data.idPaciente ?? null,
+      idConsultorio: data.idConsultorio ?? null,
+      idEspecialidad: data.idEspecialidad ?? null,
+      idEstudio: data.idEstudio ?? null,
+      esEstudio: data.esEstudio,
     })
 
     const guardada = await this.citaRepository(transaccion).save(cita)
@@ -99,17 +125,37 @@ export class CitasMedicasRepository {
 
   async actualizarCita(
     cita: Cita,
-    dto: ActualizarCitaDto,
+    data: {
+      detalle?: string
+      fechaInicio: Date
+      fechaFin: Date
+      idMedico?: string
+      idPaciente?: string | null
+      idConsultorio?: string | null
+      idEspecialidad?: string | null
+      idEstudio?: string | null
+      esEstudio: boolean
+    },
     usuarioAuditoria: string,
     transaccion: EntityManager
   ) {
     Object.assign(cita, {
-      detalle: dto.detalle ?? cita.detalle,
-      fechaInicio: dto.fechaInicio
-        ? new Date(dto.fechaInicio)
-        : cita.fechaInicio,
-      fechaFin: dto.fechaFin ? new Date(dto.fechaFin) : cita.fechaFin,
-      idMedico: dto.idMedico ?? cita.idMedico,
+      detalle: data.detalle ?? cita.detalle,
+      fechaInicio: data.fechaInicio,
+      fechaFin: data.fechaFin,
+      idMedico: data.idMedico ?? cita.idMedico,
+      idPaciente:
+        data.idPaciente !== undefined ? data.idPaciente : cita.idPaciente,
+      idConsultorio:
+        data.idConsultorio !== undefined
+          ? data.idConsultorio
+          : cita.idConsultorio,
+      idEspecialidad:
+        data.idEspecialidad !== undefined
+          ? data.idEspecialidad
+          : cita.idEspecialidad,
+      idEstudio: data.esEstudio ? (data.idEstudio ?? cita.idEstudio) : null,
+      esEstudio: data.esEstudio,
       usuarioModificacion: usuarioAuditoria,
     })
 
@@ -138,7 +184,7 @@ export class CitasMedicasRepository {
 
   async reprogramarCita(
     id: string,
-    dto: ReprogramarCitaDto,
+    dto: ReprogramarCitaDto & { fechaFin: Date },
     usuarioAuditoria: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
@@ -147,7 +193,7 @@ export class CitasMedicasRepository {
         return null
       }
       cita.fechaInicio = new Date(dto.fechaInicio)
-      cita.fechaFin = new Date(dto.fechaFin)
+      cita.fechaFin = dto.fechaFin
       cita.comentarioNutricionista = dto.comentario
       cita.estado =
         CitasEstado.RECHAZADA === cita.estado
@@ -179,5 +225,24 @@ export class CitasMedicasRepository {
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {
     return await this.dataSource.manager.transaction<T>(op)
+  }
+
+  async obtenerEstudioPorEspecialidad(
+    idEstudio: string,
+    idEspecialidad: string,
+    manager?: EntityManager
+  ) {
+    const entityManager = manager ?? this.dataSource.manager
+    return await entityManager
+      .getRepository(Estudio)
+      .createQueryBuilder('estudio')
+      .innerJoin(
+        'estudio.estudioEspecialidades',
+        'estudioEspecialidad',
+        'estudioEspecialidad.especialidadId = :idEspecialidad',
+        { idEspecialidad }
+      )
+      .where('estudio.id = :idEstudio', { idEstudio })
+      .getOne()
   }
 }

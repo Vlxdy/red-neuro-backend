@@ -5,6 +5,7 @@ import {
   NotFoundException,
   Inject,
 } from '@nestjs/common'
+import dayjs from 'dayjs'
 import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
@@ -20,6 +21,7 @@ import { CitasMedicasRepository } from '../repository/citas-medicas.repository'
 import { formatearCita, formatearCitas } from '../utils/formatear-citas'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
+import { TipoCita } from '../constants'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
@@ -28,6 +30,36 @@ export class CitasMedicasService extends BaseService {
     private readonly citasRepository: CitasMedicasRepository
   ) {
     super()
+  }
+
+  private obtenerDuracionConsultaMinutos(): number {
+    const duracion = Number(process.env.CITA_CONSULTA_DURACION_MINUTOS)
+    if (Number.isFinite(duracion) && duracion > 0) {
+      return duracion
+    }
+    return 15
+  }
+
+  private calcularFechaFin(fechaInicio: Date, duracionMinutos: number): Date {
+    return dayjs(fechaInicio).add(duracionMinutos, 'minute').toDate()
+  }
+
+  private async resolverDuracionEstudio(
+    idEstudio: string,
+    idEspecialidad: string,
+    transaccion?: EntityManager
+  ) {
+    const estudio = await this.citasRepository.obtenerEstudioPorEspecialidad(
+      idEstudio,
+      idEspecialidad,
+      transaccion
+    )
+    if (!estudio) {
+      throw new BadRequestException(
+        'El estudio seleccionado no pertenece a la especialidad indicada'
+      )
+    }
+    return estudio
   }
 
   // ===== Citas =====
@@ -80,8 +112,50 @@ export class CitasMedicasService extends BaseService {
       return await this.citasRepository.runTransaction(op)
     }
 
+    if (!dto.idEspecialidad) {
+      throw new BadRequestException('La especialidad es obligatoria')
+    }
+
+    const fechaInicio = new Date(dto.fechaInicio)
+    const tipoCita = dto.tipoCita
+    if (!tipoCita) {
+      throw new BadRequestException('El tipo de cita es obligatorio')
+    }
+    let fechaFin: Date
+    let idEstudio: string | null = null
+    let esEstudio = false
+
+    if (tipoCita === TipoCita.ESTUDIO) {
+      if (!dto.idEstudio) {
+        throw new BadRequestException(
+          'El estudio es obligatorio para una cita de tipo ESTUDIO'
+        )
+      }
+      const estudio = await this.resolverDuracionEstudio(
+        dto.idEstudio,
+        dto.idEspecialidad,
+        transaccion
+      )
+      fechaFin = this.calcularFechaFin(fechaInicio, estudio.duracionMinutos)
+      idEstudio = estudio.id
+      esEstudio = true
+    } else {
+      const duracion = this.obtenerDuracionConsultaMinutos()
+      fechaFin = this.calcularFechaFin(fechaInicio, duracion)
+    }
+
     const citaId = await this.citasRepository.crearCita(
-      dto,
+      {
+        detalle: dto.detalle,
+        fechaInicio,
+        fechaFin,
+        idMedico: dto.idMedico,
+        idPaciente: dto.idPaciente ?? null,
+        idConsultorio: dto.idConsultorio ?? null,
+        idEspecialidad: dto.idEspecialidad,
+        idEstudio,
+        esEstudio,
+      },
       usuarioAuditoria,
       transaccion
     )
@@ -111,9 +185,56 @@ export class CitasMedicasService extends BaseService {
     }
 
     const cita = await this.obtenerCitaId(id, transaccion)
+
+    const tipoCita = dto.tipoCita
+    const idEspecialidad = dto.idEspecialidad
+
+    if (!tipoCita) {
+      throw new BadRequestException('El tipo de cita es obligatorio')
+    }
+
+    if (!idEspecialidad) {
+      throw new BadRequestException('La especialidad es obligatoria')
+    }
+
+    const fechaInicio = new Date(dto.fechaInicio)
+
+    let fechaFin: Date
+    let idEstudio: string | null = null
+    let esEstudio = false
+
+    if (tipoCita === TipoCita.ESTUDIO) {
+      if (!dto.idEstudio) {
+        throw new BadRequestException(
+          'El estudio es obligatorio para una cita de tipo ESTUDIO'
+        )
+      }
+      const estudio = await this.resolverDuracionEstudio(
+        dto.idEstudio,
+        idEspecialidad,
+        transaccion
+      )
+      fechaFin = this.calcularFechaFin(fechaInicio, estudio.duracionMinutos)
+      idEstudio = estudio.id
+      esEstudio = true
+    } else {
+      const duracion = this.obtenerDuracionConsultaMinutos()
+      fechaFin = this.calcularFechaFin(fechaInicio, duracion)
+    }
+
     const actualizado = await this.citasRepository.actualizarCita(
       cita,
-      dto,
+      {
+        detalle: dto.detalle,
+        fechaInicio,
+        fechaFin,
+        idMedico: dto.idMedico,
+        idPaciente: dto.idPaciente,
+        idConsultorio: dto.idConsultorio,
+        idEspecialidad,
+        idEstudio,
+        esEstudio,
+      },
       usuarioAuditoria,
       transaccion
     )
@@ -145,9 +266,39 @@ export class CitasMedicasService extends BaseService {
     dto: ReprogramarCitaDto,
     usuarioAuditoria = '0'
   ): Promise<CitaResponseDto> {
+    const fechaInicio = new Date(dto.fechaInicio)
+    const tipoCita = dto.tipoCita
+
+    if (!tipoCita) {
+      throw new BadRequestException('El tipo de cita es obligatorio')
+    }
+
+    let fechaFin: Date
+    if (tipoCita === TipoCita.ESTUDIO) {
+      if (!dto.idEstudio) {
+        throw new BadRequestException(
+          'El estudio es obligatorio para una cita de tipo ESTUDIO'
+        )
+      }
+      const cita = await this.obtenerCitaId(id)
+      if (!cita.idEspecialidad) {
+        throw new BadRequestException(
+          'La especialidad es obligatoria para reprogramar una cita de estudio'
+        )
+      }
+      const estudio = await this.resolverDuracionEstudio(
+        dto.idEstudio,
+        cita.idEspecialidad
+      )
+      fechaFin = this.calcularFechaFin(fechaInicio, estudio.duracionMinutos)
+    } else {
+      const duracion = this.obtenerDuracionConsultaMinutos()
+      fechaFin = this.calcularFechaFin(fechaInicio, duracion)
+    }
+
     const actualizado = await this.citasRepository.reprogramarCita(
       id,
-      dto,
+      { ...dto, fechaFin },
       usuarioAuditoria
     )
     if (!actualizado) {
