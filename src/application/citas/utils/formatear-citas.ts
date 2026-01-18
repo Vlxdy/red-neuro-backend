@@ -53,8 +53,6 @@ export function formatearCita(cita: Cita): CitaResponseDto {
     estudioId: cita.idEstudio ?? undefined,
     estado: cita.estado,
     tipoCita: cita.esEstudio ? TipoCita.ESTUDIO : TipoCita.CONSULTA,
-    comentario: cita.comentarioNutricionista ?? undefined,
-    comentarioNutricionista: cita.comentarioNutricionista ?? undefined,
     medico: cita.medico ? formatearPersonal(cita.medico) : undefined,
     paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
     especialidad: formatearEspecialidad(cita.especialidad),

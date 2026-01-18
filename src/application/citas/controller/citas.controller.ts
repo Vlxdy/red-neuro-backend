@@ -156,10 +156,12 @@ export class CitasController extends BaseController {
     @Body() dto: CancelarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
+    const rolEjecutor = this.getRol(req)
     const resultado = await this.citasService.cancelarCita(
       id,
       dto,
-      usuarioAuditoria
+      usuarioAuditoria,
+      rolEjecutor
     )
     return this.successUpdate(resultado)
   }
