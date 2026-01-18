@@ -6,6 +6,7 @@ import {
 } from '../dto/cita.dto'
 import { Cita } from '../entities/cita.entity'
 import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
+import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
 import { formatearConsultorio } from '@/application/consultorio/utils/formateo.consultorio'
 import { TipoCita } from '../constants'
 
@@ -55,7 +56,7 @@ export function formatearCita(cita: Cita): CitaResponseDto {
     comentario: cita.comentarioNutricionista ?? undefined,
     comentarioNutricionista: cita.comentarioNutricionista ?? undefined,
     medico: cita.medico ? formatearPersonal(cita.medico) : undefined,
-    paciente: cita.paciente ? formatearPersonal(cita.paciente) : undefined,
+    paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
     especialidad: formatearEspecialidad(cita.especialidad),
     estudio: formatearEstudio(cita.estudio),
     consultorio: cita.consultorio

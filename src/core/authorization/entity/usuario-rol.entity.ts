@@ -68,9 +68,6 @@ export class UsuarioRol extends AuditoriaEntity {
   @OneToMany(() => Cita, (cita) => cita.medico)
   citasMedico: Cita[]
 
-  @OneToMany(() => Cita, (cita) => cita.paciente)
-  citasPaciente: Cita[]
-
   @OneToMany(
     () => UsuarioRolEspecialidad,
     (usuarioRolEspecialidad) => usuarioRolEspecialidad.usuarioRol

@@ -37,8 +37,6 @@ export class CitasMedicasRepository {
         'especialidadMedico'
       )
       .leftJoinAndSelect('cita.paciente', 'paciente')
-      .leftJoinAndSelect('paciente.usuario', 'usuarioPaciente')
-      .leftJoinAndSelect('usuarioPaciente.persona', 'personaPaciente')
       .leftJoinAndSelect('cita.consultorio', 'consultorio')
       .leftJoinAndSelect('cita.especialidad', 'especialidad')
       .leftJoinAndSelect('cita.estudio', 'estudio')

@@ -12,6 +12,7 @@ import {
 import 'bootstrap/env'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { Paciente } from '@/application/paciente/entities/paciente.entity'
 
 import { HistorialCita } from './cita-historial.entity'
 
@@ -136,11 +137,11 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   })
   idPaciente?: string | null
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.citasPaciente, {
+  @ManyToOne(() => Paciente, (paciente) => paciente.citas, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
-  paciente?: UsuarioRol | null
+  paciente?: Paciente | null
 
   @Column({
     name: 'id_consultorio',
