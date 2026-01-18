@@ -32,49 +32,45 @@ export class PacienteRepository {
       .take(limite)
       .skip(saltar)
 
-    switch (orden) {
-      case 'nombres':
-        query.addOrderBy('paciente.nombres', sentido)
-        break
-      case 'primerApellido':
-        query.addOrderBy('paciente.primerApellido', sentido)
-        break
-      case 'segundoApellido':
-        query.addOrderBy('paciente.segundoApellido', sentido)
-        break
-      case 'nroDocumento':
-        query.addOrderBy('paciente.nroDocumento', sentido)
-        break
-      case 'telefono':
-        query.addOrderBy('paciente.telefono', sentido)
-        break
-      case 'estado':
-        query.addOrderBy('paciente.estado', sentido)
-        break
-      default:
-        query.addOrderBy('paciente.id', 'ASC')
-    }
-
     if (filtro) {
+      const filtroNormalizado = filtro.trim()
+      const nombreCompleto = `concat_ws(' ', paciente.nombres, paciente.primerApellido, paciente.segundoApellido)`
+      query.addSelect(`similarity(${nombreCompleto}, :filtro)`, 'score')
       query.andWhere(
         new Brackets((qb) => {
-          qb.orWhere('paciente.nombres ilike :filtro', {
-            filtro: `%${filtro}%`,
-          })
-          qb.orWhere('paciente.primerApellido ilike :filtro', {
-            filtro: `%${filtro}%`,
-          })
-          qb.orWhere('paciente.segundoApellido ilike :filtro', {
-            filtro: `%${filtro}%`,
-          })
-          qb.orWhere('paciente.nroDocumento ilike :filtro', {
-            filtro: `%${filtro}%`,
-          })
-          qb.orWhere('paciente.telefono ilike :filtro', {
-            filtro: `%${filtro}%`,
-          })
+          qb.orWhere(`${nombreCompleto} % :filtro`)
+          qb.orWhere('paciente.nroDocumento ilike :filtroExacto')
+          qb.orWhere('paciente.telefono ilike :filtroExacto')
         })
       )
+      query.setParameters({
+        filtro: filtroNormalizado,
+        filtroExacto: `%${filtroNormalizado}%`,
+      })
+      query.orderBy('score', 'DESC')
+    } else {
+      switch (orden) {
+        case 'nombres':
+          query.addOrderBy('paciente.nombres', sentido)
+          break
+        case 'primerApellido':
+          query.addOrderBy('paciente.primerApellido', sentido)
+          break
+        case 'segundoApellido':
+          query.addOrderBy('paciente.segundoApellido', sentido)
+          break
+        case 'nroDocumento':
+          query.addOrderBy('paciente.nroDocumento', sentido)
+          break
+        case 'telefono':
+          query.addOrderBy('paciente.telefono', sentido)
+          break
+        case 'estado':
+          query.addOrderBy('paciente.estado', sentido)
+          break
+        default:
+          query.addOrderBy('paciente.id', 'ASC')
+      }
     }
 
     return await query.getManyAndCount()
