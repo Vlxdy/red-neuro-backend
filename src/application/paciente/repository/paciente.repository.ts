@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Brackets, DataSource, EntityManager } from 'typeorm'
+import { DataSource, EntityManager } from 'typeorm'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { Paciente } from '../entities/paciente.entity'
 import { ActualizarPacienteDto, CrearPacienteDto } from '../dto/paciente.dto'
@@ -34,20 +34,39 @@ export class PacienteRepository {
 
     if (filtro) {
       const filtroNormalizado = filtro.trim()
-      const nombreCompleto = `concat_ws(' ', paciente.nombres, paciente.primerApellido, paciente.segundoApellido)`
-      query.addSelect(`similarity(${nombreCompleto}, :filtro)`, 'score')
-      query.andWhere(
-        new Brackets((qb) => {
-          qb.orWhere(`${nombreCompleto} % :filtro`)
-          qb.orWhere('paciente.nroDocumento ilike :filtroExacto')
-          qb.orWhere('paciente.telefono ilike :filtroExacto')
-        })
+
+      // Recomendado: habilitar extensión unaccent (más abajo te digo)
+      const nombreCompleto = `
+    unaccent(lower(concat_ws(' ', paciente.nombres, paciente.primerApellido, paciente.segundoApellido)))
+  `
+      const filtroExpr = `unaccent(lower(:filtro))`
+
+      // Score por similitud
+      query.addSelect(`similarity(${nombreCompleto}, ${filtroExpr})`, 'score')
+
+      // Bonus si hace match por doc o telefono (para que suban arriba)
+      // (puedes ajustar pesos)
+      query.addSelect(
+        `(CASE WHEN paciente.nroDocumento ILIKE :filtroExacto THEN 1 ELSE 0 END)`,
+        'match_doc'
       )
+      query.addSelect(
+        `(CASE WHEN paciente.telefono ILIKE :filtroExacto THEN 1 ELSE 0 END)`,
+        'match_tel'
+      )
+
+      // 👇 OJO: NO ponemos WHERE por similarity, así SIEMPRE devuelve algo
+      // Si quieres, puedes filtrar únicamente cuando filtro sea muy corto (opcional),
+      // pero tu requerimiento dice "que siempre me salga"
       query.setParameters({
         filtro: filtroNormalizado,
         filtroExacto: `%${filtroNormalizado}%`,
       })
-      query.orderBy('score', 'DESC')
+
+      // Orden: primero doc/tel, luego similitud
+      query.orderBy('match_doc', 'DESC')
+      query.addOrderBy('match_tel', 'DESC')
+      query.addOrderBy('score', 'DESC')
     } else {
       switch (orden) {
         case 'nombres':

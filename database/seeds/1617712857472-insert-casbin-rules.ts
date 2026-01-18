@@ -199,6 +199,20 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/especialidades/:id/cambiar-estado': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
       },
+      // PACIENTES
+      '/api/pacientes': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.SUPERVISOR]: 'GET|POST',
+        [RolEnum.PERSONAL_MEDICO]: 'GET|POST',
+      },
+      '/api/pacientes/:id': {
+        [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
+        [RolEnum.SUPERVISOR]: 'GET|PATCH',
+        [RolEnum.PERSONAL_MEDICO]: 'GET|PATCH',
+      },
+      '/api/pacientes/:id/cambiar-estado': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+      },
     }
 
     const registrarCasbin = async (
