@@ -5,6 +5,7 @@ import { ConsultorioModule } from './consultorio/consultorio.module'
 import { CitasModule } from './citas/citas.module'
 import { EstudioModule } from './estudio/estudio.module'
 import { EspecialidadModule } from './personal/especialidad.module'
+import { PacienteModule } from './paciente/paciente.module'
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EspecialidadModule } from './personal/especialidad.module'
     ConsultorioModule,
     EstudioModule,
     EspecialidadModule,
+    PacienteModule,
   ],
   providers: [ConfigService],
 })

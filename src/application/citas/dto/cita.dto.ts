@@ -10,6 +10,7 @@ import {
 import { CitasEstado, TipoCita } from '../constants'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { PersonalResponseDto } from '@/application/personal/dto/personal.dto'
+import { PacienteResponseDto } from '@/application/paciente/dto/paciente.dto'
 import { ConsultorioResponseDto } from '@/application/consultorio/dto/consultorio.dto'
 
 export class EspecialidadCitaDto {
@@ -364,10 +365,10 @@ export class CitaResponseDto {
 
   @ApiProperty({
     description: 'Datos del paciente asignado a la cita',
-    type: () => PersonalResponseDto,
+    type: () => PacienteResponseDto,
     required: false,
   })
-  paciente?: PersonalResponseDto
+  paciente?: PacienteResponseDto
 
   @ApiProperty({
     description: 'Especialidad asociada a la cita',
