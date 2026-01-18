@@ -113,11 +113,9 @@ export class PacienteService extends BaseService {
 
     const paciente = await this.obtenerPacientePorId(id, transaccion)
     await this.pacienteRepository.eliminarPaciente(id, transaccion)
+    paciente.usuarioModificacion = usuarioAuditoria
 
-    return formatearPaciente({
-      ...paciente,
-      usuarioModificacion: usuarioAuditoria,
-    })
+    return formatearPaciente(paciente)
   }
 
   async cambiarEstadoPaciente(
