@@ -251,6 +251,12 @@ export class CancelarCitaDto {
 
 export class MensajeCitaDto extends CrearCitaDto {}
 
+export class MensajeActualizarCitaDto extends ActualizarCitaDto {
+  @ApiProperty({ description: 'Identificador de la cita', example: 'cita-123' })
+  @IsString()
+  id!: string
+}
+
 export class MensajeEstadoCitaDto extends ActualizarEstadoCitaDto {
   @ApiProperty({ description: 'Identificador de la cita', example: 'cita-123' })
   @IsString()

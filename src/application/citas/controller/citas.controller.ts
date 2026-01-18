@@ -21,6 +21,7 @@ import {
   ApiBaseResponseListRows,
 } from '@/common/decorators/api-base-responde.decorator'
 import { CitasMedicasService } from '../services/citas-medicas.service'
+import { CitasGateway } from '../gateways/citas.gateway'
 import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
@@ -38,7 +39,10 @@ import { ParamIdDto } from '@/common/dto/params-id.dto'
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, CasbinGuard)
 export class CitasController extends BaseController {
-  constructor(private readonly citasService: CitasMedicasService) {
+  constructor(
+    private readonly citasService: CitasMedicasService,
+    private readonly citasGateway: CitasGateway
+  ) {
     super()
   }
 
@@ -93,6 +97,7 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const resultado = await this.citasService.crearCita(dto, usuarioAuditoria)
+    this.citasGateway.emitCitaCreada(resultado)
     return this.successCreate(resultado)
   }
 
@@ -110,6 +115,7 @@ export class CitasController extends BaseController {
       dto,
       usuarioAuditoria
     )
+    this.citasGateway.emitCitaActualizada(resultado)
     return this.successUpdate(resultado)
   }
 
@@ -127,6 +133,7 @@ export class CitasController extends BaseController {
       dto,
       usuarioAuditoria
     )
+    this.citasGateway.emitCitaEstadoActualizado(resultado)
     return this.successUpdate(resultado)
   }
 
@@ -144,6 +151,7 @@ export class CitasController extends BaseController {
       dto,
       usuarioAuditoria
     )
+    this.citasGateway.emitCitaReprogramada(resultado)
     return this.successUpdate(resultado)
   }
 
@@ -163,6 +171,7 @@ export class CitasController extends BaseController {
       usuarioAuditoria,
       rolEjecutor
     )
+    this.citasGateway.emitCitaCancelada(resultado)
     return this.successUpdate(resultado)
   }
 }
