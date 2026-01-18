@@ -10,6 +10,7 @@ import {
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 import { Estudio } from '@/application/estudio/entities/estudio.entity'
+import { HistorialCita } from '../entities/cita-historial.entity'
 
 @Injectable()
 export class CitasMedicasRepository {
@@ -17,6 +18,10 @@ export class CitasMedicasRepository {
 
   private citaRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(Cita)
+  }
+
+  private historialRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(HistorialCita)
   }
 
   buildCitasQuery(
@@ -173,7 +178,6 @@ export class CitasMedicasRepository {
         return null
       }
       cita.estado = dto.estado
-      cita.comentarioNutricionista = dto.comentario
       cita.usuarioModificacion = usuarioAuditoria
       await this.citaRepository(manager).save(cita)
       return true
@@ -192,7 +196,6 @@ export class CitasMedicasRepository {
       }
       cita.fechaInicio = new Date(dto.fechaInicio)
       cita.fechaFin = dto.fechaFin
-      cita.comentarioNutricionista = dto.comentario
       cita.estado =
         CitasEstado.RECHAZADA === cita.estado
           ? CitasEstado.SOLICITADA
@@ -206,17 +209,27 @@ export class CitasMedicasRepository {
   async cancelarCita(
     id: string,
     dto: CancelarCitaDto,
-    usuarioAuditoria: string
+    usuarioAuditoria: string,
+    rolEjecutor: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
       const cita = await this.obtenerCitaConRelaciones(id, manager)
       if (!cita) {
         return null
       }
+      const estadoAnterior = cita.estado
       cita.estado = CitasEstado.CANCELADA
-      cita.comentarioNutricionista = dto.comentario
       cita.usuarioModificacion = usuarioAuditoria
       await this.citaRepository(manager).save(cita)
+      const historial = this.historialRepository(manager).create({
+        idCita: cita.id,
+        estadoAnterior,
+        rolEjecutor,
+        idEjecutor: usuarioAuditoria,
+        comentario: dto.comentario ?? null,
+        usuarioCreacion: usuarioAuditoria,
+      })
+      await this.historialRepository(manager).save(historial)
       return true
     })
   }

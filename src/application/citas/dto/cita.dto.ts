@@ -210,13 +210,6 @@ export class ActualizarEstadoCitaDto {
   @ApiProperty({ enum: CitasEstado, description: 'Nuevo estado de la cita' })
   @IsEnum(CitasEstado)
   estado!: CitasEstado
-
-  @ApiPropertyOptional({
-    description: 'Comentario opcional para el cambio de estado',
-  })
-  @IsOptional()
-  @IsString()
-  comentario?: string
 }
 
 export class ReprogramarCitaDto {
@@ -244,17 +237,13 @@ export class ReprogramarCitaDto {
   @IsOptional()
   @IsString()
   idEstudio?: string
-
-  @ApiPropertyOptional({
-    description: 'Comentario o motivo de la reprogramación',
-  })
-  @IsOptional()
-  @IsString()
-  comentario?: string
 }
 
 export class CancelarCitaDto {
-  @ApiPropertyOptional({ description: 'Motivo de cancelación' })
+  @ApiPropertyOptional({
+    description:
+      'Comentario asociado a la cancelación (se guarda en historial)',
+  })
   @IsOptional()
   @IsString()
   comentario?: string
@@ -344,18 +333,6 @@ export class CitaResponseDto {
     required: false,
   })
   estudioId?: string
-
-  @ApiProperty({
-    description: 'Comentario opcional del cambio de estado',
-    required: false,
-  })
-  comentario?: string
-
-  @ApiProperty({
-    description: 'Comentario interno del nutricionista',
-    required: false,
-  })
-  comentarioNutricionista?: string
 
   @ApiProperty({
     description: 'Datos del profesional de salud asignado a la cita',

@@ -316,12 +316,14 @@ export class CitasMedicasService extends BaseService {
   async cancelarCita(
     id: string,
     dto: CancelarCitaDto,
-    usuarioAuditoria = '0'
+    usuarioAuditoria = '0',
+    rolEjecutor = 'SISTEMA'
   ): Promise<CitaResponseDto> {
     const actualizado = await this.citasRepository.cancelarCita(
       id,
       dto,
-      usuarioAuditoria
+      usuarioAuditoria,
+      rolEjecutor
     )
     if (!actualizado) {
       throw new NotFoundException('La cita solicitada no existe')

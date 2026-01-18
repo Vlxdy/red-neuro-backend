@@ -58,15 +58,6 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   detalle: string
 
   @Column({
-    name: 'comentario_nutricionista',
-    type: 'text',
-    nullable: true,
-    comment:
-      'Último comentario registrado por el nutricionista respecto a la cita',
-  })
-  comentarioNutricionista?: string | null
-
-  @Column({
     name: 'locked_at',
     type: 'timestamp without time zone',
     nullable: true,
