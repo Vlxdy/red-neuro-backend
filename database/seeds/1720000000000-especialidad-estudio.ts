@@ -30,16 +30,15 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
     ]
 
     const especialidadesGuardadas = await queryRunner.manager.save(
-      especialidades.map(
-        (item) =>
-          new Especialidad({
-            nombre: item.nombre,
-            descripcion: item.descripcion,
-            colorHex: item.colorHex,
-            estado: 'ACTIVO',
-            transaccion: 'SEEDS',
-            usuarioCreacion: USUARIO_SISTEMA,
-          })
+      especialidades.map((item) =>
+        queryRunner.manager.create(Especialidad, {
+          nombre: item.nombre,
+          descripcion: item.descripcion,
+          colorHex: item.colorHex,
+          estado: 'ACTIVO',
+          transaccion: 'SEEDS',
+          usuarioCreacion: USUARIO_SISTEMA,
+        })
       )
     )
 
@@ -67,16 +66,15 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
     ]
 
     const estudiosGuardados = await queryRunner.manager.save(
-      estudios.map(
-        (item) =>
-          new Estudio({
-            nombre: item.nombre,
-            descripcion: item.descripcion,
-            duracionMinutos: item.duracionMinutos,
-            estado: 'ACTIVO',
-            transaccion: 'SEEDS',
-            usuarioCreacion: USUARIO_SISTEMA,
-          })
+      estudios.map((item) =>
+        queryRunner.manager.create(Estudio, {
+          nombre: item.nombre,
+          descripcion: item.descripcion,
+          duracionMinutos: item.duracionMinutos,
+          estado: 'ACTIVO',
+          transaccion: 'SEEDS',
+          usuarioCreacion: USUARIO_SISTEMA,
+        })
       )
     )
 
