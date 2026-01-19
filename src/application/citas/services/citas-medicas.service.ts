@@ -6,6 +6,7 @@ import {
   Inject,
 } from '@nestjs/common'
 import dayjs from 'dayjs'
+import { Cron } from '@nestjs/schedule'
 import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
@@ -14,11 +15,13 @@ import {
   CrearCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  HistorialCitaResponseDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 
 import { CitasMedicasRepository } from '../repository/citas-medicas.repository'
 import { formatearCita, formatearCitas } from '../utils/formatear-citas'
+import { formatearHistorialCitas } from '../utils/formatear-historial'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { TipoCita } from '../constants'
@@ -79,6 +82,30 @@ export class CitasMedicasService extends BaseService {
 
   async listarMisCitas(filtros: FiltrosCitaDto): Promise<CitaResponseDto[]> {
     return await this.listarCitas({ ...filtros })
+  }
+
+  @Cron(process.env.CITAS_REVISION_DIARIA_CRON || '0 1 * * *')
+  async actualizarCitasVencidas(): Promise<void> {
+    const fechaCorte = dayjs().startOf('day').toDate()
+    const usuarioAuditoria = '0'
+    const rolEjecutor = 'SISTEMA'
+    const actualizadas = await this.citasRepository.marcarCitasVencidas(
+      fechaCorte,
+      usuarioAuditoria,
+      rolEjecutor
+    )
+
+    if (actualizadas > 0) {
+      this.logger.info(
+        `Citas vencidas actualizadas automáticamente: ${actualizadas}`
+      )
+    }
+  }
+
+  async listarHistorialCita(id: string): Promise<HistorialCitaResponseDto[]> {
+    await this.obtenerCitaId(id)
+    const historial = await this.citasRepository.listarHistorialCita(id)
+    return formatearHistorialCitas(historial)
   }
 
   async obtenerCita(
