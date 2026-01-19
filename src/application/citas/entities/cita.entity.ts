@@ -109,7 +109,7 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   @Column({
     name: 'id_medico',
     type: 'bigint',
-    nullable: false,
+    nullable: true,
     comment: 'Clave foránea que referencia al medico',
   })
   idMedico: string

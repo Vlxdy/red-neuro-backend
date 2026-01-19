@@ -156,8 +156,8 @@ export class CrearCitaDto {
     example: '42',
   })
   @IsString()
-  @IsNotEmpty()
-  idMedico!: string
+  @IsOptional()
+  idMedico?: string
 
   @ApiProperty({
     description: 'Identificador del paciente asignado',

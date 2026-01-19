@@ -97,7 +97,7 @@ export class CitasMedicasRepository {
       detalle: string
       fechaInicio: Date
       fechaFin: Date
-      idMedico: string
+      idMedico?: string
       idPaciente?: string | null
       idConsultorio?: string | null
       idEspecialidad?: string | null
