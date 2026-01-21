@@ -20,7 +20,7 @@ const formatearEspecialidadPersonal = (
 export function formatearPersonal(usuarioRol: UsuarioRol): PersonalResponseDto {
   const { usuario } = usuarioRol
   return {
-    id: usuario.id,
+    id: usuarioRol.id,
     nroDocumento: usuario.persona.nroDocumento,
     nombres: usuario.persona.nombres,
     primerApellido: usuario.persona.primerApellido,
