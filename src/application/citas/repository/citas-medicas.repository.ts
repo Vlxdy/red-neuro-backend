@@ -13,6 +13,7 @@ import {
   CancelarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  FiltrosHistorialCitaPaginadoDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 import { Estudio } from '@/application/estudio/entities/estudio.entity'
@@ -257,11 +258,56 @@ export class CitasMedicasRepository {
     })
   }
 
-  async listarHistorialCita(idCita: string) {
-    return await this.historialRepository().find({
-      where: { idCita },
-      order: { fechaCreacion: 'DESC' },
-    })
+  buildHistorialQuery(
+    idCita: string,
+    filtros: FiltrosHistorialCitaPaginadoDto
+  ): SelectQueryBuilder<HistorialCita> {
+    const query = this.historialRepository()
+      .createQueryBuilder('historial')
+      .where('historial.idCita = :idCita', { idCita })
+
+    if (filtros.fechaInicio) {
+      query.andWhere('historial.fechaCreacion >= :fechaInicio', {
+        fechaInicio: filtros.fechaInicio,
+      })
+    }
+
+    if (filtros.fechaFin) {
+      query.andWhere('historial.fechaCreacion <= :fechaFin', {
+        fechaFin: filtros.fechaFin,
+      })
+    }
+
+    if (filtros.estadoAnterior) {
+      query.andWhere('historial.estadoAnterior = :estadoAnterior', {
+        estadoAnterior: filtros.estadoAnterior,
+      })
+    }
+
+    if (filtros.rolEjecutor) {
+      query.andWhere('historial.rolEjecutor = :rolEjecutor', {
+        rolEjecutor: filtros.rolEjecutor,
+      })
+    }
+
+    if (filtros.idEjecutor) {
+      query.andWhere('historial.idEjecutor = :idEjecutor', {
+        idEjecutor: filtros.idEjecutor,
+      })
+    }
+
+    return query.orderBy('historial.fechaCreacion', 'DESC')
+  }
+
+  async listarHistorialCitaPaginado(
+    idCita: string,
+    filtros: FiltrosHistorialCitaPaginadoDto
+  ) {
+    const { limite, saltar } = filtros
+    return await this.buildHistorialQuery(idCita, filtros)
+      .take(limite)
+      .skip(saltar)
+      .getManyAndCount()
   }
 
   async marcarCitasVencidas(

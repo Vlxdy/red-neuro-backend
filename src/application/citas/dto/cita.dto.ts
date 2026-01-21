@@ -134,6 +134,48 @@ export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
   estado?: CitasEstado
 }
 
+export class FiltrosHistorialCitaPaginadoDto extends PaginacionQueryDto {
+  @ApiPropertyOptional({
+    description: 'Fecha de inicio (ISO) para filtrar el historial',
+    example: '2024-06-01T00:00:00Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaInicio?: string
+
+  @ApiPropertyOptional({
+    description: 'Fecha de fin (ISO) para filtrar el historial',
+    example: '2024-06-30T23:59:59Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaFin?: string
+
+  @ApiPropertyOptional({
+    enum: CitasEstado,
+    description: 'Filtrar por estado anterior',
+  })
+  @IsOptional()
+  @IsEnum(CitasEstado)
+  estadoAnterior?: CitasEstado
+
+  @ApiPropertyOptional({
+    description: 'Rol del usuario ejecutor',
+    example: 'MEDICO',
+  })
+  @IsOptional()
+  @IsString()
+  rolEjecutor?: string
+
+  @ApiPropertyOptional({
+    description: 'Identificador del usuario ejecutor',
+    example: '42',
+  })
+  @IsOptional()
+  @IsString()
+  idEjecutor?: string
+}
+
 export class CrearCitaDto {
   @ApiProperty({
     description: 'Detalle o motivo de la cita',

@@ -15,6 +15,7 @@ import {
   CrearCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  FiltrosHistorialCitaPaginadoDto,
   HistorialCitaResponseDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
@@ -102,10 +103,14 @@ export class CitasMedicasService extends BaseService {
     }
   }
 
-  async listarHistorialCita(id: string): Promise<HistorialCitaResponseDto[]> {
+  async listarHistorialCita(
+    id: string,
+    filtros: FiltrosHistorialCitaPaginadoDto
+  ): Promise<[HistorialCitaResponseDto[], number]> {
     await this.obtenerCitaId(id)
-    const historial = await this.citasRepository.listarHistorialCita(id)
-    return formatearHistorialCitas(historial)
+    const [historial, total] =
+      await this.citasRepository.listarHistorialCitaPaginado(id, filtros)
+    return [formatearHistorialCitas(historial), total]
   }
 
   async obtenerCita(

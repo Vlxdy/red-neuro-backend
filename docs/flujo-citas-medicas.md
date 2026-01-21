@@ -82,7 +82,7 @@ GET /citas/{id}/historial
 ```
 
 ### Respuesta
-Devuelve una lista ordenada por fecha de creación (más reciente primero) con:
+Devuelve una lista paginada ordenada por fecha de creación (más reciente primero) con:
 - `id`
 - `citaId`
 - `estadoAnterior`
@@ -90,6 +90,12 @@ Devuelve una lista ordenada por fecha de creación (más reciente primero) con:
 - `idEjecutor`
 - `comentario`
 - `fechaCreacion`
+
+### Filtros soportados
+- `fechaInicio`, `fechaFin` (rango por fecha de creación)
+- `estadoAnterior`
+- `rolEjecutor`
+- `idEjecutor`
 
 ## Consideraciones de seguridad
 - El historial se protege con autenticación JWT y autorización por roles.
