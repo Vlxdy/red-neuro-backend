@@ -27,6 +27,7 @@ import { formatearPersonal } from '@/application/personal/utils/formateo-persona
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
+import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
@@ -119,7 +120,7 @@ export class CitasMedicasService extends BaseService {
         ])
       ).values()
     )
-    const ejecutores =
+    const ejecutores: UsuarioRol[] =
       await this.citasRepository.obtenerEjecutoresHistorial(ejecutoresUnicos)
     const ejecutoresMap = new Map(
       ejecutores.map((ejecutor) => [

@@ -476,21 +476,21 @@ export class CitasMedicasRepository {
       cita.idPaciente ?? undefined,
       data.idPaciente !== undefined
         ? (data.idPaciente ?? undefined)
-        : cita.idPaciente
+        : (cita.idPaciente ?? undefined)
     )
     agregarCambio(
       'idConsultorio',
       cita.idConsultorio ?? undefined,
       data.idConsultorio !== undefined
         ? (data.idConsultorio ?? undefined)
-        : cita.idConsultorio
+        : (cita.idConsultorio ?? undefined)
     )
     agregarCambio(
       'idEspecialidad',
       cita.idEspecialidad ?? undefined,
       data.idEspecialidad !== undefined
         ? (data.idEspecialidad ?? undefined)
-        : cita.idEspecialidad
+        : (cita.idEspecialidad ?? undefined)
     )
     agregarCambio(
       'idEstudio',
