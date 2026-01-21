@@ -134,6 +134,48 @@ export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
   estado?: CitasEstado
 }
 
+export class FiltrosHistorialCitaPaginadoDto extends PaginacionQueryDto {
+  @ApiPropertyOptional({
+    description: 'Fecha de inicio (ISO) para filtrar el historial',
+    example: '2024-06-01T00:00:00Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaInicio?: string
+
+  @ApiPropertyOptional({
+    description: 'Fecha de fin (ISO) para filtrar el historial',
+    example: '2024-06-30T23:59:59Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaFin?: string
+
+  @ApiPropertyOptional({
+    enum: CitasEstado,
+    description: 'Filtrar por estado anterior',
+  })
+  @IsOptional()
+  @IsEnum(CitasEstado)
+  estadoAnterior?: CitasEstado
+
+  @ApiPropertyOptional({
+    description: 'Rol del usuario ejecutor',
+    example: 'MEDICO',
+  })
+  @IsOptional()
+  @IsString()
+  rolEjecutor?: string
+
+  @ApiPropertyOptional({
+    description: 'Identificador del usuario ejecutor',
+    example: '42',
+  })
+  @IsOptional()
+  @IsString()
+  idEjecutor?: string
+}
+
 export class CrearCitaDto {
   @ApiProperty({
     description: 'Detalle o motivo de la cita',
@@ -373,4 +415,70 @@ export class CitaResponseDto {
     required: false,
   })
   consultorio?: ConsultorioResponseDto
+}
+
+export class HistorialCitaResponseDto {
+  @ApiProperty({ description: 'Identificador del registro de historial' })
+  id!: string
+
+  @ApiProperty({ description: 'Identificador de la cita asociada' })
+  citaId!: string
+
+  @ApiProperty({
+    enum: CitasEstado,
+    description: 'Estado previo de la cita antes de la transición',
+    required: false,
+  })
+  estadoAnterior?: CitasEstado
+
+  @ApiProperty({
+    description: 'Rol del usuario que ejecutó la acción registrada',
+  })
+  rolEjecutor!: string
+
+  @ApiProperty({
+    description: 'Identificador del usuario que ejecutó la acción',
+  })
+  idEjecutor!: string
+
+  @ApiProperty({
+    description: 'Comentario asociado a la transición',
+    required: false,
+  })
+  comentario?: string
+
+  @ApiProperty({
+    description: 'Detalle de cambios realizados sobre la cita',
+    required: false,
+  })
+  detalleCambios?: HistorialCambioDto[]
+
+  @ApiProperty({
+    description: 'Datos del usuario ejecutor',
+    type: () => PersonalResponseDto,
+    required: false,
+  })
+  ejecutor?: PersonalResponseDto
+
+  @ApiProperty({
+    description: 'Fecha de creación del registro en formato ISO 8601',
+  })
+  fechaCreacion!: string
+}
+
+export class HistorialCambioDto {
+  @ApiProperty({ description: 'Campo modificado', example: 'idMedico' })
+  field!: string
+
+  @ApiProperty({
+    description: 'Valor anterior del campo',
+    required: false,
+  })
+  before?: string
+
+  @ApiProperty({
+    description: 'Valor posterior del campo',
+    required: false,
+  })
+  after?: string
 }

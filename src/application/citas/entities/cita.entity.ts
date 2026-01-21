@@ -193,7 +193,7 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
 
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || CitasEstado.BORRADOR
+    this.estado = this.estado || CitasEstado.SOLICITADA
   }
 
   constructor(data?: Partial<Cita>) {

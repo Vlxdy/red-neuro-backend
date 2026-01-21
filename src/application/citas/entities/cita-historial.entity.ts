@@ -11,6 +11,7 @@ import {
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Cita } from './cita.entity'
 import { CitasEstado, CitasHistorialEstado } from '../constants'
+import { TipoActualizacion } from './notificacion.entity'
 import 'bootstrap/env'
 
 @Check(UtilService.buildStatusCheck(CitasHistorialEstado))
@@ -70,6 +71,14 @@ export class HistorialCita extends AuditoriaEntity {
     comment: 'Comentario asociado a la transición de estado',
   })
   comentario?: string | null
+
+  @Column({
+    name: 'detalle_cambios',
+    type: 'jsonb',
+    nullable: true,
+    comment: 'Detalle de los cambios realizados sobre la cita',
+  })
+  detalleCambios?: TipoActualizacion[] | null
 
   @BeforeInsert()
   insertarEstado() {
