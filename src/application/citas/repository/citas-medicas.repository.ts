@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { DataSource, EntityManager, SelectQueryBuilder } from 'typeorm'
+import {
+  DataSource,
+  EntityManager,
+  In,
+  LessThan,
+  SelectQueryBuilder,
+} from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado } from '../constants'
 import {
@@ -11,6 +17,7 @@ import {
 } from '../dto/cita.dto'
 import { Estudio } from '@/application/estudio/entities/estudio.entity'
 import { HistorialCita } from '../entities/cita-historial.entity'
+import { Notificacion, NotificacionTipo } from '../entities/notificacion.entity'
 
 @Injectable()
 export class CitasMedicasRepository {
@@ -22,6 +29,10 @@ export class CitasMedicasRepository {
 
   private historialRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(HistorialCita)
+  }
+
+  private notificacionRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Notificacion)
   }
 
   buildCitasQuery(
@@ -97,6 +108,7 @@ export class CitasMedicasRepository {
       detalle: string
       fechaInicio: Date
       fechaFin: Date
+      estado: CitasEstado
       idMedico?: string
       idPaciente?: string | null
       idConsultorio?: string | null
@@ -111,7 +123,7 @@ export class CitasMedicasRepository {
       detalle: data.detalle,
       fechaInicio: data.fechaInicio,
       fechaFin: data.fechaFin,
-      estado: CitasEstado.SOLICITADA,
+      estado: data.estado,
       usuarioCreacion: usuarioAuditoria,
       idMedico: data.idMedico,
       idPaciente: data.idPaciente ?? null,
@@ -122,6 +134,17 @@ export class CitasMedicasRepository {
     })
 
     const guardada = await this.citaRepository(transaccion).save(cita)
+
+    if (guardada.idMedico && guardada.estado === CitasEstado.SOLICITADA) {
+      const notificacion = this.notificacionRepository(transaccion).create({
+        tipo: NotificacionTipo.CITA_SOLICITADA,
+        mensaje: `Se asignó una nueva cita ${guardada.id} para confirmar.`,
+        idCita: guardada.id,
+        idMedico: guardada.idMedico,
+        usuarioCreacion: usuarioAuditoria,
+      })
+      await this.notificacionRepository(transaccion).save(notificacion)
+    }
 
     return guardada.id
   }
@@ -231,6 +254,78 @@ export class CitasMedicasRepository {
       })
       await this.historialRepository(manager).save(historial)
       return true
+    })
+  }
+
+  async listarHistorialCita(idCita: string) {
+    return await this.historialRepository().find({
+      where: { idCita },
+      order: { fechaCreacion: 'DESC' },
+    })
+  }
+
+  async marcarCitasVencidas(
+    fechaCorte: Date,
+    usuarioAuditoria: string,
+    rolEjecutor: string
+  ) {
+    return await this.dataSource.transaction(async (manager) => {
+      const estadosElegibles = [
+        CitasEstado.SOLICITADA,
+        CitasEstado.CONFIRMADA,
+        CitasEstado.EN_CURSO,
+      ]
+      const citasVencidas = await this.citaRepository(manager).find({
+        where: {
+          fechaInicio: LessThan(fechaCorte),
+          estado: In(estadosElegibles),
+        },
+      })
+
+      if (!citasVencidas.length) {
+        return 0
+      }
+
+      const citasConEstadoAnterior = citasVencidas.map((cita) => ({
+        cita,
+        estadoAnterior: cita.estado,
+      }))
+
+      citasConEstadoAnterior.forEach(({ cita }) => {
+        cita.estado = CitasEstado.NO_ASISTIO
+        cita.usuarioModificacion = usuarioAuditoria
+      })
+
+      await this.citaRepository(manager).save(
+        citasConEstadoAnterior.map(({ cita }) => cita)
+      )
+
+      const historial = citasConEstadoAnterior.map(({ cita, estadoAnterior }) =>
+        this.historialRepository(manager).create({
+          idCita: cita.id,
+          estadoAnterior,
+          rolEjecutor,
+          idEjecutor: usuarioAuditoria,
+          comentario: 'Actualización automática por cita vencida',
+          usuarioCreacion: usuarioAuditoria,
+        })
+      )
+
+      await this.historialRepository(manager).save(historial)
+
+      const notificaciones = citasConEstadoAnterior.map(({ cita }) =>
+        this.notificacionRepository(manager).create({
+          tipo: NotificacionTipo.CITA_NO_ASISTIO,
+          mensaje: `La cita ${cita.id} fue marcada como no asistida por vencimiento.`,
+          idCita: cita.id,
+          idMedico: cita.idMedico ?? null,
+          usuarioCreacion: usuarioAuditoria,
+        })
+      )
+
+      await this.notificacionRepository(manager).save(notificaciones)
+
+      return citasConEstadoAnterior.length
     })
   }
 

@@ -374,3 +374,39 @@ export class CitaResponseDto {
   })
   consultorio?: ConsultorioResponseDto
 }
+
+export class HistorialCitaResponseDto {
+  @ApiProperty({ description: 'Identificador del registro de historial' })
+  id!: string
+
+  @ApiProperty({ description: 'Identificador de la cita asociada' })
+  citaId!: string
+
+  @ApiProperty({
+    enum: CitasEstado,
+    description: 'Estado previo de la cita antes de la transición',
+    required: false,
+  })
+  estadoAnterior?: CitasEstado
+
+  @ApiProperty({
+    description: 'Rol del usuario que ejecutó la acción registrada',
+  })
+  rolEjecutor!: string
+
+  @ApiProperty({
+    description: 'Identificador del usuario que ejecutó la acción',
+  })
+  idEjecutor!: string
+
+  @ApiProperty({
+    description: 'Comentario asociado a la transición',
+    required: false,
+  })
+  comentario?: string
+
+  @ApiProperty({
+    description: 'Fecha de creación del registro en formato ISO 8601',
+  })
+  fechaCreacion!: string
+}
