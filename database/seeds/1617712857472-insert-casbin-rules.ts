@@ -219,6 +219,12 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.SUPERVISOR]: 'GET',
         [RolEnum.PERSONAL_MEDICO]: 'GET',
       },
+      // HISTORIAL DE CITAS
+      '/api/citas/:id/historial': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.SUPERVISOR]: 'GET',
+        [RolEnum.PERSONAL_MEDICO]: 'GET',
+      },
     }
 
     const registrarCasbin = async (
