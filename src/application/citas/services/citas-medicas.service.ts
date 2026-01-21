@@ -6,6 +6,7 @@ import {
   Inject,
 } from '@nestjs/common'
 import dayjs from 'dayjs'
+import { Cron } from '@nestjs/schedule'
 import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
@@ -14,14 +15,18 @@ import {
   CrearCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  FiltrosHistorialCitaPaginadoDto,
+  HistorialCitaResponseDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 
 import { CitasMedicasRepository } from '../repository/citas-medicas.repository'
 import { formatearCita, formatearCitas } from '../utils/formatear-citas'
+import { formatearHistorialCitas } from '../utils/formatear-historial'
+import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
-import { TipoCita } from '../constants'
+import { CitasEstado, TipoCita } from '../constants'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
@@ -81,6 +86,50 @@ export class CitasMedicasService extends BaseService {
     return await this.listarCitas({ ...filtros })
   }
 
+  @Cron(process.env.CITAS_REVISION_DIARIA_CRON || '0 1 * * *')
+  async actualizarCitasVencidas(): Promise<void> {
+    const fechaCorte = dayjs().startOf('day').toDate()
+    const usuarioAuditoria = '0'
+    const rolEjecutor = 'SISTEMA'
+    const actualizadas = await this.citasRepository.marcarCitasVencidas(
+      fechaCorte,
+      usuarioAuditoria,
+      rolEjecutor
+    )
+
+    if (actualizadas > 0) {
+      this.logger.info(
+        `Citas vencidas actualizadas automáticamente: ${actualizadas}`
+      )
+    }
+  }
+
+  async listarHistorialCita(
+    id: string,
+    filtros: FiltrosHistorialCitaPaginadoDto
+  ): Promise<[HistorialCitaResponseDto[], number]> {
+    await this.obtenerCitaId(id)
+    const [historial, total] =
+      await this.citasRepository.listarHistorialCitaPaginado(id, filtros)
+    const ejecutoresUnicos = Array.from(
+      new Map(
+        historial.map((item) => [
+          `${item.idEjecutor}-${item.rolEjecutor}`,
+          { idUsuario: item.idEjecutor, idRol: item.rolEjecutor },
+        ])
+      ).values()
+    )
+    const ejecutores =
+      await this.citasRepository.obtenerEjecutoresHistorial(ejecutoresUnicos)
+    const ejecutoresMap = new Map(
+      ejecutores.map((ejecutor) => [
+        `${ejecutor.idUsuario}-${ejecutor.idRol}`,
+        formatearPersonal(ejecutor),
+      ])
+    )
+    return [formatearHistorialCitas(historial, ejecutoresMap), total]
+  }
+
   async obtenerCita(
     id: string,
     transaccion?: EntityManager
@@ -109,11 +158,17 @@ export class CitasMedicasService extends BaseService {
   async crearCita(
     dto: CrearCitaDto,
     usuarioAuditoria = '0',
-    transaccion?: EntityManager
+    transaccion?: EntityManager,
+    rolEjecutor = 'SISTEMA'
   ): Promise<CitaResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.crearCita(dto, usuarioAuditoria, nuevaTransaccion)
+        return await this.crearCita(
+          dto,
+          usuarioAuditoria,
+          nuevaTransaccion,
+          rolEjecutor
+        )
       }
       return await this.citasRepository.runTransaction(op)
     }
@@ -150,11 +205,16 @@ export class CitasMedicasService extends BaseService {
       fechaFin = this.calcularFechaFin(fechaInicio, duracion)
     }
 
+    const estadoInicial = dto.idMedico
+      ? CitasEstado.SOLICITADA
+      : CitasEstado.CONFIRMADA
+
     const citaId = await this.citasRepository.crearCita(
       {
         detalle: dto.detalle,
         fechaInicio,
         fechaFin,
+        estado: estadoInicial,
         idMedico: dto.idMedico,
         idPaciente: dto.idPaciente ?? null,
         idConsultorio: dto.idConsultorio ?? null,
@@ -163,6 +223,7 @@ export class CitasMedicasService extends BaseService {
         esEstudio,
       },
       usuarioAuditoria,
+      rolEjecutor,
       transaccion
     )
     if (!citaId) {
@@ -176,7 +237,8 @@ export class CitasMedicasService extends BaseService {
     id: string,
     dto: ActualizarCitaDto,
     usuarioAuditoria = '0',
-    transaccion?: EntityManager
+    transaccion?: EntityManager,
+    rolEjecutor = 'SISTEMA'
   ): Promise<CitaResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
@@ -184,7 +246,8 @@ export class CitasMedicasService extends BaseService {
           id,
           dto,
           usuarioAuditoria,
-          nuevaTransaccion
+          nuevaTransaccion,
+          rolEjecutor
         )
       }
       return await this.citasRepository.runTransaction(op)
@@ -242,6 +305,7 @@ export class CitasMedicasService extends BaseService {
         esEstudio,
       },
       usuarioAuditoria,
+      rolEjecutor,
       transaccion
     )
     if (!actualizado) {
@@ -254,12 +318,14 @@ export class CitasMedicasService extends BaseService {
   async actualizarEstadoCita(
     id: string,
     dto: ActualizarEstadoCitaDto,
-    usuarioAuditoria = '0'
+    usuarioAuditoria = '0',
+    rolEjecutor = 'SISTEMA'
   ): Promise<CitaResponseDto> {
     const actualizado = await this.citasRepository.actualizarEstadoCita(
       id,
       dto,
-      usuarioAuditoria
+      usuarioAuditoria,
+      rolEjecutor
     )
     if (!actualizado) {
       throw new NotFoundException('La cita solicitada no existe')
@@ -270,7 +336,8 @@ export class CitasMedicasService extends BaseService {
   async reprogramarCita(
     id: string,
     dto: ReprogramarCitaDto,
-    usuarioAuditoria = '0'
+    usuarioAuditoria = '0',
+    rolEjecutor = 'SISTEMA'
   ): Promise<CitaResponseDto> {
     const fechaInicio = new Date(dto.fechaInicio)
     const tipoCita = dto.tipoCita
@@ -305,7 +372,8 @@ export class CitasMedicasService extends BaseService {
     const actualizado = await this.citasRepository.reprogramarCita(
       id,
       { ...dto, fechaFin },
-      usuarioAuditoria
+      usuarioAuditoria,
+      rolEjecutor
     )
     if (!actualizado) {
       throw new NotFoundException('La cita solicitada no existe')
