@@ -16,30 +16,32 @@ Los estados están alineados con los valores ya definidos en el backend:
 - **CANCELADA**: anulada por paciente o personal.
 - **RECHAZADA**: solicitud descartada por el personal (por incompatibilidad, horarios, etc.).
 
-## Visibilidad sugerida por rol
-| Estado | Paciente | Personal médico | Adm./Recepción |
-| --- | --- | --- | --- |
-| INACTIVO | ❌ | ❌ | ⚠️ (solo auditoría) |
-| BORRADOR | ✅ | ⚠️ (solo si comparte agenda) | ✅ |
-| SOLICITADA | ✅ | ✅ | ✅ |
-| CONFIRMADA | ✅ | ✅ | ✅ |
-| EN_CURSO | ✅ | ✅ | ✅ |
-| COMPLETADA | ✅ | ✅ | ✅ |
-| NO_ASISTIO | ✅ | ✅ | ✅ |
-| CANCELADA | ✅ | ✅ | ✅ |
-| RECHAZADA | ✅ | ✅ | ✅ |
+## Visibilidad sugerida por rol (solo personal interno)
+El sistema está dirigido únicamente a personal interno (sin acceso de pacientes). Se propone la siguiente visibilidad:
 
-> Nota: La visibilidad puede ajustarse por políticas internas. En esta propuesta, el personal médico ve todo lo relevante a su agenda. El estado **INACTIVO** queda solo para auditoría.
+| Estado | Personal médico | Supervisor | Administrador |
+| --- | --- | --- | --- |
+| INACTIVO | ❌ | ⚠️ (solo auditoría) | ⚠️ (solo auditoría) |
+| BORRADOR | ✅ | ⚠️ (solo en casos necesarios) | ❌ |
+| SOLICITADA | ✅ | ⚠️ (solo en casos necesarios) | ❌ |
+| CONFIRMADA | ✅ | ⚠️ (solo en casos necesarios) | ❌ |
+| EN_CURSO | ✅ | ⚠️ (solo en casos necesarios) | ❌ |
+| COMPLETADA | ✅ | ⚠️ (solo en casos necesarios) | ❌ |
+| NO_ASISTIO | ✅ | ⚠️ (solo en casos necesarios) | ❌ |
+| CANCELADA | ✅ | ⚠️ (solo en casos necesarios) | ❌ |
+| RECHAZADA | ✅ | ⚠️ (solo en casos necesarios) | ❌ |
+
+> Nota: El personal médico es el rol operativo principal para crear, editar y cancelar citas. El supervisor solo interviene excepcionalmente. El administrador se limita a configuraciones base y auditoría.
 
 ## Flujo propuesto (alto nivel)
 1. **Creación (BORRADOR)**
-   - Paciente o recepción crea la cita como borrador.
-   - Se valida especialidad y disponibilidad.
+   - El personal médico crea la cita como borrador.
+   - Se valida especialidad, consultorio y disponibilidad.
 2. **Solicitud (SOLICITADA)**
-   - El paciente confirma o el personal registra la solicitud.
+   - El personal médico registra la solicitud cuando la cita debe ser validada.
    - La cita entra en cola de revisión.
 3. **Confirmación (CONFIRMADA)**
-   - El personal valida disponibilidad de consultorio, médico y tipo de cita.
+   - El personal valida disponibilidad de consultorio, profesional y tipo de cita.
    - Se bloquea el horario.
 4. **Atención (EN_CURSO)**
    - Al iniciar la consulta/estudio, se marca en curso.
@@ -47,7 +49,7 @@ Los estados están alineados con los valores ya definidos en el backend:
    - Completa si se realizó la atención.
    - No asistió si el paciente no se presentó.
 6. **Cancelación / Rechazo (CANCELADA / RECHAZADA)**
-   - Cancelación por paciente o personal.
+   - Cancelación por personal médico/supervisor.
    - Rechazo cuando la solicitud no es viable.
 
 ## Historial de la cita (auditoría)
@@ -83,7 +85,7 @@ Devuelve una lista ordenada por fecha de creación (más reciente primero) con:
 
 ## Consideraciones de seguridad
 - El historial se protege con autenticación JWT y autorización por roles.
-- La visibilidad puede filtrarse por el rol del usuario autenticado (médico, recepción, administrador).
+- La visibilidad se filtra por rol interno (médico, supervisor, administrador).
 
 ## Automatización diaria (citas vencidas)
 Existe un proceso programado que se ejecuta diariamente para revisar citas con fecha anterior al día actual. Si la cita **no cambió de estado** y pertenece a estados operativos (BORRADOR, SOLICITADA, CONFIRMADA o EN_CURSO), se marca automáticamente como **NO_ASISTIO**, se genera historial y se crea una notificación asociada.
