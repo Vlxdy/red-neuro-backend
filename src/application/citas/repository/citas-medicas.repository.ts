@@ -110,7 +110,7 @@ export class CitasMedicasRepository {
 
   async crearCita(
     data: {
-      detalle: string
+      detalle?: string
       fechaInicio: Date
       fechaFin: Date
       estado: CitasEstado

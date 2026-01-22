@@ -166,9 +166,9 @@ export class CrearCitaDto {
     example: 'Control nutricional mensual',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(255)
-  detalle!: string
+  detalle?: string
 
   @ApiProperty({
     description: 'Fecha de inicio (ISO)',
