@@ -65,7 +65,11 @@ export class HistorialCitasService extends BaseService {
     const pacienteIds = new Set<string>()
 
     historial.forEach((item) => {
-      this.extraerIdsDesdeDetalle(item.detalleCambios, medicoIds, pacienteIds)
+      this.extraerIdsDesdeDetalle(
+        item.detalleCambios ?? undefined,
+        medicoIds,
+        pacienteIds
+      )
     })
 
     return {

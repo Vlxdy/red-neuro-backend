@@ -72,6 +72,6 @@ function formatearDetalleCambios(
       }
     }
 
-    return cambio
+    return cambio as HistorialCambioDto
   })
 }

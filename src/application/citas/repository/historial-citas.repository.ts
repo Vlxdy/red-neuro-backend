@@ -81,12 +81,12 @@ export class HistorialCitasRepository {
       .getManyAndCount()
   }
 
-  obtenerUsuariosRolPorIds(ids: string[]) {
+  async obtenerUsuariosRolPorIds(ids: string[]): Promise<UsuarioRol[]> {
     if (!ids.length) {
       return []
     }
 
-    return this.usuarioRolRepository()
+    return await this.usuarioRolRepository()
       .createQueryBuilder('usuarioRol')
       .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
@@ -102,12 +102,12 @@ export class HistorialCitasRepository {
       .getMany()
   }
 
-  obtenerPacientesPorIds(ids: string[]) {
+  async obtenerPacientesPorIds(ids: string[]) {
     if (!ids.length) {
       return []
     }
 
-    return this.pacienteRepository()
+    return await this.pacienteRepository()
       .createQueryBuilder('paciente')
       .where('paciente.id IN (:...ids)', { ids })
       .getMany()

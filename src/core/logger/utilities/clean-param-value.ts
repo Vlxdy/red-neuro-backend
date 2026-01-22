@@ -214,6 +214,7 @@ function getAndCleanRequestDataFromConfig(
 
 function isAxiosResponse(data: unknown) {
   return Boolean(
+    // prettier-ignore
     data &&
       typeof data === 'object' &&
       'data' in data &&
@@ -231,6 +232,7 @@ function isAxiosResponse(data: unknown) {
 
 function isAxiosRequest(data: unknown) {
   return Boolean(
+    // prettier-ignore
     data &&
       typeof data === 'object' &&
       'path' in data &&
@@ -257,6 +259,7 @@ export function isConexionError(data: unknown): boolean {
       : data
 
   return Boolean(
+    // prettier-ignore
     val &&
       typeof val === 'object' &&
       'code' in val &&
@@ -273,6 +276,7 @@ export function isConexionError(data: unknown): boolean {
 
 export function isCertExpiredError(data: unknown): boolean {
   return Boolean(
+    // prettier-ignore
     data &&
       typeof data === 'object' &&
       'code' in data &&
