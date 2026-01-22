@@ -6,7 +6,7 @@ import { BaseResponseListRowsDto } from '@/common/dto/swagger/base-response.dto'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
-import { CitasMedicasService } from '../services/citas-medicas.service'
+import { HistorialCitasService } from '../services/historial-citas.service'
 import {
   FiltrosHistorialCitaPaginadoDto,
   HistorialCitaResponseDto,
@@ -17,7 +17,7 @@ import {
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, CasbinGuard)
 export class HistorialCitasController extends BaseController {
-  constructor(private readonly citasService: CitasMedicasService) {
+  constructor(private readonly historialService: HistorialCitasService) {
     super()
   }
 
@@ -28,7 +28,10 @@ export class HistorialCitasController extends BaseController {
     @Param() { id }: ParamIdDto,
     @Query() filtros: FiltrosHistorialCitaPaginadoDto
   ): Promise<BaseResponseListRowsDto<HistorialCitaResponseDto>> {
-    const resultado = await this.citasService.listarHistorialCita(id, filtros)
+    const resultado = await this.historialService.listarHistorialCita(
+      id,
+      filtros
+    )
     return this.successListRows(resultado)
   }
 }
