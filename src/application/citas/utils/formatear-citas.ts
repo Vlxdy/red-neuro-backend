@@ -8,7 +8,6 @@ import { Cita } from '../entities/cita.entity'
 import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
 import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
 import { formatearConsultorio } from '@/application/consultorio/utils/formateo.consultorio'
-import { TipoCita } from '../constants'
 
 const formatearEspecialidad = (
   especialidad: Cita['especialidad']
@@ -52,7 +51,7 @@ export function formatearCita(cita: Cita): CitaResponseDto {
     especialidadId: cita.idEspecialidad ?? undefined,
     estudioId: cita.idEstudio ?? undefined,
     estado: cita.estado,
-    tipoCita: cita.esEstudio ? TipoCita.ESTUDIO : TipoCita.CONSULTA,
+    tipoCita: cita.tipoCita,
     medico: cita.medico ? formatearPersonal(cita.medico) : undefined,
     paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
     especialidad: formatearEspecialidad(cita.especialidad),

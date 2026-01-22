@@ -16,13 +16,14 @@ import { Paciente } from '@/application/paciente/entities/paciente.entity'
 
 import { HistorialCita } from './cita-historial.entity'
 
-import { CitasEstado } from '../constants'
+import { CitasEstado, TipoCita } from '../constants'
 import { Notificacion } from './notificacion.entity'
 import { Consultorio } from '@/application/consultorio/entities/consultorio.entity'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 import { Estudio } from '@/application/estudio/entities/estudio.entity'
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
+@Check(UtilService.buildCheck('tipo_cita', TipoCita))
 @Entity({ name: 'citas', schema: process.env.DB_SCHEMA })
 export class Cita extends AuditoriaEntity<CitasEstado> {
   @PrimaryGeneratedColumn({
@@ -169,13 +170,13 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   especialidad?: Especialidad | null
 
   @Column({
-    name: 'es_estudio',
-    type: 'boolean',
+    name: 'tipo_cita',
+    type: 'varchar',
+    length: 20,
     nullable: false,
-    comment: 'Indica si la cita es para un estudio',
-    default: false,
+    comment: 'Tipo de cita: CONSULTA o ESTUDIO',
   })
-  esEstudio: boolean
+  tipoCita: TipoCita
 
   @Column({
     name: 'id_estudio',

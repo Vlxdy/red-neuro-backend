@@ -154,7 +154,6 @@ export class CitasMedicasService extends BaseService {
     }
     let fechaFin: Date
     let idEstudio: string | null = null
-    let esEstudio = false
 
     if (tipoCita === TipoCita.ESTUDIO) {
       if (!dto.idEstudio) {
@@ -169,7 +168,6 @@ export class CitasMedicasService extends BaseService {
       )
       fechaFin = this.calcularFechaFin(fechaInicio, estudio.duracionMinutos)
       idEstudio = estudio.id
-      esEstudio = true
     } else {
       const duracion = this.obtenerDuracionConsultaMinutos()
       fechaFin = this.calcularFechaFin(fechaInicio, duracion)
@@ -190,7 +188,7 @@ export class CitasMedicasService extends BaseService {
         idConsultorio: dto.idConsultorio ?? null,
         idEspecialidad: dto.idEspecialidad,
         idEstudio,
-        esEstudio,
+        tipoCita,
       },
       usuarioAuditoria,
       rolEjecutor,
@@ -264,12 +262,10 @@ export class CitasMedicasService extends BaseService {
         throw new BadRequestException('La especialidad es obligatoria')
       }
 
-      const tipoCita =
-        dto.tipoCita ?? (cita.esEstudio ? TipoCita.ESTUDIO : TipoCita.CONSULTA)
+      const tipoCita = dto.tipoCita ?? cita.tipoCita ?? TipoCita.CONSULTA
 
       let fechaFin: Date
       let idEstudio: string | null = null
-      let esEstudio = false
 
       if (tipoCita === TipoCita.ESTUDIO) {
         const estudioId = dto.idEstudio ?? cita.idEstudio
@@ -290,7 +286,6 @@ export class CitasMedicasService extends BaseService {
           estudio.duracionMinutos
         )
         idEstudio = estudio.id
-        esEstudio = true
       } else {
         const duracion = this.obtenerDuracionConsultaMinutos()
         fechaFin = this.calcularFechaFin(
@@ -302,7 +297,7 @@ export class CitasMedicasService extends BaseService {
       updateData.fechaInicio = fechaInicio
       updateData.fechaFin = fechaFin
       updateData.idEstudio = idEstudio
-      updateData.esEstudio = esEstudio
+      updateData.tipoCita = tipoCita
     }
 
     const actualizado = await this.citasRepository.actualizarCita(
