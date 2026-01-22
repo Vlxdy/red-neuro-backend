@@ -96,12 +96,12 @@ export class CitasController extends BaseController {
     @Body() dto: CrearCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const rolEjecutor = this.getRol(req)
+    const idEjecutor = this.getUsuarioRol(req)
     const resultado = await this.citasService.crearCita(
       dto,
       usuarioAuditoria,
       undefined,
-      rolEjecutor
+      idEjecutor
     )
     this.citasGateway.emitCitaCreada(resultado)
     return this.successCreate(resultado)
@@ -116,13 +116,13 @@ export class CitasController extends BaseController {
     @Body() dto: ActualizarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const rolEjecutor = this.getRol(req)
+    const idEjecutor = this.getUsuarioRol(req)
     const resultado = await this.citasService.actualizarCita(
       id,
       dto,
       usuarioAuditoria,
       undefined,
-      rolEjecutor
+      idEjecutor
     )
     this.citasGateway.emitCitaActualizada(resultado)
     return this.successUpdate(resultado)
@@ -137,12 +137,12 @@ export class CitasController extends BaseController {
     @Body() dto: ActualizarEstadoCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const rolEjecutor = this.getRol(req)
+    const idEjecutor = this.getUsuarioRol(req)
     const resultado = await this.citasService.actualizarEstadoCita(
       id,
       dto,
       usuarioAuditoria,
-      rolEjecutor
+      idEjecutor
     )
     this.citasGateway.emitCitaEstadoActualizado(resultado)
     return this.successUpdate(resultado)
@@ -157,12 +157,12 @@ export class CitasController extends BaseController {
     @Body() dto: ReprogramarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const rolEjecutor = this.getRol(req)
+    const idEjecutor = this.getUsuarioRol(req)
     const resultado = await this.citasService.reprogramarCita(
       id,
       dto,
       usuarioAuditoria,
-      rolEjecutor
+      idEjecutor
     )
     this.citasGateway.emitCitaReprogramada(resultado)
     return this.successUpdate(resultado)
@@ -177,12 +177,12 @@ export class CitasController extends BaseController {
     @Body() dto: CancelarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const rolEjecutor = this.getRol(req)
+    const idEjecutor = this.getUsuarioRol(req)
     const resultado = await this.citasService.cancelarCita(
       id,
       dto,
       usuarioAuditoria,
-      rolEjecutor
+      idEjecutor
     )
     this.citasGateway.emitCitaCancelada(resultado)
     return this.successUpdate(resultado)

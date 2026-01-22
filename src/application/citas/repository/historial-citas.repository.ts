@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import {
-  Brackets,
-  DataSource,
-  EntityManager,
-  SelectQueryBuilder,
-} from 'typeorm'
+import { DataSource, EntityManager, SelectQueryBuilder } from 'typeorm'
 import { HistorialCita } from '../entities/cita-historial.entity'
 import { FiltrosHistorialCitaPaginadoDto } from '../dto/cita.dto'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import dayjs from 'dayjs'
+import { Paciente } from '@/application/paciente/entities/paciente.entity'
 
 @Injectable()
 export class HistorialCitasRepository {
@@ -20,6 +16,10 @@ export class HistorialCitasRepository {
 
   private usuarioRolRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(UsuarioRol)
+  }
+
+  private pacienteRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Paciente)
   }
 
   async crearHistorial(data: Partial<HistorialCita>, manager?: EntityManager) {
@@ -61,18 +61,6 @@ export class HistorialCitasRepository {
       })
     }
 
-    if (filtros.estadoAnterior) {
-      query.andWhere('historial.estadoAnterior = :estadoAnterior', {
-        estadoAnterior: filtros.estadoAnterior,
-      })
-    }
-
-    if (filtros.rolEjecutor) {
-      query.andWhere('historial.rolEjecutor = :rolEjecutor', {
-        rolEjecutor: filtros.rolEjecutor,
-      })
-    }
-
     if (filtros.idEjecutor) {
       query.andWhere('historial.idEjecutor = :idEjecutor', {
         idEjecutor: filtros.idEjecutor,
@@ -93,14 +81,12 @@ export class HistorialCitasRepository {
       .getManyAndCount()
   }
 
-  obtenerEjecutoresHistorial(
-    ejecutores: Array<{ idUsuario: string; idRol: string }>
-  ) {
-    if (!ejecutores.length) {
+  obtenerUsuariosRolPorIds(ids: string[]) {
+    if (!ids.length) {
       return []
     }
 
-    const query = this.usuarioRolRepository()
+    return this.usuarioRolRepository()
       .createQueryBuilder('usuarioRol')
       .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
@@ -112,20 +98,18 @@ export class HistorialCitasRepository {
         'usuarioRolEspecialidades.especialidad',
         'especialidad'
       )
-      .where(
-        new Brackets((qb) => {
-          ejecutores.forEach((ejecutor, index) => {
-            qb.orWhere(
-              `(usuarioRol.idUsuario = :idUsuario${index} AND usuarioRol.idRol = :idRol${index})`,
-              {
-                [`idUsuario${index}`]: ejecutor.idUsuario,
-                [`idRol${index}`]: ejecutor.idRol,
-              }
-            )
-          })
-        })
-      )
+      .where('usuarioRol.id IN (:...ids)', { ids })
+      .getMany()
+  }
 
-    return query.getMany()
+  obtenerPacientesPorIds(ids: string[]) {
+    if (!ids.length) {
+      return []
+    }
+
+    return this.pacienteRepository()
+      .createQueryBuilder('paciente')
+      .where('paciente.id IN (:...ids)', { ids })
+      .getMany()
   }
 }

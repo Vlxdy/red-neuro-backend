@@ -21,7 +21,11 @@ export class HistorialCitasController extends BaseController {
     super()
   }
 
-  @ApiOperation({ summary: 'Lista el historial de una cita médica' })
+  @ApiOperation({
+    summary: 'Lista el historial de una cita médica',
+    description:
+      'Devuelve el listado paginado del historial con detalle de cambios y datos del ejecutor, incluyendo información de médico/paciente cuando corresponda.',
+  })
   @ApiBaseResponseListRows(HistorialCitaResponseDto)
   @Get(':id/historial')
   async listarHistorial(

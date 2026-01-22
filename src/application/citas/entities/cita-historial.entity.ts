@@ -10,7 +10,7 @@ import {
 } from 'typeorm'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { Cita } from './cita.entity'
-import { CitasEstado, CitasHistorialEstado } from '../constants'
+import { CitasHistorialEstado } from '../constants'
 import { TipoActualizacion } from './notificacion.entity'
 import 'bootstrap/env'
 
@@ -39,28 +39,10 @@ export class HistorialCita extends AuditoriaEntity {
   cita: Cita
 
   @Column({
-    name: 'estado_anterior',
-    type: 'varchar',
-    length: 30,
-    nullable: true,
-    comment: 'Estado de la cita antes de ejecutar la transición registrada',
-  })
-  estadoAnterior?: CitasEstado
-
-  @Column({
-    name: 'rol_ejecutor',
-    type: 'varchar',
-    length: 50,
-    nullable: false,
-    comment: 'Rol del usuario que ejecutó la acción registrada en el historial',
-  })
-  rolEjecutor: string
-
-  @Column({
     name: 'id_ejecutor',
     type: 'bigint',
     nullable: false,
-    comment: 'Identificador del usuario que ejecutó la acción',
+    comment: 'Identificador del usuario ejecutor (usuario-rol)',
   })
   idEjecutor: string
 

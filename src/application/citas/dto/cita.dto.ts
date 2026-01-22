@@ -152,23 +152,7 @@ export class FiltrosHistorialCitaPaginadoDto extends PaginacionQueryDto {
   fechaFin?: string
 
   @ApiPropertyOptional({
-    enum: CitasEstado,
-    description: 'Filtrar por estado anterior',
-  })
-  @IsOptional()
-  @IsEnum(CitasEstado)
-  estadoAnterior?: CitasEstado
-
-  @ApiPropertyOptional({
-    description: 'Rol del usuario ejecutor',
-    example: 'MEDICO',
-  })
-  @IsOptional()
-  @IsString()
-  rolEjecutor?: string
-
-  @ApiPropertyOptional({
-    description: 'Identificador del usuario ejecutor',
+    description: 'Identificador del usuario ejecutor (usuario-rol)',
     example: '42',
   })
   @IsOptional()
@@ -425,19 +409,8 @@ export class HistorialCitaResponseDto {
   citaId!: string
 
   @ApiProperty({
-    enum: CitasEstado,
-    description: 'Estado previo de la cita antes de la transición',
-    required: false,
-  })
-  estadoAnterior?: CitasEstado
-
-  @ApiProperty({
-    description: 'Rol del usuario que ejecutó la acción registrada',
-  })
-  rolEjecutor!: string
-
-  @ApiProperty({
-    description: 'Identificador del usuario que ejecutó la acción',
+    description:
+      'Identificador del usuario que ejecutó la acción (usuario-rol)',
   })
   idEjecutor!: string
 
@@ -448,13 +421,17 @@ export class HistorialCitaResponseDto {
   comentario?: string
 
   @ApiProperty({
-    description: 'Detalle de cambios realizados sobre la cita',
+    description:
+      'Detalle de cambios realizados sobre la cita, incluyendo valores anteriores y posteriores',
     required: false,
+    type: () => HistorialCambioDto,
+    isArray: true,
   })
   detalleCambios?: HistorialCambioDto[]
 
   @ApiProperty({
-    description: 'Datos del usuario ejecutor',
+    description:
+      'Datos del usuario ejecutor (cuando está disponible en el historial)',
     type: () => PersonalResponseDto,
     required: false,
   })
@@ -481,4 +458,20 @@ export class HistorialCambioDto {
     required: false,
   })
   after?: string
+
+  @ApiProperty({
+    description:
+      'Detalle del valor anterior si corresponde a un médico o paciente',
+    required: false,
+    type: Object,
+  })
+  beforeDetalle?: PersonalResponseDto | PacienteResponseDto
+
+  @ApiProperty({
+    description:
+      'Detalle del valor posterior si corresponde a un médico o paciente',
+    required: false,
+    type: Object,
+  })
+  afterDetalle?: PersonalResponseDto | PacienteResponseDto
 }
