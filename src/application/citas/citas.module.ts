@@ -8,10 +8,18 @@ import { Cita } from './entities/cita.entity'
 import { HistorialCita } from './entities/cita-historial.entity'
 import { Notificacion } from './entities/notificacion.entity'
 import { CitasMedicasRepository } from './repository/citas-medicas.repository'
+import { HistorialCitasRepository } from './repository/historial-citas.repository'
+import { HistorialCitasService } from './services/historial-citas.service'
 
 @Module({
   imports: [TypeOrmModule.forFeature([Cita, HistorialCita, Notificacion])],
-  providers: [CitasMedicasRepository, CitasMedicasService, CitasGateway],
+  providers: [
+    CitasMedicasRepository,
+    HistorialCitasRepository,
+    CitasMedicasService,
+    HistorialCitasService,
+    CitasGateway,
+  ],
   controllers: [CitasController, HistorialCitasController],
 })
 export class CitasModule {}

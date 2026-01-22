@@ -15,19 +15,14 @@ import {
   CrearCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
-  FiltrosHistorialCitaPaginadoDto,
-  HistorialCitaResponseDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 
 import { CitasMedicasRepository } from '../repository/citas-medicas.repository'
 import { formatearCita, formatearCitas } from '../utils/formatear-citas'
-import { formatearHistorialCitas } from '../utils/formatear-historial'
-import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
@@ -105,32 +100,6 @@ export class CitasMedicasService extends BaseService {
     }
   }
 
-  async listarHistorialCita(
-    id: string,
-    filtros: FiltrosHistorialCitaPaginadoDto
-  ): Promise<[HistorialCitaResponseDto[], number]> {
-    await this.obtenerCitaId(id)
-    const [historial, total] =
-      await this.citasRepository.listarHistorialCitaPaginado(id, filtros)
-    const ejecutoresUnicos = Array.from(
-      new Map(
-        historial.map((item) => [
-          `${item.idEjecutor}-${item.rolEjecutor}`,
-          { idUsuario: item.idEjecutor, idRol: item.rolEjecutor },
-        ])
-      ).values()
-    )
-    const ejecutores: UsuarioRol[] =
-      await this.citasRepository.obtenerEjecutoresHistorial(ejecutoresUnicos)
-    const ejecutoresMap = new Map(
-      ejecutores.map((ejecutor) => [
-        `${ejecutor.idUsuario}-${ejecutor.idRol}`,
-        formatearPersonal(ejecutor),
-      ])
-    )
-    return [formatearHistorialCitas(historial, ejecutoresMap), total]
-  }
-
   async obtenerCita(
     id: string,
     transaccion?: EntityManager
@@ -178,7 +147,7 @@ export class CitasMedicasService extends BaseService {
       throw new BadRequestException('La especialidad es obligatoria')
     }
 
-    const fechaInicio = new Date(dto.fechaInicio)
+    const fechaInicio = dayjs(dto.fechaInicio).toDate()
     const tipoCita = dto.tipoCita
     if (!tipoCita) {
       throw new BadRequestException('El tipo de cita es obligatorio')
@@ -267,7 +236,7 @@ export class CitasMedicasService extends BaseService {
       throw new BadRequestException('La especialidad es obligatoria')
     }
 
-    const fechaInicio = new Date(dto.fechaInicio)
+    const fechaInicio = dayjs(dto.fechaInicio).toDate()
 
     let fechaFin: Date
     let idEstudio: string | null = null
@@ -340,7 +309,7 @@ export class CitasMedicasService extends BaseService {
     usuarioAuditoria = '0',
     rolEjecutor = 'SISTEMA'
   ): Promise<CitaResponseDto> {
-    const fechaInicio = new Date(dto.fechaInicio)
+    const fechaInicio = dayjs(dto.fechaInicio).toDate()
     const tipoCita = dto.tipoCita
 
     if (!tipoCita) {
