@@ -9,6 +9,9 @@ import { CitasMedicasService } from './citas-medicas.service'
 import { formatearHistorialCitas } from '../utils/formatear-historial'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
+import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
+import { TipoActualizacion } from '../entities/notificacion.entity'
+import { HistorialCita } from '../entities/cita-historial.entity'
 
 @Injectable()
 export class HistorialCitasService extends BaseService {
@@ -27,24 +30,77 @@ export class HistorialCitasService extends BaseService {
     await this.citasService.obtenerCitaId(id)
     const [historial, total] =
       await this.historialRepository.listarHistorialCitaPaginado(id, filtros)
-    const ejecutoresUnicos = Array.from(
-      new Map(
-        historial.map((item) => [
-          `${item.idEjecutor}-${item.rolEjecutor}`,
-          { idUsuario: item.idEjecutor, idRol: item.rolEjecutor },
-        ])
-      ).values()
+    const ejecutoresIds = Array.from(
+      new Set(historial.map((item) => item.idEjecutor))
     )
     const ejecutores: UsuarioRol[] =
-      await this.historialRepository.obtenerEjecutoresHistorial(
-        ejecutoresUnicos
-      )
+      await this.historialRepository.obtenerUsuariosRolPorIds(ejecutoresIds)
     const ejecutoresMap = new Map(
-      ejecutores.map((ejecutor) => [
-        `${ejecutor.idUsuario}-${ejecutor.idRol}`,
-        formatearPersonal(ejecutor),
-      ])
+      ejecutores.map((ejecutor) => [ejecutor.id, formatearPersonal(ejecutor)])
     )
-    return [formatearHistorialCitas(historial, ejecutoresMap), total]
+    const { medicoIds, pacienteIds } = this.obtenerIdsRelacionados(historial)
+    const medicos =
+      await this.historialRepository.obtenerUsuariosRolPorIds(medicoIds)
+    const pacientes =
+      await this.historialRepository.obtenerPacientesPorIds(pacienteIds)
+    const medicosMap = new Map(
+      medicos.map((medico) => [medico.id, formatearPersonal(medico)])
+    )
+    const pacientesMap = new Map(
+      pacientes.map((paciente) => [paciente.id, formatearPaciente(paciente)])
+    )
+    return [
+      formatearHistorialCitas(
+        historial,
+        ejecutoresMap,
+        medicosMap,
+        pacientesMap
+      ),
+      total,
+    ]
+  }
+
+  private obtenerIdsRelacionados(historial: HistorialCita[]) {
+    const medicoIds = new Set<string>()
+    const pacienteIds = new Set<string>()
+
+    historial.forEach((item) => {
+      this.extraerIdsDesdeDetalle(item.detalleCambios, medicoIds, pacienteIds)
+    })
+
+    return {
+      medicoIds: Array.from(medicoIds),
+      pacienteIds: Array.from(pacienteIds),
+    }
+  }
+
+  private extraerIdsDesdeDetalle(
+    detalle?: TipoActualizacion[],
+    medicoIds?: Set<string>,
+    pacienteIds?: Set<string>
+  ) {
+    if (!detalle?.length) {
+      return
+    }
+
+    detalle.forEach((cambio) => {
+      if (cambio.field === 'idMedico') {
+        if (cambio.before) {
+          medicoIds?.add(cambio.before)
+        }
+        if (cambio.after) {
+          medicoIds?.add(cambio.after)
+        }
+      }
+
+      if (cambio.field === 'idPaciente') {
+        if (cambio.before) {
+          pacienteIds?.add(cambio.before)
+        }
+        if (cambio.after) {
+          pacienteIds?.add(cambio.after)
+        }
+      }
+    })
   }
 }

@@ -36,6 +36,8 @@ export interface TipoActualizacion {
   beforeColor?: string
   beforeArray?: Array<string>
   afterArray?: Array<string>
+  beforeDetalle?: Record<string, unknown>
+  afterDetalle?: Record<string, unknown>
 }
 
 @Check(UtilService.buildStatusCheck(NotificacionEstado))

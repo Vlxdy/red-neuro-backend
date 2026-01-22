@@ -112,10 +112,16 @@ export interface NotificacionResponse {
 
 export interface HistorialCitasResponse {
   id: string
-  estadoAnterior: string
-  estado: string
-  comentario: string | null
-  rolEjecutor: string
-  usuarioEjecutor: UsuarioRolResponse
+  citaId: string
+  comentario?: string | null
+  idEjecutor: string
+  detalleCambios?: Array<{
+    field: string
+    before?: string
+    after?: string
+    beforeDetalle?: Record<string, unknown>
+    afterDetalle?: Record<string, unknown>
+  }>
+  ejecutor?: UsuarioRolResponse
   fechaCreacion: Date | string
 }

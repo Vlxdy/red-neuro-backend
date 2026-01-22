@@ -86,11 +86,11 @@ export class CitasMedicasService extends BaseService {
   async actualizarCitasVencidas(): Promise<void> {
     const fechaCorte = dayjs().startOf('day').toDate()
     const usuarioAuditoria = '0'
-    const rolEjecutor = 'SISTEMA'
+    const idEjecutor = '0'
     const actualizadas = await this.citasRepository.marcarCitasVencidas(
       fechaCorte,
       usuarioAuditoria,
-      rolEjecutor
+      idEjecutor
     )
 
     if (actualizadas > 0) {
@@ -129,7 +129,7 @@ export class CitasMedicasService extends BaseService {
     dto: CrearCitaDto,
     usuarioAuditoria = '0',
     transaccion?: EntityManager,
-    rolEjecutor = 'SISTEMA'
+    idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
@@ -137,7 +137,7 @@ export class CitasMedicasService extends BaseService {
           dto,
           usuarioAuditoria,
           nuevaTransaccion,
-          rolEjecutor
+          idEjecutor
         )
       }
       return await this.citasRepository.runTransaction(op)
@@ -191,7 +191,7 @@ export class CitasMedicasService extends BaseService {
         tipoCita,
       },
       usuarioAuditoria,
-      rolEjecutor,
+      idEjecutor,
       transaccion
     )
     if (!citaId) {
@@ -206,7 +206,7 @@ export class CitasMedicasService extends BaseService {
     dto: ActualizarCitaDto,
     usuarioAuditoria = '0',
     transaccion?: EntityManager,
-    rolEjecutor = 'SISTEMA'
+    idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
@@ -215,7 +215,7 @@ export class CitasMedicasService extends BaseService {
           dto,
           usuarioAuditoria,
           nuevaTransaccion,
-          rolEjecutor
+          idEjecutor
         )
       }
       return await this.citasRepository.runTransaction(op)
@@ -304,7 +304,7 @@ export class CitasMedicasService extends BaseService {
       cita,
       updateData,
       usuarioAuditoria,
-      rolEjecutor,
+      idEjecutor,
       transaccion
     )
 
@@ -319,13 +319,13 @@ export class CitasMedicasService extends BaseService {
     id: string,
     dto: ActualizarEstadoCitaDto,
     usuarioAuditoria = '0',
-    rolEjecutor = 'SISTEMA'
+    idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     const actualizado = await this.citasRepository.actualizarEstadoCita(
       id,
       dto,
       usuarioAuditoria,
-      rolEjecutor
+      idEjecutor
     )
     if (!actualizado) {
       throw new NotFoundException('La cita solicitada no existe')
@@ -337,7 +337,7 @@ export class CitasMedicasService extends BaseService {
     id: string,
     dto: ReprogramarCitaDto,
     usuarioAuditoria = '0',
-    rolEjecutor = 'SISTEMA'
+    idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     const fechaInicio = dayjs(dto.fechaInicio).toDate()
     const tipoCita = dto.tipoCita
@@ -373,7 +373,7 @@ export class CitasMedicasService extends BaseService {
       id,
       { ...dto, fechaFin },
       usuarioAuditoria,
-      rolEjecutor
+      idEjecutor
     )
     if (!actualizado) {
       throw new NotFoundException('La cita solicitada no existe')
@@ -385,13 +385,13 @@ export class CitasMedicasService extends BaseService {
     id: string,
     dto: CancelarCitaDto,
     usuarioAuditoria = '0',
-    rolEjecutor = 'SISTEMA'
+    idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     const actualizado = await this.citasRepository.cancelarCita(
       id,
       dto,
       usuarioAuditoria,
-      rolEjecutor
+      idEjecutor
     )
     if (!actualizado) {
       throw new NotFoundException('La cita solicitada no existe')

@@ -17,7 +17,11 @@ import {
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 import { Estudio } from '@/application/estudio/entities/estudio.entity'
-import { Notificacion, NotificacionTipo } from '../entities/notificacion.entity'
+import {
+  Notificacion,
+  NotificacionTipo,
+  TipoActualizacion,
+} from '../entities/notificacion.entity'
 import { HistorialCitasRepository } from './historial-citas.repository'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
@@ -118,7 +122,7 @@ export class CitasMedicasRepository {
       idEstudio?: string | null
     },
     usuarioAuditoria: string,
-    rolEjecutor: string,
+    idEjecutor: string,
     transaccion: EntityManager
   ) {
     const cita = this.citaRepository(transaccion).create({
@@ -140,9 +144,7 @@ export class CitasMedicasRepository {
     await this.historialRepository.crearHistorial(
       {
         idCita: guardada.id,
-        estadoAnterior: undefined,
-        rolEjecutor,
-        idEjecutor: usuarioAuditoria,
+        idEjecutor,
         comentario: 'Creación de cita',
         usuarioCreacion: usuarioAuditoria,
       },
@@ -167,11 +169,14 @@ export class CitasMedicasRepository {
     cita: Cita,
     data: Partial<Cita>,
     usuarioAuditoria: string,
-    rolEjecutor: string,
+    idEjecutor: string,
     transaccion: EntityManager
   ) {
-    const estadoAnterior = cita.estado
     const detalleCambios = this.construirCambiosCita(cita, data)
+
+    if (!detalleCambios.length) {
+      return true
+    }
 
     const patch: QueryDeepPartialEntity<Cita> = {
       usuarioModificacion: usuarioAuditoria,
@@ -205,9 +210,7 @@ export class CitasMedicasRepository {
     await this.historialRepository.crearHistorial(
       {
         idCita: cita.id,
-        estadoAnterior,
-        rolEjecutor,
-        idEjecutor: usuarioAuditoria,
+        idEjecutor,
         comentario: 'Actualización de datos de cita',
         detalleCambios: detalleCambios.length ? detalleCambios : null,
         usuarioCreacion: usuarioAuditoria,
@@ -222,7 +225,7 @@ export class CitasMedicasRepository {
     id: string,
     dto: ActualizarEstadoCitaDto,
     usuarioAuditoria: string,
-    rolEjecutor: string
+    idEjecutor: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
       const cita = await this.obtenerCitaConRelaciones(id, manager)
@@ -230,15 +233,16 @@ export class CitasMedicasRepository {
         return null
       }
       const estadoAnterior = cita.estado
+      if (estadoAnterior === dto.estado) {
+        return true
+      }
       cita.estado = dto.estado
       cita.usuarioModificacion = usuarioAuditoria
       await this.citaRepository(manager).save(cita)
       await this.historialRepository.crearHistorial(
         {
           idCita: cita.id,
-          estadoAnterior,
-          rolEjecutor,
-          idEjecutor: usuarioAuditoria,
+          idEjecutor,
           comentario: 'Actualización de estado de cita',
           detalleCambios: [
             {
@@ -259,7 +263,7 @@ export class CitasMedicasRepository {
     id: string,
     dto: ReprogramarCitaDto & { fechaFin: Date },
     usuarioAuditoria: string,
-    rolEjecutor: string
+    idEjecutor: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
       const cita = await this.obtenerCitaConRelaciones(id, manager)
@@ -269,39 +273,45 @@ export class CitasMedicasRepository {
       const estadoAnterior = cita.estado
       const fechaInicioAnterior = cita.fechaInicio
       const fechaFinAnterior = cita.fechaFin
-      cita.fechaInicio = dayjs(dto.fechaInicio).toDate()
-      cita.fechaFin = dto.fechaFin
-      cita.estado =
+      const nuevaFechaInicio = dayjs(dto.fechaInicio).toDate()
+      const nuevaFechaFin = dto.fechaFin
+      const nuevoEstado =
         CitasEstado.RECHAZADA === cita.estado
           ? CitasEstado.SOLICITADA
           : (cita.estado as CitasEstado)
+      const detalleCambios: TipoActualizacion[] = []
+      this.registrarCambio(
+        detalleCambios,
+        'fechaInicio',
+        fechaInicioAnterior?.toISOString(),
+        nuevaFechaInicio?.toISOString()
+      )
+      this.registrarCambio(
+        detalleCambios,
+        'fechaFin',
+        fechaFinAnterior?.toISOString(),
+        nuevaFechaFin?.toISOString()
+      )
+      this.registrarCambio(
+        detalleCambios,
+        'estado',
+        estadoAnterior,
+        nuevoEstado
+      )
+
+      if (!detalleCambios.length) {
+        return true
+      }
+
+      cita.fechaInicio = nuevaFechaInicio
+      cita.fechaFin = nuevaFechaFin
+      cita.estado = nuevoEstado
       cita.usuarioModificacion = usuarioAuditoria
       await this.citaRepository(manager).save(cita)
-      const detalleCambios = [
-        {
-          field: 'fechaInicio',
-          before: fechaInicioAnterior?.toISOString(),
-          after: cita.fechaInicio?.toISOString(),
-        },
-        {
-          field: 'fechaFin',
-          before: fechaFinAnterior?.toISOString(),
-          after: cita.fechaFin?.toISOString(),
-        },
-      ]
-      if (estadoAnterior !== cita.estado) {
-        detalleCambios.push({
-          field: 'estado',
-          before: estadoAnterior,
-          after: cita.estado,
-        })
-      }
       await this.historialRepository.crearHistorial(
         {
           idCita: cita.id,
-          estadoAnterior,
-          rolEjecutor,
-          idEjecutor: usuarioAuditoria,
+          idEjecutor,
           comentario: 'Reprogramación de cita',
           detalleCambios,
           usuarioCreacion: usuarioAuditoria,
@@ -316,7 +326,7 @@ export class CitasMedicasRepository {
     id: string,
     dto: CancelarCitaDto,
     usuarioAuditoria: string,
-    rolEjecutor: string
+    idEjecutor: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
       const cita = await this.obtenerCitaConRelaciones(id, manager)
@@ -324,15 +334,16 @@ export class CitasMedicasRepository {
         return null
       }
       const estadoAnterior = cita.estado
+      if (estadoAnterior === CitasEstado.CANCELADA) {
+        return true
+      }
       cita.estado = CitasEstado.CANCELADA
       cita.usuarioModificacion = usuarioAuditoria
       await this.citaRepository(manager).save(cita)
       await this.historialRepository.crearHistorial(
         {
           idCita: cita.id,
-          estadoAnterior,
-          rolEjecutor,
-          idEjecutor: usuarioAuditoria,
+          idEjecutor,
           comentario: dto.comentario ?? null,
           detalleCambios: [
             {
@@ -350,48 +361,58 @@ export class CitasMedicasRepository {
   }
 
   private construirCambiosCita(cita: Cita, data: Partial<Cita>) {
-    const cambios: Array<{ field: string; before?: string; after?: string }> =
-      []
-    const agregarCambio = (field: string, before?: string, after?: string) => {
-      if (before !== after) {
-        cambios.push({ field, before, after })
-      }
-    }
+    const cambios: TipoActualizacion[] = []
 
-    agregarCambio('detalle', cita.detalle, data.detalle ?? cita.detalle)
-    agregarCambio(
+    this.registrarCambio(
+      cambios,
+      'detalle',
+      cita.detalle,
+      data.detalle ?? cita.detalle
+    )
+    this.registrarCambio(
+      cambios,
       'fechaInicio',
       cita.fechaInicio?.toISOString(),
       data.fechaInicio?.toISOString()
     )
-    agregarCambio(
+    this.registrarCambio(
+      cambios,
       'fechaFin',
       cita.fechaFin?.toISOString(),
       data.fechaFin?.toISOString()
     )
-    agregarCambio('idMedico', cita.idMedico, data.idMedico ?? cita.idMedico)
-    agregarCambio(
+    this.registrarCambio(
+      cambios,
+      'idMedico',
+      cita.idMedico,
+      data.idMedico ?? cita.idMedico
+    )
+    this.registrarCambio(
+      cambios,
       'idPaciente',
       cita.idPaciente ?? undefined,
       data.idPaciente !== undefined
         ? (data.idPaciente ?? undefined)
         : (cita.idPaciente ?? undefined)
     )
-    agregarCambio(
+    this.registrarCambio(
+      cambios,
       'idConsultorio',
       cita.idConsultorio ?? undefined,
       data.idConsultorio !== undefined
         ? (data.idConsultorio ?? undefined)
         : (cita.idConsultorio ?? undefined)
     )
-    agregarCambio(
+    this.registrarCambio(
+      cambios,
       'idEspecialidad',
       cita.idEspecialidad ?? undefined,
       data.idEspecialidad !== undefined
         ? (data.idEspecialidad ?? undefined)
         : (cita.idEspecialidad ?? undefined)
     )
-    agregarCambio(
+    this.registrarCambio(
+      cambios,
       'idEstudio',
       cita.idEstudio ?? undefined,
       data.tipoCita === TipoCita.ESTUDIO
@@ -400,15 +421,31 @@ export class CitasMedicasRepository {
           ? undefined
           : (cita.idEstudio ?? undefined)
     )
-    agregarCambio('tipoCita', cita.tipoCita, data.tipoCita ?? cita.tipoCita)
+    this.registrarCambio(
+      cambios,
+      'tipoCita',
+      cita.tipoCita,
+      data.tipoCita ?? cita.tipoCita
+    )
 
     return cambios
+  }
+
+  private registrarCambio(
+    cambios: TipoActualizacion[],
+    field: string,
+    before?: string,
+    after?: string
+  ) {
+    if (before !== after) {
+      cambios.push({ field, before, after })
+    }
   }
 
   async marcarCitasVencidas(
     fechaCorte: Date,
     usuarioAuditoria: string,
-    rolEjecutor: string
+    idEjecutor: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
       const estadosElegibles = [
@@ -444,10 +481,15 @@ export class CitasMedicasRepository {
       await this.historialRepository.crearHistoriales(
         citasConEstadoAnterior.map(({ cita, estadoAnterior }) => ({
           idCita: cita.id,
-          estadoAnterior,
-          rolEjecutor,
-          idEjecutor: usuarioAuditoria,
+          idEjecutor,
           comentario: 'Actualización automática por cita vencida',
+          detalleCambios: [
+            {
+              field: 'estado',
+              before: estadoAnterior,
+              after: cita.estado,
+            },
+          ],
           usuarioCreacion: usuarioAuditoria,
         })),
         manager
