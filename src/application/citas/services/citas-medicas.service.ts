@@ -225,64 +225,99 @@ export class CitasMedicasService extends BaseService {
 
     const cita = await this.obtenerCitaId(id, transaccion)
 
-    const tipoCita = dto.tipoCita
-    const idEspecialidad = dto.idEspecialidad
+    const updateData: Partial<Cita> = {}
 
-    if (!tipoCita) {
-      throw new BadRequestException('El tipo de cita es obligatorio')
+    if (dto.detalle !== undefined) {
+      updateData.detalle = dto.detalle
     }
 
-    if (!idEspecialidad) {
-      throw new BadRequestException('La especialidad es obligatoria')
+    if (dto.idMedico !== undefined) {
+      updateData.idMedico = dto.idMedico
+      updateData.estado = CitasEstado.SOLICITADA
     }
 
-    const fechaInicio = dayjs(dto.fechaInicio).toDate()
+    if (dto.idPaciente !== undefined) {
+      updateData.idPaciente = dto.idPaciente
+    }
 
-    let fechaFin: Date
-    let idEstudio: string | null = null
-    let esEstudio = false
+    if (dto.idConsultorio !== undefined) {
+      updateData.idConsultorio = dto.idConsultorio
+    }
 
-    if (tipoCita === TipoCita.ESTUDIO) {
-      if (!dto.idEstudio) {
-        throw new BadRequestException(
-          'El estudio es obligatorio para una cita de tipo ESTUDIO'
+    if (dto.idEspecialidad !== undefined) {
+      updateData.idEspecialidad = dto.idEspecialidad
+    }
+
+    const requiereRecalculo =
+      dto.fechaInicio !== undefined ||
+      dto.idEstudio !== undefined ||
+      dto.tipoCita !== undefined ||
+      dto.idEspecialidad !== undefined
+
+    if (requiereRecalculo) {
+      const fechaInicio = dto.fechaInicio
+        ? dayjs(dto.fechaInicio).toDate()
+        : cita.fechaInicio
+
+      const idEspecialidad = dto.idEspecialidad ?? cita.idEspecialidad
+      if (!idEspecialidad) {
+        throw new BadRequestException('La especialidad es obligatoria')
+      }
+
+      const tipoCita =
+        dto.tipoCita ?? (cita.esEstudio ? TipoCita.ESTUDIO : TipoCita.CONSULTA)
+
+      let fechaFin: Date
+      let idEstudio: string | null = null
+      let esEstudio = false
+
+      if (tipoCita === TipoCita.ESTUDIO) {
+        const estudioId = dto.idEstudio ?? cita.idEstudio
+        if (!estudioId) {
+          throw new BadRequestException(
+            'El estudio es obligatorio para una cita de tipo ESTUDIO'
+          )
+        }
+
+        const estudio = await this.resolverDuracionEstudio(
+          estudioId,
+          idEspecialidad,
+          transaccion
+        )
+
+        fechaFin = this.calcularFechaFin(
+          fechaInicio ?? dayjs(cita.fechaInicio).toDate(),
+          estudio.duracionMinutos
+        )
+        idEstudio = estudio.id
+        esEstudio = true
+      } else {
+        const duracion = this.obtenerDuracionConsultaMinutos()
+        fechaFin = this.calcularFechaFin(
+          fechaInicio ?? dayjs(cita.fechaInicio).toDate(),
+          duracion
         )
       }
-      const estudio = await this.resolverDuracionEstudio(
-        dto.idEstudio,
-        idEspecialidad,
-        transaccion
-      )
-      fechaFin = this.calcularFechaFin(fechaInicio, estudio.duracionMinutos)
-      idEstudio = estudio.id
-      esEstudio = true
-    } else {
-      const duracion = this.obtenerDuracionConsultaMinutos()
-      fechaFin = this.calcularFechaFin(fechaInicio, duracion)
+
+      updateData.fechaInicio = fechaInicio
+      updateData.fechaFin = fechaFin
+      updateData.idEstudio = idEstudio
+      updateData.esEstudio = esEstudio
     }
 
     const actualizado = await this.citasRepository.actualizarCita(
       cita,
-      {
-        detalle: dto.detalle,
-        fechaInicio,
-        fechaFin,
-        idMedico: dto.idMedico,
-        idPaciente: dto.idPaciente,
-        idConsultorio: dto.idConsultorio,
-        idEspecialidad,
-        idEstudio,
-        esEstudio,
-      },
+      updateData,
       usuarioAuditoria,
       rolEjecutor,
       transaccion
     )
+
     if (!actualizado) {
       throw new NotFoundException('La cita solicitada no existe')
     }
 
-    return await this.obtenerCita(id)
+    return await this.obtenerCita(id, transaccion)
   }
 
   async actualizarEstadoCita(

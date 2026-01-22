@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger'
 import {
   IsDateString,
   IsEnum,
@@ -246,7 +246,7 @@ export class CrearCitaDto {
   idEstudio?: string
 }
 
-export class ActualizarCitaDto extends CrearCitaDto {}
+export class ActualizarCitaDto extends PartialType(CrearCitaDto) {}
 
 export class ActualizarEstadoCitaDto {
   @ApiProperty({ enum: CitasEstado, description: 'Nuevo estado de la cita' })

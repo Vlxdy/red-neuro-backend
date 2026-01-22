@@ -19,6 +19,7 @@ import {
 import { Estudio } from '@/application/estudio/entities/estudio.entity'
 import { Notificacion, NotificacionTipo } from '../entities/notificacion.entity'
 import { HistorialCitasRepository } from './historial-citas.repository'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
 @Injectable()
 export class CitasMedicasRepository {
@@ -164,44 +165,41 @@ export class CitasMedicasRepository {
 
   async actualizarCita(
     cita: Cita,
-    data: {
-      detalle?: string
-      fechaInicio: Date
-      fechaFin: Date
-      idMedico?: string
-      idPaciente?: string | null
-      idConsultorio?: string | null
-      idEspecialidad?: string | null
-      idEstudio?: string | null
-      esEstudio: boolean
-    },
+    data: Partial<Cita>,
     usuarioAuditoria: string,
     rolEjecutor: string,
     transaccion: EntityManager
   ) {
     const estadoAnterior = cita.estado
     const detalleCambios = this.construirCambiosCita(cita, data)
-    Object.assign(cita, {
-      detalle: data.detalle ?? cita.detalle,
-      fechaInicio: data.fechaInicio,
-      fechaFin: data.fechaFin,
-      idMedico: data.idMedico ?? cita.idMedico,
-      idPaciente:
-        data.idPaciente !== undefined ? data.idPaciente : cita.idPaciente,
-      idConsultorio:
-        data.idConsultorio !== undefined
-          ? data.idConsultorio
-          : cita.idConsultorio,
-      idEspecialidad:
-        data.idEspecialidad !== undefined
-          ? data.idEspecialidad
-          : cita.idEspecialidad,
-      idEstudio: data.esEstudio ? (data.idEstudio ?? cita.idEstudio) : null,
-      esEstudio: data.esEstudio,
-      usuarioModificacion: usuarioAuditoria,
-    })
 
-    await this.citaRepository(transaccion).save(cita)
+    const patch: QueryDeepPartialEntity<Cita> = {
+      usuarioModificacion: usuarioAuditoria,
+    }
+
+    if (data.detalle !== undefined) patch.detalle = data.detalle
+    if (data.fechaInicio !== undefined) patch.fechaInicio = data.fechaInicio
+    if (data.fechaFin !== undefined) patch.fechaFin = data.fechaFin
+    if (data.idMedico !== undefined) patch.idMedico = data.idMedico
+    if (data.idPaciente !== undefined) patch.idPaciente = data.idPaciente
+    if (data.idConsultorio !== undefined)
+      patch.idConsultorio = data.idConsultorio
+    if (data.idEspecialidad !== undefined)
+      patch.idEspecialidad = data.idEspecialidad
+
+    if (data.esEstudio === true) {
+      if (data.idEstudio !== undefined) patch.idEstudio = data.idEstudio
+      patch.esEstudio = true
+    }
+
+    if (data.esEstudio === false) {
+      patch.esEstudio = false
+      patch.idEstudio = null
+    }
+
+    await this.citaRepository(transaccion).update(cita.id, {
+      ...patch,
+    })
 
     await this.historialRepository.crearHistorial(
       {
@@ -350,20 +348,7 @@ export class CitasMedicasRepository {
     })
   }
 
-  private construirCambiosCita(
-    cita: Cita,
-    data: {
-      detalle?: string
-      fechaInicio: Date
-      fechaFin: Date
-      idMedico?: string
-      idPaciente?: string | null
-      idConsultorio?: string | null
-      idEspecialidad?: string | null
-      idEstudio?: string | null
-      esEstudio: boolean
-    }
-  ) {
+  private construirCambiosCita(cita: Cita, data: Partial<Cita>) {
     const cambios: Array<{ field: string; before?: string; after?: string }> =
       []
     const agregarCambio = (field: string, before?: string, after?: string) => {

@@ -215,34 +215,34 @@ function getAndCleanRequestDataFromConfig(
 function isAxiosResponse(data: unknown) {
   return Boolean(
     data &&
-      typeof data === 'object' &&
-      'data' in data &&
-      typeof data.data !== 'undefined' &&
-      'status' in data &&
-      typeof data.status !== 'undefined' &&
-      'statusText' in data &&
-      typeof data.statusText !== 'undefined' &&
-      'headers' in data &&
-      typeof data.headers !== 'undefined' &&
-      'config' in data &&
-      typeof data.config !== 'undefined'
+    typeof data === 'object' &&
+    'data' in data &&
+    typeof data.data !== 'undefined' &&
+    'status' in data &&
+    typeof data.status !== 'undefined' &&
+    'statusText' in data &&
+    typeof data.statusText !== 'undefined' &&
+    'headers' in data &&
+    typeof data.headers !== 'undefined' &&
+    'config' in data &&
+    typeof data.config !== 'undefined'
   )
 }
 
 function isAxiosRequest(data: unknown) {
   return Boolean(
     data &&
-      typeof data === 'object' &&
-      'path' in data &&
-      typeof data.path !== 'undefined' &&
-      'method' in data &&
-      typeof data.method !== 'undefined' &&
-      'host' in data &&
-      typeof data.host !== 'undefined' &&
-      'protocol' in data &&
-      typeof data.protocol !== 'undefined' &&
-      'res' in data &&
-      typeof data.res !== 'undefined'
+    typeof data === 'object' &&
+    'path' in data &&
+    typeof data.path !== 'undefined' &&
+    'method' in data &&
+    typeof data.method !== 'undefined' &&
+    'host' in data &&
+    typeof data.host !== 'undefined' &&
+    'protocol' in data &&
+    typeof data.protocol !== 'undefined' &&
+    'res' in data &&
+    typeof data.res !== 'undefined'
   )
 }
 
@@ -258,25 +258,25 @@ export function isConexionError(data: unknown): boolean {
 
   return Boolean(
     val &&
-      typeof val === 'object' &&
-      'code' in val &&
-      typeof val.code === 'string' &&
-      [
-        'ESOCKETTIMEDOUT',
-        'ETIMEDOUT',
-        'ECONNREFUSED',
-        'ENOTFOUND',
-        'ECONNRESET',
-      ].includes(val.code)
+    typeof val === 'object' &&
+    'code' in val &&
+    typeof val.code === 'string' &&
+    [
+      'ESOCKETTIMEDOUT',
+      'ETIMEDOUT',
+      'ECONNREFUSED',
+      'ENOTFOUND',
+      'ECONNRESET',
+    ].includes(val.code)
   )
 }
 
 export function isCertExpiredError(data: unknown): boolean {
   return Boolean(
     data &&
-      typeof data === 'object' &&
-      'code' in data &&
-      typeof data.code === 'string' &&
-      data.code === 'CERT_HAS_EXPIRED'
+    typeof data === 'object' &&
+    'code' in data &&
+    typeof data.code === 'string' &&
+    data.code === 'CERT_HAS_EXPIRED'
   )
 }

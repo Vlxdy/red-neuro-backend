@@ -8,6 +8,7 @@ import {
 import { HistorialCita } from '../entities/cita-historial.entity'
 import { FiltrosHistorialCitaPaginadoDto } from '../dto/cita.dto'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import dayjs from 'dayjs'
 
 @Injectable()
 export class HistorialCitasRepository {
@@ -21,41 +22,15 @@ export class HistorialCitasRepository {
     return (manager ?? this.dataSource).getRepository(UsuarioRol)
   }
 
-  async crearHistorial(
-    data: {
-      idCita: string
-      estadoAnterior?: string
-      rolEjecutor: string
-      idEjecutor: string
-      comentario?: string | null
-      detalleCambios?: Array<{
-        field: string
-        before?: string
-        after?: string
-      }> | null
-      usuarioCreacion: string
-    },
-    manager?: EntityManager
-  ) {
+  async crearHistorial(data: Partial<HistorialCita>, manager?: EntityManager) {
     const repo = this.historialRepository(manager)
+    data.fechaCreacion = dayjs().toDate()
     const historial = repo.create(data)
     return await repo.save(historial)
   }
 
   async crearHistoriales(
-    data: Array<{
-      idCita: string
-      estadoAnterior?: string
-      rolEjecutor: string
-      idEjecutor: string
-      comentario?: string | null
-      detalleCambios?: Array<{
-        field: string
-        before?: string
-        after?: string
-      }> | null
-      usuarioCreacion: string
-    }>,
+    data: Array<Partial<HistorialCita>>,
     manager?: EntityManager
   ) {
     if (!data.length) {
