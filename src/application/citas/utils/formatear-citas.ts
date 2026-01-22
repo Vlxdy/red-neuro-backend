@@ -24,7 +24,7 @@ const formatearEspecialidad = (
   }
 }
 
-const formatearEstudio = (
+export const formatearEstudio = (
   estudio: Cita['estudio']
 ): EstudioCitaDto | undefined => {
   if (!estudio) {

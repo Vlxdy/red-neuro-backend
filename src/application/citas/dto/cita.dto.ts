@@ -461,17 +461,17 @@ export class HistorialCambioDto {
 
   @ApiProperty({
     description:
-      'Detalle del valor anterior si corresponde a un médico o paciente',
+      'Detalle del valor anterior si corresponde a un médico, paciente o estudio',
     required: false,
     type: Object,
   })
-  beforeDetalle?: PersonalResponseDto | PacienteResponseDto
+  beforeDetalle?: PersonalResponseDto | PacienteResponseDto | EstudioCitaDto
 
   @ApiProperty({
     description:
-      'Detalle del valor posterior si corresponde a un médico o paciente',
+      'Detalle del valor posterior si corresponde a un médico, paciente o estudio',
     required: false,
     type: Object,
   })
-  afterDetalle?: PersonalResponseDto | PacienteResponseDto
+  afterDetalle?: PersonalResponseDto | PacienteResponseDto | EstudioCitaDto
 }
