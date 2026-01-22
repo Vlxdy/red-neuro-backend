@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
+import dayjs from 'dayjs'
 import {
-  Brackets,
   DataSource,
   EntityManager,
   In,
@@ -14,32 +14,25 @@ import {
   CancelarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
-  FiltrosHistorialCitaPaginadoDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 import { Estudio } from '@/application/estudio/entities/estudio.entity'
-import { HistorialCita } from '../entities/cita-historial.entity'
 import { Notificacion, NotificacionTipo } from '../entities/notificacion.entity'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { HistorialCitasRepository } from './historial-citas.repository'
 
 @Injectable()
 export class CitasMedicasRepository {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly historialRepository: HistorialCitasRepository
+  ) {}
 
   private citaRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(Cita)
   }
 
-  private historialRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(HistorialCita)
-  }
-
   private notificacionRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(Notificacion)
-  }
-
-  private usuarioRolRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(UsuarioRol)
   }
 
   buildCitasQuery(
@@ -143,15 +136,17 @@ export class CitasMedicasRepository {
 
     const guardada = await this.citaRepository(transaccion).save(cita)
 
-    const historialCreacion = this.historialRepository(transaccion).create({
-      idCita: guardada.id,
-      estadoAnterior: undefined,
-      rolEjecutor,
-      idEjecutor: usuarioAuditoria,
-      comentario: 'Creación de cita',
-      usuarioCreacion: usuarioAuditoria,
-    })
-    await this.historialRepository(transaccion).save(historialCreacion)
+    await this.historialRepository.crearHistorial(
+      {
+        idCita: guardada.id,
+        estadoAnterior: undefined,
+        rolEjecutor,
+        idEjecutor: usuarioAuditoria,
+        comentario: 'Creación de cita',
+        usuarioCreacion: usuarioAuditoria,
+      },
+      transaccion
+    )
 
     if (guardada.idMedico && guardada.estado === CitasEstado.SOLICITADA) {
       const notificacion = this.notificacionRepository(transaccion).create({
@@ -208,7 +203,7 @@ export class CitasMedicasRepository {
 
     await this.citaRepository(transaccion).save(cita)
 
-    const historialActualizacion = this.historialRepository(transaccion).create(
+    await this.historialRepository.crearHistorial(
       {
         idCita: cita.id,
         estadoAnterior,
@@ -217,9 +212,9 @@ export class CitasMedicasRepository {
         comentario: 'Actualización de datos de cita',
         detalleCambios: detalleCambios.length ? detalleCambios : null,
         usuarioCreacion: usuarioAuditoria,
-      }
+      },
+      transaccion
     )
-    await this.historialRepository(transaccion).save(historialActualizacion)
 
     return true
   }
@@ -239,22 +234,24 @@ export class CitasMedicasRepository {
       cita.estado = dto.estado
       cita.usuarioModificacion = usuarioAuditoria
       await this.citaRepository(manager).save(cita)
-      const historial = this.historialRepository(manager).create({
-        idCita: cita.id,
-        estadoAnterior,
-        rolEjecutor,
-        idEjecutor: usuarioAuditoria,
-        comentario: 'Actualización de estado de cita',
-        detalleCambios: [
-          {
-            field: 'estado',
-            before: estadoAnterior,
-            after: cita.estado,
-          },
-        ],
-        usuarioCreacion: usuarioAuditoria,
-      })
-      await this.historialRepository(manager).save(historial)
+      await this.historialRepository.crearHistorial(
+        {
+          idCita: cita.id,
+          estadoAnterior,
+          rolEjecutor,
+          idEjecutor: usuarioAuditoria,
+          comentario: 'Actualización de estado de cita',
+          detalleCambios: [
+            {
+              field: 'estado',
+              before: estadoAnterior,
+              after: cita.estado,
+            },
+          ],
+          usuarioCreacion: usuarioAuditoria,
+        },
+        manager
+      )
       return true
     })
   }
@@ -273,7 +270,7 @@ export class CitasMedicasRepository {
       const estadoAnterior = cita.estado
       const fechaInicioAnterior = cita.fechaInicio
       const fechaFinAnterior = cita.fechaFin
-      cita.fechaInicio = new Date(dto.fechaInicio)
+      cita.fechaInicio = dayjs(dto.fechaInicio).toDate()
       cita.fechaFin = dto.fechaFin
       cita.estado =
         CitasEstado.RECHAZADA === cita.estado
@@ -300,16 +297,18 @@ export class CitasMedicasRepository {
           after: cita.estado,
         })
       }
-      const historial = this.historialRepository(manager).create({
-        idCita: cita.id,
-        estadoAnterior,
-        rolEjecutor,
-        idEjecutor: usuarioAuditoria,
-        comentario: 'Reprogramación de cita',
-        detalleCambios,
-        usuarioCreacion: usuarioAuditoria,
-      })
-      await this.historialRepository(manager).save(historial)
+      await this.historialRepository.crearHistorial(
+        {
+          idCita: cita.id,
+          estadoAnterior,
+          rolEjecutor,
+          idEjecutor: usuarioAuditoria,
+          comentario: 'Reprogramación de cita',
+          detalleCambios,
+          usuarioCreacion: usuarioAuditoria,
+        },
+        manager
+      )
       return true
     })
   }
@@ -329,112 +328,26 @@ export class CitasMedicasRepository {
       cita.estado = CitasEstado.CANCELADA
       cita.usuarioModificacion = usuarioAuditoria
       await this.citaRepository(manager).save(cita)
-      const historial = this.historialRepository(manager).create({
-        idCita: cita.id,
-        estadoAnterior,
-        rolEjecutor,
-        idEjecutor: usuarioAuditoria,
-        comentario: dto.comentario ?? null,
-        detalleCambios: [
-          {
-            field: 'estado',
-            before: estadoAnterior,
-            after: cita.estado,
-          },
-        ],
-        usuarioCreacion: usuarioAuditoria,
-      })
-      await this.historialRepository(manager).save(historial)
+      await this.historialRepository.crearHistorial(
+        {
+          idCita: cita.id,
+          estadoAnterior,
+          rolEjecutor,
+          idEjecutor: usuarioAuditoria,
+          comentario: dto.comentario ?? null,
+          detalleCambios: [
+            {
+              field: 'estado',
+              before: estadoAnterior,
+              after: cita.estado,
+            },
+          ],
+          usuarioCreacion: usuarioAuditoria,
+        },
+        manager
+      )
       return true
     })
-  }
-
-  buildHistorialQuery(
-    idCita: string,
-    filtros: FiltrosHistorialCitaPaginadoDto
-  ): SelectQueryBuilder<HistorialCita> {
-    const query = this.historialRepository()
-      .createQueryBuilder('historial')
-      .where('historial.idCita = :idCita', { idCita })
-
-    if (filtros.fechaInicio) {
-      query.andWhere('historial.fechaCreacion >= :fechaInicio', {
-        fechaInicio: filtros.fechaInicio,
-      })
-    }
-
-    if (filtros.fechaFin) {
-      query.andWhere('historial.fechaCreacion <= :fechaFin', {
-        fechaFin: filtros.fechaFin,
-      })
-    }
-
-    if (filtros.estadoAnterior) {
-      query.andWhere('historial.estadoAnterior = :estadoAnterior', {
-        estadoAnterior: filtros.estadoAnterior,
-      })
-    }
-
-    if (filtros.rolEjecutor) {
-      query.andWhere('historial.rolEjecutor = :rolEjecutor', {
-        rolEjecutor: filtros.rolEjecutor,
-      })
-    }
-
-    if (filtros.idEjecutor) {
-      query.andWhere('historial.idEjecutor = :idEjecutor', {
-        idEjecutor: filtros.idEjecutor,
-      })
-    }
-
-    return query.orderBy('historial.fechaCreacion', 'DESC')
-  }
-
-  async listarHistorialCitaPaginado(
-    idCita: string,
-    filtros: FiltrosHistorialCitaPaginadoDto
-  ) {
-    const { limite, saltar } = filtros
-    return await this.buildHistorialQuery(idCita, filtros)
-      .take(limite)
-      .skip(saltar)
-      .getManyAndCount()
-  }
-
-  obtenerEjecutoresHistorial(
-    ejecutores: Array<{ idUsuario: string; idRol: string }>
-  ) {
-    if (!ejecutores.length) {
-      return []
-    }
-
-    const query = this.usuarioRolRepository()
-      .createQueryBuilder('usuarioRol')
-      .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
-      .leftJoinAndSelect('usuario.persona', 'persona')
-      .leftJoinAndSelect(
-        'usuarioRol.usuarioRolEspecialidades',
-        'usuarioRolEspecialidades'
-      )
-      .leftJoinAndSelect(
-        'usuarioRolEspecialidades.especialidad',
-        'especialidad'
-      )
-      .where(
-        new Brackets((qb) => {
-          ejecutores.forEach((ejecutor, index) => {
-            qb.orWhere(
-              `(usuarioRol.idUsuario = :idUsuario${index} AND usuarioRol.idRol = :idRol${index})`,
-              {
-                [`idUsuario${index}`]: ejecutor.idUsuario,
-                [`idRol${index}`]: ejecutor.idRol,
-              }
-            )
-          })
-        })
-      )
-
-    return query.getMany()
   }
 
   private construirCambiosCita(
@@ -540,18 +453,17 @@ export class CitasMedicasRepository {
         citasConEstadoAnterior.map(({ cita }) => cita)
       )
 
-      const historial = citasConEstadoAnterior.map(({ cita, estadoAnterior }) =>
-        this.historialRepository(manager).create({
+      await this.historialRepository.crearHistoriales(
+        citasConEstadoAnterior.map(({ cita, estadoAnterior }) => ({
           idCita: cita.id,
           estadoAnterior,
           rolEjecutor,
           idEjecutor: usuarioAuditoria,
           comentario: 'Actualización automática por cita vencida',
           usuarioCreacion: usuarioAuditoria,
-        })
+        })),
+        manager
       )
-
-      await this.historialRepository(manager).save(historial)
 
       const notificaciones = citasConEstadoAnterior.map(({ cita }) =>
         this.notificacionRepository(manager).create({
