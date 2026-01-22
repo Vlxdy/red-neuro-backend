@@ -1,5 +1,9 @@
 import dayjs from 'dayjs'
-import { HistorialCambioDto, HistorialCitaResponseDto } from '../dto/cita.dto'
+import {
+  EstudioCitaDto,
+  HistorialCambioDto,
+  HistorialCitaResponseDto,
+} from '../dto/cita.dto'
 import { HistorialCita } from '../entities/cita-historial.entity'
 import { PersonalResponseDto } from '@/application/personal/dto/personal.dto'
 import { PacienteResponseDto } from '@/application/paciente/dto/paciente.dto'
@@ -9,12 +13,14 @@ export function formatearHistorialCita(
   historial: HistorialCita,
   ejecutor?: PersonalResponseDto,
   medicos?: Map<string, PersonalResponseDto>,
-  pacientes?: Map<string, PacienteResponseDto>
+  pacientes?: Map<string, PacienteResponseDto>,
+  estudios?: Map<string, EstudioCitaDto>
 ): HistorialCitaResponseDto {
   const detalleCambios = formatearDetalleCambios(
     historial.detalleCambios ?? undefined,
     medicos,
-    pacientes
+    pacientes,
+    estudios
   )
 
   return {
@@ -32,14 +38,16 @@ export function formatearHistorialCitas(
   historial: HistorialCita[],
   ejecutores?: Map<string, PersonalResponseDto>,
   medicos?: Map<string, PersonalResponseDto>,
-  pacientes?: Map<string, PacienteResponseDto>
+  pacientes?: Map<string, PacienteResponseDto>,
+  estudios?: Map<string, EstudioCitaDto>
 ): HistorialCitaResponseDto[] {
   return historial.map((item) =>
     formatearHistorialCita(
       item,
       ejecutores?.get(item.idEjecutor),
       medicos,
-      pacientes
+      pacientes,
+      estudios
     )
   )
 }
@@ -47,7 +55,8 @@ export function formatearHistorialCitas(
 function formatearDetalleCambios(
   detalleCambios?: TipoActualizacion[],
   medicos?: Map<string, PersonalResponseDto>,
-  pacientes?: Map<string, PacienteResponseDto>
+  pacientes?: Map<string, PacienteResponseDto>,
+  estudios?: Map<string, EstudioCitaDto>
 ): HistorialCambioDto[] | undefined {
   if (!detalleCambios?.length) {
     return undefined
@@ -69,6 +78,14 @@ function formatearDetalleCambios(
           ? pacientes?.get(cambio.before)
           : undefined,
         afterDetalle: cambio.after ? pacientes?.get(cambio.after) : undefined,
+      }
+    }
+
+    if (cambio.field === 'idEstudio') {
+      return {
+        ...cambio,
+        beforeDetalle: cambio.before ? estudios?.get(cambio.before) : undefined,
+        afterDetalle: cambio.after ? estudios?.get(cambio.after) : undefined,
       }
     }
 

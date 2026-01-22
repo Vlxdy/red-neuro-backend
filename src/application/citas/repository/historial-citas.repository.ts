@@ -5,6 +5,7 @@ import { FiltrosHistorialCitaPaginadoDto } from '../dto/cita.dto'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import dayjs from 'dayjs'
 import { Paciente } from '@/application/paciente/entities/paciente.entity'
+import { Estudio } from '@/application/estudio/entities/estudio.entity'
 
 @Injectable()
 export class HistorialCitasRepository {
@@ -20,6 +21,10 @@ export class HistorialCitasRepository {
 
   private pacienteRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(Paciente)
+  }
+
+  private estudioRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Estudio)
   }
 
   async crearHistorial(data: Partial<HistorialCita>, manager?: EntityManager) {
@@ -110,6 +115,17 @@ export class HistorialCitasRepository {
     return await this.pacienteRepository()
       .createQueryBuilder('paciente')
       .where('paciente.id IN (:...ids)', { ids })
+      .getMany()
+  }
+
+  async obtenerEstudiosPorIds(ids: string[]) {
+    if (!ids.length) {
+      return []
+    }
+
+    return await this.estudioRepository()
+      .createQueryBuilder('estudio')
+      .where('estudio.id IN (:...ids)', { ids })
       .getMany()
   }
 }
