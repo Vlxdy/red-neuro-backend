@@ -8,7 +8,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
-import { CitasEstado } from '../constants'
+import { CitasEstado, TipoCita } from '../constants'
 import {
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
@@ -110,12 +110,12 @@ export class CitasMedicasRepository {
       fechaInicio: Date
       fechaFin: Date
       estado: CitasEstado
+      tipoCita: TipoCita
       idMedico?: string
       idPaciente?: string | null
       idConsultorio?: string | null
       idEspecialidad?: string | null
       idEstudio?: string | null
-      esEstudio: boolean
     },
     usuarioAuditoria: string,
     rolEjecutor: string,
@@ -126,13 +126,13 @@ export class CitasMedicasRepository {
       fechaInicio: data.fechaInicio,
       fechaFin: data.fechaFin,
       estado: data.estado,
+      tipoCita: data.tipoCita,
       usuarioCreacion: usuarioAuditoria,
       idMedico: data.idMedico,
       idPaciente: data.idPaciente ?? null,
       idConsultorio: data.idConsultorio ?? null,
       idEspecialidad: data.idEspecialidad ?? null,
       idEstudio: data.idEstudio ?? null,
-      esEstudio: data.esEstudio,
     })
 
     const guardada = await this.citaRepository(transaccion).save(cita)
@@ -187,14 +187,15 @@ export class CitasMedicasRepository {
     if (data.idEspecialidad !== undefined)
       patch.idEspecialidad = data.idEspecialidad
 
-    if (data.esEstudio === true) {
-      if (data.idEstudio !== undefined) patch.idEstudio = data.idEstudio
-      patch.esEstudio = true
-    }
-
-    if (data.esEstudio === false) {
-      patch.esEstudio = false
-      patch.idEstudio = null
+    if (data.tipoCita !== undefined) {
+      patch.tipoCita = data.tipoCita
+      if (data.tipoCita === TipoCita.ESTUDIO) {
+        if (data.idEstudio !== undefined) {
+          patch.idEstudio = data.idEstudio
+        }
+      } else {
+        patch.idEstudio = null
+      }
     }
 
     await this.citaRepository(transaccion).update(cita.id, {
@@ -393,11 +394,13 @@ export class CitasMedicasRepository {
     agregarCambio(
       'idEstudio',
       cita.idEstudio ?? undefined,
-      data.esEstudio
+      data.tipoCita === TipoCita.ESTUDIO
         ? (data.idEstudio ?? cita.idEstudio ?? undefined)
-        : undefined
+        : data.tipoCita === TipoCita.CONSULTA
+          ? undefined
+          : (cita.idEstudio ?? undefined)
     )
-    agregarCambio('esEstudio', String(cita.esEstudio), String(data.esEstudio))
+    agregarCambio('tipoCita', cita.tipoCita, data.tipoCita ?? cita.tipoCita)
 
     return cambios
   }
