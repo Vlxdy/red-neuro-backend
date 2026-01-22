@@ -5373,11 +5373,11 @@
           },
           "beforeDetalle": {
             "type": "object",
-            "description": "Detalle del valor anterior si corresponde a un médico o paciente"
+            "description": "Detalle del valor anterior si corresponde a un médico, paciente o estudio"
           },
           "afterDetalle": {
             "type": "object",
-            "description": "Detalle del valor posterior si corresponde a un médico o paciente"
+            "description": "Detalle del valor posterior si corresponde a un médico, paciente o estudio"
           }
         },
         "required": [
