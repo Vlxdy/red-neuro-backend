@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { Enforcer } from 'casbin'
+import { RolEnum } from '@/core/authorization/rol.enum'
 
 @Injectable()
 export class CasbinGuard implements CanActivate {
@@ -29,6 +30,22 @@ export class CasbinGuard implements CanActivate {
       : req.originalUrl
 
     const allowed = await this.enforcer.enforce(req.user.rol, resource, action)
+
+    if (
+      !allowed &&
+      req.user.rol === RolEnum.PERSONAL_SALUD &&
+      req.user.esSupervisor
+    ) {
+      const allowedComoAdminSalud = await this.enforcer.enforce(
+        'PERSONAL_SALUD_ADMIN',
+        resource,
+        action
+      )
+      if (!allowedComoAdminSalud) {
+        throw new ForbiddenException('Permisos insuficientes (CASBIN)')
+      }
+      return true
+    }
 
     if (!allowed) {
       throw new ForbiddenException('Permisos insuficientes (CASBIN)')

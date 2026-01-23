@@ -15,22 +15,10 @@ export class rol1611498173795 implements MigrationInterface {
       },
       {
         // id: '2',
-        rol: RolEnum.SUPERVISOR,
-        nombre: 'Supervisor',
+        rol: RolEnum.PERSONAL_SALUD,
+        nombre: 'Personal de Salud',
         descripcion:
-          'Responsable de la gestión y supervisión general del sistema.',
-      },
-      {
-        rol: RolEnum.PERSONAL_MEDICO,
-        nombre: 'Personal Médico',
-        descripcion:
-          'Profesional de la salud especializado en nutrición y dietética.',
-      },
-      {
-        // id: '3',
-        rol: RolEnum.PACIENTE,
-        nombre: 'Paciente',
-        descripcion: 'Usuario que recibe atención nutricional.',
+          'Profesional de la salud con acceso a las funcionalidades clínicas.',
       },
     ]
     const roles = items.map((item) => {

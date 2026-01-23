@@ -134,6 +134,28 @@ export class UsuarioRolRepository {
     ).save(usuarioRoles)
   }
 
+  async actualizarEsSupervisorPorUsuarioRol(
+    idUsuario: string,
+    idRol: string,
+    esSupervisor: boolean,
+    usuarioAuditoria: string,
+    transaction?: EntityManager
+  ) {
+    return await (
+      transaction?.getRepository(UsuarioRol) ??
+      this.dataSource.getRepository(UsuarioRol)
+    )
+      .createQueryBuilder()
+      .update(UsuarioRol)
+      .set({
+        esSupervisor,
+        usuarioModificacion: usuarioAuditoria,
+      })
+      .where('id_usuario = :idUsuario', { idUsuario })
+      .andWhere('id_rol = :idRol', { idRol })
+      .execute()
+  }
+
   async listarUsuariosPorRol(params: PaginacionQueryDto, rol: RolEnum) {
     const { limite, saltar, filtro, orden, sentido } = params
 

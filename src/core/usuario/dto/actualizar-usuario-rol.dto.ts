@@ -3,8 +3,10 @@ import { Type } from 'class-transformer'
 import {
   CorreoLista,
   IsArray,
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   ValidateIf,
   ValidateNested,
 } from '@/common/validation'
@@ -19,13 +21,22 @@ export class ActualizarUsuarioRolDto {
   @IsNotEmpty()
   @IsEmail()
   @CorreoLista()
-  @ValidateIf((o) => !o.roles)
+  @ValidateIf((o) => o.correoElectronico !== undefined)
   @ApiProperty({ example: 'asdfg123@gmail.com' })
   correoElectronico?: string | null
 
   @ApiProperty({ example: ['3'] })
+  @ValidateIf((o) => o.roles !== undefined)
   @IsNotEmpty()
   @IsArray()
-  @ValidateIf((o) => !o.correoElectronico)
-  roles: Array<string>
+  roles?: Array<string>
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    example: false,
+    required: false,
+    description: 'Habilita permisos de supervisión para el rol PERSONAL_SALUD.',
+  })
+  esSupervisor?: boolean
 }
