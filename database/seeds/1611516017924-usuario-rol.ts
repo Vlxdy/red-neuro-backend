@@ -14,15 +14,11 @@ export class usuarioRol1611516017924 implements MigrationInterface {
         id: '2',
         rol: '2', //(RolEnum.ADMINISTRADOR),
         usuario: '1', //('ADMINISTRADOR'),
+        esSupervisor: true,
       },
       {
         id: '3',
-        rol: '3', //(RolEnum.ADMINISTRADOR),
-        usuario: '1', //('ADMINISTRADOR'),
-      },
-      {
-        id: '4',
-        rol: '3', //(RolEnum.ADMINISTRADOR),
+        rol: '2', //(RolEnum.ADMINISTRADOR),
         usuario: '2', //('ADMINISTRADOR'),
       },
     ]
@@ -33,6 +29,7 @@ export class usuarioRol1611516017924 implements MigrationInterface {
         estado: 'ACTIVO',
         transaccion: 'SEEDS',
         usuarioCreacion: USUARIO_SISTEMA,
+        esSupervisor: item.esSupervisor || false,
       })
     })
     await queryRunner.manager.save(usuariosRoles)
