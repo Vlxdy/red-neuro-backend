@@ -34,6 +34,7 @@ import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-ro
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
 import { UsuarioEstado } from '@/core/usuario/constant'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
+import { RolEnumId } from '@/core/authorization/rol.enum'
 import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
 import { FileValidationService } from '@/common/lib/file-validation.service'
 import path from 'path'
@@ -106,7 +107,7 @@ export class UsuarioService extends BaseService {
     }
 
     // Constrastación SEGIP
-    const { roles, contrasena } = usuarioDto
+    const { roles, contrasena, esSupervisor } = usuarioDto
 
     // const contrasena = TextService.generateShortRandomText()
     const datosCorreo = {
@@ -137,6 +138,14 @@ export class UsuarioService extends BaseService {
       await this.usuarioRolRepositorio.crear(
         usuario.id,
         roles,
+        usuarioAuditoria,
+        transaction
+      )
+
+      await this.actualizarConfiguracionPersonalSalud(
+        usuario.id,
+        roles,
+        esSupervisor,
         usuarioAuditoria,
         transaction
       )
@@ -847,6 +856,16 @@ export class UsuarioService extends BaseService {
     usuarioAuditoria: string
   ) {
     this.verificarPermisos(id, usuarioAuditoria)
+    const { persona, correoElectronico, roles, esSupervisor } = usuarioDto
+
+    if (
+      !persona &&
+      !correoElectronico &&
+      (!roles || roles.length === 0) &&
+      typeof esSupervisor !== 'boolean'
+    ) {
+      throw new PreconditionFailedException(Messages.UPDATE_DATA_REQUIRED)
+    }
     // 1. verificar que exista el usuario
     const op = async (transaction: EntityManager) => {
       const usuario =
@@ -858,8 +877,6 @@ export class UsuarioService extends BaseService {
       if (!usuario) {
         throw new NotFoundException(Messages.INVALID_USER)
       }
-
-      const { persona } = usuarioDto
 
       if (persona) {
         //contrastación SEGIP
@@ -892,7 +909,6 @@ export class UsuarioService extends BaseService {
         )
       }
 
-      const { correoElectronico, roles } = usuarioDto
       // 2. verificar que el email no este registrado
 
       if (
@@ -916,10 +932,25 @@ export class UsuarioService extends BaseService {
         )
       }
 
-      if (roles.length > 0) {
+      if (roles && roles.length > 0) {
         // realizar reglas de roles
         await this.actualizarRoles(id, roles, usuarioAuditoria, transaction)
       }
+
+      await this.actualizarConfiguracionPersonalSalud(
+        id,
+        roles && roles.length > 0
+          ? roles
+          : (
+              await this.usuarioRolRepositorio.obtenerRolesPorUsuario(
+                id,
+                transaction
+              )
+            ).map((usuarioRol) => usuarioRol.rol.id),
+        esSupervisor,
+        usuarioAuditoria,
+        transaction
+      )
 
       return { id: usuario.id }
     }
@@ -927,6 +958,30 @@ export class UsuarioService extends BaseService {
     const usuarioResult = await this.usuarioRepositorio.runTransaction(op)
 
     return { id: usuarioResult.id }
+  }
+
+  private async actualizarConfiguracionPersonalSalud(
+    idUsuario: string,
+    roles: Array<string>,
+    esSupervisor: boolean | undefined,
+    usuarioAuditoria: string,
+    transaction: EntityManager
+  ) {
+    if (typeof esSupervisor !== 'boolean') {
+      return
+    }
+
+    if (!roles.includes(RolEnumId.PERSONAL_SALUD)) {
+      throw new BadRequestException(Messages.INVALID_SUPERVISOR_FLAG)
+    }
+
+    await this.usuarioRolRepositorio.actualizarEsSupervisorPorUsuarioRol(
+      idUsuario,
+      RolEnumId.PERSONAL_SALUD,
+      esSupervisor,
+      usuarioAuditoria,
+      transaction
+    )
   }
 
   async actualizarRoles(
@@ -1030,8 +1085,11 @@ export class UsuarioService extends BaseService {
         .filter((value) => value.estado === UsuarioRolEstado.ACTIVE)
         .map(async (usuarioRol) => {
           const { id, rol, nombre, descripcion } = usuarioRol.rol
-          const modulos =
-            await this.authorizationService.obtenerPermisosPorRol(rol)
+          const esSupervisor = usuarioRol.esSupervisor
+          const modulos = await this.authorizationService.obtenerPermisosPorRol(
+            rol,
+            esSupervisor
+          )
 
           return {
             idRol: id,
@@ -1040,6 +1098,7 @@ export class UsuarioService extends BaseService {
             nombre,
             descripcion,
             modulos,
+            esSupervisor,
           }
         })
     )
@@ -1298,6 +1357,7 @@ export class UsuarioService extends BaseService {
       idUsuarioRol: string
       nombre?: string | null
       descripcion?: string | null
+      esSupervisor?: boolean
     }>,
     idRol: string | null | undefined
   ) {

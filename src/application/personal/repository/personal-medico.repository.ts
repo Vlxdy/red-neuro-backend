@@ -55,7 +55,7 @@ export class PersonalMedicoRepository {
         estado: UsuarioRolEstado.ACTIVE,
       })
       .andWhere('rol.rol IN(:...roles)', {
-        roles: [RolEnum.PERSONAL_MEDICO, RolEnum.SUPERVISOR],
+        roles: [RolEnum.PERSONAL_SALUD],
       })
       .distinct(true)
       .take(limite)

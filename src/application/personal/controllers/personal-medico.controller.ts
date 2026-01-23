@@ -19,7 +19,7 @@ export class PersonalMedicoController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Lista los personales médicos y supervisores registrados',
+    summary: 'Lista el personal de salud registrado',
   })
   @ApiBaseResponseListRows(PersonalResponseDto)
   @Get()

@@ -46,6 +46,7 @@ export enum Messages {
   NEW_USER_ACCOUNT_VERIFY = 'Activación de cuenta.',
   ACCOUNT_ACTIVED_SUCCESSFULLY = '¡Activación de cuenta exitosa!',
   NO_PERMISSION_FOUND = 'Rol no encontrado.',
+  INVALID_SUPERVISOR_FLAG = 'La bandera esSupervisor solo aplica al rol PERSONAL_SALUD.',
 
   // Parámetros
   REPEATED_PARAMETER = 'Parámetro repetido.',

@@ -12,7 +12,7 @@
 
 ### Criterios de aceptación
 - Email único obligatorio.  
-- Roles permitidos: ADMIN, SUPERVISOR, MEDICO.  
+- Roles permitidos: ADMINISTRADOR, PERSONAL_SALUD.  
 - Debe poder activar/desactivar usuarios.  
 
 ### Endpoints
@@ -86,65 +86,44 @@
 
 ---
 
-# 🧩 2. HISTORIAS DE USUARIO – SUPERVISOR
+# 🧩 2. HISTORIAS DE USUARIO – PERSONAL DE SALUD
 
-## HU-SUP-01 — Crear citas para médicos
-### Endpoints
-- POST /citas  
-
----
-
-## HU-SUP-02 — Ver todas las citas
-### Endpoints
-- GET /citas  
-
----
-
-## HU-SUP-03 — Reprogramar citas
-### Endpoints
-- PATCH /citas/:id/reprogramar  
-
----
-
-## HU-SUP-04 — Cancelar citas
-### Endpoints
-- PATCH /citas/:id/cancelar  
-
----
-
-## HU-SUP-05 — Asignar etiquetas a citas
-### Endpoints
-- PATCH /citas/:id/etiquetas  
-
----
-
-# 🧩 3. HISTORIAS DE USUARIO – PERSONAL MÉDICO
-
-## HU-MED-01 — Ver solo mis citas
+## HU-SAL-01 — Ver solo mis citas
 ### Endpoints
 - GET /citas/mis-citas  
 
 ---
 
-## HU-MED-02 — Cambiar estado de una cita
+## HU-SAL-02 — Cambiar estado de una cita
 ### Endpoints
 - PATCH /citas/:id/estado  
 
 ---
 
-## HU-MED-03 — Reprogramar mis citas
+## HU-SAL-03 — Reprogramar mis citas
 ### Endpoints
 - PATCH /citas/:id/reprogramar  
 
 ---
 
-## HU-MED-04 — Agregar etiquetas a mis citas
+## HU-SAL-04 — Agregar etiquetas a mis citas
 ### Endpoints
 - PATCH /citas/:id/etiquetas  
 
 ---
 
-# 🧩 4. ENDPOINTS GENERALES DEL SISTEMA
+## HU-SAL-05 — Funciones administrativas del personal de salud
+**Condición:** `esSupervisor = true`
+
+### Endpoints
+- POST /citas  
+- GET /citas  
+- PATCH /citas/:id  
+- PATCH /citas/:id/cancelar  
+
+---
+
+# 🧩 3. ENDPOINTS GENERALES DEL SISTEMA
 
 ## Autenticación
 - POST /auth/login  
@@ -183,4 +162,3 @@
 - PATCH /citas/:id/cancelar  
 - PATCH /citas/:id/etiquetas  
 - PATCH /citas/:id/agrupador  
-

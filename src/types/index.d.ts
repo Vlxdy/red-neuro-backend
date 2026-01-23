@@ -8,6 +8,7 @@ declare global {
     rol?: string // rol principal
     idToken?: string
     idUsuarioRol?: string
+    esSupervisor?: boolean
     accessToken?: string
     refreshToken?: string
     exp?: number
@@ -21,6 +22,7 @@ declare global {
     idRol?: string // rol principal
     rol?: string // rol principal
     idUsuarioRol: string
+    esSupervisor?: boolean
     exp?: number
     iat?: number
   }

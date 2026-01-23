@@ -4,6 +4,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class insertCasbinRules1617712857472 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    const ROL_PERSONAL_SALUD_ADMIN = 'PERSONAL_SALUD_ADMIN'
+
     const frontendRoutes: CasbinValue = {
       '/admin/usuarios': {
         [RolEnum.ADMINISTRADOR]: 'read|update|create|delete',
@@ -23,16 +25,12 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
 
       '/admin/perfil': {
         [RolEnum.ADMINISTRADOR]: 'read|update',
-        [RolEnum.SUPERVISOR]: 'read|update',
-        [RolEnum.PERSONAL_MEDICO]: 'read|update',
-        [RolEnum.PACIENTE]: 'read|update',
+        [RolEnum.PERSONAL_SALUD]: 'read|update',
       },
 
       '/admin/home': {
         [RolEnum.ADMINISTRADOR]: 'read',
-        [RolEnum.SUPERVISOR]: 'read',
-        [RolEnum.PERSONAL_MEDICO]: 'read',
-        [RolEnum.PACIENTE]: 'read',
+        [RolEnum.PERSONAL_SALUD]: 'read',
       },
       '/admin/especialidades': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
@@ -42,8 +40,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
       '/admin/citas': {
         [RolEnum.ADMINISTRADOR]: 'read',
-        [RolEnum.SUPERVISOR]: 'read',
-        [RolEnum.PERSONAL_MEDICO]: 'read',
+        [RolEnum.PERSONAL_SALUD]: 'read',
       },
       // '/admin/roles': {
       //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
@@ -123,39 +120,35 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       // Gestión de citas médicas
       '/api/citas': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [RolEnum.SUPERVISOR]: 'GET|POST',
+        [ROL_PERSONAL_SALUD_ADMIN]: 'GET|POST',
       },
       '/api/citas/mis-citas': {
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/citas/:id': {
         [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
-        [RolEnum.SUPERVISOR]: 'GET|PATCH',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [ROL_PERSONAL_SALUD_ADMIN]: 'GET|PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/citas/paginado': {
         [RolEnum.ADMINISTRADOR]: 'GET',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/citas/:id/estado': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
-        [RolEnum.SUPERVISOR]: 'PATCH',
-        [RolEnum.PERSONAL_MEDICO]: 'PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'PATCH',
       },
       '/api/citas/:id/reprogramar': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
-        [RolEnum.SUPERVISOR]: 'PATCH',
-        [RolEnum.PERSONAL_MEDICO]: 'PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'PATCH',
       },
       '/api/citas/:id/cancelar': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
-        [RolEnum.SUPERVISOR]: 'PATCH',
+        [ROL_PERSONAL_SALUD_ADMIN]: 'PATCH',
       },
       '/api/consultorios': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/consultorios/:id': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
@@ -166,18 +159,15 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       // ESTUDIOS MÉDICOS
       '/api/estudios': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/estudios/especialidades/:id': {
         [RolEnum.ADMINISTRADOR]: 'GET',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/estudios/:id': {
         [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/estudios/:id/especialidades': {
         [RolEnum.ADMINISTRADOR]: 'POST',
@@ -188,13 +178,11 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       // ESPECIALIDADES MÉDICAS
       '/api/especialidades': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/especialidades/:id': {
         [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/especialidades/:id/cambiar-estado': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
@@ -202,13 +190,11 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       // PACIENTES
       '/api/pacientes': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [RolEnum.SUPERVISOR]: 'GET|POST',
-        [RolEnum.PERSONAL_MEDICO]: 'GET|POST',
+        [RolEnum.PERSONAL_SALUD]: 'GET|POST',
       },
       '/api/pacientes/:id': {
         [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
-        [RolEnum.SUPERVISOR]: 'GET|PATCH',
-        [RolEnum.PERSONAL_MEDICO]: 'GET|PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'GET|PATCH',
       },
       '/api/pacientes/:id/cambiar-estado': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
@@ -216,14 +202,12 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       // PERSONAL MÉDICO
       '/api/personal-medico': {
         [RolEnum.ADMINISTRADOR]: 'GET',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       // HISTORIAL DE CITAS
       '/api/citas/:id/historial': {
         [RolEnum.ADMINISTRADOR]: 'GET',
-        [RolEnum.SUPERVISOR]: 'GET',
-        [RolEnum.PERSONAL_MEDICO]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
     }
 

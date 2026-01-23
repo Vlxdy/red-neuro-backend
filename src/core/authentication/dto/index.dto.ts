@@ -95,6 +95,14 @@ export class RolAutenticadoDto {
     description: 'Listado de módulos y permisos habilitados para el rol',
   })
   modulos: ModuloPermisoDto[]
+
+  @ApiProperty({
+    description:
+      'Indica si el rol de personal de salud cuenta con permisos de supervisión',
+    example: false,
+    required: false,
+  })
+  esSupervisor?: boolean
 }
 
 export class UsuarioAutenticadoDto {
@@ -135,6 +143,14 @@ export class AuthResponseDto extends UsuarioAutenticadoDto {
 
   @ApiProperty({ example: 'ADMINISTRADOR' })
   rol: string
+
+  @ApiProperty({
+    description:
+      'Indica si el rol activo de personal de salud cuenta con permisos de supervisión',
+    example: false,
+    required: false,
+  })
+  esSupervisor?: boolean
 }
 
 export class AccessTokenDto {

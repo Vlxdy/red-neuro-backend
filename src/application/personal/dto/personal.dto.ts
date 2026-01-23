@@ -32,10 +32,18 @@ export class EspecialidadPersonalDto {
 
 export class PersonalResponseDto {
   @ApiProperty({
-    description: 'Identificador único del personal médico',
+    description: 'Identificador único del personal de salud',
     example: 'a8f4c1d2-32a1-4c2b-bff1-87fa92c1a223',
   })
   id!: string
+
+  @ApiProperty({
+    description:
+      'Indica si el personal de salud tiene habilitadas funciones de supervisión',
+    example: false,
+    required: false,
+  })
+  esSupervisor?: boolean
 
   @ApiProperty({
     description: 'Número de documento de identidad',

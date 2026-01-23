@@ -3,6 +3,8 @@ import {
   CorreoLista,
   IsEmail,
   IsNotEmpty,
+  IsBoolean,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -45,5 +47,14 @@ export class CrearUsuarioDto {
   @IsNotEmpty()
   @ApiProperty({ example: ['1'] })
   roles: Array<string>
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    example: false,
+    required: false,
+    description: 'Habilita permisos de supervisión para el rol PERSONAL_SALUD.',
+  })
+  esSupervisor?: boolean
   usuarioCreacion?: string
 }
