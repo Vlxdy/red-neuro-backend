@@ -11,7 +11,7 @@ export class modulo1611497480901 implements MigrationInterface {
         url: '/principal',
         label: 'Principal',
         propiedades: {
-          descripcion: 'Sección principal',
+          descripcion: 'Acceso principal al sistema y sus funcionalidades',
           orden: 1,
         },
         subMenus: [
@@ -22,7 +22,7 @@ export class modulo1611497480901 implements MigrationInterface {
             propiedades: {
               icono: 'home',
               descripcion:
-                'Vista de bienvenida con características del sistema',
+                'Panel inicial con un resumen general y accesos rápidos del sistema',
               orden: 1,
             },
           },
@@ -33,164 +33,8 @@ export class modulo1611497480901 implements MigrationInterface {
             propiedades: {
               icono: 'person',
               descripcion:
-                'Información del perfil de usuario que inicio sesión',
+                'Gestión de la información personal y configuración del usuario autenticado',
               orden: 2,
-            },
-          },
-        ],
-      },
-      {
-        nombre: 'Mi salud',
-        url: '/mi-salud',
-        label: 'Mi salud',
-        propiedades: {
-          descripcion: 'Sección de salud',
-          orden: 1,
-        },
-        subMenus: [
-          {
-            nombre: 'Plan nutricional',
-            url: '/admin/plan-nutricional',
-            label: 'Plan nutricional',
-            propiedades: {
-              icono: 'restaurant_menu',
-              descripcion: 'Plan nutricional del paciente',
-              orden: 1,
-            },
-          },
-          {
-            nombre: 'Lista de compras',
-            url: '/admin/lista-compras',
-            label: 'Lista de compras',
-            propiedades: {
-              icono: 'shopping_bag',
-              descripcion: 'Lista de compras',
-              orden: 2,
-            },
-          },
-          {
-            nombre: 'Mis actividades',
-            url: '/admin/mi-actividad',
-            label: 'Mis actividades',
-            propiedades: {
-              icono: 'directions_run',
-              descripcion: 'Actividades de salud',
-              orden: 3,
-            },
-          },
-          {
-            nombre: 'Mis antecedentes',
-            url: '/admin/antecedentes',
-            label: 'Mis antecedentes',
-            propiedades: {
-              icono: 'history_edu',
-              descripcion: 'Antecedentes de salud',
-              orden: 4,
-            },
-          },
-
-          // {
-          //   nombre: 'recomendaciones',
-          //   url: '/admin/recomendaciones',
-          //   label: 'Recomendaciones',
-          //   propiedades: {
-          //     icono: 'tips_and_updates',
-          //     descripcion: 'Recomendaciones para mis pacientes',
-          //     orden: 5,
-          //   },
-          // },
-        ],
-      },
-      {
-        nombre: 'Seguimiento-Paciente',
-        url: '/seguimiento-paciente',
-        label: 'Seguimiento',
-        propiedades: {
-          descripcion: 'Sección de seguimiento',
-          orden: 2,
-        },
-        subMenus: [
-          {
-            nombre: 'mi-seguimiento',
-            url: '/admin/mi-seguimiento',
-            label: 'Mi seguimiento',
-            propiedades: {
-              icono: 'monitor_heart',
-              descripcion: 'Seguimiento de mis pacientes',
-              orden: 1,
-            },
-          },
-          {
-            nombre: 'comunicacion y consultas',
-            url: '/admin/comunicacion',
-            label: 'Comunicación y consultas',
-            propiedades: {
-              icono: 'chat',
-              descripcion: 'Comunicación con el nutricionista',
-              orden: 2,
-            },
-          },
-          {
-            nombre: 'notificaciones',
-            url: '/admin/notificaciones',
-            label: 'Notificaciones',
-            propiedades: {
-              icono: 'notifications',
-              descripcion: 'Notificaciones del sistema',
-              orden: 3,
-            },
-          },
-        ],
-      },
-
-      // MENU SECCION CONFIGURACIONES
-      {
-        nombre: 'configuraciones',
-        url: '/configuraciones',
-        label: 'Configuración',
-        propiedades: {
-          descripcion: 'Sección de configuraciones',
-          orden: 2,
-        },
-        subMenus: [
-          {
-            nombre: 'parametros',
-            url: '/admin/parametros',
-            label: 'Parámetros',
-            propiedades: {
-              icono: 'tune',
-              descripcion: 'Parámetros generales del sistema',
-              orden: 2,
-            },
-          },
-          {
-            nombre: 'modulos',
-            url: '/admin/modulos',
-            label: 'Módulos',
-            propiedades: {
-              icono: 'widgets',
-              descripcion: 'Gestión de módulos',
-              orden: 3,
-            },
-          },
-          {
-            nombre: 'politicas',
-            url: '/admin/politicas',
-            label: 'Políticas',
-            propiedades: {
-              icono: 'verified_user',
-              descripcion: 'Control de permisos para los usuarios',
-              orden: 4,
-            },
-          },
-          {
-            nombre: 'rol',
-            url: '/admin/roles',
-            label: 'Roles',
-            propiedades: {
-              icono: 'admin_panel_settings',
-              descripcion: 'Control de roles para los usuarios',
-              orden: 5,
             },
           },
         ],
@@ -200,8 +44,8 @@ export class modulo1611497480901 implements MigrationInterface {
         url: '/organizacion',
         label: 'Organización',
         propiedades: {
-          descripcion: 'Sección de configuraciones',
-          orden: 3,
+          descripcion: 'Configuración estructural y administrativa del sistema',
+          orden: 2,
         },
         subMenus: [
           {
@@ -210,7 +54,8 @@ export class modulo1611497480901 implements MigrationInterface {
             label: 'Usuarios',
             propiedades: {
               icono: 'manage_accounts',
-              descripcion: 'Control de usuarios del sistema',
+              descripcion:
+                'Administración de usuarios, roles y permisos del sistema',
               orden: 1,
             },
           },
@@ -220,8 +65,9 @@ export class modulo1611497480901 implements MigrationInterface {
             label: 'Especialidades',
             propiedades: {
               icono: 'medical_services',
-              descripcion: 'Control de especialidades del sistema',
-              orden: 1,
+              descripcion:
+                'Gestión de las especialidades médicas disponibles en el sistema',
+              orden: 2,
             },
           },
           {
@@ -230,18 +76,9 @@ export class modulo1611497480901 implements MigrationInterface {
             label: 'Estudios',
             propiedades: {
               icono: 'medical_services',
-              descripcion: 'Control de estudios del sistema',
-              orden: 1,
-            },
-          },
-          {
-            nombre: 'nutricionistas',
-            url: '/admin/nutricionistas',
-            label: 'Nutricionistas',
-            propiedades: {
-              icono: 'assignment',
-              descripcion: 'Nutricionistas generales del sistema',
-              orden: 2,
+              descripcion:
+                'Administración de estudios clínicos y procedimientos diagnósticos',
+              orden: 3,
             },
           },
         ],
@@ -251,28 +88,52 @@ export class modulo1611497480901 implements MigrationInterface {
         url: '/pacientes-del-sistema',
         label: 'Pacientes',
         propiedades: {
-          descripcion: 'Sección de pacientes',
+          descripcion: 'Gestión integral de pacientes y su historial clínico',
           orden: 3,
         },
         subMenus: [
           {
             nombre: 'lista-pacientes',
             url: '/admin/pacientes',
-            label: 'Lista de pacientes',
+            label: 'Pacientes',
             propiedades: {
               icono: 'assignment_ind',
-              descripcion: 'Lista de pacientes del asignados',
+              descripcion:
+                'Listado general de pacientes registrados en el sistema',
               orden: 1,
             },
           },
           {
             nombre: 'citas',
-            url: '/admin/citas-nutricionista',
-            label: 'Citas programadas',
+            url: '/admin/citas',
+            label: 'Citas',
             propiedades: {
               icono: 'event',
-              descripcion: 'Citas programadas por el nutricionista',
+              descripcion:
+                'Administración y seguimiento de citas médicas programadas',
               orden: 2,
+            },
+          },
+        ],
+      },
+      {
+        nombre: 'Personal',
+        url: '/personal-del-sistema',
+        label: 'Personal',
+        propiedades: {
+          descripcion: 'Gestión del personal médico y administrativo',
+          orden: 4,
+        },
+        subMenus: [
+          {
+            nombre: 'personal-salud',
+            url: '/admin/personal_medico',
+            label: 'Personal',
+            propiedades: {
+              icono: 'assignment_ind',
+              descripcion:
+                'Listado y gestión del personal de salud asociado al sistema',
+              orden: 1,
             },
           },
         ],

@@ -42,6 +42,14 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'read',
         [RolEnum.PERSONAL_SALUD]: 'read',
       },
+      '/admin/pacientes': {
+        [RolEnum.ADMINISTRADOR]: 'read',
+        [RolEnum.PERSONAL_SALUD]: 'read',
+      },
+      '/admin/personal_medico': {
+        [RolEnum.ADMINISTRADOR]: 'read',
+        [ROL_PERSONAL_SALUD_ADMIN]: 'read',
+      },
       // '/admin/roles': {
       //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       // },
@@ -120,15 +128,14 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       // Gestión de citas médicas
       '/api/citas': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
-        [ROL_PERSONAL_SALUD_ADMIN]: 'GET|POST',
+        [RolEnum.PERSONAL_SALUD]: 'GET|POST',
       },
       '/api/citas/mis-citas': {
         [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/citas/:id': {
         [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
-        [ROL_PERSONAL_SALUD_ADMIN]: 'GET|PATCH',
-        [RolEnum.PERSONAL_SALUD]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET|PATCH',
       },
       '/api/citas/paginado': {
         [RolEnum.ADMINISTRADOR]: 'GET',
@@ -144,8 +151,9 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       },
       '/api/citas/:id/cancelar': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
-        [ROL_PERSONAL_SALUD_ADMIN]: 'PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'PATCH',
       },
+      // CONSULTORIOS MÉDICOS
       '/api/consultorios': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
         [RolEnum.PERSONAL_SALUD]: 'GET',
