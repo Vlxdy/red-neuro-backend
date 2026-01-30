@@ -940,6 +940,161 @@ paths:
           description: ''
       tags: *ref_9
       security: *ref_10
+  /pacientes:
+    get:
+      operationId: PacienteController_listar
+      summary: Lista los pacientes registrados
+      parameters:
+        - name: limite
+          required: false
+          in: query
+          schema:
+            minimum: 10
+            maximum: 50
+            default: 10
+            type: number
+        - name: pagina
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            default: 1
+            type: number
+        - name: filtro
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: ordenRaw
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Respuesta con listado paginado de pacientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponsePacienteListDto'
+      tags:
+        - Pacientes
+      security:
+        - bearer: []
+    post:
+      operationId: PacienteController_crear
+      summary: Crea un nuevo paciente
+      requestBody:
+        required: true
+        description: Datos para registrar un paciente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearPacienteDto'
+      responses:
+        '201':
+          description: Respuesta con el paciente creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponsePacienteDto'
+      tags:
+        - Pacientes
+      security:
+        - bearer: []
+  /pacientes/{id}:
+    get:
+      operationId: PacienteController_obtenerPorId
+      summary: Obtiene el detalle de un paciente
+      parameters:
+        - name: id
+          required: true
+          in: path
+          example: '100'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Respuesta con el detalle del paciente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponsePacienteDto'
+      tags:
+        - Pacientes
+      security:
+        - bearer: []
+    patch:
+      operationId: PacienteController_actualizar
+      summary: Actualiza la información de un paciente
+      parameters:
+        - name: id
+          required: true
+          in: path
+          example: '100'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Datos para actualizar un paciente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarPacienteDto'
+      responses:
+        '200':
+          description: Respuesta con el paciente actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponsePacienteDto'
+      tags:
+        - Pacientes
+      security:
+        - bearer: []
+    delete:
+      operationId: PacienteController_eliminar
+      summary: Elimina un paciente
+      parameters:
+        - name: id
+          required: true
+          in: path
+          example: '100'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Respuesta con el paciente eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponsePacienteDto'
+      tags:
+        - Pacientes
+      security:
+        - bearer: []
+  /pacientes/{id}/cambiar-estado:
+    patch:
+      operationId: PacienteController_cambiarEstado
+      summary: Cambia el estado del paciente
+      parameters:
+        - name: id
+          required: true
+          in: path
+          example: '100'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Respuesta con el estado actualizado del paciente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponsePacienteDto'
+      tags:
+        - Pacientes
+      security:
+        - bearer: []
 tags: [ ]
 components:
   securitySchemes:
@@ -1268,3 +1423,147 @@ components:
         - grupo
         - descripcion
         - estado
+    CrearPacienteDto:
+      type: object
+      properties:
+        nombres:
+          type: string
+          example: Gabriela
+        primerApellido:
+          type: string
+          example: Ramos
+        segundoApellido:
+          type: string
+          example: Paredes
+        nroDocumento:
+          type: string
+          example: '4022331'
+        fechaNacimiento:
+          type: string
+          example: '1994-03-12'
+        telefono:
+          type: string
+          example: '71234567'
+        genero:
+          type: string
+          example: F
+        observacion:
+          type: string
+          example: Prefiere atención en horario de mañana.
+      required:
+        - nombres
+    ActualizarPacienteDto:
+      type: object
+      properties:
+        nombres:
+          type: string
+          example: Gabriela
+        primerApellido:
+          type: string
+          example: Ramos
+        segundoApellido:
+          type: string
+          example: Paredes
+        nroDocumento:
+          type: string
+          example: '4022331'
+        fechaNacimiento:
+          type: string
+          example: '1994-03-12'
+        telefono:
+          type: string
+          example: '71234567'
+        genero:
+          type: string
+          example: F
+        observacion:
+          type: string
+          example: Prefiere atención en horario de mañana.
+        estado:
+          type: string
+          example: ACTIVO
+    PacienteResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '100'
+        nombres:
+          type: string
+          example: Gabriela
+        primerApellido:
+          type: string
+          nullable: true
+          example: Ramos
+        segundoApellido:
+          type: string
+          nullable: true
+          example: Paredes
+        nroDocumento:
+          type: string
+          nullable: true
+          example: '4022331'
+        fechaNacimiento:
+          type: string
+          nullable: true
+          example: '1994-03-12'
+        telefono:
+          type: string
+          nullable: true
+          example: '71234567'
+        genero:
+          type: string
+          nullable: true
+          example: F
+        observacion:
+          type: string
+          nullable: true
+          example: Prefiere atención en horario de mañana.
+        estado:
+          type: string
+          example: ACTIVO
+      required:
+        - id
+        - nombres
+        - estado
+    BaseResponsePacienteDto:
+      type: object
+      properties:
+        finalizado:
+          type: boolean
+          example: true
+        mensaje:
+          type: string
+          example: ¡Tarea completada con éxito!
+        datos:
+          $ref: '#/components/schemas/PacienteResponseDto'
+      required:
+        - finalizado
+        - mensaje
+        - datos
+    BaseResponsePacienteListDto:
+      type: object
+      properties:
+        finalizado:
+          type: boolean
+          example: true
+        mensaje:
+          type: string
+          example: ¡Tarea completada con éxito!
+        datos:
+          type: object
+          properties:
+            total:
+              type: number
+              example: 1
+            filas:
+              type: array
+              items:
+                $ref: '#/components/schemas/PacienteResponseDto'
+          required:
+            - total
+            - filas
+      required:
+        - finalizado
+        - mensaje
+        - datos
