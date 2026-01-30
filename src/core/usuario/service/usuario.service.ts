@@ -107,7 +107,8 @@ export class UsuarioService extends BaseService {
     }
 
     // Constrastación SEGIP
-    const { roles, contrasena, esSupervisor } = usuarioDto
+    const roles = await this.normalizarRoles(usuarioDto.roles)
+    const { contrasena, esSupervisor } = usuarioDto
 
     // const contrasena = TextService.generateShortRandomText()
     const datosCorreo = {
@@ -932,15 +933,25 @@ export class UsuarioService extends BaseService {
         )
       }
 
-      if (roles && roles.length > 0) {
+      const rolesNormalizados =
+        roles && roles.length > 0
+          ? await this.normalizarRoles(roles)
+          : undefined
+
+      if (rolesNormalizados && rolesNormalizados.length > 0) {
         // realizar reglas de roles
-        await this.actualizarRoles(id, roles, usuarioAuditoria, transaction)
+        await this.actualizarRoles(
+          id,
+          rolesNormalizados,
+          usuarioAuditoria,
+          transaction
+        )
       }
 
       await this.actualizarConfiguracionPersonalSalud(
         id,
-        roles && roles.length > 0
-          ? roles
+        rolesNormalizados && rolesNormalizados.length > 0
+          ? rolesNormalizados
           : (
               await this.usuarioRolRepositorio.obtenerRolesPorUsuario(
                 id,
@@ -982,6 +993,27 @@ export class UsuarioService extends BaseService {
       usuarioAuditoria,
       transaction
     )
+  }
+
+  private async normalizarRoles(roles: Array<string>) {
+    const rolesUnicos = Array.from(new Set(roles))
+
+    const rolesNormalizados = await Promise.all(
+      rolesUnicos.map(async (rol) => {
+        if (/^\d+$/.test(rol)) {
+          return rol
+        }
+
+        const rolEncontrado = await this.rolRepositorio.buscarPorNombreRol(rol)
+        if (!rolEncontrado) {
+          throw new PreconditionFailedException(Messages.NO_PERMISSION_FOUND)
+        }
+
+        return rolEncontrado.id
+      })
+    )
+
+    return rolesNormalizados
   }
 
   async actualizarRoles(
