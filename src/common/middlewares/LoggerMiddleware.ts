@@ -29,6 +29,20 @@ export class LoggerMiddleware implements NestMiddleware {
         mensaje: `${req.method} ${url}... {query} {body}`,
       },
     })
+
+    res.on('finish', () => {
+      logger.info({
+        mensaje: `API consumida: ${req.method} ${url}`,
+        metadata: {
+          status: res.statusCode,
+          elapsedTimeMs: Date.now() - Number(req.startTime),
+        },
+        consoleOptions: {
+          mensaje: `API consumida: ${req.method} ${url} {status} {elapsedTimeMs}`,
+        },
+      })
+    })
+
     next()
   }
 }
