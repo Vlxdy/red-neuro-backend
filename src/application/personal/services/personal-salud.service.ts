@@ -177,7 +177,24 @@ export class PersonalSaludService extends BaseService {
     return formatearPersonal(personalActualizado)
   }
 
-  async eliminarPersonalSalud(
+  async activarPersonalSalud(
+    id: string,
+    usuarioAuditoria: string
+  ): Promise<PersonalResponseDto> {
+    const personal = await this.buscarPersonalSaludPorId(id)
+
+    await this.personalSaludRepository.cambiarEstadoPersonalSalud(
+      personal.id,
+      Status.ACTIVE,
+      usuarioAuditoria
+    )
+
+    personal.estado = Status.ACTIVE
+
+    return formatearPersonal(personal)
+  }
+
+  async inactivarPersonalSalud(
     id: string,
     usuarioAuditoria: string
   ): Promise<PersonalResponseDto> {

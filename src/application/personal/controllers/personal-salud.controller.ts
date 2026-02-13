@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   ForbiddenException,
   Get,
   Param,
@@ -107,18 +106,33 @@ export class PersonalSaludController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Elimina un profesional de salud' })
+  @ApiOperation({ summary: 'Activa un profesional de salud' })
   @ApiBaseResponse(PersonalResponseDto)
-  @Delete(':id')
-  async eliminar(
+  @Patch(':id/activacion')
+  async activar(
     @Param() { id }: ParamIdDto,
     @Req() req: Request
   ): Promise<BaseResponseDto<PersonalResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.personalSaludService.eliminarPersonalSalud(
+    const resultado = await this.personalSaludService.activarPersonalSalud(
       id,
       usuarioAuditoria
     )
-    return this.successDelete(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Inactiva un profesional de salud' })
+  @ApiBaseResponse(PersonalResponseDto)
+  @Patch(':id/inactivacion')
+  async inactivar(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
+  ): Promise<BaseResponseDto<PersonalResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado = await this.personalSaludService.inactivarPersonalSalud(
+      id,
+      usuarioAuditoria
+    )
+    return this.successUpdate(resultado)
   }
 }

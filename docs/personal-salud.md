@@ -1,7 +1,7 @@
 # Módulo Personal de Salud
 
 ## Objetivo
-Este módulo expone un CRUD para gestionar el personal de salud y sus especialidades asociadas. Se reutiliza la lógica de usuarios existente para altas/actualizaciones de datos personales y el rol `PERSONAL_SALUD`.
+Este módulo expone APIs para gestionar el personal de salud y sus especialidades asociadas. Se reutiliza la lógica de usuarios existente para altas/actualizaciones de datos personales y el rol `PERSONAL_SALUD`. El personal de salud no se elimina físicamente, solo puede activarse o inactivarse.
 
 ## Componentes principales
 - **DTOs**: Definen la estructura de entrada para crear/actualizar profesionales y recibir IDs de especialidades.
@@ -86,13 +86,23 @@ Authorization: Bearer <token>
 - Si `idEspecialidades` es enviado, se reemplazan todas las especialidades existentes por las nuevas.
 - Si no se envía, las especialidades no cambian.
 
-### 5) Eliminar profesional de salud
-- **Método**: `DELETE /personal-salud/:id`
-- **Descripción**: Realiza una baja lógica del rol de personal de salud (estado `INACTIVO`).
+### 5) Activar profesional de salud
+- **Método**: `PATCH /personal-salud/:id/activacion`
+- **Descripción**: Cambia el estado del personal de salud a `ACTIVO`.
 
 **Ejemplo**
 ```http
-DELETE /personal-salud/123
+PATCH /personal-salud/123/activacion
+Authorization: Bearer <token>
+```
+
+### 6) Inactivar profesional de salud
+- **Método**: `PATCH /personal-salud/:id/inactivacion`
+- **Descripción**: Cambia el estado del personal de salud a `INACTIVO`.
+
+**Ejemplo**
+```http
+PATCH /personal-salud/123/inactivacion
 Authorization: Bearer <token>
 ```
 
