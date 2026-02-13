@@ -19,7 +19,10 @@ export class PersonalSaludRepository {
     return (manager ?? this.dataSource).getRepository(UsuarioRolEspecialidad)
   }
 
-  async listarPersonalSaludPaginado(paginacionQuery: PaginacionQueryDto) {
+  async listarPersonalSaludPaginado(
+    paginacionQuery: PaginacionQueryDto,
+    incluirInactivos = false
+  ) {
     const { limite, saltar, filtro, orden, sentido } = paginacionQuery
 
     const query = this.usuarioRolRepository()
@@ -41,6 +44,7 @@ export class PersonalSaludRepository {
         'usuarioRol.id',
         'usuarioRol.idUsuario',
         'usuarioRol.idRol',
+        'usuarioRol.estado',
         'usuarioRol.esSupervisor',
         'usuario.id',
         'usuario.correoElectronico',
@@ -61,15 +65,22 @@ export class PersonalSaludRepository {
         'rol.id',
         'rol.rol',
       ])
-      .where('usuarioRol.estado = :estado', {
-        estado: Status.ACTIVE,
-      })
-      .andWhere('rol.rol IN(:...roles)', {
+      .where('rol.rol IN(:...roles)', {
         roles: [RolEnum.PERSONAL_SALUD],
       })
       .distinct(true)
       .take(limite)
       .skip(saltar)
+
+    if (!incluirInactivos) {
+      query.andWhere('usuarioRol.estado = :estado', {
+        estado: Status.ACTIVE,
+      })
+    } else {
+      query.andWhere('usuarioRol.estado IN(:...estados)', {
+        estados: [Status.ACTIVE, Status.INACTIVE],
+      })
+    }
 
     if (filtro) {
       const filtroNormalizado = filtro.trim()
@@ -141,6 +152,7 @@ export class PersonalSaludRepository {
         'usuarioRol.id',
         'usuarioRol.idUsuario',
         'usuarioRol.idRol',
+        'usuarioRol.estado',
         'usuarioRol.esSupervisor',
         'usuario.id',
         'usuario.correoElectronico',
@@ -192,6 +204,7 @@ export class PersonalSaludRepository {
         'usuarioRol.id',
         'usuarioRol.idUsuario',
         'usuarioRol.idRol',
+        'usuarioRol.estado',
         'usuarioRol.esSupervisor',
         'usuario.id',
         'usuario.correoElectronico',

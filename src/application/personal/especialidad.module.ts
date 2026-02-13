@@ -5,9 +5,6 @@ import { EstudioEspecialidad } from '@/application/estudio/entities/estudio-espe
 import { EspecialidadRepository } from './repository/especialidad.repository'
 import { EspecialidadService } from './services/especialidad.service'
 import { EspecialidadController } from './controllers/especialidad.controller'
-import { PersonalMedicoController } from './controllers/personal-medico.controller'
-import { PersonalMedicoRepository } from './repository/personal-medico.repository'
-import { PersonalMedicoService } from './services/personal-medico.service'
 import { PersonalSaludController } from './controllers/personal-salud.controller'
 import { PersonalSaludRepository } from './repository/personal-salud.repository'
 import { PersonalSaludService } from './services/personal-salud.service'
@@ -32,15 +29,9 @@ import { UsuarioModule } from '@/core/usuario/usuario.module'
   providers: [
     EspecialidadRepository,
     EspecialidadService,
-    PersonalMedicoRepository,
-    PersonalMedicoService,
     PersonalSaludRepository,
     PersonalSaludService,
   ],
-  controllers: [
-    EspecialidadController,
-    PersonalMedicoController,
-    PersonalSaludController,
-  ],
+  controllers: [EspecialidadController, PersonalSaludController],
 })
 export class EspecialidadModule {}

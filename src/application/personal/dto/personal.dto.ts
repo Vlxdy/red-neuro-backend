@@ -38,6 +38,11 @@ export class PersonalResponseDto {
   id!: string
 
   @ApiProperty({
+    description: 'Estado del personal de salud en su rol',
+    example: 'ACTIVO',
+  })
+  estado!: string
+  @ApiProperty({
     description:
       'Indica si el personal de salud tiene habilitadas funciones de supervisión',
     example: false,
