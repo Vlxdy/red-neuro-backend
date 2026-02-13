@@ -208,9 +208,21 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
       },
       // PERSONAL MÉDICO
-      '/api/personal-medico': {
-        [RolEnum.ADMINISTRADOR]: 'GET',
-        [RolEnum.PERSONAL_SALUD]: 'GET',
+      '/api/personal-salud': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.PERSONAL_SALUD]: 'GET|POST',
+      },
+      '/api/personal-salud/:id': {
+        [RolEnum.ADMINISTRADOR]: 'GET|PATCH|DELETE',
+        [RolEnum.PERSONAL_SALUD]: 'GET|PATCH|DELETE',
+      },
+      '/api/personal-salud/:id/activacion': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'PATCH',
+      },
+      '/api/personal-salud/:id/inactivacion': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'PATCH',
       },
       // HISTORIAL DE CITAS
       '/api/citas/:id/historial': {
