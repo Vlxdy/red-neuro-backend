@@ -1,14 +1,19 @@
 import { BaseService } from '@/common/base'
 import { Messages } from '@/common/constants/response-messages'
-import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
-import { Injectable, Inject, NotFoundException } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  Inject,
+  NotFoundException,
+} from '@nestjs/common'
 import { UsuarioService } from '@/core/usuario/service/usuario.service'
-import { RolEnumId } from '@/core/authorization/rol.enum'
+import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
 import {
   formatearPersonal,
   formatearPersonales,
 } from '../utils/formateo-personal.utils'
 import { PersonalResponseDto } from '../dto/personal.dto'
+import { ListarPersonalSaludQueryDto } from '../dto/listar-personal-salud-query.dto'
 import {
   ActualizarPersonalSaludDto,
   CrearPersonalSaludDto,
@@ -27,14 +32,47 @@ export class PersonalSaludService extends BaseService {
   }
 
   async listarPersonalSalud(
-    paginacionQuery: PaginacionQueryDto
+    paginacionQuery: ListarPersonalSaludQueryDto,
+    usuarioSesion: {
+      rol?: string
+      roles?: string[]
+      esSupervisor?: boolean
+    }
   ): Promise<[PersonalResponseDto[], number]> {
+    const incluirInactivos = paginacionQuery.incluirInactivos ?? false
+
+    if (incluirInactivos && !this.puedeListarInactivos(usuarioSesion)) {
+      throw new ForbiddenException(
+        'No cuenta con permisos para listar personal de salud inactivo.'
+      )
+    }
+
     const [personal, total] =
       await this.personalSaludRepository.listarPersonalSaludPaginado(
-        paginacionQuery
+        paginacionQuery,
+        incluirInactivos
       )
 
     return [formatearPersonales(personal), total]
+  }
+
+  private puedeListarInactivos(usuarioSesion: {
+    rol?: string
+    roles?: string[]
+    esSupervisor?: boolean
+  }): boolean {
+    if (usuarioSesion.rol === RolEnum.ADMINISTRADOR) {
+      return true
+    }
+
+    if (usuarioSesion.roles?.includes(RolEnum.ADMINISTRADOR)) {
+      return true
+    }
+
+    return (
+      usuarioSesion.rol === RolEnum.PERSONAL_SALUD &&
+      usuarioSesion.esSupervisor === true
+    )
   }
 
   private async buscarPersonalSaludPorId(id: string) {
@@ -150,6 +188,8 @@ export class PersonalSaludService extends BaseService {
       Status.INACTIVE,
       usuarioAuditoria
     )
+
+    personal.estado = Status.INACTIVE
 
     return formatearPersonal(personal)
   }

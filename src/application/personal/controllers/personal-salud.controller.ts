@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -24,13 +25,13 @@ import {
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
-import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { PersonalSaludService } from '../services/personal-salud.service'
 import {
   ActualizarPersonalSaludDto,
   CrearPersonalSaludDto,
 } from '../dto/personal-salud.dto'
 import { PersonalResponseDto } from '../dto/personal.dto'
+import { ListarPersonalSaludQueryDto } from '../dto/listar-personal-salud-query.dto'
 
 @Controller('personal-salud')
 @ApiTags('Personal Salud')
@@ -45,10 +46,21 @@ export class PersonalSaludController extends BaseController {
   @ApiBaseResponseListRows(PersonalResponseDto)
   @Get()
   async listar(
-    @Query() paginacionQuery: PaginacionQueryDto
+    @Req() req: Request,
+    @Query() paginacionQuery: ListarPersonalSaludQueryDto
   ): Promise<BaseResponseListRowsDto<PersonalResponseDto>> {
-    const resultado =
-      await this.personalSaludService.listarPersonalSalud(paginacionQuery)
+    if (!req.user) {
+      throw new ForbiddenException()
+    }
+
+    const resultado = await this.personalSaludService.listarPersonalSalud(
+      paginacionQuery,
+      {
+        rol: req.user.rol,
+        roles: req.user.roles,
+        esSupervisor: req.user.esSupervisor,
+      }
+    )
     return this.successListRows(resultado)
   }
 

@@ -22,6 +22,7 @@ export function formatearPersonal(usuarioRol: UsuarioRol): PersonalResponseDto {
   const esSupervisor = usuarioRol.esSupervisor
   return {
     id: usuarioRol.id,
+    estado: usuarioRol.estado,
     esSupervisor,
     nroDocumento: usuario.persona.nroDocumento,
     nombres: usuario.persona.nombres,
