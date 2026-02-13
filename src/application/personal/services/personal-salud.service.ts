@@ -75,9 +75,12 @@ export class PersonalSaludService extends BaseService {
     )
   }
 
-  private async buscarPersonalSaludPorId(id: string) {
+  private async buscarPersonalSaludPorId(id: string, estadoActivo = true) {
     const personal =
-      await this.personalSaludRepository.obtenerPersonalSaludPorId(id)
+      await this.personalSaludRepository.obtenerPersonalSaludPorId({
+        id,
+        estadoActivo,
+      })
 
     if (!personal) {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
@@ -123,9 +126,9 @@ export class PersonalSaludService extends BaseService {
     }
 
     const personalConEspecialidades =
-      await this.personalSaludRepository.obtenerPersonalSaludPorId(
-        personalCreado.id
-      )
+      await this.personalSaludRepository.obtenerPersonalSaludPorId({
+        id: personalCreado.id,
+      })
 
     if (!personalConEspecialidades) {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
@@ -168,7 +171,9 @@ export class PersonalSaludService extends BaseService {
     }
 
     const personalActualizado =
-      await this.personalSaludRepository.obtenerPersonalSaludPorId(personal.id)
+      await this.personalSaludRepository.obtenerPersonalSaludPorId({
+        id: personal.id,
+      })
 
     if (!personalActualizado) {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
@@ -181,7 +186,7 @@ export class PersonalSaludService extends BaseService {
     id: string,
     usuarioAuditoria: string
   ): Promise<PersonalResponseDto> {
-    const personal = await this.buscarPersonalSaludPorId(id)
+    const personal = await this.buscarPersonalSaludPorId(id, false)
 
     await this.personalSaludRepository.cambiarEstadoPersonalSalud(
       personal.id,

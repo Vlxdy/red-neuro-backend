@@ -132,8 +132,16 @@ export class PersonalSaludRepository {
     return await query.getManyAndCount()
   }
 
-  async obtenerPersonalSaludPorId(id: string, manager?: EntityManager) {
-    return await this.usuarioRolRepository(manager)
+  async obtenerPersonalSaludPorId({
+    id,
+    estadoActivo = true,
+    manager,
+  }: {
+    id: string
+    estadoActivo?: boolean
+    manager?: EntityManager
+  }) {
+    const query = this.usuarioRolRepository(manager)
       .createQueryBuilder('usuarioRol')
       .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
@@ -174,11 +182,15 @@ export class PersonalSaludRepository {
         'rol.rol',
       ])
       .where('usuarioRol.id = :id', { id })
-      .andWhere('usuarioRol.estado = :estado', {
+      .andWhere('rol.rol = :rol', { rol: RolEnum.PERSONAL_SALUD })
+
+    if (estadoActivo) {
+      query.andWhere('usuarioRol.estado = :estado', {
         estado: Status.ACTIVE,
       })
-      .andWhere('rol.rol = :rol', { rol: RolEnum.PERSONAL_SALUD })
-      .getOne()
+    }
+
+    return await query.getOne()
   }
 
   async obtenerPersonalSaludPorUsuarioId(
