@@ -3451,9 +3451,9 @@
         ]
       }
     },
-    "/personal-medico": {
+    "/personal-salud": {
       "get": {
-        "operationId": "PersonalMedicoController_listar",
+        "operationId": "PersonalSaludController_listar",
         "parameters": [
           {
             "name": "limite",
@@ -3490,6 +3490,16 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "incluirInactivos",
+            "required": false,
+            "in": "query",
+            "description": "Si es true, incluye personal de salud activo e inactivo. Requiere permisos administrativos.",
+            "schema": {
+              "default": false,
+              "type": "boolean"
             }
           }
         ],
@@ -3534,7 +3544,203 @@
         ],
         "summary": "Lista el personal de salud registrado",
         "tags": [
-          "Personal Médico"
+          "Personal Salud"
+        ]
+      },
+      "post": {
+        "operationId": "PersonalSaludController_crear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearPersonalSaludDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/PersonalResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crea un nuevo profesional de salud",
+        "tags": [
+          "Personal Salud"
+        ]
+      }
+    },
+    "/personal-salud/{id}": {
+      "get": {
+        "operationId": "PersonalSaludController_obtenerPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/PersonalResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtiene el detalle de un profesional de salud",
+        "tags": [
+          "Personal Salud"
+        ]
+      },
+      "patch": {
+        "operationId": "PersonalSaludController_actualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarPersonalSaludDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/PersonalResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la información del personal de salud",
+        "tags": [
+          "Personal Salud"
+        ]
+      },
+      "delete": {
+        "operationId": "PersonalSaludController_eliminar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/PersonalResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Elimina un profesional de salud",
+        "tags": [
+          "Personal Salud"
         ]
       }
     },
@@ -4855,6 +5061,11 @@
             "description": "Identificador único del personal de salud",
             "example": "a8f4c1d2-32a1-4c2b-bff1-87fa92c1a223"
           },
+          "estado": {
+            "type": "string",
+            "description": "Estado del personal de salud en su rol",
+            "example": "ACTIVO"
+          },
           "esSupervisor": {
             "type": "boolean",
             "description": "Indica si el personal de salud tiene habilitadas funciones de supervisión",
@@ -4922,6 +5133,7 @@
         },
         "required": [
           "id",
+          "estado",
           "nombres"
         ]
       },
@@ -5752,6 +5964,86 @@
             "type": "string",
             "description": "Permite reactivar o desactivar la especialidad",
             "example": "ACTIVO"
+          }
+        }
+      },
+      "CrearPersonalSaludDto": {
+        "type": "object",
+        "properties": {
+          "contrasena": {
+            "type": "string",
+            "example": "AGEPIC.admin135"
+          },
+          "repetirContrasena": {
+            "type": "string",
+            "example": "AGEPIC.admin135"
+          },
+          "correoElectronico": {
+            "type": "string",
+            "example": "123456@gmail.com"
+          },
+          "persona": {
+            "description": "Datos personales del profesional de salud",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PersonaDto"
+              }
+            ]
+          },
+          "esSupervisor": {
+            "type": "boolean",
+            "example": false,
+            "description": "Habilita permisos de supervisión para el rol PERSONAL_SALUD."
+          },
+          "idEspecialidades": {
+            "description": "Especialidades asociadas al profesional de salud",
+            "example": [
+              "1",
+              "2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "contrasena",
+          "repetirContrasena",
+          "correoElectronico",
+          "persona"
+        ]
+      },
+      "ActualizarPersonalSaludDto": {
+        "type": "object",
+        "properties": {
+          "correoElectronico": {
+            "type": "string",
+            "example": "123456@gmail.com"
+          },
+          "persona": {
+            "description": "Datos personales del profesional de salud",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PersonaDto"
+              }
+            ]
+          },
+          "esSupervisor": {
+            "type": "boolean",
+            "example": false,
+            "description": "Habilita permisos de supervisión para el rol PERSONAL_SALUD."
+          },
+          "idEspecialidades": {
+            "description": "Especialidades asociadas al profesional de salud",
+            "example": [
+              "1",
+              "2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
