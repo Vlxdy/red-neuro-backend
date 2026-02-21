@@ -16,7 +16,7 @@ import {
   FiltrosCitaPaginadoDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
-import { Servicio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/servicio/entities/servicio.entity'
 import {
   Notificacion,
   NotificacionTipo,

@@ -12,7 +12,7 @@ import 'bootstrap/env'
 import { ServicioEstado } from '../constants'
 import { Cita } from '@/application/citas/entities/cita.entity'
 import { TipoCita } from '@/application/citas/constants'
-import { ServicioEspecialidad } from './estudio-especialidad.entity'
+import { ServicioEspecialidad } from './servicio-especialidad.entity'
 
 @Check(UtilService.buildStatusCheck(ServicioEstado))
 @Check(UtilService.buildCheck('tipo', TipoCita))

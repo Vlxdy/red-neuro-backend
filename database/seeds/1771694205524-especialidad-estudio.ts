@@ -1,10 +1,10 @@
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
-import { Servicio } from '@/application/estudio/entities/estudio.entity'
-import { ServicioEspecialidad } from '@/application/estudio/entities/estudio-especialidad.entity'
+import { Servicio } from '@/application/servicio/entities/servicio.entity'
+import { ServicioEspecialidad } from '@/application/servicio/entities/servicio-especialidad.entity'
 import { USUARIO_SISTEMA } from '@/common/constants'
 import { MigrationInterface, QueryRunner } from 'typeorm'
 import { EspecialidadEstado } from '@/application/personal/constants'
-import { ServicioEstado } from '@/application/estudio/constants'
+import { ServicioEstado } from '@/application/servicio/constants'
 import { TipoCita } from '@/application/citas/constants'
 
 export class especialidadEstudio1720000000000 implements MigrationInterface {

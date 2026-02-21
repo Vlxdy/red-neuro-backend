@@ -23,13 +23,13 @@ import {
 } from '@/common/decorators/api-base-responde.decorator'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
-import { ServicioService } from '../services/estudio.service'
+import { ServicioService } from '../services/servicio.service'
 import {
   ActualizarServicioDto,
   AsignarEspecialidadDto,
   CrearServicioDto,
   ServicioResponseDto,
-} from '../dto/estudio.dto'
+} from '../dto/servicio.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { formatearServicio } from '../utils/formateo.estudio'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'

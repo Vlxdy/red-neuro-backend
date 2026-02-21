@@ -10,7 +10,7 @@ import { Notificacion } from './entities/notificacion.entity'
 import { CitasMedicasRepository } from './repository/citas-medicas.repository'
 import { HistorialCitasRepository } from './repository/historial-citas.repository'
 import { HistorialCitasService } from './services/historial-citas.service'
-import { Servicio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/servicio/entities/servicio.entity'
 
 @Module({
   imports: [

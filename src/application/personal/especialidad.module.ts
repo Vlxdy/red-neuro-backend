@@ -12,7 +12,7 @@ import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Persona } from '@/core/usuario/entity/persona.entity'
 import { UsuarioRolEspecialidad } from './entities/usuaro-rol-especialidad.entity'
 import { UsuarioModule } from '@/core/usuario/usuario.module'
-import { Servicio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/servicio/entities/servicio.entity'
 
 @Module({
   imports: [

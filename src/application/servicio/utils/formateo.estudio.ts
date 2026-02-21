@@ -1,5 +1,8 @@
-import { ServicioResponseDto, EspecialidadResumenDto } from '../dto/estudio.dto'
-import { Servicio } from '../entities/estudio.entity'
+import {
+  ServicioResponseDto,
+  EspecialidadResumenDto,
+} from '../dto/servicio.dto'
+import { Servicio } from '../entities/servicio.entity'
 
 const formatearEspecialidades = (
   servicioEspecialidades: Servicio['servicioEspecialidades']

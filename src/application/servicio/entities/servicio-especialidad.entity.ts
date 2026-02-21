@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import 'bootstrap/env'
-import { Servicio } from './estudio.entity'
+import { Servicio } from './servicio.entity'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 
 @Entity({ name: 'servicio_especialidad', schema: process.env.DB_SCHEMA })

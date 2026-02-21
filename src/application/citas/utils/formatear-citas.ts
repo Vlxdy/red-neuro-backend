@@ -8,7 +8,7 @@ import { Cita } from '../entities/cita.entity'
 import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
 import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
 import { formatearConsultorio } from '@/application/consultorio/utils/formateo.consultorio'
-import { Servicio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/servicio/entities/servicio.entity'
 
 const formatearEspecialidad = (
   especialidad: Cita['especialidad']

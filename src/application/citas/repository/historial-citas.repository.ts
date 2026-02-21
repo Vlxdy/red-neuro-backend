@@ -5,7 +5,7 @@ import { FiltrosHistorialCitaPaginadoDto } from '../dto/cita.dto'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import dayjs from 'dayjs'
 import { Paciente } from '@/application/paciente/entities/paciente.entity'
-import { Servicio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/servicio/entities/servicio.entity'
 
 @Injectable()
 export class HistorialCitasRepository {

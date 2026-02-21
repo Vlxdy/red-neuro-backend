@@ -20,7 +20,7 @@ import { CitasEstado, TipoCita } from '../constants'
 import { Notificacion } from './notificacion.entity'
 import { Consultorio } from '@/application/consultorio/entities/consultorio.entity'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
-import { Servicio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/servicio/entities/servicio.entity'
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
 @Check(UtilService.buildCheck('tipo_cita', TipoCita))

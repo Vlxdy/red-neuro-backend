@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { Brackets, DataSource, EntityManager, In } from 'typeorm'
-import { Servicio } from '../entities/estudio.entity'
-import { CrearServicioDto, ActualizarServicioDto } from '../dto/estudio.dto'
+import { Servicio } from '../entities/servicio.entity'
+import { CrearServicioDto, ActualizarServicioDto } from '../dto/servicio.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
-import { ServicioEspecialidad } from '../entities/estudio-especialidad.entity'
+import { ServicioEspecialidad } from '../entities/servicio-especialidad.entity'
 
 @Injectable()
 export class ServicioRepository {

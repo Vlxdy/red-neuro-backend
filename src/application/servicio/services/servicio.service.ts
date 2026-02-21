@@ -1,13 +1,13 @@
 import { BaseService } from '@/common/base'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { ServicioRepository } from '../repository/estudio.repository'
+import { ServicioRepository } from '../repository/servicio.repository'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import {
   ActualizarServicioDto,
   AsignarEspecialidadDto,
   CrearServicioDto,
   ServicioResponseDto,
-} from '../dto/estudio.dto'
+} from '../dto/servicio.dto'
 import {
   formatearServicio,
   formatearServicios,

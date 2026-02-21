@@ -12,7 +12,7 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { EspecialidadEstado } from '../constants'
 import { UsuarioRolEspecialidad } from './usuaro-rol-especialidad.entity'
 import { Cita } from '@/application/citas/entities/cita.entity'
-import { ServicioEspecialidad } from '@/application/estudio/entities/estudio-especialidad.entity'
+import { ServicioEspecialidad } from '@/application/servicio/entities/servicio-especialidad.entity'
 
 @Check(UtilService.buildStatusCheck(EspecialidadEstado))
 @Entity({ name: 'especialidades', schema: process.env.DB_SCHEMA })
