@@ -6,25 +6,25 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import 'bootstrap/env'
-import { Estudio } from './estudio.entity'
+import { Servicio } from './estudio.entity'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 
-@Entity({ name: 'estudio_especialidad', schema: process.env.DB_SCHEMA })
-export class EstudioEspecialidad {
+@Entity({ name: 'servicio_especialidad', schema: process.env.DB_SCHEMA })
+export class ServicioEspecialidad {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla intermedia estudio_especialidad',
+    comment: 'Clave primaria de la tabla intermedia servicio_especialidad',
   })
   id: string
 
   @Column({
-    name: 'id_estudio',
+    name: 'id_servicio',
     type: 'bigint',
     nullable: false,
-    comment: 'Clave foránea que referencia al estudio',
+    comment: 'Clave foránea que referencia al servicio',
   })
-  estudioId: string
+  servicioId: string
 
   @Column({
     name: 'id_especialidad',
@@ -34,17 +34,37 @@ export class EstudioEspecialidad {
   })
   especialidadId: string
 
-  @ManyToOne(() => Estudio, (estudio) => estudio.estudioEspecialidades, {
+  // Compatibilidad temporal
+  get estudioId() {
+    return this.servicioId
+  }
+
+  set estudioId(value: string) {
+    this.servicioId = value
+  }
+
+  get estudio() {
+    return this.servicio
+  }
+
+  set estudio(value: Servicio) {
+    this.servicio = value
+  }
+
+  @ManyToOne(() => Servicio, (servicio) => servicio.servicioEspecialidades, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'id_estudio', referencedColumnName: 'id' })
-  estudio: Estudio
+  @JoinColumn({ name: 'id_servicio', referencedColumnName: 'id' })
+  servicio: Servicio
 
   @ManyToOne(
     () => Especialidad,
-    (especialidad) => especialidad.estudioEspecialidades,
+    (especialidad) => especialidad.servicioEspecialidades,
     { onDelete: 'CASCADE' }
   )
   @JoinColumn({ name: 'id_especialidad', referencedColumnName: 'id' })
   especialidad: Especialidad
 }
+
+// Alias temporal para compatibilidad
+export { ServicioEspecialidad as EstudioEspecialidad }

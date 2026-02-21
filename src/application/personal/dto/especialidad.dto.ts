@@ -7,21 +7,21 @@ import {
 } from '@/common/validation'
 import { ApiProperty, PartialType } from '@nestjs/swagger'
 
-export class EstudioResumenDto {
+export class ServicioResumenDto {
   @ApiProperty({
-    description: 'Identificador único del estudio médico',
+    description: 'Identificador único del servicio',
     example: '5',
   })
   id!: string
 
   @ApiProperty({
-    description: 'Nombre identificador del estudio médico',
+    description: 'Nombre identificador del servicio',
     example: 'Radiografía de tórax',
   })
   nombre!: string
 
   @ApiProperty({
-    description: 'Duración estimada del estudio en minutos',
+    description: 'Duración estimada del servicio en minutos',
     example: 20,
   })
   duracionMinutos!: number
@@ -44,7 +44,6 @@ export class CrearEspecialidadDto {
   })
   @IsOptional()
   @IsString()
-  @MaxLength(255)
   descripcion?: string
 
   @ApiProperty({
@@ -52,14 +51,13 @@ export class CrearEspecialidadDto {
     example: '#0ea5e9',
   })
   @IsString()
-  @IsNotEmpty()
-  @Matches(/^#([A-Fa-f0-9]{6})$/)
+  @Matches(/^#[0-9A-Fa-f]{6}$/)
   colorHex!: string
 }
 
 export class EspecialidadResponseDto {
   @ApiProperty({
-    description: 'Identificador único de la especialidad médica',
+    description: 'Identificador único de la especialidad',
     example: '12',
   })
   id!: string
@@ -77,7 +75,10 @@ export class EspecialidadResponseDto {
   })
   descripcion?: string
 
-  @ApiProperty({ description: 'Estado del registro', example: 'ACTIVO' })
+  @ApiProperty({
+    description: 'Estado actual del registro de especialidad',
+    example: 'ACTIVO',
+  })
   estado!: string
 
   @ApiProperty({
@@ -87,10 +88,10 @@ export class EspecialidadResponseDto {
   colorHex!: string
 
   @ApiProperty({
-    description: 'Estudios asociados a la especialidad',
-    type: [EstudioResumenDto],
+    description: 'Servicios asociados a la especialidad',
+    type: [ServicioResumenDto],
   })
-  estudios!: EstudioResumenDto[]
+  servicios!: ServicioResumenDto[]
 }
 
 export class ActualizarEspecialidadDto extends PartialType(

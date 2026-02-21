@@ -40,7 +40,7 @@ Evento: `citas:create`
 | `idConsultorio` | string | ❌ | Identificador del consultorio. |
 | `idEspecialidad` | string | ✅ | Identificador de la especialidad. |
 | `tipoCita` | `CONSULTA` / `ESTUDIO` | ✅ | Tipo de cita. |
-| `idEstudio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
+| `idServicio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
 
 **Servidor → Todos los clientes**
 
@@ -67,7 +67,7 @@ Evento: `citas:actualizar`
 | `idConsultorio` | string | ❌ | Identificador del consultorio. |
 | `idEspecialidad` | string | ✅ | Identificador de la especialidad. |
 | `tipoCita` | `CONSULTA` / `ESTUDIO` | ✅ | Tipo de cita. |
-| `idEstudio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
+| `idServicio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
 
 **Servidor → Todos los clientes**
 
@@ -109,7 +109,7 @@ Evento: `citas:reprogramar`
 | `id` | string | ✅ | Identificador de la cita. |
 | `fechaInicio` | string (ISO) | ✅ | Nueva fecha/hora de inicio. |
 | `tipoCita` | `CONSULTA` / `ESTUDIO` | ✅ | Tipo de cita. |
-| `idEstudio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
+| `idServicio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
 
 **Servidor → Todos los clientes**
 
@@ -156,7 +156,7 @@ El backend responde con los datos de la cita y sus relaciones principales. Campo
 | `pacienteId` | string | Identificador del paciente. |
 | `consultorioId` | string | Identificador del consultorio. |
 | `especialidadId` | string | Identificador de especialidad. |
-| `estudioId` | string | Identificador del estudio (si aplica). |
+| `servicioId` | string | Identificador del estudio (si aplica). |
 | `medico` | objeto | Información del profesional asignado. |
 | `paciente` | objeto | Información del paciente. |
 | `especialidad` | objeto | Información de la especialidad. |

@@ -29,7 +29,7 @@ Este documento describe el flujo actualizado para crear, actualizar y listar cit
 - La fecha fin **no** se envía en solicitudes de creación/actualización; siempre se calcula en backend.
 - Un estudio solo es válido si pertenece a la especialidad seleccionada.
 - Las respuestas de citas incluyen datos completos de médico y paciente utilizando el formato de `formatearPersonal`.
-- En reprogramaciones de tipo **ESTUDIO**, se debe enviar el `idEstudio` para recalcular la duración.
+- En reprogramaciones de tipo **ESTUDIO**, se debe enviar el `idServicio` para recalcular la duración.
 
 ## Endpoints relevantes
 - `POST /citas`: crea una cita.
@@ -60,7 +60,7 @@ Este documento describe el flujo actualizado para crear, actualizar y listar cit
   "idMedico": "42",
   "idEspecialidad": "12",
   "tipoCita": "ESTUDIO",
-  "idEstudio": "5",
+  "idServicio": "5",
   "idPaciente": "105"
 }
 ```
@@ -107,7 +107,7 @@ Este documento describe el flujo actualizado para crear, actualizar y listar cit
 
 ## Criterios de aceptación
 - **CA-01:** El sistema obliga a enviar `idEspecialidad` y `tipoCita` al crear una cita.
-- **CA-02:** Para `tipoCita = ESTUDIO`, el sistema obliga a enviar `idEstudio` y valida que pertenezca a la especialidad.
+- **CA-02:** Para `tipoCita = ESTUDIO`, el sistema obliga a enviar `idServicio` y valida que pertenezca a la especialidad.
 - **CA-03:** Para `tipoCita = CONSULTA`, el sistema calcula la fecha fin usando `CITA_CONSULTA_DURACION_MINUTOS`.
 - **CA-04:** Para `tipoCita = ESTUDIO`, el sistema calcula la fecha fin usando la duración del estudio.
 - **CA-05:** En reprogramación, el usuario envía solo `fechaInicio` y el sistema recalcula `fechaFin`.

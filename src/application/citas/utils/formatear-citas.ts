@@ -2,13 +2,13 @@ import dayjs from 'dayjs'
 import {
   CitaResponseDto,
   EspecialidadCitaDto,
-  EstudioCitaDto,
+  ServicioCitaDto,
 } from '../dto/cita.dto'
 import { Cita } from '../entities/cita.entity'
 import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
 import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
 import { formatearConsultorio } from '@/application/consultorio/utils/formateo.consultorio'
-import { Estudio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/estudio/entities/estudio.entity'
 
 const formatearEspecialidad = (
   especialidad: Cita['especialidad']
@@ -25,13 +25,15 @@ const formatearEspecialidad = (
   }
 }
 
-export const formatearEstudio = (estudio: Estudio): EstudioCitaDto => {
+export const formatearServicio = (servicio: Servicio): ServicioCitaDto => {
   return {
-    id: estudio.id,
-    nombre: estudio.nombre,
-    descripcion: estudio.descripcion,
-    duracionMinutos: estudio.duracionMinutos,
-    estado: estudio.estado,
+    id: servicio.id,
+    nombre: servicio.nombre,
+    descripcion: servicio.descripcion ?? '',
+    tipo: servicio.tipo,
+    duracionMinutos: servicio.duracionMinutos,
+    costo: Number(servicio.costo),
+    estado: servicio.estado,
   }
 }
 
@@ -45,13 +47,13 @@ export function formatearCita(cita: Cita): CitaResponseDto {
     pacienteId: cita.idPaciente ?? undefined,
     consultorioId: cita.idConsultorio ?? undefined,
     especialidadId: cita.idEspecialidad ?? undefined,
-    estudioId: cita.idEstudio ?? undefined,
+    servicioId: cita.idServicio ?? undefined,
     estado: cita.estado,
     tipoCita: cita.tipoCita,
     medico: cita.medico ? formatearPersonal(cita.medico) : undefined,
     paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
     especialidad: formatearEspecialidad(cita.especialidad),
-    estudio: cita.estudio ? formatearEstudio(cita.estudio) : undefined,
+    servicio: cita.servicio ? formatearServicio(cita.servicio) : undefined,
     consultorio: cita.consultorio
       ? formatearConsultorio(cita.consultorio)
       : undefined,

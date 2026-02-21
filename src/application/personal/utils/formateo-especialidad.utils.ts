@@ -1,15 +1,15 @@
 import {
   EspecialidadResponseDto,
-  EstudioResumenDto,
+  ServicioResumenDto,
 } from '../dto/especialidad.dto'
 import { Especialidad } from '../entities/especialidad.entity'
 
-const formatearEstudio = (
-  relacion: Especialidad['estudioEspecialidades'][number]
-): EstudioResumenDto => ({
-  id: relacion.estudio.id,
-  nombre: relacion.estudio.nombre,
-  duracionMinutos: relacion.estudio.duracionMinutos,
+const formatearServicio = (
+  servicio: Especialidad['servicios'][number]
+): ServicioResumenDto => ({
+  id: servicio.id,
+  nombre: servicio.nombre,
+  duracionMinutos: servicio.duracionMinutos,
 })
 
 export function formatearEspecialidad(
@@ -21,7 +21,7 @@ export function formatearEspecialidad(
     descripcion: especialidad.descripcion,
     estado: especialidad.estado,
     colorHex: especialidad.colorHex,
-    estudios: especialidad.estudioEspecialidades?.map(formatearEstudio) ?? [],
+    servicios: especialidad.servicios?.map(formatearServicio) ?? [],
   }
 }
 

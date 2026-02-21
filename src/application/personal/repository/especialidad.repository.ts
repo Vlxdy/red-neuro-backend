@@ -20,11 +20,7 @@ export class EspecialidadRepository {
 
     const query = this.especialidadRepository()
       .createQueryBuilder('especialidad')
-      .leftJoinAndSelect(
-        'especialidad.estudioEspecialidades',
-        'estudioEspecialidad'
-      )
-      .leftJoinAndSelect('estudioEspecialidad.estudio', 'estudio')
+      .leftJoinAndSelect('especialidad.servicios', 'servicio')
       .distinct(true)
       .take(limite)
       .skip(saltar)
@@ -66,7 +62,7 @@ export class EspecialidadRepository {
     return await this.especialidadRepository(manager).findOne({
       where: { id },
       relations: {
-        estudioEspecialidades: { estudio: true },
+        servicios: true,
       },
     })
   }

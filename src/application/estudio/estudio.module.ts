@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Estudio } from './entities/estudio.entity'
-import { EstudioEspecialidad } from './entities/estudio-especialidad.entity'
-import { EstudioRepository } from './repository/estudio.repository'
-import { EstudioService } from './services/estudio.service'
-import { EstudioController } from './controllers/estudio.controller'
+import { Servicio } from './entities/estudio.entity'
+import { ServicioEspecialidad } from './entities/estudio-especialidad.entity'
+import { ServicioRepository } from './repository/estudio.repository'
+import { ServicioService } from './services/estudio.service'
+import { ServicioController } from './controllers/estudio.controller'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Estudio, EstudioEspecialidad])],
-  providers: [EstudioRepository, EstudioService],
-  controllers: [EstudioController],
+  imports: [TypeOrmModule.forFeature([Servicio, ServicioEspecialidad])],
+  providers: [ServicioRepository, ServicioService],
+  controllers: [ServicioController],
 })
-export class EstudioModule {}
+export class ServicioModule {}

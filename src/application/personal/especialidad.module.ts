@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Especialidad } from './entities/especialidad.entity'
-import { EstudioEspecialidad } from '@/application/estudio/entities/estudio-especialidad.entity'
 import { EspecialidadRepository } from './repository/especialidad.repository'
 import { EspecialidadService } from './services/especialidad.service'
 import { EspecialidadController } from './controllers/especialidad.controller'
@@ -13,12 +12,13 @@ import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Persona } from '@/core/usuario/entity/persona.entity'
 import { UsuarioRolEspecialidad } from './entities/usuaro-rol-especialidad.entity'
 import { UsuarioModule } from '@/core/usuario/usuario.module'
+import { Servicio } from '@/application/estudio/entities/estudio.entity'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Especialidad,
-      EstudioEspecialidad,
+      Servicio,
       UsuarioRol,
       Usuario,
       Persona,

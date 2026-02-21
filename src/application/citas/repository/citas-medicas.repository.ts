@@ -16,7 +16,7 @@ import {
   FiltrosCitaPaginadoDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
-import { Estudio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/estudio/entities/estudio.entity'
 import {
   Notificacion,
   NotificacionTipo,
@@ -60,7 +60,7 @@ export class CitasMedicasRepository {
       .leftJoinAndSelect('cita.paciente', 'paciente')
       .leftJoinAndSelect('cita.consultorio', 'consultorio')
       .leftJoinAndSelect('cita.especialidad', 'especialidad')
-      .leftJoinAndSelect('cita.estudio', 'estudio')
+      .leftJoinAndSelect('cita.servicio', 'servicio')
       .distinct(true)
 
     if (filtros.fechaInicio) {
@@ -119,7 +119,7 @@ export class CitasMedicasRepository {
       idPaciente?: string | null
       idConsultorio?: string | null
       idEspecialidad?: string | null
-      idEstudio?: string | null
+      idServicio?: string | null
     },
     usuarioAuditoria: string,
     idEjecutor: string,
@@ -136,7 +136,7 @@ export class CitasMedicasRepository {
       idPaciente: data.idPaciente ?? null,
       idConsultorio: data.idConsultorio ?? null,
       idEspecialidad: data.idEspecialidad ?? null,
-      idEstudio: data.idEstudio ?? null,
+      idServicio: data.idServicio ?? null,
     })
 
     const guardada = await this.citaRepository(transaccion).save(cita)
@@ -195,11 +195,11 @@ export class CitasMedicasRepository {
     if (data.tipoCita !== undefined) {
       patch.tipoCita = data.tipoCita
       if (data.tipoCita === TipoCita.ESTUDIO) {
-        if (data.idEstudio !== undefined) {
-          patch.idEstudio = data.idEstudio
+        if (data.idServicio !== undefined) {
+          patch.idServicio = data.idServicio
         }
       } else {
-        patch.idEstudio = null
+        patch.idServicio = null
       }
     }
 
@@ -298,6 +298,18 @@ export class CitasMedicasRepository {
         estadoAnterior,
         nuevoEstado
       )
+      this.registrarCambio(
+        detalleCambios,
+        'tipoCita',
+        cita.tipoCita,
+        dto.tipoCita ?? cita.tipoCita
+      )
+      this.registrarCambio(
+        detalleCambios,
+        'idServicio',
+        cita.idServicio ?? undefined,
+        dto.idServicio ?? cita.idServicio ?? undefined
+      )
 
       if (!detalleCambios.length) {
         return true
@@ -305,6 +317,8 @@ export class CitasMedicasRepository {
 
       cita.fechaInicio = nuevaFechaInicio
       cita.fechaFin = nuevaFechaFin
+      cita.tipoCita = dto.tipoCita ?? cita.tipoCita
+      cita.idServicio = dto.idServicio ?? cita.idServicio ?? null
       cita.estado = nuevoEstado
       cita.usuarioModificacion = usuarioAuditoria
       await this.citaRepository(manager).save(cita)
@@ -413,13 +427,13 @@ export class CitasMedicasRepository {
     )
     this.registrarCambio(
       cambios,
-      'idEstudio',
-      cita.idEstudio ?? undefined,
+      'idServicio',
+      cita.idServicio ?? undefined,
       data.tipoCita === TipoCita.ESTUDIO
-        ? (data.idEstudio ?? cita.idEstudio ?? undefined)
+        ? (data.idServicio ?? cita.idServicio ?? undefined)
         : data.tipoCita === TipoCita.CONSULTA
           ? undefined
-          : (cita.idEstudio ?? undefined)
+          : (cita.idServicio ?? undefined)
     )
     this.registrarCambio(
       cambios,
@@ -515,22 +529,13 @@ export class CitasMedicasRepository {
     return await this.dataSource.manager.transaction<T>(op)
   }
 
-  async obtenerEstudioPorEspecialidad(
-    idEstudio: string,
-    idEspecialidad: string,
-    manager?: EntityManager
-  ) {
+  async obtenerServicioPorId(idServicio: string, manager?: EntityManager) {
     const entityManager = manager ?? this.dataSource.manager
     return await entityManager
-      .getRepository(Estudio)
-      .createQueryBuilder('estudio')
-      .innerJoin(
-        'estudio.estudioEspecialidades',
-        'estudioEspecialidad',
-        'estudioEspecialidad.especialidadId = :idEspecialidad',
-        { idEspecialidad }
-      )
-      .where('estudio.id = :idEstudio', { idEstudio })
+      .getRepository(Servicio)
+      .createQueryBuilder('servicio')
+      .leftJoinAndSelect('servicio.especialidad', 'especialidad')
+      .where('servicio.id = :idServicio', { idServicio })
       .getOne()
   }
 }

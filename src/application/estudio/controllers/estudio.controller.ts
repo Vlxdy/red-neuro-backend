@@ -23,87 +23,88 @@ import {
 } from '@/common/decorators/api-base-responde.decorator'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
-import { EstudioService } from '../services/estudio.service'
+import { ServicioService } from '../services/estudio.service'
 import {
-  ActualizarEstudioDto,
+  ActualizarServicioDto,
   AsignarEspecialidadDto,
-  CrearEstudioDto,
-  EstudioResponseDto,
+  CrearServicioDto,
+  ServicioResponseDto,
 } from '../dto/estudio.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
-import { formatearEstudio } from '../utils/formateo.estudio'
+import { formatearServicio } from '../utils/formateo.estudio'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
-@Controller('estudios')
-@ApiTags('Estudios')
+@Controller('servicios')
+@ApiTags('Servicios')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, CasbinGuard)
-export class EstudioController extends BaseController {
-  constructor(private readonly estudioService: EstudioService) {
+export class ServicioController extends BaseController {
+  constructor(private readonly servicioService: ServicioService) {
     super()
   }
 
-  @ApiOperation({ summary: 'Lista los estudios médicos configurados' })
-  @ApiBaseResponseListRows(EstudioResponseDto)
+  @ApiOperation({ summary: 'Lista los servicios configurados' })
+  @ApiBaseResponseListRows(ServicioResponseDto)
   @Get()
   async listar(
     @Query() paginacionQuery: PaginacionQueryDto
-  ): Promise<BaseResponseListRowsDto<EstudioResponseDto>> {
-    const resultado = await this.estudioService.listarEstudios(paginacionQuery)
+  ): Promise<BaseResponseListRowsDto<ServicioResponseDto>> {
+    const resultado =
+      await this.servicioService.listarServicios(paginacionQuery)
     return this.successListRows(resultado)
   }
 
   @ApiOperation({
-    summary: 'Lista los estudios médicos paginados por especialidad',
+    summary: 'Lista los servicios paginados por especialidad',
   })
-  @ApiBaseResponseListRows(EstudioResponseDto)
+  @ApiBaseResponseListRows(ServicioResponseDto)
   @Get('especialidades/:id')
   async listarPorEspecialidad(
     @Param() { id }: ParamIdDto,
     @Query() paginacionQuery: PaginacionQueryDto
-  ): Promise<BaseResponseListRowsDto<EstudioResponseDto>> {
-    const resultado = await this.estudioService.listarEstudiosPorEspecialidad(
+  ): Promise<BaseResponseListRowsDto<ServicioResponseDto>> {
+    const resultado = await this.servicioService.listarServiciosPorEspecialidad(
       id,
       paginacionQuery
     )
     return this.successListRows(resultado)
   }
 
-  @ApiOperation({ summary: 'Obtiene el detalle de un estudio médico' })
-  @ApiBaseResponse(EstudioResponseDto)
+  @ApiOperation({ summary: 'Obtiene el detalle de un servicio' })
+  @ApiBaseResponse(ServicioResponseDto)
   @Get(':id')
   async obtenerPorId(
     @Param() { id }: ParamIdDto
-  ): Promise<BaseResponseDto<EstudioResponseDto>> {
-    const resultado = await this.estudioService.obtenerEstudioPorId(id)
-    return this.success(formatearEstudio(resultado))
+  ): Promise<BaseResponseDto<ServicioResponseDto>> {
+    const resultado = await this.servicioService.obtenerServicioPorId(id)
+    return this.success(formatearServicio(resultado))
   }
 
-  @ApiOperation({ summary: 'Crea un nuevo estudio médico' })
-  @ApiBaseResponse(EstudioResponseDto)
+  @ApiOperation({ summary: 'Crea un nuevo servicio' })
+  @ApiBaseResponse(ServicioResponseDto)
   @Post()
   async crear(
     @Req() req: Request,
-    @Body() dto: CrearEstudioDto
-  ): Promise<BaseResponseDto<EstudioResponseDto>> {
+    @Body() dto: CrearServicioDto
+  ): Promise<BaseResponseDto<ServicioResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.estudioService.crearEstudio(
+    const resultado = await this.servicioService.crearServicio(
       dto,
       usuarioAuditoria
     )
     return this.successCreate(resultado)
   }
 
-  @ApiOperation({ summary: 'Actualiza la información de un estudio médico' })
-  @ApiBaseResponse(EstudioResponseDto)
+  @ApiOperation({ summary: 'Actualiza la información de un servicio' })
+  @ApiBaseResponse(ServicioResponseDto)
   @Patch(':id')
   async actualizar(
     @Param() { id }: ParamIdDto,
     @Req() req: Request,
-    @Body() dto: ActualizarEstudioDto
-  ): Promise<BaseResponseDto<EstudioResponseDto>> {
+    @Body() dto: ActualizarServicioDto
+  ): Promise<BaseResponseDto<ServicioResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.estudioService.actualizarEstudio(
+    const resultado = await this.servicioService.actualizarServicio(
       id,
       dto,
       usuarioAuditoria
@@ -111,30 +112,30 @@ export class EstudioController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Elimina un estudio médico' })
-  @ApiBaseResponse(EstudioResponseDto)
+  @ApiOperation({ summary: 'Elimina un servicio' })
+  @ApiBaseResponse(ServicioResponseDto)
   @Delete(':id')
   async eliminar(
     @Param() { id }: ParamIdDto,
     @Req() req: Request
-  ): Promise<BaseResponseDto<EstudioResponseDto>> {
+  ): Promise<BaseResponseDto<ServicioResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.estudioService.eliminarEstudio(
+    const resultado = await this.servicioService.eliminarServicio(
       id,
       usuarioAuditoria
     )
     return this.successDelete(resultado)
   }
 
-  @ApiOperation({ summary: 'Cambiar estado del estudio médico' })
-  @ApiBaseResponse(EstudioResponseDto)
+  @ApiOperation({ summary: 'Cambiar estado del servicio' })
+  @ApiBaseResponse(ServicioResponseDto)
   @Patch(':id/cambiar-estado')
   async cambiarEstado(
     @Param() { id }: ParamIdDto,
     @Req() req: Request
-  ): Promise<BaseResponseDto<EstudioResponseDto>> {
+  ): Promise<BaseResponseDto<ServicioResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.estudioService.cambiarEstadoEstudio(
+    const resultado = await this.servicioService.cambiarEstadoServicio(
       id,
       usuarioAuditoria
     )
@@ -142,15 +143,15 @@ export class EstudioController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Asocia una especialidad a un estudio médico',
+    summary: 'Asocia una especialidad a un servicio',
   })
-  @ApiBaseResponse(EstudioResponseDto)
+  @ApiBaseResponse(ServicioResponseDto)
   @Post(':id/especialidades')
   async asignarEspecialidad(
     @Param() { id }: ParamIdDto,
     @Body() dto: AsignarEspecialidadDto
-  ): Promise<BaseResponseDto<EstudioResponseDto>> {
-    const resultado = await this.estudioService.asignarEspecialidad(id, dto)
+  ): Promise<BaseResponseDto<ServicioResponseDto>> {
+    const resultado = await this.servicioService.asignarEspecialidad(id, dto)
     return this.success(resultado)
   }
 }

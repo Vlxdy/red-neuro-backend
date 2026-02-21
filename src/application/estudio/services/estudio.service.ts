@@ -1,185 +1,190 @@
 import { BaseService } from '@/common/base'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { EstudioRepository } from '../repository/estudio.repository'
+import { ServicioRepository } from '../repository/estudio.repository'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import {
-  ActualizarEstudioDto,
+  ActualizarServicioDto,
   AsignarEspecialidadDto,
-  CrearEstudioDto,
-  EstudioResponseDto,
+  CrearServicioDto,
+  ServicioResponseDto,
 } from '../dto/estudio.dto'
-import { formatearEstudio, formatearEstudios } from '../utils/formateo.estudio'
+import {
+  formatearServicio,
+  formatearServicios,
+} from '../utils/formateo.estudio'
 import { EntityManager } from 'typeorm'
 import { Messages } from '@/common/constants/response-messages'
-import { EstudioEstado } from '../constants'
+import { ServicioEstado } from '../constants'
 
 @Injectable()
-export class EstudioService extends BaseService {
+export class ServicioService extends BaseService {
   constructor(
-    @Inject(EstudioRepository)
-    private readonly estudioRepository: EstudioRepository
+    @Inject(ServicioRepository)
+    private readonly servicioRepository: ServicioRepository
   ) {
     super()
   }
 
-  async listarEstudios(
+  async listarServicios(
     paginacionQuery: PaginacionQueryDto
-  ): Promise<[EstudioResponseDto[], number]> {
-    const [estudios, total] =
-      await this.estudioRepository.listarEstudiosPaginado(paginacionQuery)
-    return [formatearEstudios(estudios), total]
+  ): Promise<[ServicioResponseDto[], number]> {
+    const [servicios, total] =
+      await this.servicioRepository.listarServiciosPaginado(paginacionQuery)
+    return [formatearServicios(servicios), total]
   }
 
-  async listarEstudiosPorEspecialidad(
+  async listarServiciosPorEspecialidad(
     especialidadId: string,
     paginacionQuery: PaginacionQueryDto
-  ): Promise<[EstudioResponseDto[], number]> {
+  ): Promise<[ServicioResponseDto[], number]> {
     const especialidad =
-      await this.estudioRepository.obtenerEspecialidadPorId(especialidadId)
+      await this.servicioRepository.obtenerEspecialidadPorId(especialidadId)
 
     if (!especialidad) {
       throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
     }
 
-    const [estudios, total] =
-      await this.estudioRepository.listarEstudiosPorEspecialidadPaginado(
+    const [servicios, total] =
+      await this.servicioRepository.listarServiciosPorEspecialidadPaginado(
         especialidadId,
         paginacionQuery
       )
-    return [formatearEstudios(estudios), total]
+    return [formatearServicios(servicios), total]
   }
 
-  async obtenerEstudioPorId(id: string, transaccion?: EntityManager) {
-    const estudio = await this.estudioRepository.obtenerEstudioPorId(
+  async obtenerServicioPorId(id: string, transaccion?: EntityManager) {
+    const servicio = await this.servicioRepository.obtenerServicioPorId(
       id,
       transaccion
     )
 
-    if (!estudio) {
-      throw new NotFoundException(Messages.ESTUDIO_NOT_FOUND)
+    if (!servicio) {
+      throw new NotFoundException(Messages.SERVICIO_NOT_FOUND)
     }
 
-    return estudio
+    return servicio
   }
 
-  async crearEstudio(
-    dto: CrearEstudioDto,
+  async crearServicio(
+    dto: CrearServicioDto,
     usuarioAuditoria: string,
     transaccion?: EntityManager
-  ): Promise<EstudioResponseDto> {
+  ): Promise<ServicioResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.crearEstudio(dto, usuarioAuditoria, nuevaTransaccion)
+        return await this.crearServicio(dto, usuarioAuditoria, nuevaTransaccion)
       }
-      return await this.estudioRepository.runTransaction(op)
+      return await this.servicioRepository.runTransaction(op)
     }
 
-    const nuevoEstudio = await this.estudioRepository.crearEstudio(
+    const nuevoServicio = await this.servicioRepository.crearServicio(
       dto,
       usuarioAuditoria,
       transaccion
     )
-    return formatearEstudio(nuevoEstudio)
+    return formatearServicio(nuevoServicio)
   }
 
-  async actualizarEstudio(
+  async actualizarServicio(
     id: string,
-    dto: ActualizarEstudioDto,
+    dto: ActualizarServicioDto,
     usuarioAuditoria: string,
     transaccion?: EntityManager
-  ): Promise<EstudioResponseDto> {
+  ): Promise<ServicioResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.actualizarEstudio(
+        return await this.actualizarServicio(
           id,
           dto,
           usuarioAuditoria,
           nuevaTransaccion
         )
       }
-      return await this.estudioRepository.runTransaction(op)
+      return await this.servicioRepository.runTransaction(op)
     }
 
-    const estudio = await this.obtenerEstudioPorId(id, transaccion)
-    const estudioActualizado = await this.estudioRepository.actualizarEstudio(
-      estudio,
-      dto,
-      usuarioAuditoria,
-      transaccion
-    )
-    return formatearEstudio(estudioActualizado)
+    const servicio = await this.obtenerServicioPorId(id, transaccion)
+    const servicioActualizado =
+      await this.servicioRepository.actualizarServicio(
+        servicio,
+        dto,
+        usuarioAuditoria,
+        transaccion
+      )
+    return formatearServicio(servicioActualizado)
   }
 
-  async eliminarEstudio(
+  async eliminarServicio(
     id: string,
     usuarioAuditoria: string,
     transaccion?: EntityManager
-  ): Promise<EstudioResponseDto> {
+  ): Promise<ServicioResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.eliminarEstudio(
+        return await this.eliminarServicio(
           id,
           usuarioAuditoria,
           nuevaTransaccion
         )
       }
-      return await this.estudioRepository.runTransaction(op)
+      return await this.servicioRepository.runTransaction(op)
     }
 
-    const estudio = await this.obtenerEstudioPorId(id, transaccion)
-    await this.estudioRepository.eliminarEstudio(id, transaccion)
+    const servicio = await this.obtenerServicioPorId(id, transaccion)
+    await this.servicioRepository.eliminarServicio(id, transaccion)
 
-    estudio.usuarioModificacion = usuarioAuditoria
-    return formatearEstudio(estudio)
+    servicio.usuarioModificacion = usuarioAuditoria
+    return formatearServicio(servicio)
   }
 
-  async cambiarEstadoEstudio(
+  async cambiarEstadoServicio(
     id: string,
     usuarioAuditoria: string,
     transaccion?: EntityManager
-  ): Promise<EstudioResponseDto> {
+  ): Promise<ServicioResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.cambiarEstadoEstudio(
+        return await this.cambiarEstadoServicio(
           id,
           usuarioAuditoria,
           nuevaTransaccion
         )
       }
-      return await this.estudioRepository.runTransaction(op)
+      return await this.servicioRepository.runTransaction(op)
     }
 
-    const estudio = await this.obtenerEstudioPorId(id, transaccion)
+    const servicio = await this.obtenerServicioPorId(id, transaccion)
 
-    const estudioActualizado = await this.estudioRepository.actualizarEstudio(
-      estudio,
-      {
-        estado:
-          estudio.estado === EstudioEstado.ACTIVO
-            ? EstudioEstado.INACTIVO
-            : EstudioEstado.ACTIVO,
-      },
-      usuarioAuditoria,
-      transaccion
-    )
+    const servicioActualizado =
+      await this.servicioRepository.actualizarServicio(
+        servicio,
+        {
+          estado:
+            servicio.estado === ServicioEstado.ACTIVO
+              ? ServicioEstado.INACTIVO
+              : ServicioEstado.ACTIVO,
+        },
+        usuarioAuditoria,
+        transaccion
+      )
 
-    return formatearEstudio(estudioActualizado)
+    return formatearServicio(servicioActualizado)
   }
 
   async asignarEspecialidad(
     id: string,
     dto: AsignarEspecialidadDto,
     transaccion?: EntityManager
-  ): Promise<EstudioResponseDto> {
+  ): Promise<ServicioResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
         return await this.asignarEspecialidad(id, dto, nuevaTransaccion)
       }
-      return await this.estudioRepository.runTransaction(op)
+      return await this.servicioRepository.runTransaction(op)
     }
 
-    const estudio = await this.obtenerEstudioPorId(id, transaccion)
-    const especialidad = await this.estudioRepository.obtenerEspecialidadPorId(
+    const servicio = await this.obtenerServicioPorId(id, transaccion)
+    const especialidad = await this.servicioRepository.obtenerEspecialidadPorId(
       dto.especialidadId,
       transaccion
     )
@@ -188,22 +193,16 @@ export class EstudioService extends BaseService {
       throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
     }
 
-    const existente =
-      await this.estudioRepository.buscarRelacionEstudioEspecialidad(
-        id,
-        dto.especialidadId,
+    const servicioActualizado =
+      await this.servicioRepository.actualizarServicio(
+        servicio,
+        {
+          idEspecialidad: especialidad.id,
+        },
+        '0',
         transaccion
       )
 
-    if (!existente) {
-      await this.estudioRepository.crearRelacionEstudioEspecialidad(
-        estudio,
-        especialidad,
-        transaccion
-      )
-    }
-
-    const estudioActualizado = await this.obtenerEstudioPorId(id, transaccion)
-    return formatearEstudio(estudioActualizado)
+    return formatearServicio(servicioActualizado)
   }
 }
