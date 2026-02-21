@@ -10,18 +10,18 @@ Este documento describe el **flujo funcional actual** del módulo de citas con e
   - `tipoCita` (`CONSULTA` o `ESTUDIO`)
   - `idServicio` (obligatorio)
   - `idEspecialidad` (opcional)
-- El servicio (`servicio_cita`) define:
+- El servicio (`servicio`) define:
   - nombre
   - tipo (`CONSULTA` / `ESTUDIO`)
   - duración
   - costo
-  - especialidad opcional
+  - **0..n especialidades** mediante `servicio_especialidad`
 
 ### Reglas clave
 
 1. El `idServicio` es obligatorio en creación y reprogramación.
 2. El `servicio.tipo` debe coincidir con `tipoCita`.
-3. Si la cita trae `idEspecialidad` y el servicio también tiene especialidad, ambas deben coincidir.
+3. Si la cita trae `idEspecialidad`, esa especialidad debe estar asociada al servicio (relación muchos-a-muchos).
 4. La `fechaFin` siempre se calcula usando `duracionMinutos` del servicio.
 
 ---
@@ -45,7 +45,7 @@ Este documento describe el **flujo funcional actual** del módulo de citas con e
 2. Se valida que exista `idServicio`.
 3. Se resuelve el servicio por id.
 4. Se valida compatibilidad tipo/servicio.
-5. Se valida compatibilidad con especialidad (solo si aplica).
+5. Se valida compatibilidad con especialidad (solo si se envía `idEspecialidad`).
 6. Se calcula `fechaFin = fechaInicio + duracionServicio`.
 7. Se define estado inicial:
    - con `idMedico` -> `SOLICITADA`
@@ -193,5 +193,6 @@ En todos los flujos de creación/actualización/reprogramación, el identificado
 
 - No usar `idEstudio` en contratos actuales de citas.
 - Si un frontend separa la UI por tipo, filtrar servicios por `tipo` (`CONSULTA` / `ESTUDIO`).
+- Si se envía `idEspecialidad`, validar en UI que esa especialidad esté dentro de `servicio.especialidades[]`.
 - Si la especialidad no aplica al flujo, se puede omitir `idEspecialidad` en la cita.
 - Para consistencia de agenda, nunca calcular `fechaFin` en cliente; dejar que backend la derive por duración del servicio.

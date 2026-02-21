@@ -9,15 +9,20 @@ Se unificó el manejo de **consultas** y **estudios** bajo un único concepto: `
 
 ## Cambios de modelo
 
-### Nueva entidad
-- `servicio_cita`
+### Nuevas entidades relacionadas
+- `servicio`
   - `id`
   - `nombre`
   - `descripcion`
   - `tipo` (`CONSULTA` | `ESTUDIO`)
   - `duracionMinutos`
   - `costo`
-  - `idEspecialidad` (opcional)
+- `servicio_especialidad`
+  - `id`
+  - `idServicio`
+  - `idEspecialidad`
+
+> La relación `servicio` ↔ `especialidad` ahora es **muchos-a-muchos** a través de `servicio_especialidad`.
 
 ### Cita
 - Reemplazo de campo relacional:
@@ -45,7 +50,7 @@ Actualizar body de creación:
 }
 ```
 
-> `idEspecialidad` puede omitirse.
+> `idEspecialidad` puede omitirse. Si se envía, debe pertenecer al conjunto de especialidades asociadas al servicio.
 
 ## 2) REST `/citas/:id` (PATCH)
 Para cambiar tipo/servicio:
@@ -87,3 +92,9 @@ Actualizar payloads de eventos:
 - [ ] Reemplazar `estudioId` por `servicioId` en modelos de vista.
 - [ ] Leer `servicio` en vez de `estudio` en detalles/listados.
 - [ ] Ajustar validaciones (ya no depende de ESTUDIO para enviar identificador).
+
+
+## APIs de servicios (actualización de contrato)
+- `POST /servicios` y `PATCH /servicios/:id` ahora reciben `especialidadIds?: string[]` para asignar múltiples especialidades.
+- `GET /servicios` y `GET /servicios/:id` devuelven `especialidades: EspecialidadResumenDto[]`.
+- `POST /servicios/:id/especialidades` agrega una especialidad sin reemplazar las existentes.

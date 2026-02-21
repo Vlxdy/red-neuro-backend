@@ -4,8 +4,6 @@ import {
   Check,
   Column,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
@@ -13,7 +11,6 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import 'bootstrap/env'
 import { ServicioEstado } from '../constants'
 import { Cita } from '@/application/citas/entities/cita.entity'
-import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 import { TipoCita } from '@/application/citas/constants'
 import { ServicioEspecialidad } from './estudio-especialidad.entity'
 
@@ -73,20 +70,6 @@ export class Servicio extends AuditoriaEntity<ServicioEstado> {
     comment: 'Costo referencial del servicio',
   })
   costo: number
-
-  @Column({
-    name: 'id_especialidad',
-    type: 'bigint',
-    nullable: true,
-    comment: 'Especialidad asociada al servicio (opcional)',
-  })
-  idEspecialidad?: string | null
-
-  @ManyToOne(() => Especialidad, (especialidad) => especialidad.servicios, {
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn({ name: 'id_especialidad', referencedColumnName: 'id' })
-  especialidad?: Especialidad | null
 
   @OneToMany(() => Cita, (cita) => cita.servicio)
   citas: Cita[]

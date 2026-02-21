@@ -58,8 +58,13 @@ export class CitasMedicasService extends BaseService {
       )
     }
 
-    if (idEspecialidad && servicio.idEspecialidad) {
-      if (String(servicio.idEspecialidad) !== String(idEspecialidad)) {
+    if (idEspecialidad) {
+      const perteneceEspecialidad = servicio.servicioEspecialidades?.some(
+        (servicioEspecialidad) =>
+          String(servicioEspecialidad.especialidadId) === String(idEspecialidad)
+      )
+
+      if (!perteneceEspecialidad) {
         throw new BadRequestException(
           'El servicio seleccionado no pertenece a la especialidad indicada'
         )

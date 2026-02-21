@@ -8,28 +8,29 @@ Este documento describe el flujo actualizado para crear, actualizar y listar cit
 | --- | --- | --- | --- |
 | `CITA_CONSULTA_DURACION_MINUTOS` | Duración base (en minutos) para una cita de tipo **CONSULTA**. | `15` | `15` |
 
-> **Nota:** La fecha fin de la cita se calcula automáticamente usando esta duración o la duración del estudio seleccionado.
+> **Nota:** La fecha fin de la cita se calcula automáticamente usando la duración del servicio seleccionado.
 
 ## Flujo funcional
-1. **Seleccionar especialidad.**
-   - La especialidad es obligatoria en la creación y actualización de citas.
+1. **Seleccionar especialidad (opcional).**
+   - `idEspecialidad` puede enviarse para reforzar la validación de negocio.
 2. **Seleccionar tipo de cita.**
    - `CONSULTA` o `ESTUDIO`.
 3. **Si es CONSULTA:**
    - Solo se requiere la fecha de inicio.
    - La fecha fin se calcula usando `CITA_CONSULTA_DURACION_MINUTOS`.
-4. **Si es ESTUDIO:**
-   - Se debe enviar el **id del estudio**.
-   - El estudio debe pertenecer a la especialidad seleccionada.
-   - La fecha fin se calcula usando `duracion_minutos` del estudio.
+4. **Para cualquier tipo de cita:**
+   - Se debe enviar `idServicio` (consulta o estudio).
+   - Si se envía `idEspecialidad`, el servicio debe estar asociado a esa especialidad.
+   - La fecha fin se calcula usando `duracionMinutos` del servicio.
 5. **Asignar paciente (opcional).**
    - La cita puede asociarse a un paciente enviando `idPaciente`.
 
 ## Reglas principales
 - La fecha fin **no** se envía en solicitudes de creación/actualización; siempre se calcula en backend.
-- Un estudio solo es válido si pertenece a la especialidad seleccionada.
+- Un servicio solo es válido si su `tipo` coincide con `tipoCita`.
+- Si se envía `idEspecialidad`, debe existir relación N:N entre el servicio y esa especialidad.
 - Las respuestas de citas incluyen datos completos de médico y paciente utilizando el formato de `formatearPersonal`.
-- En reprogramaciones de tipo **ESTUDIO**, se debe enviar el `idServicio` para recalcular la duración.
+- En reprogramaciones (CONSULTA o ESTUDIO), se debe enviar `idServicio` para recalcular la duración.
 
 ## Endpoints relevantes
 - `POST /citas`: crea una cita.
@@ -48,7 +49,8 @@ Este documento describe el flujo actualizado para crear, actualizar y listar cit
   "idEspecialidad": "12",
   "tipoCita": "CONSULTA",
   "idPaciente": "105",
-  "idConsultorio": "8"
+  "idConsultorio": "8",
+  "idServicio": "2"
 }
 ```
 
@@ -70,7 +72,7 @@ Este documento describe el flujo actualizado para crear, actualizar y listar cit
 {
   "fechaInicio": "2024-06-20T12:00:00Z",
   "tipoCita": "CONSULTA",
-  "comentario": "Reprogramación por agenda"
+  "idServicio": "2"
 }
 ```
 
@@ -97,7 +99,7 @@ Este documento describe el flujo actualizado para crear, actualizar y listar cit
 1. **Creación de cita con especialidad y tipo**
    - Como personal administrativo, quiero seleccionar la especialidad y el tipo de cita para registrar una atención de forma correcta.
 2. **Programación de estudios por especialidad**
-   - Como personal administrativo, quiero seleccionar un estudio de la especialidad elegida para asegurar que la agenda respete los tiempos reales del estudio.
+   - Como personal administrativo, quiero seleccionar un servicio compatible con la especialidad elegida para asegurar que la agenda respete los tiempos reales de atención.
 3. **Asignación de paciente**
    - Como personal administrativo, quiero asociar un paciente a una cita para mantener la trazabilidad de la atención.
 4. **Reprogramación con cálculo automático**
@@ -106,10 +108,10 @@ Este documento describe el flujo actualizado para crear, actualizar y listar cit
    - Como supervisor, quiero visualizar en el listado de citas los datos completos del médico y paciente en un formato uniforme.
 
 ## Criterios de aceptación
-- **CA-01:** El sistema obliga a enviar `idEspecialidad` y `tipoCita` al crear una cita.
-- **CA-02:** Para `tipoCita = ESTUDIO`, el sistema obliga a enviar `idServicio` y valida que pertenezca a la especialidad.
+- **CA-01:** El sistema obliga a enviar `idServicio` y `tipoCita` al crear una cita.
+- **CA-02:** `idEspecialidad` es opcional; si se envía, el backend valida que `idServicio` pertenezca a esa especialidad (N:N).
 - **CA-03:** Para `tipoCita = CONSULTA`, el sistema calcula la fecha fin usando `CITA_CONSULTA_DURACION_MINUTOS`.
-- **CA-04:** Para `tipoCita = ESTUDIO`, el sistema calcula la fecha fin usando la duración del estudio.
-- **CA-05:** En reprogramación, el usuario envía solo `fechaInicio` y el sistema recalcula `fechaFin`.
+- **CA-04:** Para `tipoCita = ESTUDIO`, el sistema calcula la fecha fin usando la duración del servicio de tipo estudio.
+- **CA-05:** En reprogramación, el usuario envía `fechaInicio`, `tipoCita` e `idServicio`; el sistema recalcula `fechaFin`.
 - **CA-06:** El listado y la obtención de citas retornan datos completos de médico y paciente en el formato de `formatearPersonal`.
 - **CA-07:** El sistema permite asociar opcionalmente una cita a un paciente mediante `idPaciente`.
