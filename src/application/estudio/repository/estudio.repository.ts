@@ -1,62 +1,56 @@
 import { Injectable } from '@nestjs/common'
 import { Brackets, DataSource, EntityManager } from 'typeorm'
-import { Estudio } from '../entities/estudio.entity'
-import { CrearEstudioDto, ActualizarEstudioDto } from '../dto/estudio.dto'
+import { Servicio } from '../entities/estudio.entity'
+import { CrearServicioDto, ActualizarServicioDto } from '../dto/estudio.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
-import { EstudioEspecialidad } from '../entities/estudio-especialidad.entity'
 
 @Injectable()
-export class EstudioRepository {
+export class ServicioRepository {
   constructor(private readonly dataSource: DataSource) {}
 
-  private estudioRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(Estudio)
+  private servicioRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Servicio)
   }
 
   private especialidadRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(Especialidad)
   }
 
-  private estudioEspecialidadRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(EstudioEspecialidad)
-  }
-
-  async listarEstudiosPaginado(paginacionQuery: PaginacionQueryDto) {
+  async listarServiciosPaginado(paginacionQuery: PaginacionQueryDto) {
     const { limite, saltar, filtro, orden, sentido } = paginacionQuery
 
-    const query = this.estudioRepository()
-      .createQueryBuilder('estudio')
-      .leftJoinAndSelect('estudio.estudioEspecialidades', 'estudioEspecialidad')
-      .leftJoinAndSelect('estudioEspecialidad.especialidad', 'especialidad')
+    const query = this.servicioRepository()
+      .createQueryBuilder('servicio')
+      .leftJoinAndSelect('servicio.especialidad', 'especialidad')
       .distinct(true)
       .take(limite)
       .skip(saltar)
 
     switch (orden) {
       case 'nombre':
-        query.addOrderBy('estudio.nombre', sentido)
+        query.addOrderBy('servicio.nombre', sentido)
         break
       case 'descripcion':
-        query.addOrderBy('estudio.descripcion', sentido)
+        query.addOrderBy('servicio.descripcion', sentido)
         break
       case 'duracionMinutos':
-        query.addOrderBy('estudio.duracionMinutos', sentido)
+        query.addOrderBy('servicio.duracionMinutos', sentido)
         break
       case 'estado':
-        query.addOrderBy('estudio.estado', sentido)
+        query.addOrderBy('servicio.estado', sentido)
         break
       default:
-        query.addOrderBy('estudio.id', 'ASC')
+        query.addOrderBy('servicio.id', 'ASC')
     }
 
     if (filtro) {
       query.andWhere(
         new Brackets((qb) => {
-          qb.orWhere('estudio.nombre ilike :filtro', {
+          qb.orWhere('servicio.nombre ilike :filtro', {
             filtro: `%${filtro}%`,
           })
-          qb.orWhere('estudio.descripcion ilike :filtro', {
+          qb.orWhere('servicio.descripcion ilike :filtro', {
             filtro: `%${filtro}%`,
           })
         })
@@ -66,50 +60,44 @@ export class EstudioRepository {
     return await query.getManyAndCount()
   }
 
-  async listarEstudiosPorEspecialidadPaginado(
+  async listarServiciosPorEspecialidadPaginado(
     especialidadId: string,
     paginacionQuery: PaginacionQueryDto
   ) {
     const { limite, saltar, filtro, orden, sentido } = paginacionQuery
 
-    const query = this.estudioRepository()
-      .createQueryBuilder('estudio')
-      .innerJoin(
-        'estudio.estudioEspecialidades',
-        'estudioEspecialidadFiltro',
-        'estudioEspecialidadFiltro.especialidadId = :especialidadId',
-        { especialidadId }
-      )
-      .leftJoinAndSelect('estudio.estudioEspecialidades', 'estudioEspecialidad')
-      .leftJoinAndSelect('estudioEspecialidad.especialidad', 'especialidad')
+    const query = this.servicioRepository()
+      .createQueryBuilder('servicio')
+      .leftJoinAndSelect('servicio.especialidad', 'especialidad')
+      .where('servicio.idEspecialidad = :especialidadId', { especialidadId })
       .distinct(true)
       .take(limite)
       .skip(saltar)
 
     switch (orden) {
       case 'nombre':
-        query.addOrderBy('estudio.nombre', sentido)
+        query.addOrderBy('servicio.nombre', sentido)
         break
       case 'descripcion':
-        query.addOrderBy('estudio.descripcion', sentido)
+        query.addOrderBy('servicio.descripcion', sentido)
         break
       case 'duracionMinutos':
-        query.addOrderBy('estudio.duracionMinutos', sentido)
+        query.addOrderBy('servicio.duracionMinutos', sentido)
         break
       case 'estado':
-        query.addOrderBy('estudio.estado', sentido)
+        query.addOrderBy('servicio.estado', sentido)
         break
       default:
-        query.addOrderBy('estudio.id', 'ASC')
+        query.addOrderBy('servicio.id', 'ASC')
     }
 
     if (filtro) {
       query.andWhere(
         new Brackets((qb) => {
-          qb.orWhere('estudio.nombre ilike :filtro', {
+          qb.orWhere('servicio.nombre ilike :filtro', {
             filtro: `%${filtro}%`,
           })
-          qb.orWhere('estudio.descripcion ilike :filtro', {
+          qb.orWhere('servicio.descripcion ilike :filtro', {
             filtro: `%${filtro}%`,
           })
         })
@@ -119,11 +107,11 @@ export class EstudioRepository {
     return await query.getManyAndCount()
   }
 
-  async obtenerEstudioPorId(id: string, manager?: EntityManager) {
-    return await this.estudioRepository(manager).findOne({
+  async obtenerServicioPorId(id: string, manager?: EntityManager) {
+    return await this.servicioRepository(manager).findOne({
       where: { id },
       relations: {
-        estudioEspecialidades: { especialidad: true },
+        especialidad: true,
       },
     })
   }
@@ -132,59 +120,35 @@ export class EstudioRepository {
     return await this.especialidadRepository(manager).findOne({ where: { id } })
   }
 
-  async crearEstudio(
-    dto: CrearEstudioDto,
+  async crearServicio(
+    dto: CrearServicioDto,
     usuarioAuditoria: string,
     transaccion: EntityManager
   ) {
-    const nuevo = this.estudioRepository(transaccion).create({
+    const nuevo = this.servicioRepository(transaccion).create({
       ...dto,
       usuarioCreacion: usuarioAuditoria,
     })
 
-    return await this.estudioRepository(transaccion).save(nuevo)
+    return await this.servicioRepository(transaccion).save(nuevo)
   }
 
-  async actualizarEstudio(
-    estudio: Estudio,
-    dto: ActualizarEstudioDto,
+  async actualizarServicio(
+    servicio: Servicio,
+    dto: ActualizarServicioDto,
     usuarioAuditoria: string,
     transaccion: EntityManager
   ) {
-    Object.assign(estudio, {
+    Object.assign(servicio, {
       ...dto,
       usuarioModificacion: usuarioAuditoria,
     })
 
-    return await this.estudioRepository(transaccion).save(estudio)
+    return await this.servicioRepository(transaccion).save(servicio)
   }
 
-  async buscarRelacionEstudioEspecialidad(
-    estudioId: string,
-    especialidadId: string,
-    manager?: EntityManager
-  ) {
-    return await this.estudioEspecialidadRepository(manager).findOne({
-      where: { estudioId, especialidadId },
-    })
-  }
-
-  async crearRelacionEstudioEspecialidad(
-    estudio: Estudio,
-    especialidad: Especialidad,
-    transaccion: EntityManager
-  ) {
-    const relacion = this.estudioEspecialidadRepository(transaccion).create({
-      estudio,
-      estudioId: estudio.id,
-      especialidad,
-      especialidadId: especialidad.id,
-    })
-    return await this.estudioEspecialidadRepository(transaccion).save(relacion)
-  }
-
-  async eliminarEstudio(id: string, transaccion: EntityManager) {
-    await this.estudioRepository(transaccion).delete(id)
+  async eliminarServicio(id: string, transaccion: EntityManager) {
+    await this.servicioRepository(transaccion).delete(id)
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {

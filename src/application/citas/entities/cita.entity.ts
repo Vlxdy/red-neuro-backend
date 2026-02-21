@@ -20,7 +20,7 @@ import { CitasEstado, TipoCita } from '../constants'
 import { Notificacion } from './notificacion.entity'
 import { Consultorio } from '@/application/consultorio/entities/consultorio.entity'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
-import { Estudio } from '@/application/estudio/entities/estudio.entity'
+import { Servicio } from '@/application/estudio/entities/estudio.entity'
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
 @Check(UtilService.buildCheck('tipo_cita', TipoCita))
@@ -179,18 +179,18 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   tipoCita: TipoCita
 
   @Column({
-    name: 'id_estudio',
+    name: 'id_servicio',
     type: 'bigint',
     nullable: true,
-    comment: 'Clave foránea que referencia al estudio asociado a la cita',
+    comment: 'Clave foránea que referencia al servicio asociado a la cita',
   })
-  idEstudio?: string | null
+  idServicio?: string | null
 
-  @ManyToOne(() => Estudio, (estudio) => estudio.citas, {
+  @ManyToOne(() => Servicio, (servicio) => servicio.citas, {
     onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'id_estudio', referencedColumnName: 'id' })
-  estudio?: Estudio | null
+  @JoinColumn({ name: 'id_servicio', referencedColumnName: 'id' })
+  servicio?: Servicio | null
 
   @BeforeInsert()
   insertarEstado() {

@@ -4,22 +4,27 @@ import {
   Check,
   Column,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import 'bootstrap/env'
-import { EstudioEstado } from '../constants'
+import { ServicioEstado } from '../constants'
 import { Cita } from '@/application/citas/entities/cita.entity'
-import { EstudioEspecialidad } from './estudio-especialidad.entity'
+import { Especialidad } from '@/application/personal/entities/especialidad.entity'
+import { TipoCita } from '@/application/citas/constants'
+import { ServicioEspecialidad } from './estudio-especialidad.entity'
 
-@Check(UtilService.buildStatusCheck(EstudioEstado))
-@Entity({ name: 'estudio', schema: process.env.DB_SCHEMA })
-export class Estudio extends AuditoriaEntity<EstudioEstado> {
+@Check(UtilService.buildStatusCheck(ServicioEstado))
+@Check(UtilService.buildCheck('tipo', TipoCita))
+@Entity({ name: 'servicio', schema: process.env.DB_SCHEMA })
+export class Servicio extends AuditoriaEntity<ServicioEstado> {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla estudio',
+    comment: 'Clave primaria de la tabla servicio',
   })
   id: string
 
@@ -28,7 +33,7 @@ export class Estudio extends AuditoriaEntity<EstudioEstado> {
     type: 'varchar',
     length: 255,
     nullable: false,
-    comment: 'Nombre del estudio',
+    comment: 'Nombre del servicio',
   })
   nombre: string
 
@@ -37,33 +42,70 @@ export class Estudio extends AuditoriaEntity<EstudioEstado> {
     type: 'varchar',
     length: 255,
     nullable: false,
-    comment: 'Descripción del estudio',
+    comment: 'Descripción del servicio',
   })
   descripcion: string
+
+  @Column({
+    name: 'tipo',
+    type: 'varchar',
+    length: 20,
+    nullable: false,
+    comment: 'Tipo de servicio: CONSULTA o ESTUDIO',
+  })
+  tipo: TipoCita
 
   @Column({
     name: 'duracion_minutos',
     type: 'int',
     nullable: false,
-    comment: 'Duración del estudio en minutos',
+    comment: 'Duración del servicio en minutos',
   })
   duracionMinutos: number
 
-  @OneToMany(() => Cita, (cita) => cita.estudio)
+  @Column({
+    name: 'costo',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    default: 0,
+    comment: 'Costo referencial del servicio',
+  })
+  costo: number
+
+  @Column({
+    name: 'id_especialidad',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Especialidad asociada al servicio (opcional)',
+  })
+  idEspecialidad?: string | null
+
+  @ManyToOne(() => Especialidad, (especialidad) => especialidad.servicios, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_especialidad', referencedColumnName: 'id' })
+  especialidad?: Especialidad | null
+
+  @OneToMany(() => Cita, (cita) => cita.servicio)
   citas: Cita[]
 
   @OneToMany(
-    () => EstudioEspecialidad,
-    (estudioEspecialidad) => estudioEspecialidad.estudio
+    () => ServicioEspecialidad,
+    (servicioEspecialidad) => servicioEspecialidad.servicio
   )
-  estudioEspecialidades: EstudioEspecialidad[]
+  servicioEspecialidades: ServicioEspecialidad[]
 
   @BeforeInsert()
   insertarEstado() {
-    this.estado = this.estado || EstudioEstado.ACTIVO
+    this.estado = this.estado || ServicioEstado.ACTIVO
   }
 
-  constructor(data?: Partial<Estudio>) {
+  constructor(data?: Partial<Servicio>) {
     super(data)
   }
 }
+
+// Alias temporal para compatibilidad
+export { Servicio as Estudio }

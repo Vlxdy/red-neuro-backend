@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import {
-  EstudioCitaDto,
+  ServicioCitaDto,
   HistorialCambioDto,
   HistorialCitaResponseDto,
 } from '../dto/cita.dto'
@@ -14,13 +14,13 @@ export function formatearHistorialCita(
   ejecutor?: PersonalResponseDto,
   medicos?: Map<string, PersonalResponseDto>,
   pacientes?: Map<string, PacienteResponseDto>,
-  estudios?: Map<string, EstudioCitaDto>
+  servicios?: Map<string, ServicioCitaDto>
 ): HistorialCitaResponseDto {
   const detalleCambios = formatearDetalleCambios(
     historial.detalleCambios ?? undefined,
     medicos,
     pacientes,
-    estudios
+    servicios
   )
 
   return {
@@ -39,7 +39,7 @@ export function formatearHistorialCitas(
   ejecutores?: Map<string, PersonalResponseDto>,
   medicos?: Map<string, PersonalResponseDto>,
   pacientes?: Map<string, PacienteResponseDto>,
-  estudios?: Map<string, EstudioCitaDto>
+  servicios?: Map<string, ServicioCitaDto>
 ): HistorialCitaResponseDto[] {
   return historial.map((item) =>
     formatearHistorialCita(
@@ -47,7 +47,7 @@ export function formatearHistorialCitas(
       ejecutores?.get(item.idEjecutor),
       medicos,
       pacientes,
-      estudios
+      servicios
     )
   )
 }
@@ -56,7 +56,7 @@ function formatearDetalleCambios(
   detalleCambios?: TipoActualizacion[],
   medicos?: Map<string, PersonalResponseDto>,
   pacientes?: Map<string, PacienteResponseDto>,
-  estudios?: Map<string, EstudioCitaDto>
+  servicios?: Map<string, ServicioCitaDto>
 ): HistorialCambioDto[] | undefined {
   if (!detalleCambios?.length) {
     return undefined
@@ -81,11 +81,13 @@ function formatearDetalleCambios(
       }
     }
 
-    if (cambio.field === 'idEstudio') {
+    if (cambio.field === 'idServicio') {
       return {
         ...cambio,
-        beforeDetalle: cambio.before ? estudios?.get(cambio.before) : undefined,
-        afterDetalle: cambio.after ? estudios?.get(cambio.after) : undefined,
+        beforeDetalle: cambio.before
+          ? servicios?.get(cambio.before)
+          : undefined,
+        afterDetalle: cambio.after ? servicios?.get(cambio.after) : undefined,
       }
     }
 

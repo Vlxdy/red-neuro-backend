@@ -33,34 +33,40 @@ export class CitasMedicasService extends BaseService {
     super()
   }
 
-  private obtenerDuracionConsultaMinutos(): number {
-    const duracion = Number(process.env.CITA_CONSULTA_DURACION_MINUTOS)
-    if (Number.isFinite(duracion) && duracion > 0) {
-      return duracion
-    }
-    return 15
-  }
-
   private calcularFechaFin(fechaInicio: Date, duracionMinutos: number): Date {
     return dayjs(fechaInicio).add(duracionMinutos, 'minute').toDate()
   }
 
-  private async resolverDuracionEstudio(
-    idEstudio: string,
-    idEspecialidad: string,
+  private async resolverServicio(
+    idServicio: string,
+    tipoCita: TipoCita,
+    idEspecialidad?: string,
     transaccion?: EntityManager
   ) {
-    const estudio = await this.citasRepository.obtenerEstudioPorEspecialidad(
-      idEstudio,
-      idEspecialidad,
+    const servicio = await this.citasRepository.obtenerServicioPorId(
+      idServicio,
       transaccion
     )
-    if (!estudio) {
+
+    if (!servicio) {
+      throw new BadRequestException('El servicio seleccionado no existe')
+    }
+
+    if (servicio.tipo !== tipoCita) {
       throw new BadRequestException(
-        'El estudio seleccionado no pertenece a la especialidad indicada'
+        'El servicio seleccionado no coincide con el tipo de cita'
       )
     }
-    return estudio
+
+    if (idEspecialidad && servicio.idEspecialidad) {
+      if (String(servicio.idEspecialidad) !== String(idEspecialidad)) {
+        throw new BadRequestException(
+          'El servicio seleccionado no pertenece a la especialidad indicada'
+        )
+      }
+    }
+
+    return servicio
   }
 
   // ===== Citas =====
@@ -143,35 +149,27 @@ export class CitasMedicasService extends BaseService {
       return await this.citasRepository.runTransaction(op)
     }
 
-    if (!dto.idEspecialidad) {
-      throw new BadRequestException('La especialidad es obligatoria')
-    }
-
     const fechaInicio = dayjs(dto.fechaInicio).toDate()
     const tipoCita = dto.tipoCita
     if (!tipoCita) {
       throw new BadRequestException('El tipo de cita es obligatorio')
     }
-    let fechaFin: Date
-    let idEstudio: string | null = null
 
-    if (tipoCita === TipoCita.ESTUDIO) {
-      if (!dto.idEstudio) {
-        throw new BadRequestException(
-          'El estudio es obligatorio para una cita de tipo ESTUDIO'
-        )
-      }
-      const estudio = await this.resolverDuracionEstudio(
-        dto.idEstudio,
-        dto.idEspecialidad,
-        transaccion
-      )
-      fechaFin = this.calcularFechaFin(fechaInicio, estudio.duracionMinutos)
-      idEstudio = estudio.id
-    } else {
-      const duracion = this.obtenerDuracionConsultaMinutos()
-      fechaFin = this.calcularFechaFin(fechaInicio, duracion)
+    const idServicio = dto.idServicio
+    if (!idServicio) {
+      throw new BadRequestException('El servicio es obligatorio para la cita')
     }
+
+    const servicio = await this.resolverServicio(
+      idServicio,
+      tipoCita,
+      dto.idEspecialidad,
+      transaccion
+    )
+    const fechaFin = this.calcularFechaFin(
+      fechaInicio,
+      servicio.duracionMinutos
+    )
 
     const estadoInicial = dto.idMedico
       ? CitasEstado.SOLICITADA
@@ -186,8 +184,8 @@ export class CitasMedicasService extends BaseService {
         idMedico: dto.idMedico,
         idPaciente: dto.idPaciente ?? null,
         idConsultorio: dto.idConsultorio ?? null,
-        idEspecialidad: dto.idEspecialidad,
-        idEstudio,
+        idEspecialidad: dto.idEspecialidad ?? null,
+        idServicio: servicio.id,
         tipoCita,
       },
       usuarioAuditoria,
@@ -248,7 +246,7 @@ export class CitasMedicasService extends BaseService {
 
     const requiereRecalculo =
       dto.fechaInicio !== undefined ||
-      dto.idEstudio !== undefined ||
+      dto.idServicio !== undefined ||
       dto.tipoCita !== undefined ||
       dto.idEspecialidad !== undefined
 
@@ -257,46 +255,30 @@ export class CitasMedicasService extends BaseService {
         ? dayjs(dto.fechaInicio).toDate()
         : cita.fechaInicio
 
-      const idEspecialidad = dto.idEspecialidad ?? cita.idEspecialidad
-      if (!idEspecialidad) {
-        throw new BadRequestException('La especialidad es obligatoria')
-      }
-
       const tipoCita = dto.tipoCita ?? cita.tipoCita ?? TipoCita.CONSULTA
+      const idEspecialidad =
+        dto.idEspecialidad ?? cita.idEspecialidad ?? undefined
+      const idServicio = dto.idServicio ?? cita.idServicio
 
-      let fechaFin: Date
-      let idEstudio: string | null = null
-
-      if (tipoCita === TipoCita.ESTUDIO) {
-        const estudioId = dto.idEstudio ?? cita.idEstudio
-        if (!estudioId) {
-          throw new BadRequestException(
-            'El estudio es obligatorio para una cita de tipo ESTUDIO'
-          )
-        }
-
-        const estudio = await this.resolverDuracionEstudio(
-          estudioId,
-          idEspecialidad,
-          transaccion
-        )
-
-        fechaFin = this.calcularFechaFin(
-          fechaInicio ?? dayjs(cita.fechaInicio).toDate(),
-          estudio.duracionMinutos
-        )
-        idEstudio = estudio.id
-      } else {
-        const duracion = this.obtenerDuracionConsultaMinutos()
-        fechaFin = this.calcularFechaFin(
-          fechaInicio ?? dayjs(cita.fechaInicio).toDate(),
-          duracion
-        )
+      if (!idServicio) {
+        throw new BadRequestException('El servicio es obligatorio para la cita')
       }
+
+      const servicio = await this.resolverServicio(
+        idServicio,
+        tipoCita,
+        idEspecialidad,
+        transaccion
+      )
+
+      const fechaFin = this.calcularFechaFin(
+        fechaInicio ?? dayjs(cita.fechaInicio).toDate(),
+        servicio.duracionMinutos
+      )
 
       updateData.fechaInicio = fechaInicio
       updateData.fechaFin = fechaFin
-      updateData.idEstudio = idEstudio
+      updateData.idServicio = servicio.id
       updateData.tipoCita = tipoCita
     }
 
@@ -346,32 +328,26 @@ export class CitasMedicasService extends BaseService {
       throw new BadRequestException('El tipo de cita es obligatorio')
     }
 
-    let fechaFin: Date
-    if (tipoCita === TipoCita.ESTUDIO) {
-      if (!dto.idEstudio) {
-        throw new BadRequestException(
-          'El estudio es obligatorio para una cita de tipo ESTUDIO'
-        )
-      }
-      const cita = await this.obtenerCitaId(id)
-      if (!cita.idEspecialidad) {
-        throw new BadRequestException(
-          'La especialidad es obligatoria para reprogramar una cita de estudio'
-        )
-      }
-      const estudio = await this.resolverDuracionEstudio(
-        dto.idEstudio,
-        cita.idEspecialidad
-      )
-      fechaFin = this.calcularFechaFin(fechaInicio, estudio.duracionMinutos)
-    } else {
-      const duracion = this.obtenerDuracionConsultaMinutos()
-      fechaFin = this.calcularFechaFin(fechaInicio, duracion)
+    const cita = await this.obtenerCitaId(id)
+    const idServicio = dto.idServicio ?? cita.idServicio
+
+    if (!idServicio) {
+      throw new BadRequestException('El servicio es obligatorio para la cita')
     }
+
+    const servicio = await this.resolverServicio(
+      idServicio,
+      tipoCita,
+      cita.idEspecialidad ?? undefined
+    )
+    const fechaFin = this.calcularFechaFin(
+      fechaInicio,
+      servicio.duracionMinutos
+    )
 
     const actualizado = await this.citasRepository.reprogramarCita(
       id,
-      { ...dto, fechaFin },
+      { ...dto, idServicio: servicio.id, fechaFin },
       usuarioAuditoria,
       idEjecutor
     )

@@ -18,7 +18,7 @@ POST /citas
 - `fechaInicio`
 - `idEspecialidad`
 - `tipoCita`
-- (opcional) `idMedico`, `idConsultorio`, `idPaciente`, `idEstudio`
+- (opcional) `idMedico`, `idConsultorio`, `idPaciente`, `idServicio`
 
 ### 1.2 Confirmación
 - El médico asignado puede confirmar la cita (cambiar estado a **CONFIRMADA**).

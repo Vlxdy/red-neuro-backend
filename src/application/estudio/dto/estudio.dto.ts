@@ -1,5 +1,6 @@
 import {
   IsInt,
+  IsNumber,
   IsNotEmpty,
   IsNumberString,
   IsOptional,
@@ -8,6 +9,7 @@ import {
   Min,
 } from '@/common/validation'
 import { ApiProperty, PartialType } from '@nestjs/swagger'
+import { TipoCita } from '@/application/citas/constants'
 
 export class EspecialidadResumenDto {
   @ApiProperty({
@@ -29,9 +31,9 @@ export class EspecialidadResumenDto {
   colorHex!: string
 }
 
-export class CrearEstudioDto {
+export class CrearServicioDto {
   @ApiProperty({
-    description: 'Nombre identificador del estudio médico',
+    description: 'Nombre identificador del servicio',
     example: 'Ecografía abdominal',
   })
   @IsString()
@@ -40,7 +42,7 @@ export class CrearEstudioDto {
   nombre!: string
 
   @ApiProperty({
-    description: 'Descripción funcional del estudio',
+    description: 'Descripción funcional del servicio',
     example: 'Evaluación ecográfica de órganos abdominales',
   })
   @IsString()
@@ -49,44 +51,70 @@ export class CrearEstudioDto {
   descripcion!: string
 
   @ApiProperty({
-    description: 'Duración estimada del estudio en minutos',
+    description: 'Duración estimada del servicio en minutos',
     example: 30,
   })
   @IsInt()
   @Min(1)
   duracionMinutos!: number
+
+  @ApiProperty({
+    enum: TipoCita,
+    description: 'Tipo de servicio: CONSULTA o ESTUDIO',
+    example: TipoCita.CONSULTA,
+  })
+  @IsString()
+  @IsNotEmpty()
+  tipo!: TipoCita
+
+  @ApiProperty({
+    description: 'Costo referencial del servicio',
+    example: 120,
+  })
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  costo!: number
+
+  @ApiProperty({
+    description: 'Identificador de especialidad asociada (opcional)',
+    example: '2',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  idEspecialidad?: string
 }
 
 export class AsignarEspecialidadDto {
   @ApiProperty({
-    description: 'Identificador de la especialidad a asociar al estudio',
+    description: 'Identificador de la especialidad a asociar al servicio',
     example: '2',
   })
   @IsNumberString()
   especialidadId!: string
 }
 
-export class EstudioResponseDto {
+export class ServicioResponseDto {
   @ApiProperty({
-    description: 'Identificador único del estudio médico',
+    description: 'Identificador único del servicio',
     example: '8',
   })
   id!: string
 
   @ApiProperty({
-    description: 'Nombre identificador del estudio médico',
+    description: 'Nombre identificador del servicio',
     example: 'Ecografía abdominal',
   })
   nombre!: string
 
   @ApiProperty({
-    description: 'Descripción funcional del estudio',
+    description: 'Descripción funcional del servicio',
     example: 'Evaluación ecográfica de órganos abdominales',
   })
   descripcion!: string
 
   @ApiProperty({
-    description: 'Duración estimada del estudio en minutos',
+    description: 'Duración estimada del servicio en minutos',
     example: 30,
   })
   duracionMinutos!: number
@@ -95,15 +123,29 @@ export class EstudioResponseDto {
   estado!: string
 
   @ApiProperty({
-    description: 'Especialidades asociadas al estudio',
-    type: [EspecialidadResumenDto],
+    enum: TipoCita,
+    description: 'Tipo de servicio: CONSULTA o ESTUDIO',
+    example: TipoCita.CONSULTA,
   })
-  especialidades!: EspecialidadResumenDto[]
+  tipo!: TipoCita
+
+  @ApiProperty({
+    description: 'Costo referencial del servicio',
+    example: 120,
+  })
+  costo!: number
+
+  @ApiProperty({
+    description: 'Especialidad asociada al servicio',
+    required: false,
+    type: EspecialidadResumenDto,
+  })
+  especialidad?: EspecialidadResumenDto
 }
 
-export class ActualizarEstudioDto extends PartialType(CrearEstudioDto) {
+export class ActualizarServicioDto extends PartialType(CrearServicioDto) {
   @ApiProperty({
-    description: 'Permite reactivar o desactivar el estudio',
+    description: 'Permite reactivar o desactivar el servicio',
     example: 'ACTIVO',
     required: false,
   })

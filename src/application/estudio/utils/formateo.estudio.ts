@@ -1,26 +1,35 @@
-import { EstudioResponseDto, EspecialidadResumenDto } from '../dto/estudio.dto'
-import { Estudio } from '../entities/estudio.entity'
+import { ServicioResponseDto, EspecialidadResumenDto } from '../dto/estudio.dto'
+import { Servicio } from '../entities/estudio.entity'
 
 const formatearEspecialidad = (
-  relacion: Estudio['estudioEspecialidades'][number]
-): EspecialidadResumenDto => ({
-  id: relacion.especialidad.id,
-  nombre: relacion.especialidad.nombre,
-  colorHex: relacion.especialidad.colorHex,
-})
+  especialidad: Servicio['especialidad']
+): EspecialidadResumenDto | undefined => {
+  if (!especialidad) {
+    return undefined
+  }
 
-export function formatearEstudio(estudio: Estudio): EstudioResponseDto {
   return {
-    id: estudio.id,
-    nombre: estudio.nombre,
-    descripcion: estudio.descripcion,
-    duracionMinutos: estudio.duracionMinutos,
-    estado: estudio.estado,
-    especialidades:
-      estudio.estudioEspecialidades?.map(formatearEspecialidad) ?? [],
+    id: especialidad.id,
+    nombre: especialidad.nombre,
+    colorHex: especialidad.colorHex,
   }
 }
 
-export function formatearEstudios(estudios: Estudio[]): EstudioResponseDto[] {
-  return estudios.map((estudio) => formatearEstudio(estudio))
+export function formatearServicio(servicio: Servicio): ServicioResponseDto {
+  return {
+    id: servicio.id,
+    nombre: servicio.nombre,
+    descripcion: servicio.descripcion,
+    duracionMinutos: servicio.duracionMinutos,
+    estado: servicio.estado,
+    tipo: servicio.tipo,
+    costo: Number(servicio.costo),
+    especialidad: formatearEspecialidad(servicio.especialidad),
+  }
+}
+
+export function formatearServicios(
+  servicios: Servicio[]
+): ServicioResponseDto[] {
+  return servicios.map((servicio) => formatearServicio(servicio))
 }

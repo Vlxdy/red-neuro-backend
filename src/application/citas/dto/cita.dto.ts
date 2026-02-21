@@ -46,29 +46,42 @@ export class EspecialidadCitaDto {
   estado!: string
 }
 
-export class EstudioCitaDto {
-  @ApiProperty({ description: 'Identificador del estudio', example: '10' })
+export class ServicioCitaDto {
+  @ApiProperty({ description: 'Identificador del servicio', example: '10' })
   id!: string
 
   @ApiProperty({
-    description: 'Nombre del estudio',
+    description: 'Nombre del servicio de cita',
     example: 'Ecografía abdominal',
   })
   nombre!: string
 
   @ApiProperty({
-    description: 'Descripción del estudio',
+    description: 'Descripción del servicio',
     example: 'Evaluación ecográfica de órganos abdominales',
   })
   descripcion!: string
 
   @ApiProperty({
-    description: 'Duración estimada del estudio en minutos',
+    description: 'Duración estimada del servicio en minutos',
     example: 30,
   })
   duracionMinutos!: number
 
-  @ApiProperty({ description: 'Estado actual del estudio', example: 'ACTIVO' })
+  @ApiProperty({
+    enum: TipoCita,
+    description: 'Categoría del servicio: CONSULTA o ESTUDIO',
+    example: TipoCita.CONSULTA,
+  })
+  tipo!: TipoCita
+
+  @ApiProperty({
+    description: 'Costo referencial del servicio',
+    example: 120,
+  })
+  costo!: number
+
+  @ApiProperty({ description: 'Estado actual del servicio', example: 'ACTIVO' })
   estado!: string
 }
 
@@ -204,12 +217,13 @@ export class CrearCitaDto {
   idConsultorio?: string
 
   @ApiProperty({
-    description: 'Identificador de la especialidad asociada',
+    description: 'Identificador de la especialidad asociada (opcional)',
     example: '12',
+    required: false,
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  idEspecialidad!: string
+  idEspecialidad?: string
 
   @ApiProperty({
     enum: TipoCita,
@@ -220,14 +234,12 @@ export class CrearCitaDto {
   tipoCita!: TipoCita
 
   @ApiProperty({
-    description:
-      'Identificador del estudio a realizar (requerido cuando el tipo es ESTUDIO)',
+    description: 'Identificador del servicio a realizar',
     example: '5',
-    required: false,
   })
-  @IsOptional()
   @IsString()
-  idEstudio?: string
+  @IsNotEmpty()
+  idServicio!: string
 }
 
 export class ActualizarCitaDto extends PartialType(CrearCitaDto) {}
@@ -255,14 +267,12 @@ export class ReprogramarCitaDto {
   tipoCita!: TipoCita
 
   @ApiProperty({
-    description:
-      'Identificador del estudio a realizar (requerido cuando el tipo es ESTUDIO)',
+    description: 'Identificador del servicio a realizar',
     example: '5',
-    required: false,
   })
-  @IsOptional()
   @IsString()
-  idEstudio?: string
+  @IsNotEmpty()
+  idServicio!: string
 }
 
 export class CancelarCitaDto {
@@ -360,11 +370,11 @@ export class CitaResponseDto {
   especialidadId?: string
 
   @ApiProperty({
-    description: 'Identificador del estudio asociado (solo si es estudio)',
+    description: 'Identificador del servicio asociado',
     example: '5',
     required: false,
   })
-  estudioId?: string
+  servicioId?: string
 
   @ApiProperty({
     description: 'Datos del profesional de salud asignado a la cita',
@@ -387,11 +397,11 @@ export class CitaResponseDto {
   especialidad?: EspecialidadCitaDto
 
   @ApiProperty({
-    description: 'Estudio asociado a la cita',
-    type: () => EstudioCitaDto,
+    description: 'Servicio asociado a la cita',
+    type: () => ServicioCitaDto,
     required: false,
   })
-  estudio?: EstudioCitaDto
+  servicio?: ServicioCitaDto
 
   @ApiProperty({
     description: 'Consultorio asociado a la cita',
@@ -461,17 +471,17 @@ export class HistorialCambioDto {
 
   @ApiProperty({
     description:
-      'Detalle del valor anterior si corresponde a un médico, paciente o estudio',
+      'Detalle del valor anterior si corresponde a un médico, paciente o servicio',
     required: false,
     type: Object,
   })
-  beforeDetalle?: PersonalResponseDto | PacienteResponseDto | EstudioCitaDto
+  beforeDetalle?: PersonalResponseDto | PacienteResponseDto | ServicioCitaDto
 
   @ApiProperty({
     description:
-      'Detalle del valor posterior si corresponde a un médico, paciente o estudio',
+      'Detalle del valor posterior si corresponde a un médico, paciente o servicio',
     required: false,
     type: Object,
   })
-  afterDetalle?: PersonalResponseDto | PacienteResponseDto | EstudioCitaDto
+  afterDetalle?: PersonalResponseDto | PacienteResponseDto | ServicioCitaDto
 }
