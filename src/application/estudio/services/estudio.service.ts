@@ -25,6 +25,26 @@ export class ServicioService extends BaseService {
     super()
   }
 
+  private async validarEspecialidades(
+    especialidadIds: string[] = [],
+    transaccion?: EntityManager
+  ) {
+    if (especialidadIds.length === 0) {
+      return
+    }
+
+    const idsUnicos = Array.from(new Set(especialidadIds))
+    const especialidades =
+      await this.servicioRepository.obtenerEspecialidadesPorIds(
+        idsUnicos,
+        transaccion
+      )
+
+    if (especialidades.length !== idsUnicos.length) {
+      throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
+    }
+  }
+
   async listarServicios(
     paginacionQuery: PaginacionQueryDto
   ): Promise<[ServicioResponseDto[], number]> {
@@ -77,12 +97,25 @@ export class ServicioService extends BaseService {
       return await this.servicioRepository.runTransaction(op)
     }
 
+    await this.validarEspecialidades(dto.especialidadIds ?? [], transaccion)
+
     const nuevoServicio = await this.servicioRepository.crearServicio(
       dto,
       usuarioAuditoria,
       transaccion
     )
-    return formatearServicio(nuevoServicio)
+
+    if (dto.especialidadIds && dto.especialidadIds.length > 0) {
+      await this.servicioRepository.crearServicioEspecialidades(
+        nuevoServicio.id,
+        dto.especialidadIds,
+        transaccion
+      )
+    }
+
+    return formatearServicio(
+      await this.obtenerServicioPorId(nuevoServicio.id, transaccion)
+    )
   }
 
   async actualizarServicio(
@@ -104,14 +137,24 @@ export class ServicioService extends BaseService {
     }
 
     const servicio = await this.obtenerServicioPorId(id, transaccion)
-    const servicioActualizado =
-      await this.servicioRepository.actualizarServicio(
-        servicio,
-        dto,
-        usuarioAuditoria,
+
+    if (dto.especialidadIds !== undefined) {
+      await this.validarEspecialidades(dto.especialidadIds, transaccion)
+      await this.servicioRepository.reemplazarServicioEspecialidades(
+        servicio.id,
+        dto.especialidadIds,
         transaccion
       )
-    return formatearServicio(servicioActualizado)
+    }
+
+    await this.servicioRepository.actualizarServicio(
+      servicio,
+      dto,
+      usuarioAuditoria,
+      transaccion
+    )
+
+    return formatearServicio(await this.obtenerServicioPorId(id, transaccion))
   }
 
   async eliminarServicio(
@@ -193,16 +236,12 @@ export class ServicioService extends BaseService {
       throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
     }
 
-    const servicioActualizado =
-      await this.servicioRepository.actualizarServicio(
-        servicio,
-        {
-          idEspecialidad: especialidad.id,
-        },
-        '0',
-        transaccion
-      )
+    await this.servicioRepository.crearServicioEspecialidades(
+      servicio.id,
+      [especialidad.id],
+      transaccion
+    )
 
-    return formatearServicio(servicioActualizado)
+    return formatearServicio(await this.obtenerServicioPorId(id, transaccion))
   }
 }

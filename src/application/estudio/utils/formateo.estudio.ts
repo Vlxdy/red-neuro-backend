@@ -1,18 +1,27 @@
 import { ServicioResponseDto, EspecialidadResumenDto } from '../dto/estudio.dto'
 import { Servicio } from '../entities/estudio.entity'
 
-const formatearEspecialidad = (
-  especialidad: Servicio['especialidad']
-): EspecialidadResumenDto | undefined => {
-  if (!especialidad) {
-    return undefined
+const formatearEspecialidades = (
+  servicioEspecialidades: Servicio['servicioEspecialidades']
+): EspecialidadResumenDto[] => {
+  if (!servicioEspecialidades?.length) {
+    return []
   }
 
-  return {
-    id: especialidad.id,
-    nombre: especialidad.nombre,
-    colorHex: especialidad.colorHex,
+  const especialidadesUnicas = new Map<string, EspecialidadResumenDto>()
+
+  for (const servicioEspecialidad of servicioEspecialidades) {
+    const especialidad = servicioEspecialidad.especialidad
+    if (!especialidad) continue
+
+    especialidadesUnicas.set(String(especialidad.id), {
+      id: especialidad.id,
+      nombre: especialidad.nombre,
+      colorHex: especialidad.colorHex,
+    })
   }
+
+  return Array.from(especialidadesUnicas.values())
 }
 
 export function formatearServicio(servicio: Servicio): ServicioResponseDto {
@@ -24,7 +33,7 @@ export function formatearServicio(servicio: Servicio): ServicioResponseDto {
     estado: servicio.estado,
     tipo: servicio.tipo,
     costo: Number(servicio.costo),
-    especialidad: formatearEspecialidad(servicio.especialidad),
+    especialidades: formatearEspecialidades(servicio.servicioEspecialidades),
   }
 }
 

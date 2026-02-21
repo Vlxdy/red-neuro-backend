@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { Brackets, DataSource, EntityManager } from 'typeorm'
+import { Brackets, DataSource, EntityManager, In } from 'typeorm'
 import { Servicio } from '../entities/estudio.entity'
 import { CrearServicioDto, ActualizarServicioDto } from '../dto/estudio.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
+import { ServicioEspecialidad } from '../entities/estudio-especialidad.entity'
 
 @Injectable()
 export class ServicioRepository {
@@ -17,12 +18,20 @@ export class ServicioRepository {
     return (manager ?? this.dataSource).getRepository(Especialidad)
   }
 
+  private servicioEspecialidadRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(ServicioEspecialidad)
+  }
+
   async listarServiciosPaginado(paginacionQuery: PaginacionQueryDto) {
     const { limite, saltar, filtro, orden, sentido } = paginacionQuery
 
     const query = this.servicioRepository()
       .createQueryBuilder('servicio')
-      .leftJoinAndSelect('servicio.especialidad', 'especialidad')
+      .leftJoinAndSelect(
+        'servicio.servicioEspecialidades',
+        'servicioEspecialidades'
+      )
+      .leftJoinAndSelect('servicioEspecialidades.especialidad', 'especialidad')
       .distinct(true)
       .take(limite)
       .skip(saltar)
@@ -68,8 +77,13 @@ export class ServicioRepository {
 
     const query = this.servicioRepository()
       .createQueryBuilder('servicio')
-      .leftJoinAndSelect('servicio.especialidad', 'especialidad')
-      .where('servicio.idEspecialidad = :especialidadId', { especialidadId })
+      .innerJoinAndSelect(
+        'servicio.servicioEspecialidades',
+        'servicioEspecialidades',
+        'servicioEspecialidades.especialidadId = :especialidadId',
+        { especialidadId }
+      )
+      .leftJoinAndSelect('servicioEspecialidades.especialidad', 'especialidad')
       .distinct(true)
       .take(limite)
       .skip(saltar)
@@ -111,13 +125,22 @@ export class ServicioRepository {
     return await this.servicioRepository(manager).findOne({
       where: { id },
       relations: {
-        especialidad: true,
+        servicioEspecialidades: {
+          especialidad: true,
+        },
       },
     })
   }
 
   async obtenerEspecialidadPorId(id: string, manager?: EntityManager) {
     return await this.especialidadRepository(manager).findOne({ where: { id } })
+  }
+
+  async obtenerEspecialidadesPorIds(ids: string[], manager?: EntityManager) {
+    if (ids.length === 0) return []
+    return await this.especialidadRepository(manager).findBy({
+      id: In(ids),
+    })
   }
 
   async crearServicio(
@@ -145,6 +168,55 @@ export class ServicioRepository {
     })
 
     return await this.servicioRepository(transaccion).save(servicio)
+  }
+
+  async crearServicioEspecialidades(
+    servicioId: string,
+    especialidadIds: string[],
+    manager: EntityManager
+  ) {
+    const repo = this.servicioEspecialidadRepository(manager)
+    const idsUnicos = Array.from(new Set(especialidadIds))
+
+    const existentes = await repo.find({
+      where: { servicioId, especialidadId: In(idsUnicos) },
+    })
+    const existentesSet = new Set(
+      existentes.map((relacion) => String(relacion.especialidadId))
+    )
+
+    const nuevasRelaciones = idsUnicos
+      .filter((especialidadId) => !existentesSet.has(String(especialidadId)))
+      .map((especialidadId) =>
+        repo.create({
+          servicioId,
+          especialidadId,
+        })
+      )
+
+    if (nuevasRelaciones.length === 0) {
+      return []
+    }
+
+    return await repo.save(nuevasRelaciones)
+  }
+
+  async reemplazarServicioEspecialidades(
+    servicioId: string,
+    especialidadIds: string[],
+    manager: EntityManager
+  ) {
+    await this.servicioEspecialidadRepository(manager).delete({ servicioId })
+
+    if (especialidadIds.length === 0) {
+      return []
+    }
+
+    return await this.crearServicioEspecialidades(
+      servicioId,
+      especialidadIds,
+      manager
+    )
   }
 
   async eliminarServicio(id: string, transaccion: EntityManager) {

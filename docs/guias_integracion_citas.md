@@ -12,7 +12,7 @@ Base URL: `/api`
 | `/citas/paginado` | GET | Listado paginado con filtros. |
 | `/citas/mis-citas` | GET | Listado filtrado automáticamente por el médico autenticado. |
 | `/citas/:id` | GET | Detalle de cita. |
-| `/citas` | POST | Crea cita (`detalle`, `fechaInicio`, `idMedico`, `idPaciente?`, `idConsultorio?`, `idEspecialidad`, `tipoCita`, `idServicio?`). |
+| `/citas` | POST | Crea cita (`detalle`, `fechaInicio`, `idMedico?`, `idPaciente?`, `idConsultorio?`, `idEspecialidad?`, `tipoCita`, `idServicio`). |
 | `/citas/:id` | PATCH | Actualiza datos generales. |
 | `/citas/:id/estado` | PATCH | Cambia el estado. |
 | `/citas/:id/reprogramar` | PATCH | Reprograma fecha y hora. |
@@ -22,8 +22,8 @@ Base URL: `/api`
 
 **Forma de las respuestas**
 
-- Las respuestas devuelven el formato `CitaResponseDto`, que incluye `medico`, `paciente`, `especialidad`, `estudio` y `consultorio` en formato enriquecido.
-- La `fechaFin` se calcula automáticamente en base a la duración configurada (consulta) o la duración del estudio asociado.
+- Las respuestas devuelven el formato `CitaResponseDto`, que incluye `medico`, `paciente`, `especialidad`, `servicio` y `consultorio` en formato enriquecido.
+- La `fechaFin` se calcula automáticamente en base a la duración configurada (consulta) o la duración del servicio asociado.
 
 ### Ejemplo en Next.js (fetch)
 
@@ -55,7 +55,7 @@ Eventos principales:
 - **Emitir** `citas:create` → payload `MensajeCitaDto` (mismo shape que `POST /citas`). El servidor responde y además emite `citas:created` a todos los clientes.
 - **Emitir** `citas:actualizar` → payload `MensajeActualizarCitaDto` (mismo shape que `PATCH /citas/:id`). El servidor responde y además emite `citas:actualizada`.
 - **Emitir** `citas:estado` → `{ id, estado }` → broadcast `citas:estado-actualizado`.
-- **Emitir** `citas:reprogramar` → `{ id, fechaInicio, tipoCita, idServicio? }` → broadcast `citas:reprogramada`.
+- **Emitir** `citas:reprogramar` → `{ id, fechaInicio, tipoCita, idServicio }` → broadcast `citas:reprogramada`.
 - **Emitir** `citas:cancelar` → `{ id, comentario? }` → broadcast `citas:cancelada`.
 
 > Todos estos eventos se emiten tanto cuando la acción se realiza vía **Socket.IO** como cuando se ejecuta mediante **REST**. De esta forma el frontend puede mantenerse sincronizado ante cualquier cambio.
@@ -80,6 +80,7 @@ socket.emit('citas:create', {
   idConsultorio: '8',
   idEspecialidad: '12',
   tipoCita: 'CONSULTA',
+  idServicio: '2',
 })
 ```
 

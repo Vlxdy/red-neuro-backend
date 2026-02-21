@@ -1,5 +1,6 @@
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 import { Servicio } from '@/application/estudio/entities/estudio.entity'
+import { ServicioEspecialidad } from '@/application/estudio/entities/estudio-especialidad.entity'
 import { USUARIO_SISTEMA } from '@/common/constants'
 import { MigrationInterface, QueryRunner } from 'typeorm'
 import { EspecialidadEstado } from '@/application/personal/constants'
@@ -58,7 +59,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.CONSULTA,
         duracionMinutos: 30,
         costo: 120.5,
-        especialidad: 'Medicina General',
+        especialidades: [],
       },
       {
         nombre: 'Control Nutricional',
@@ -66,7 +67,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.CONSULTA,
         duracionMinutos: 25,
         costo: 90.0,
-        especialidad: 'Nutrición',
+        especialidades: ['Nutrición'],
       },
       {
         nombre: 'Electrocardiograma',
@@ -74,7 +75,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 20,
         costo: 150.75,
-        especialidad: 'Cardiología',
+        especialidades: ['Cardiología'],
       },
       {
         nombre: 'Tomografía Cerebral',
@@ -82,7 +83,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 45,
         costo: 480.25,
-        especialidad: 'Neurología',
+        especialidades: ['Neurología', 'Radiología'],
       },
       {
         nombre: 'Resonancia de Columna',
@@ -90,7 +91,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 60,
         costo: 620.9,
-        especialidad: 'Radiología',
+        especialidades: ['Radiología'],
       },
       {
         nombre: 'Perfil Lipídico',
@@ -98,7 +99,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 15,
         costo: 80.4,
-        especialidad: 'Laboratorio Clínico',
+        especialidades: ['Laboratorio Clínico'],
       },
       {
         nombre: 'Consulta de Neurología',
@@ -106,7 +107,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.CONSULTA,
         duracionMinutos: 35,
         costo: 210.0,
-        especialidad: 'Neurología',
+        especialidades: ['Neurología'],
       },
       {
         nombre: 'Eco Doppler Cardíaco',
@@ -114,29 +115,57 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 40,
         costo: 320.6,
-        especialidad: 'Cardiología',
+        especialidades: ['Cardiología'],
       },
     ]
 
-    await queryRunner.manager.save(
-      serviciosBase.map((item) => {
-        const especialidad = especialidadPorNombre.get(item.especialidad)
-        return queryRunner.manager.create(Servicio, {
+    const servicios = await queryRunner.manager.save(
+      serviciosBase.map((item) =>
+        queryRunner.manager.create(Servicio, {
           nombre: item.nombre,
           descripcion: item.descripcion,
           tipo: item.tipo,
           duracionMinutos: item.duracionMinutos,
           costo: item.costo,
-          idEspecialidad: especialidad?.id ?? null,
           estado: ServicioEstado.ACTIVO,
           transaccion: 'SEEDS',
           usuarioCreacion: USUARIO_SISTEMA,
         })
-      })
+      )
     )
+
+    const servicioPorNombre = new Map(
+      servicios.map((servicio) => [servicio.nombre, servicio])
+    )
+
+    const relaciones = serviciosBase.flatMap((item) => {
+      const servicio = servicioPorNombre.get(item.nombre)
+      if (!servicio) return []
+
+      return item.especialidades
+        .map((nombreEspecialidad) => {
+          const especialidad = especialidadPorNombre.get(nombreEspecialidad)
+          if (!especialidad) {
+            return null
+          }
+
+          return queryRunner.manager.create(ServicioEspecialidad, {
+            servicioId: servicio.id,
+            especialidadId: especialidad.id,
+          })
+        })
+        .filter(
+          (relacion): relacion is ServicioEspecialidad => relacion !== null
+        )
+    })
+
+    if (relaciones.length > 0) {
+      await queryRunner.manager.save(ServicioEspecialidad, relaciones)
+    }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.manager.delete(ServicioEspecialidad, {})
     await queryRunner.manager.delete(Servicio, {})
     await queryRunner.manager.delete(Especialidad, {})
   }

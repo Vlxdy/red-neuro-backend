@@ -5,12 +5,19 @@ import {
 import { Especialidad } from '../entities/especialidad.entity'
 
 const formatearServicio = (
-  servicio: Especialidad['servicios'][number]
-): ServicioResumenDto => ({
-  id: servicio.id,
-  nombre: servicio.nombre,
-  duracionMinutos: servicio.duracionMinutos,
-})
+  servicioEspecialidad: Especialidad['servicioEspecialidades'][number]
+): ServicioResumenDto | undefined => {
+  const servicio = servicioEspecialidad.servicio
+  if (!servicio) {
+    return undefined
+  }
+
+  return {
+    id: servicio.id,
+    nombre: servicio.nombre,
+    duracionMinutos: servicio.duracionMinutos,
+  }
+}
 
 export function formatearEspecialidad(
   especialidad: Especialidad
@@ -21,7 +28,10 @@ export function formatearEspecialidad(
     descripcion: especialidad.descripcion,
     estado: especialidad.estado,
     colorHex: especialidad.colorHex,
-    servicios: especialidad.servicios?.map(formatearServicio) ?? [],
+    servicios:
+      especialidad.servicioEspecialidades
+        ?.map(formatearServicio)
+        .filter((servicio): servicio is ServicioResumenDto => !!servicio) ?? [],
   }
 }
 

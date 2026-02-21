@@ -12,7 +12,6 @@ import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { EspecialidadEstado } from '../constants'
 import { UsuarioRolEspecialidad } from './usuaro-rol-especialidad.entity'
 import { Cita } from '@/application/citas/entities/cita.entity'
-import { Servicio } from '@/application/estudio/entities/estudio.entity'
 import { ServicioEspecialidad } from '@/application/estudio/entities/estudio-especialidad.entity'
 
 @Check(UtilService.buildStatusCheck(EspecialidadEstado))
@@ -65,9 +64,6 @@ export class Especialidad extends AuditoriaEntity<EspecialidadEstado> {
     (servicioEspecialidad) => servicioEspecialidad.especialidad
   )
   servicioEspecialidades: ServicioEspecialidad[]
-
-  @OneToMany(() => Servicio, (servicio) => servicio.especialidad)
-  servicios: Servicio[]
 
   constructor(data?: Partial<Especialidad>) {
     super(data)

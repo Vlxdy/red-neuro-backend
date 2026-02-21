@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsInt,
   IsNumber,
   IsNotEmpty,
@@ -76,13 +77,15 @@ export class CrearServicioDto {
   costo!: number
 
   @ApiProperty({
-    description: 'Identificador de especialidad asociada (opcional)',
-    example: '2',
+    description: 'Identificadores de especialidades asociadas (opcional)',
+    example: ['2', '5'],
     required: false,
+    type: [String],
   })
   @IsOptional()
-  @IsString()
-  idEspecialidad?: string
+  @IsArray()
+  @IsString({ each: true })
+  especialidadIds?: string[]
 }
 
 export class AsignarEspecialidadDto {
@@ -136,11 +139,10 @@ export class ServicioResponseDto {
   costo!: number
 
   @ApiProperty({
-    description: 'Especialidad asociada al servicio',
-    required: false,
-    type: EspecialidadResumenDto,
+    description: 'Especialidades asociadas al servicio',
+    type: [EspecialidadResumenDto],
   })
-  especialidad?: EspecialidadResumenDto
+  especialidades!: EspecialidadResumenDto[]
 }
 
 export class ActualizarServicioDto extends PartialType(CrearServicioDto) {

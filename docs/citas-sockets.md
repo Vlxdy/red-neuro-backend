@@ -38,9 +38,9 @@ Evento: `citas:create`
 | `idMedico` | string | ✅ | Identificador del médico. |
 | `idPaciente` | string | ❌ | Identificador del paciente. |
 | `idConsultorio` | string | ❌ | Identificador del consultorio. |
-| `idEspecialidad` | string | ✅ | Identificador de la especialidad. |
+| `idEspecialidad` | string | ❌ | Identificador opcional de la especialidad. Si se envía, debe estar asociada al servicio. |
 | `tipoCita` | `CONSULTA` / `ESTUDIO` | ✅ | Tipo de cita. |
-| `idServicio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
+| `idServicio` | string | ✅ | Identificador del servicio (consulta o estudio). |
 
 **Servidor → Todos los clientes**
 
@@ -65,9 +65,9 @@ Evento: `citas:actualizar`
 | `idMedico` | string | ✅ | Identificador del médico. |
 | `idPaciente` | string | ❌ | Identificador del paciente. |
 | `idConsultorio` | string | ❌ | Identificador del consultorio. |
-| `idEspecialidad` | string | ✅ | Identificador de la especialidad. |
+| `idEspecialidad` | string | ❌ | Identificador opcional de la especialidad. Si se envía, debe estar asociada al servicio. |
 | `tipoCita` | `CONSULTA` / `ESTUDIO` | ✅ | Tipo de cita. |
-| `idServicio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
+| `idServicio` | string | ✅ | Identificador del servicio (consulta o estudio). |
 
 **Servidor → Todos los clientes**
 
@@ -109,7 +109,7 @@ Evento: `citas:reprogramar`
 | `id` | string | ✅ | Identificador de la cita. |
 | `fechaInicio` | string (ISO) | ✅ | Nueva fecha/hora de inicio. |
 | `tipoCita` | `CONSULTA` / `ESTUDIO` | ✅ | Tipo de cita. |
-| `idServicio` | string | ❌ | Requerido si `tipoCita` es `ESTUDIO`. |
+| `idServicio` | string | ✅ | Identificador del servicio (consulta o estudio). |
 
 **Servidor → Todos los clientes**
 
@@ -156,14 +156,14 @@ El backend responde con los datos de la cita y sus relaciones principales. Campo
 | `pacienteId` | string | Identificador del paciente. |
 | `consultorioId` | string | Identificador del consultorio. |
 | `especialidadId` | string | Identificador de especialidad. |
-| `servicioId` | string | Identificador del estudio (si aplica). |
+| `servicioId` | string | Identificador del servicio (consulta o estudio). |
 | `medico` | objeto | Información del profesional asignado. |
 | `paciente` | objeto | Información del paciente. |
 | `especialidad` | objeto | Información de la especialidad. |
-| `estudio` | objeto | Información del estudio (si aplica). |
+| `servicio` | objeto | Información del servicio (si aplica). |
 | `consultorio` | objeto | Información del consultorio. |
 
-> Los campos `medico`, `paciente`, `especialidad`, `estudio` y `consultorio` se envían como objetos enriquecidos cuando existen relaciones disponibles.
+> Los campos `medico`, `paciente`, `especialidad`, `servicio` y `consultorio` se envían como objetos enriquecidos cuando existen relaciones disponibles.
 
 ## Cómo mantener el estado del cliente sincronizado
 

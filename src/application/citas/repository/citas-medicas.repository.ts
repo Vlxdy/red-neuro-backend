@@ -534,7 +534,11 @@ export class CitasMedicasRepository {
     return await entityManager
       .getRepository(Servicio)
       .createQueryBuilder('servicio')
-      .leftJoinAndSelect('servicio.especialidad', 'especialidad')
+      .leftJoinAndSelect(
+        'servicio.servicioEspecialidades',
+        'servicioEspecialidades'
+      )
+      .leftJoinAndSelect('servicioEspecialidades.especialidad', 'especialidad')
       .where('servicio.id = :idServicio', { idServicio })
       .getOne()
   }
