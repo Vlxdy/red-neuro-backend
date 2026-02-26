@@ -1,11 +1,11 @@
 import { BaseService } from '@/common/base'
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ServicioRepository } from '../repository/servicio.repository'
-import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import {
   ActualizarServicioDto,
   AsignarEspecialidadDto,
   CrearServicioDto,
+  ListarServiciosQueryDto,
   ServicioResponseDto,
 } from '../dto/servicio.dto'
 import {
@@ -46,7 +46,7 @@ export class ServicioService extends BaseService {
   }
 
   async listarServicios(
-    paginacionQuery: PaginacionQueryDto
+    paginacionQuery: ListarServiciosQueryDto
   ): Promise<[ServicioResponseDto[], number]> {
     const [servicios, total] =
       await this.servicioRepository.listarServiciosPaginado(paginacionQuery)
@@ -55,7 +55,7 @@ export class ServicioService extends BaseService {
 
   async listarServiciosPorEspecialidad(
     especialidadId: string,
-    paginacionQuery: PaginacionQueryDto
+    paginacionQuery: ListarServiciosQueryDto
   ): Promise<[ServicioResponseDto[], number]> {
     const especialidad =
       await this.servicioRepository.obtenerEspecialidadPorId(especialidadId)
