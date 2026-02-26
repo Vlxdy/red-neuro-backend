@@ -28,9 +28,9 @@ import {
   ActualizarServicioDto,
   AsignarEspecialidadDto,
   CrearServicioDto,
+  ListarServiciosQueryDto,
   ServicioResponseDto,
 } from '../dto/servicio.dto'
-import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { formatearServicio } from '../utils/formateo.estudio'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
@@ -47,7 +47,7 @@ export class ServicioController extends BaseController {
   @ApiBaseResponseListRows(ServicioResponseDto)
   @Get()
   async listar(
-    @Query() paginacionQuery: PaginacionQueryDto
+    @Query() paginacionQuery: ListarServiciosQueryDto
   ): Promise<BaseResponseListRowsDto<ServicioResponseDto>> {
     const resultado =
       await this.servicioService.listarServicios(paginacionQuery)
@@ -61,7 +61,7 @@ export class ServicioController extends BaseController {
   @Get('especialidades/:id')
   async listarPorEspecialidad(
     @Param() { id }: ParamIdDto,
-    @Query() paginacionQuery: PaginacionQueryDto
+    @Query() paginacionQuery: ListarServiciosQueryDto
   ): Promise<BaseResponseListRowsDto<ServicioResponseDto>> {
     const resultado = await this.servicioService.listarServiciosPorEspecialidad(
       id,

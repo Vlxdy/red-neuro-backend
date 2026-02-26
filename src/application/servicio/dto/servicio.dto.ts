@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsEnum,
   IsInt,
   IsNumber,
   IsNotEmpty,
@@ -11,6 +12,19 @@ import {
 } from '@/common/validation'
 import { ApiProperty, PartialType } from '@nestjs/swagger'
 import { TipoCita } from '@/application/citas/constants'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+
+export class ListarServiciosQueryDto extends PaginacionQueryDto {
+  @ApiProperty({
+    enum: TipoCita,
+    description: 'Filtra por tipo de servicio: CONSULTA o ESTUDIO',
+    required: false,
+    example: TipoCita.CONSULTA,
+  })
+  @IsOptional()
+  @IsEnum(TipoCita)
+  tipo?: TipoCita
+}
 
 export class EspecialidadResumenDto {
   @ApiProperty({

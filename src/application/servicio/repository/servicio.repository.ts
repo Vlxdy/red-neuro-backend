@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { Brackets, DataSource, EntityManager, In } from 'typeorm'
 import { Servicio } from '../entities/servicio.entity'
-import { CrearServicioDto, ActualizarServicioDto } from '../dto/servicio.dto'
-import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import {
+  ActualizarServicioDto,
+  CrearServicioDto,
+  ListarServiciosQueryDto,
+} from '../dto/servicio.dto'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 import { ServicioEspecialidad } from '../entities/servicio-especialidad.entity'
 
@@ -22,8 +25,8 @@ export class ServicioRepository {
     return (manager ?? this.dataSource).getRepository(ServicioEspecialidad)
   }
 
-  async listarServiciosPaginado(paginacionQuery: PaginacionQueryDto) {
-    const { limite, saltar, filtro, orden, sentido } = paginacionQuery
+  async listarServiciosPaginado(paginacionQuery: ListarServiciosQueryDto) {
+    const { limite, saltar, filtro, orden, sentido, tipo } = paginacionQuery
 
     const query = this.servicioRepository()
       .createQueryBuilder('servicio')
@@ -66,14 +69,18 @@ export class ServicioRepository {
       )
     }
 
+    if (tipo) {
+      query.andWhere('servicio.tipo = :tipo', { tipo })
+    }
+
     return await query.getManyAndCount()
   }
 
   async listarServiciosPorEspecialidadPaginado(
     especialidadId: string,
-    paginacionQuery: PaginacionQueryDto
+    paginacionQuery: ListarServiciosQueryDto
   ) {
-    const { limite, saltar, filtro, orden, sentido } = paginacionQuery
+    const { limite, saltar, filtro, orden, sentido, tipo } = paginacionQuery
 
     const query = this.servicioRepository()
       .createQueryBuilder('servicio')
@@ -116,6 +123,10 @@ export class ServicioRepository {
           })
         })
       )
+    }
+
+    if (tipo) {
+      query.andWhere('servicio.tipo = :tipo', { tipo })
     }
 
     return await query.getManyAndCount()
