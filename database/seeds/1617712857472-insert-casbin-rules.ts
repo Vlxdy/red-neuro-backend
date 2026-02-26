@@ -78,6 +78,7 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
 
       '/api/autorizacion/roles': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
       },
 
       '/api/autorizacion/roles/todos': { [RolEnum.ADMINISTRADOR]: 'GET|POST' },
@@ -165,22 +166,22 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
       },
       // ESTUDIOS MÉDICOS
-      '/api/estudios': {
+      '/api/servicios': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
         [RolEnum.PERSONAL_SALUD]: 'GET',
       },
-      '/api/estudios/especialidades/:id': {
+      '/api/servicios/especialidades/:id': {
         [RolEnum.ADMINISTRADOR]: 'GET',
         [RolEnum.PERSONAL_SALUD]: 'GET',
       },
-      '/api/estudios/:id': {
+      '/api/servicios/:id': {
         [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
         [RolEnum.PERSONAL_SALUD]: 'GET',
       },
-      '/api/estudios/:id/especialidades': {
+      '/api/servicios/:id/especialidades': {
         [RolEnum.ADMINISTRADOR]: 'POST',
       },
-      '/api/estudios/:id/cambiar-estado': {
+      '/api/servicios/:id/cambiar-estado': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
       },
       // ESPECIALIDADES MÉDICAS
