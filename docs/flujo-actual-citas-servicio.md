@@ -1,6 +1,12 @@
-# Flujo actual de citas (modelo con `servicio_cita`)
+# Flujo actual y flujo esperado de estados de citas (modelo con `idServicio`)
 
-Este documento describe el **flujo funcional actual** del módulo de citas con el modelo unificado por servicio (`idServicio`).
+Este documento describe:
+
+1. El **comportamiento real del backend** (cómo funciona hoy en código).
+2. La **brecha actual en la aplicación cliente** (cuando no se cambia estado).
+3. El **flujo esperado para frontend/app** para operar correctamente el ciclo de vida de una cita.
+
+> Objetivo de integración: dejar explícito qué debe ejecutar la app después de crear una cita para evitar que todas queden en estado inicial sin transición operativa.
 
 ---
 
@@ -55,23 +61,35 @@ Este documento describe el **flujo funcional actual** del módulo de citas con e
 10. Si quedó `SOLICITADA` y hay médico, se genera notificación.
 11. Se retorna la cita completa con relaciones.
 
+### Resultado clave al crear
+
+- **Si se envía `idMedico`**: la cita nace en **`SOLICITADA`**.
+  - Esto significa que la app debe mostrarla como pendiente de confirmación/gestión.
+- **Si NO se envía `idMedico`**: la cita nace en **`CONFIRMADA`**.
+  - Esto significa que la app puede tratarla como cita ya confirmada.
+
+Este comportamiento ya está implementado en backend y es automático durante la creación.
+
 ---
 
 ## 3) Flujo de actualización de cita (REST `PATCH /citas/:id`)
 
 La actualización soporta cambios parciales de:
+
 - datos generales (`detalle`, paciente, consultorio, especialidad, etc.)
 - programación (`fechaInicio`, `tipoCita`, `idServicio`)
 
 ### Reglas de recalculo
 
 Se recalcula `fechaFin` si cambia alguno de estos campos:
+
 - `fechaInicio`
 - `tipoCita`
 - `idServicio`
 - `idEspecialidad`
 
 Cuando hay recalculo:
+
 1. Se toma `tipoCita` nuevo o actual.
 2. Se toma `idServicio` nuevo o actual.
 3. Se valida servicio + tipo + especialidad.
@@ -94,6 +112,12 @@ Si se actualiza `idMedico`, el estado pasa a `SOLICITADA`.
 - Cambia únicamente el estado.
 - Si el estado no cambia, la operación se considera exitosa sin modificación efectiva.
 - Registra historial con cambio de estado (`before` / `after`).
+
+### Importante para la app
+
+El backend **sí** permite cambiar estados, pero el cambio ocurre **solo** cuando la app llama este endpoint (o su equivalente por sockets).
+
+Si la app no ejecuta `PATCH /citas/:id/estado`, la cita permanece en su estado actual y no avanza en el flujo operativo.
 
 ---
 
@@ -133,17 +157,21 @@ También se registran cambios de `tipoCita` e `idServicio` en el historial de re
 ## 7) Flujo automático diario: citas vencidas
 
 Existe una tarea programada (cron) que:
+
 1. toma el inicio del día como corte,
 2. busca citas anteriores al corte en estados elegibles,
 3. las marca como `NO_ASISTIO`,
 4. crea historial por cada cita,
 5. genera notificación al médico.
 
+Este proceso NO reemplaza el flujo operativo de la app. Solo corrige citas pasadas que no tuvieron cierre.
+
 ---
 
 ## 8) Consulta de historial (`GET /citas/:id/historial`)
 
 El historial se devuelve paginado y enriquecido:
+
 - ejecutor (usuario rol)
 - médicos involucrados
 - pacientes involucrados
@@ -156,6 +184,7 @@ Cuando en `detalleCambios` aparece un `idServicio`, se adjunta `beforeDetalle` /
 ## 9) Formato de respuesta de cita
 
 La respuesta de cita incluye:
+
 - ids: `medicoId`, `pacienteId`, `consultorioId`, `especialidadId`, `servicioId`
 - `tipoCita`, `estado`, fechas
 - objetos relacionados:
@@ -172,6 +201,7 @@ La respuesta de cita incluye:
 ## 10) Sockets (gateway)
 
 Eventos de entrada soportados:
+
 - `citas:create`
 - `citas:actualizar`
 - `citas:estado`
@@ -179,6 +209,7 @@ Eventos de entrada soportados:
 - `citas:cancelar`
 
 Eventos de salida emitidos:
+
 - `citas:created`
 - `citas:actualizada`
 - `citas:estado-actualizado`
@@ -189,7 +220,82 @@ En todos los flujos de creación/actualización/reprogramación, el identificado
 
 ---
 
-## 11) Notas de integración
+## 11) Diagnóstico de la brecha actual (app)
+
+Situación reportada: **en la aplicación no se está cambiando el estado de la cita**.
+
+Consecuencia funcional:
+
+- Citas creadas con médico quedan en `SOLICITADA` indefinidamente.
+- Citas creadas sin médico quedan en `CONFIRMADA` indefinidamente.
+- No se refleja inicio de atención (`EN_CURSO`), cierre (`COMPLETADA`) o inasistencia/cancelación en tiempo real.
+- El historial operativo se vuelve incompleto porque no se disparan transiciones de estado esperadas por negocio.
+
+---
+
+## 12) Flujo esperado para la aplicación (propuesta operativa)
+
+La app debe tratar la creación como el inicio del flujo, no como el fin.
+
+### 12.1 Máquina de estados recomendada
+
+Transiciones principales esperadas:
+
+1. `SOLICITADA -> CONFIRMADA` (cuando se acepta/valida la cita).
+2. `CONFIRMADA -> EN_CURSO` (cuando inicia la atención).
+3. `EN_CURSO -> COMPLETADA` (cuando finaliza la atención).
+4. `CONFIRMADA -> NO_ASISTIO` (si paciente no llega; manual o por proceso automático).
+5. `SOLICITADA|CONFIRMADA|EN_CURSO -> CANCELADA` (si se anula la cita).
+6. `SOLICITADA -> RECHAZADA` (si se rechaza la solicitud).
+7. `RECHAZADA -> SOLICITADA` (si se reprograma; ya contemplado en backend).
+
+> Nota: `INACTIVO` es un estado administrativo/técnico, no del ciclo operativo normal diario.
+
+### 12.2 Qué debe hacer la app en cada momento
+
+- **Al crear cita (`POST /citas`)**
+  - Leer el estado retornado (`SOLICITADA` o `CONFIRMADA`).
+  - Renderizar acciones disponibles según estado.
+
+- **Al confirmar cita**
+  - Invocar `PATCH /citas/:id/estado` con `{ "estado": "CONFIRMADA" }`.
+
+- **Al iniciar atención**
+  - Invocar `PATCH /citas/:id/estado` con `{ "estado": "EN_CURSO" }`.
+
+- **Al finalizar atención**
+  - Invocar `PATCH /citas/:id/estado` con `{ "estado": "COMPLETADA" }`.
+
+- **Al cancelar**
+  - Preferir `PATCH /citas/:id/cancelar` (permite comentario y deja historial de cancelación).
+
+- **Al marcar no asistencia manual**
+  - Invocar `PATCH /citas/:id/estado` con `{ "estado": "NO_ASISTIO" }`.
+
+- **Al reprogramar**
+  - Invocar `PATCH /citas/:id/reprogramar`.
+  - Si estaba `RECHAZADA`, backend la devuelve a `SOLICITADA`.
+
+### 12.3 Reglas de UI mínimas para evitar el problema actual
+
+1. No asumir que la creación deja la cita en estado final.
+2. Mostrar botón/acción de transición por estado actual.
+3. Refrescar estado local con la respuesta del backend después de cada transición.
+4. Suscribirse a eventos socket para mantener sincronizadas varias sesiones.
+5. Bloquear transiciones inválidas desde UI para reducir errores de operación.
+
+---
+
+## 13) Resumen ejecutivo para traspaso a app
+
+- El backend ya implementa creación, cambio de estado, cancelación, reprogramación, historial y vencimiento automático.
+- El problema actual está en la orquestación del cliente: **la app no está invocando las transiciones de estado necesarias**.
+- Para corregirlo, la app debe consumir de forma explícita `PATCH /citas/:id/estado` (y `/:id/cancelar`, `/:id/reprogramar`) según el momento operativo.
+- Con esto, el flujo quedará alineado al proceso esperado y el historial reflejará la trazabilidad real de la atención.
+
+---
+
+## 14) Notas de integración
 
 - No usar `idEstudio` en contratos actuales de citas.
 - Si un frontend separa la UI por tipo, filtrar servicios por `tipo` (`CONSULTA` / `ESTUDIO`).
