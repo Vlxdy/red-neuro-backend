@@ -2675,6 +2675,20 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "tipo",
+            "required": false,
+            "in": "query",
+            "description": "Filtra por tipo de servicio: CONSULTA o ESTUDIO",
+            "schema": {
+              "example": "CONSULTA",
+              "type": "string",
+              "enum": [
+                "CONSULTA",
+                "ESTUDIO"
+              ]
+            }
           }
         ],
         "responses": {
@@ -2816,6 +2830,20 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "tipo",
+            "required": false,
+            "in": "query",
+            "description": "Filtra por tipo de servicio: CONSULTA o ESTUDIO",
+            "schema": {
+              "example": "CONSULTA",
+              "type": "string",
+              "enum": [
+                "CONSULTA",
+                "ESTUDIO"
+              ]
             }
           }
         ],
