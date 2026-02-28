@@ -8,6 +8,8 @@ import {
 } from '../dto/servicio.dto'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 import { ServicioEspecialidad } from '../entities/servicio-especialidad.entity'
+import { EspecialidadEstado } from '@/application/personal/constants'
+import { ServicioEstado } from '../constants'
 
 @Injectable()
 export class ServicioRepository {
@@ -32,9 +34,16 @@ export class ServicioRepository {
       .createQueryBuilder('servicio')
       .leftJoinAndSelect(
         'servicio.servicioEspecialidades',
-        'servicioEspecialidades'
+        'servicioEspecialidades',
+        'servicioEspecialidades.estado = :estadoRelacion',
+        { estadoRelacion: ServicioEstado.ACTIVO }
       )
-      .leftJoinAndSelect('servicioEspecialidades.especialidad', 'especialidad')
+      .leftJoinAndSelect(
+        'servicioEspecialidades.especialidad',
+        'especialidad',
+        'especialidad.estado = :estadoEspecialidad',
+        { estadoEspecialidad: EspecialidadEstado.ACTIVO }
+      )
       .distinct(true)
       .take(limite)
       .skip(saltar)
@@ -87,10 +96,15 @@ export class ServicioRepository {
       .innerJoinAndSelect(
         'servicio.servicioEspecialidades',
         'servicioEspecialidades',
-        'servicioEspecialidades.especialidadId = :especialidadId',
-        { especialidadId }
+        'servicioEspecialidades.especialidadId = :especialidadId AND servicioEspecialidades.estado = :estadoRelacion',
+        { especialidadId, estadoRelacion: ServicioEstado.ACTIVO }
       )
-      .leftJoinAndSelect('servicioEspecialidades.especialidad', 'especialidad')
+      .innerJoinAndSelect(
+        'servicioEspecialidades.especialidad',
+        'especialidad',
+        'especialidad.estado = :estadoEspecialidad',
+        { estadoEspecialidad: EspecialidadEstado.ACTIVO }
+      )
       .distinct(true)
       .take(limite)
       .skip(saltar)
@@ -133,14 +147,22 @@ export class ServicioRepository {
   }
 
   async obtenerServicioPorId(id: string, manager?: EntityManager) {
-    return await this.servicioRepository(manager).findOne({
-      where: { id },
-      relations: {
-        servicioEspecialidades: {
-          especialidad: true,
-        },
-      },
-    })
+    return await this.servicioRepository(manager)
+      .createQueryBuilder('servicio')
+      .leftJoinAndSelect(
+        'servicio.servicioEspecialidades',
+        'servicioEspecialidades',
+        'servicioEspecialidades.estado = :estadoRelacion',
+        { estadoRelacion: ServicioEstado.ACTIVO }
+      )
+      .leftJoinAndSelect(
+        'servicioEspecialidades.especialidad',
+        'especialidad',
+        'especialidad.estado = :estadoEspecialidad',
+        { estadoEspecialidad: EspecialidadEstado.ACTIVO }
+      )
+      .where('servicio.id = :id', { id })
+      .getOne()
   }
 
   async obtenerEspecialidadPorId(id: string, manager?: EntityManager) {
@@ -192,24 +214,36 @@ export class ServicioRepository {
     const existentes = await repo.find({
       where: { servicioId, especialidadId: In(idsUnicos) },
     })
-    const existentesSet = new Set(
-      existentes.map((relacion) => String(relacion.especialidadId))
+    const existentesMap = new Map(
+      existentes.map((relacion) => [String(relacion.especialidadId), relacion])
     )
 
-    const nuevasRelaciones = idsUnicos
-      .filter((especialidadId) => !existentesSet.has(String(especialidadId)))
-      .map((especialidadId) =>
-        repo.create({
-          servicioId,
-          especialidadId,
-        })
-      )
+    const cambios: ServicioEspecialidad[] = []
 
-    if (nuevasRelaciones.length === 0) {
+    for (const especialidadId of idsUnicos) {
+      const existente = existentesMap.get(String(especialidadId))
+      if (!existente) {
+        cambios.push(
+          repo.create({
+            servicioId,
+            especialidadId,
+            estado: ServicioEstado.ACTIVO,
+          })
+        )
+        continue
+      }
+
+      if (existente.estado !== ServicioEstado.ACTIVO) {
+        existente.estado = ServicioEstado.ACTIVO
+        cambios.push(existente)
+      }
+    }
+
+    if (cambios.length === 0) {
       return []
     }
 
-    return await repo.save(nuevasRelaciones)
+    return await repo.save(cambios)
   }
 
   async reemplazarServicioEspecialidades(
@@ -217,17 +251,49 @@ export class ServicioRepository {
     especialidadIds: string[],
     manager: EntityManager
   ) {
-    await this.servicioEspecialidadRepository(manager).delete({ servicioId })
+    const repo = this.servicioEspecialidadRepository(manager)
+    const idsUnicos = Array.from(new Set(especialidadIds))
+    const idsSet = new Set(idsUnicos.map((id) => String(id)))
+    const existentes = await repo.find({ where: { servicioId } })
 
-    if (especialidadIds.length === 0) {
+    const cambios: ServicioEspecialidad[] = []
+    const existentesMap = new Map(
+      existentes.map((relacion) => [String(relacion.especialidadId), relacion])
+    )
+
+    for (const especialidadId of idsUnicos) {
+      const existente = existentesMap.get(String(especialidadId))
+
+      if (!existente) {
+        cambios.push(
+          repo.create({
+            servicioId,
+            especialidadId,
+            estado: ServicioEstado.ACTIVO,
+          })
+        )
+        continue
+      }
+
+      if (existente.estado !== ServicioEstado.ACTIVO) {
+        existente.estado = ServicioEstado.ACTIVO
+        cambios.push(existente)
+      }
+    }
+
+    for (const relacion of existentes) {
+      const estaEnPayload = idsSet.has(String(relacion.especialidadId))
+      if (!estaEnPayload && relacion.estado !== ServicioEstado.INACTIVO) {
+        relacion.estado = ServicioEstado.INACTIVO
+        cambios.push(relacion)
+      }
+    }
+
+    if (cambios.length === 0) {
       return []
     }
 
-    return await this.crearServicioEspecialidades(
-      servicioId,
-      especialidadIds,
-      manager
-    )
+    return await repo.save(cambios)
   }
 
   async eliminarServicio(id: string, transaccion: EntityManager) {

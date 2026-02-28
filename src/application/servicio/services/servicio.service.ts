@@ -3,7 +3,6 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ServicioRepository } from '../repository/servicio.repository'
 import {
   ActualizarServicioDto,
-  AsignarEspecialidadDto,
   CrearServicioDto,
   ListarServiciosQueryDto,
   ServicioResponseDto,
@@ -138,7 +137,7 @@ export class ServicioService extends BaseService {
 
     const servicio = await this.obtenerServicioPorId(id, transaccion)
 
-    if (dto.especialidadIds !== undefined) {
+    if (dto.especialidadIds !== undefined && dto.especialidadIds !== null) {
       await this.validarEspecialidades(dto.especialidadIds, transaccion)
       await this.servicioRepository.reemplazarServicioEspecialidades(
         servicio.id,
@@ -212,36 +211,5 @@ export class ServicioService extends BaseService {
       )
 
     return formatearServicio(servicioActualizado)
-  }
-
-  async asignarEspecialidad(
-    id: string,
-    dto: AsignarEspecialidadDto,
-    transaccion?: EntityManager
-  ): Promise<ServicioResponseDto> {
-    if (!transaccion) {
-      const op = async (nuevaTransaccion: EntityManager) => {
-        return await this.asignarEspecialidad(id, dto, nuevaTransaccion)
-      }
-      return await this.servicioRepository.runTransaction(op)
-    }
-
-    const servicio = await this.obtenerServicioPorId(id, transaccion)
-    const especialidad = await this.servicioRepository.obtenerEspecialidadPorId(
-      dto.especialidadId,
-      transaccion
-    )
-
-    if (!especialidad) {
-      throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
-    }
-
-    await this.servicioRepository.crearServicioEspecialidades(
-      servicio.id,
-      [especialidad.id],
-      transaccion
-    )
-
-    return formatearServicio(await this.obtenerServicioPorId(id, transaccion))
   }
 }

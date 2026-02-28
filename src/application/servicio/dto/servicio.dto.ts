@@ -4,7 +4,6 @@ import {
   IsInt,
   IsNumber,
   IsNotEmpty,
-  IsNumberString,
   IsOptional,
   IsString,
   MaxLength,
@@ -100,15 +99,6 @@ export class CrearServicioDto {
   @IsArray()
   @IsString({ each: true })
   especialidadIds?: string[]
-}
-
-export class AsignarEspecialidadDto {
-  @ApiProperty({
-    description: 'Identificador de la especialidad a asociar al servicio',
-    example: '2',
-  })
-  @IsNumberString()
-  especialidadId!: string
 }
 
 export class ServicioResponseDto {

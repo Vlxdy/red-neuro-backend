@@ -26,7 +26,6 @@ import { Request } from 'express'
 import { ServicioService } from '../services/servicio.service'
 import {
   ActualizarServicioDto,
-  AsignarEspecialidadDto,
   CrearServicioDto,
   ListarServiciosQueryDto,
   ServicioResponseDto,
@@ -139,19 +138,6 @@ export class ServicioController extends BaseController {
       id,
       usuarioAuditoria
     )
-    return this.success(resultado)
-  }
-
-  @ApiOperation({
-    summary: 'Asocia una especialidad a un servicio',
-  })
-  @ApiBaseResponse(ServicioResponseDto)
-  @Post(':id/especialidades')
-  async asignarEspecialidad(
-    @Param() { id }: ParamIdDto,
-    @Body() dto: AsignarEspecialidadDto
-  ): Promise<BaseResponseDto<ServicioResponseDto>> {
-    const resultado = await this.servicioService.asignarEspecialidad(id, dto)
     return this.success(resultado)
   }
 }
