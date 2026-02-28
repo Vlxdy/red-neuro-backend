@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
@@ -8,6 +9,7 @@ import {
 import 'bootstrap/env'
 import { Servicio } from './servicio.entity'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
+import { ServicioEstado } from '../constants'
 
 @Entity({ name: 'servicio_especialidad', schema: process.env.DB_SCHEMA })
 export class ServicioEspecialidad {
@@ -33,6 +35,16 @@ export class ServicioEspecialidad {
     comment: 'Clave foránea que referencia a la especialidad',
   })
   especialidadId: string
+
+  @Column({
+    name: '_estado',
+    type: 'varchar',
+    length: 30,
+    nullable: false,
+    default: ServicioEstado.ACTIVO,
+    comment: 'Estado de la relación servicio-especialidad',
+  })
+  estado: ServicioEstado
 
   // Compatibilidad temporal
   get estudioId() {
@@ -64,6 +76,11 @@ export class ServicioEspecialidad {
   )
   @JoinColumn({ name: 'id_especialidad', referencedColumnName: 'id' })
   especialidad: Especialidad
+
+  @BeforeInsert()
+  insertarEstado() {
+    this.estado = this.estado || ServicioEstado.ACTIVO
+  }
 }
 
 // Alias temporal para compatibilidad

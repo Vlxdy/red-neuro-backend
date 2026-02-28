@@ -3,6 +3,8 @@ import {
   EspecialidadResumenDto,
 } from '../dto/servicio.dto'
 import { Servicio } from '../entities/servicio.entity'
+import { ServicioEstado } from '../constants'
+import { EspecialidadEstado } from '@/application/personal/constants'
 
 const formatearEspecialidades = (
   servicioEspecialidades: Servicio['servicioEspecialidades']
@@ -14,8 +16,13 @@ const formatearEspecialidades = (
   const especialidadesUnicas = new Map<string, EspecialidadResumenDto>()
 
   for (const servicioEspecialidad of servicioEspecialidades) {
+    if (servicioEspecialidad.estado !== ServicioEstado.ACTIVO) {
+      continue
+    }
+
     const especialidad = servicioEspecialidad.especialidad
-    if (!especialidad) continue
+    if (!especialidad || especialidad.estado !== EspecialidadEstado.ACTIVO)
+      continue
 
     especialidadesUnicas.set(String(especialidad.id), {
       id: especialidad.id,
