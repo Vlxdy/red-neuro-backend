@@ -152,6 +152,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
           return queryRunner.manager.create(ServicioEspecialidad, {
             servicioId: servicio.id,
             especialidadId: especialidad.id,
+            usuarioCreacion: USUARIO_SISTEMA,
           })
         })
         .filter(

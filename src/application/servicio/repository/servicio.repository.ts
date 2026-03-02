@@ -10,6 +10,7 @@ import { Especialidad } from '@/application/personal/entities/especialidad.entit
 import { ServicioEspecialidad } from '../entities/servicio-especialidad.entity'
 import { EspecialidadEstado } from '@/application/personal/constants'
 import { ServicioEstado } from '../constants'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
 @Injectable()
 export class ServicioRepository {
@@ -195,17 +196,28 @@ export class ServicioRepository {
     usuarioAuditoria: string,
     transaccion: EntityManager
   ) {
-    Object.assign(servicio, {
-      ...dto,
+    const repo = this.servicioRepository(transaccion)
+
+    const partial: QueryDeepPartialEntity<Servicio> = {
       usuarioModificacion: usuarioAuditoria,
-    })
+    }
 
-    return await this.servicioRepository(transaccion).save(servicio)
+    if (dto.estado !== undefined) partial.estado = dto.estado as ServicioEstado
+    if (dto.nombre !== undefined) partial.nombre = dto.nombre
+    if (dto.descripcion !== undefined) partial.descripcion = dto.descripcion
+    if (dto.duracionMinutos !== undefined)
+      partial.duracionMinutos = dto.duracionMinutos
+    if (dto.tipo !== undefined) partial.tipo = dto.tipo
+    if (dto.costo !== undefined) partial.costo = Number(dto.costo)
+
+    await repo.update({ id: servicio.id }, partial)
+
+    return await repo.findOneOrFail({ where: { id: servicio.id } })
   }
-
   async crearServicioEspecialidades(
     servicioId: string,
     especialidadIds: string[],
+    usuarioAuditoria: string,
     manager: EntityManager
   ) {
     const repo = this.servicioEspecialidadRepository(manager)
@@ -228,6 +240,7 @@ export class ServicioRepository {
             servicioId,
             especialidadId,
             estado: ServicioEstado.ACTIVO,
+            usuarioCreacion: usuarioAuditoria,
           })
         )
         continue
@@ -249,6 +262,7 @@ export class ServicioRepository {
   async reemplazarServicioEspecialidades(
     servicioId: string,
     especialidadIds: string[],
+    usuarioAuditoria: string,
     manager: EntityManager
   ) {
     const repo = this.servicioEspecialidadRepository(manager)
@@ -269,6 +283,7 @@ export class ServicioRepository {
           repo.create({
             servicioId,
             especialidadId,
+            usuarioCreacion: usuarioAuditoria,
             estado: ServicioEstado.ACTIVO,
           })
         )
@@ -277,6 +292,7 @@ export class ServicioRepository {
 
       if (existente.estado !== ServicioEstado.ACTIVO) {
         existente.estado = ServicioEstado.ACTIVO
+        existente.usuarioModificacion = usuarioAuditoria
         cambios.push(existente)
       }
     }
@@ -285,6 +301,7 @@ export class ServicioRepository {
       const estaEnPayload = idsSet.has(String(relacion.especialidadId))
       if (!estaEnPayload && relacion.estado !== ServicioEstado.INACTIVO) {
         relacion.estado = ServicioEstado.INACTIVO
+        relacion.usuarioModificacion = usuarioAuditoria
         cambios.push(relacion)
       }
     }

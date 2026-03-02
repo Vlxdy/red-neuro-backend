@@ -108,6 +108,7 @@ export class ServicioService extends BaseService {
       await this.servicioRepository.crearServicioEspecialidades(
         nuevoServicio.id,
         dto.especialidadIds,
+        usuarioAuditoria,
         transaccion
       )
     }
@@ -142,6 +143,7 @@ export class ServicioService extends BaseService {
       await this.servicioRepository.reemplazarServicioEspecialidades(
         servicio.id,
         dto.especialidadIds,
+        usuarioAuditoria,
         transaccion
       )
     }
