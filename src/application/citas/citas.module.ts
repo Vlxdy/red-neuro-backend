@@ -11,10 +11,17 @@ import { CitasMedicasRepository } from './repository/citas-medicas.repository'
 import { HistorialCitasRepository } from './repository/historial-citas.repository'
 import { HistorialCitasService } from './services/historial-citas.service'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
+import { Lugar } from '@/application/lugar/entities/lugar.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Cita, HistorialCita, Notificacion, Servicio]),
+    TypeOrmModule.forFeature([
+      Cita,
+      HistorialCita,
+      Notificacion,
+      Servicio,
+      Lugar,
+    ]),
   ],
   providers: [
     CitasMedicasRepository,

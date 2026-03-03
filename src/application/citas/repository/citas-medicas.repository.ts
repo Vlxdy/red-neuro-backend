@@ -60,8 +60,46 @@ export class CitasMedicasRepository {
       )
       .leftJoinAndSelect('cita.paciente', 'paciente')
       .leftJoinAndSelect('cita.consultorio', 'consultorio')
+      .leftJoinAndSelect('cita.lugar', 'lugar')
       .leftJoinAndSelect('cita.especialidad', 'especialidad')
       .leftJoinAndSelect('cita.servicio', 'servicio')
+      .leftJoinAndSelect('cita.citaNueva', 'citaNueva')
+      .leftJoinAndSelect('citaNueva.medico', 'citaNuevaMedico')
+      .leftJoinAndSelect('citaNuevaMedico.usuario', 'citaNuevaUsuarioMedico')
+      .leftJoinAndSelect(
+        'citaNuevaUsuarioMedico.persona',
+        'citaNuevaPersonaMedico'
+      )
+      .leftJoinAndSelect('citaNueva.paciente', 'citaNuevaPaciente')
+      .leftJoinAndSelect('citaNueva.consultorio', 'citaNuevaConsultorio')
+      .leftJoinAndSelect('citaNueva.lugar', 'citaNuevaLugar')
+      .leftJoinAndSelect('citaNueva.especialidad', 'citaNuevaEspecialidad')
+      .leftJoinAndSelect('citaNueva.servicio', 'citaNuevaServicio')
+      .leftJoinAndSelect('cita.usuarioProgramo', 'usuarioProgramo')
+      .leftJoinAndSelect('usuarioProgramo.usuario', 'usuarioProgramoUsuario')
+      .leftJoinAndSelect(
+        'usuarioProgramoUsuario.persona',
+        'usuarioProgramoPersona'
+      )
+      .leftJoinAndSelect(
+        'usuarioProgramo.usuarioRolEspecialidades',
+        'usuarioProgramoEspecialidades'
+      )
+      .leftJoinAndSelect(
+        'usuarioProgramoEspecialidades.especialidad',
+        'usuarioProgramoEspecialidad'
+      )
+      .leftJoinAndSelect('cita.usuarioEnvio', 'usuarioEnvio')
+      .leftJoinAndSelect('usuarioEnvio.usuario', 'usuarioEnvioUsuario')
+      .leftJoinAndSelect('usuarioEnvioUsuario.persona', 'usuarioEnvioPersona')
+      .leftJoinAndSelect(
+        'usuarioEnvio.usuarioRolEspecialidades',
+        'usuarioEnvioEspecialidades'
+      )
+      .leftJoinAndSelect(
+        'usuarioEnvioEspecialidades.especialidad',
+        'usuarioEnvioEspecialidad'
+      )
       .distinct(true)
 
     if (filtros.fechaInicio) {
@@ -82,9 +120,19 @@ export class CitasMedicasRepository {
       })
     }
 
+    if (filtros.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', {
+        idLugar: filtros.idLugar,
+      })
+    }
+
     if (filtros.estado) {
       query.andWhere('cita.estado = :estado', {
         estado: filtros.estado,
+      })
+    } else {
+      query.andWhere('cita.estado != :estadoInactivo', {
+        estadoInactivo: CitasEstado.INACTIVO,
       })
     }
 
@@ -121,6 +169,12 @@ export class CitasMedicasRepository {
       })
     }
 
+    if (filtros.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', {
+        idLugar: filtros.idLugar,
+      })
+    }
+
     if (filtros.estado) {
       query.andWhere('cita.estado = :estado', {
         estado: filtros.estado,
@@ -149,8 +203,13 @@ export class CitasMedicasRepository {
       idMedico?: string
       idPaciente?: string | null
       idConsultorio?: string | null
+      idLugar?: string | null
       idEspecialidad?: string | null
       idServicio?: string | null
+      idCitaNueva?: string | null
+      idHistorialCita?: string | null
+      idUsuarioProgramo?: string | null
+      idUsuarioEnvio?: string | null
     },
     usuarioAuditoria: string,
     idEjecutor: string,
@@ -166,8 +225,13 @@ export class CitasMedicasRepository {
       idMedico: data.idMedico,
       idPaciente: data.idPaciente ?? null,
       idConsultorio: data.idConsultorio ?? null,
+      idLugar: data.idLugar ?? null,
       idEspecialidad: data.idEspecialidad ?? null,
       idServicio: data.idServicio ?? null,
+      idCitaNueva: data.idCitaNueva ?? null,
+      idHistorialCita: data.idHistorialCita ?? null,
+      idUsuarioProgramo: data.idUsuarioProgramo ?? null,
+      idUsuarioEnvio: data.idUsuarioEnvio ?? null,
     })
 
     const guardada = await this.citaRepository(transaccion).save(cita)
@@ -220,6 +284,7 @@ export class CitasMedicasRepository {
     if (data.idPaciente !== undefined) patch.idPaciente = data.idPaciente
     if (data.idConsultorio !== undefined)
       patch.idConsultorio = data.idConsultorio
+    if (data.idLugar !== undefined) patch.idLugar = data.idLugar
     if (data.idEspecialidad !== undefined)
       patch.idEspecialidad = data.idEspecialidad
 
@@ -450,6 +515,14 @@ export class CitasMedicasRepository {
     )
     this.registrarCambio(
       cambios,
+      'idLugar',
+      cita.idLugar ?? undefined,
+      data.idLugar !== undefined
+        ? (data.idLugar ?? undefined)
+        : (cita.idLugar ?? undefined)
+    )
+    this.registrarCambio(
+      cambios,
       'idEspecialidad',
       cita.idEspecialidad ?? undefined,
       data.idEspecialidad !== undefined
@@ -493,11 +566,7 @@ export class CitasMedicasRepository {
     idEjecutor: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
-      const estadosElegibles = [
-        CitasEstado.SOLICITADA,
-        CitasEstado.CONFIRMADA,
-        CitasEstado.EN_CURSO,
-      ]
+      const estadosElegibles = [CitasEstado.SOLICITADA, CitasEstado.CONFIRMADA]
       const citasVencidas = await this.citaRepository(manager).find({
         where: {
           fechaInicio: LessThan(fechaCorte),
@@ -554,6 +623,41 @@ export class CitasMedicasRepository {
 
       return citasConEstadoAnterior.length
     })
+  }
+
+  async guardarCita(cita: Cita, manager?: EntityManager) {
+    return await this.citaRepository(manager).save(cita)
+  }
+
+  async crearHistorialAccion(
+    data: {
+      idCita: string
+      idEjecutor: string
+      comentario?: string | null
+      detalleCambios?: TipoActualizacion[] | null
+      usuarioCreacion: string
+    },
+    manager?: EntityManager
+  ) {
+    return await this.historialRepository.crearHistorial(data, manager)
+  }
+
+  async crearNotificacionSolicitada(
+    data: {
+      idCita: string
+      idMedico: string
+      usuarioCreacion: string
+    },
+    manager?: EntityManager
+  ) {
+    const notificacion = this.notificacionRepository(manager).create({
+      tipo: NotificacionTipo.CITA_SOLICITADA,
+      mensaje: `Se asignó una nueva cita ${data.idCita} para confirmar.`,
+      idCita: data.idCita,
+      idMedico: data.idMedico,
+      usuarioCreacion: data.usuarioCreacion,
+    })
+    return await this.notificacionRepository(manager).save(notificacion)
   }
 
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {

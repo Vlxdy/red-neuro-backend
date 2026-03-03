@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -29,9 +30,13 @@ import {
   CantidadCitasPorDiaQueryDto,
   CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
+  ConfirmarCitaDto,
   CrearCitaDto,
+  EditarBorradorCitaDto,
+  EnviarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
@@ -123,7 +128,130 @@ export class CitasController extends BaseController {
     return this.successCreate(resultado)
   }
 
-  @ApiOperation({ summary: 'Actualiza datos generales de la cita' })
+  @ApiOperation({ summary: 'Edita una cita en estado borrador' })
+  @ApiBaseResponse(CitaResponseDto)
+  @Patch(':id/editar-borrador')
+  async editarBorrador(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: EditarBorradorCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUsuarioRol(req)
+    const resultado = await this.citasService.editarBorradorCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaActualizada(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({
+    summary: 'Envía una cita borrador o rechazada al flujo operativo',
+  })
+  @ApiBaseResponse(CitaResponseDto)
+  @Post(':id/enviar')
+  async enviar(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: EnviarCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUsuarioRol(req)
+    const resultado = await this.citasService.enviarCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaEstadoActualizado(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Confirma una cita solicitada' })
+  @ApiBaseResponse(CitaResponseDto)
+  @Post(':id/confirmar')
+  async confirmar(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: ConfirmarCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUsuarioRol(req)
+    const resultado = await this.citasService.confirmarCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaEstadoActualizado(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Rechaza una cita solicitada' })
+  @ApiBaseResponse(CitaResponseDto)
+  @Post(':id/rechazar')
+  async rechazar(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: RechazarCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUsuarioRol(req)
+    const resultado = await this.citasService.rechazarCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaEstadoActualizado(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Completa una cita confirmada' })
+  @ApiBaseResponse(CitaResponseDto)
+  @Post(':id/completar')
+  async completar(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUsuarioRol(req)
+    const resultado = await this.citasService.completarCita(
+      id,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaEstadoActualizado(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({
+    summary: 'Elimina lógicamente una cita borrador (estado INACTIVO)',
+  })
+  @ApiBaseResponse(CitaResponseDto)
+  @Delete(':id')
+  async eliminarBorrador(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUsuarioRol(req)
+    const resultado = await this.citasService.eliminarBorrador(
+      id,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaEstadoActualizado(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({
+    summary: 'Actualiza datos generales de la cita',
+    deprecated: true,
+  })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id')
   async actualizar(
@@ -144,7 +272,10 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Actualiza únicamente el estado de la cita' })
+  @ApiOperation({
+    summary: 'Actualiza únicamente el estado de la cita',
+    deprecated: true,
+  })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/estado')
   async actualizarEstado(
@@ -184,7 +315,27 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Cancela una cita' })
+  @ApiOperation({ summary: 'Cancela una cita confirmada' })
+  @ApiBaseResponse(CitaResponseDto)
+  @Post(':id/cancelar')
+  async cancelarPost(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: CancelarCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUsuarioRol(req)
+    const resultado = await this.citasService.cancelarCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaCancelada(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Cancela una cita', deprecated: true })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/cancelar')
   async cancelar(

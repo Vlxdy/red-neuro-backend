@@ -21,6 +21,7 @@ import { Notificacion } from './notificacion.entity'
 import { Consultorio } from '@/application/consultorio/entities/consultorio.entity'
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
+import { Lugar } from '@/application/lugar/entities/lugar.entity'
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
 @Check(UtilService.buildCheck('tipo_cita', TipoCita))
@@ -152,8 +153,67 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   @OneToMany(() => HistorialCita, (historialCita) => historialCita.cita)
   historial: HistorialCita[]
 
+  @Column({
+    name: 'id_lugar',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Clave foránea que referencia a la institución asociada a la cita',
+  })
+  idLugar?: string | null
+
+  @ManyToOne(() => Lugar, (lugar) => lugar.citas, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_lugar', referencedColumnName: 'id' })
+  lugar?: Lugar | null
+
   @OneToMany(() => Notificacion, (notificacion) => notificacion.cita)
   notificacion: Notificacion[]
+
+  @Column({
+    name: 'id_cita_nueva',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Identificador de la cita nueva generada por reprogramación',
+  })
+  idCitaNueva?: string | null
+
+  @ManyToOne(() => Cita, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'id_cita_nueva', referencedColumnName: 'id' })
+  citaNueva?: Cita | null
+
+  @Column({
+    name: 'id_historial_cita',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+    comment: 'Identificador compartido para cadena de reprogramaciones',
+  })
+  idHistorialCita?: string | null
+
+  @Column({
+    name: 'id_usuario_programo',
+    type: 'bigint',
+    nullable: true,
+    comment: 'UsuarioRol que programó inicialmente la cita',
+  })
+  idUsuarioProgramo?: string | null
+
+  @ManyToOne(() => UsuarioRol, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'id_usuario_programo', referencedColumnName: 'id' })
+  usuarioProgramo?: UsuarioRol | null
+
+  @Column({
+    name: 'id_usuario_envio',
+    type: 'bigint',
+    nullable: true,
+    comment: 'UsuarioRol que envió la cita al flujo operativo',
+  })
+  idUsuarioEnvio?: string | null
+
+  @ManyToOne(() => UsuarioRol, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'id_usuario_envio', referencedColumnName: 'id' })
+  usuarioEnvio?: UsuarioRol | null
 
   @Column({
     name: 'id_especialidad',
