@@ -13,6 +13,11 @@ import { PersonalResponseDto } from '@/application/personal/dto/personal.dto'
 import { PacienteResponseDto } from '@/application/paciente/dto/paciente.dto'
 import { ConsultorioResponseDto } from '@/application/consultorio/dto/consultorio.dto'
 
+export enum AccionCita {
+  GUARDAR = 'GUARDAR',
+  ENVIAR = 'ENVIAR',
+}
+
 export class EspecialidadCitaDto {
   @ApiProperty({
     description: 'Identificador de la especialidad',
@@ -41,6 +46,32 @@ export class EspecialidadCitaDto {
 
   @ApiProperty({
     description: 'Estado actual de la especialidad',
+    example: 'ACTIVO',
+  })
+  estado!: string
+}
+
+export class LugarCitaDto {
+  @ApiProperty({ description: 'Identificador de la institución', example: '2' })
+  id!: string
+
+  @ApiProperty({
+    description: 'Nombre de la institución',
+    example: 'Hospital General',
+  })
+  nombre!: string
+
+  @ApiProperty({ description: 'Sigla de la institución', example: 'HGR' })
+  sigla!: string
+
+  @ApiProperty({
+    description: 'Dirección de la institución',
+    example: 'Av. Siempre Viva #123',
+  })
+  direccion!: string
+
+  @ApiProperty({
+    description: 'Estado actual de la institución',
     example: 'ACTIVO',
   })
   estado!: string
@@ -110,6 +141,14 @@ export class FiltrosCitaDto {
   @IsString()
   idMedico?: string
 
+  @ApiPropertyOptional({
+    description: 'Identificador del lugar',
+    example: '2',
+  })
+  @IsOptional()
+  @IsString()
+  idLugar?: string
+
   @ApiPropertyOptional({ enum: CitasEstado, description: 'Filtrar por estado' })
   @IsOptional()
   @IsEnum(CitasEstado)
@@ -141,6 +180,14 @@ export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
   @IsString()
   idMedico?: string
 
+  @ApiPropertyOptional({
+    description: 'Identificador del lugar',
+    example: '2',
+  })
+  @IsOptional()
+  @IsString()
+  idLugar?: string
+
   @ApiPropertyOptional({ enum: CitasEstado, description: 'Filtrar por estado' })
   @IsOptional()
   @IsEnum(CitasEstado)
@@ -169,6 +216,14 @@ export class CantidadCitasPorDiaQueryDto {
   @IsOptional()
   @IsString()
   idMedico?: string
+
+  @ApiPropertyOptional({
+    description: 'Identificador del lugar para filtrar la cantidad',
+    example: '2',
+  })
+  @IsOptional()
+  @IsString()
+  idLugar?: string
 
   @ApiPropertyOptional({
     enum: CitasEstado,
@@ -221,6 +276,14 @@ export class FiltrosHistorialCitaPaginadoDto extends PaginacionQueryDto {
 
 export class CrearCitaDto {
   @ApiProperty({
+    enum: AccionCita,
+    description: 'Acción al crear la cita: GUARDAR (borrador) o ENVIAR',
+    example: AccionCita.GUARDAR,
+  })
+  @IsEnum(AccionCita)
+  accion!: AccionCita
+
+  @ApiProperty({
     description: 'Detalle o motivo de la cita',
     example: 'Control nutricional mensual',
   })
@@ -261,6 +324,15 @@ export class CrearCitaDto {
   @IsOptional()
   @IsString()
   idConsultorio?: string
+
+  @ApiProperty({
+    description: 'Identificador de la institución asociada',
+    example: '2',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  idLugar?: string
 
   @ApiProperty({
     description: 'Identificador de la especialidad asociada (opcional)',
@@ -321,6 +393,58 @@ export class ReprogramarCitaDto {
   idServicio!: string
 }
 
+export class EditarBorradorCitaDto extends PartialType(CrearCitaDto) {
+  @ApiPropertyOptional({
+    enum: AccionCita,
+    description: 'No aplica para edición de borrador; se ignora si se envía',
+  })
+  @IsOptional()
+  @IsEnum(AccionCita)
+  accion?: AccionCita
+}
+
+export class EnviarCitaDto {
+  @ApiPropertyOptional({
+    description: 'Médico a asignar para enviar como solicitada',
+    example: '42',
+  })
+  @IsOptional()
+  @IsString()
+  idMedico?: string
+}
+
+export class ConfirmarCitaDto {
+  @ApiPropertyOptional({
+    description:
+      'Nueva fecha/hora de inicio opcional para confirmar la cita solicitada',
+    example: '2024-06-20T12:00:00Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaInicio?: string
+
+  @ApiPropertyOptional({
+    description:
+      'Detalle opcional a ajustar antes de confirmar la cita solicitada',
+    example: 'Ajuste final coordinado en la confirmación',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  detalle?: string
+}
+
+export class RechazarCitaDto {
+  @ApiPropertyOptional({
+    description: 'Motivo opcional de rechazo de la cita solicitada',
+    example: 'No disponibilidad en ese horario',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  motivoRechazo?: string
+}
+
 export class CancelarCitaDto {
   @ApiPropertyOptional({
     description:
@@ -357,6 +481,65 @@ export class MensajeCancelarCitaDto extends CancelarCitaDto {
   id!: string
 }
 
+export class CitaNuevaDetalleDto {
+  @ApiProperty({ description: 'Identificador de la cita', example: '1002' })
+  id!: string
+
+  @ApiProperty({
+    description: 'Detalle de la cita',
+    example: 'Control nutricional',
+  })
+  detalle!: string
+
+  @ApiProperty({ description: 'Fecha de inicio en ISO 8601' })
+  fechaInicio!: string
+
+  @ApiProperty({ description: 'Fecha de fin en ISO 8601' })
+  fechaFin!: string
+
+  @ApiProperty({ enum: TipoCita, description: 'Tipo de cita' })
+  tipoCita!: TipoCita
+
+  @ApiProperty({ enum: CitasEstado, description: 'Estado de la cita nueva' })
+  estado!: CitasEstado
+
+  @ApiPropertyOptional({ description: 'Id del médico asignado' })
+  medicoId?: string
+
+  @ApiPropertyOptional({ description: 'Id del paciente asignado' })
+  pacienteId?: string
+
+  @ApiPropertyOptional({ description: 'Id del consultorio asignado' })
+  consultorioId?: string
+
+  @ApiPropertyOptional({ description: 'Id de la institución asociada' })
+  lugarId?: string
+
+  @ApiPropertyOptional({ description: 'Id de la especialidad asociada' })
+  especialidadId?: string
+
+  @ApiPropertyOptional({ description: 'Id del servicio asociado' })
+  servicioId?: string
+
+  @ApiPropertyOptional({ type: () => PersonalResponseDto })
+  medico?: PersonalResponseDto
+
+  @ApiPropertyOptional({ type: () => PacienteResponseDto })
+  paciente?: PacienteResponseDto
+
+  @ApiPropertyOptional({ type: () => EspecialidadCitaDto })
+  especialidad?: EspecialidadCitaDto
+
+  @ApiPropertyOptional({ type: () => ServicioCitaDto })
+  servicio?: ServicioCitaDto
+
+  @ApiPropertyOptional({ type: () => ConsultorioResponseDto })
+  consultorio?: ConsultorioResponseDto
+
+  @ApiPropertyOptional({ type: () => LugarCitaDto })
+  lugar?: LugarCitaDto
+}
+
 export class CitaResponseDto {
   @ApiProperty({ description: 'Identificador de la cita', example: 'cita-001' })
   id!: string
@@ -388,6 +571,46 @@ export class CitaResponseDto {
   @ApiProperty({ enum: CitasEstado, description: 'Estado actual de la cita' })
   estado!: CitasEstado
 
+  @ApiPropertyOptional({
+    description: 'Identificador de la cita nueva generada por reprogramación',
+    example: '1002',
+  })
+  citaNuevaId?: string
+  @ApiPropertyOptional({
+    description:
+      'Detalle completo de la cita nueva asociada por reprogramación',
+    type: () => CitaNuevaDetalleDto,
+  })
+  citaNueva?: CitaNuevaDetalleDto
+
+  @ApiPropertyOptional({
+    description: 'Identificador compartido para cadena de reprogramaciones',
+    example: 'HIST-CITA-0001',
+  })
+  historialCitaId?: string
+
+  @ApiPropertyOptional({
+    description: 'UsuarioRol que programó inicialmente la cita',
+    example: '88',
+  })
+  usuarioProgramoId?: string
+  @ApiPropertyOptional({
+    description: 'Datos del personal que programó inicialmente la cita',
+    type: () => PersonalResponseDto,
+  })
+  usuarioProgramo?: PersonalResponseDto
+
+  @ApiPropertyOptional({
+    description: 'UsuarioRol que envió la cita al flujo operativo',
+    example: '91',
+  })
+  usuarioEnvioId?: string
+  @ApiPropertyOptional({
+    description: 'Datos del personal que envió la cita al flujo operativo',
+    type: () => PersonalResponseDto,
+  })
+  usuarioEnvio?: PersonalResponseDto
+
   @ApiProperty({
     description: 'Identificador del médico asignado',
     example: '42',
@@ -407,6 +630,13 @@ export class CitaResponseDto {
     required: false,
   })
   consultorioId?: string
+
+  @ApiProperty({
+    description: 'Identificador de la institución asociada',
+    example: '2',
+    required: false,
+  })
+  lugarId?: string
 
   @ApiProperty({
     description: 'Identificador de la especialidad asociada',
@@ -455,6 +685,13 @@ export class CitaResponseDto {
     required: false,
   })
   consultorio?: ConsultorioResponseDto
+
+  @ApiProperty({
+    description: 'Institución asociada a la cita',
+    type: () => LugarCitaDto,
+    required: false,
+  })
+  lugar?: LugarCitaDto
 }
 
 export class HistorialCitaResponseDto {

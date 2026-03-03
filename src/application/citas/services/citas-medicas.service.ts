@@ -6,17 +6,22 @@ import {
   Inject,
 } from '@nestjs/common'
 import dayjs from 'dayjs'
+import { randomUUID } from 'crypto'
 import { Cron } from '@nestjs/schedule'
 import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
+  ConfirmarCitaDto,
   CantidadCitasPorDiaQueryDto,
   CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
   CrearCitaDto,
+  EditarBorradorCitaDto,
+  EnviarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 
@@ -74,6 +79,21 @@ export class CitasMedicasService extends BaseService {
     }
 
     return servicio
+  }
+
+  private validarEstado(cita: Cita, estadosPermitidos: CitasEstado[]) {
+    if (!estadosPermitidos.includes(cita.estado as CitasEstado)) {
+      throw new BadRequestException(
+        `La cita en estado ${cita.estado} no permite esta operación`
+      )
+    }
+  }
+
+  private crearDetalleCambiosEstado(
+    before: CitasEstado,
+    after: CitasEstado
+  ): { field: string; before: string; after: string }[] {
+    return [{ field: 'estado', before, after }]
   }
 
   // ===== Citas =====
@@ -223,9 +243,12 @@ export class CitasMedicasService extends BaseService {
       servicio.duracionMinutos
     )
 
-    const estadoInicial = dto.idMedico
-      ? CitasEstado.SOLICITADA
-      : CitasEstado.CONFIRMADA
+    const estadoInicial =
+      dto.accion === 'GUARDAR'
+        ? CitasEstado.BORRADOR
+        : dto.idMedico
+          ? CitasEstado.SOLICITADA
+          : CitasEstado.CONFIRMADA
 
     const citaId = await this.citasRepository.crearCita(
       {
@@ -236,9 +259,13 @@ export class CitasMedicasService extends BaseService {
         idMedico: dto.idMedico,
         idPaciente: dto.idPaciente ?? null,
         idConsultorio: dto.idConsultorio ?? null,
+        idLugar: dto.idLugar ?? null,
         idEspecialidad: dto.idEspecialidad ?? null,
         idServicio: servicio.id,
         tipoCita,
+        idHistorialCita: randomUUID(),
+        idUsuarioProgramo: idEjecutor,
+        idUsuarioEnvio: dto.accion === 'ENVIAR' ? idEjecutor : null,
       },
       usuarioAuditoria,
       idEjecutor,
@@ -290,6 +317,10 @@ export class CitasMedicasService extends BaseService {
 
     if (dto.idConsultorio !== undefined) {
       updateData.idConsultorio = dto.idConsultorio
+    }
+
+    if (dto.idLugar !== undefined) {
+      updateData.idLugar = dto.idLugar
     }
 
     if (dto.idEspecialidad !== undefined) {
@@ -349,22 +380,209 @@ export class CitasMedicasService extends BaseService {
     return await this.obtenerCita(id, transaccion)
   }
 
+  async editarBorradorCita(
+    id: string,
+    dto: EditarBorradorCitaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0'
+  ): Promise<CitaResponseDto> {
+    const cita = await this.obtenerCitaId(id)
+    this.validarEstado(cita, [CitasEstado.BORRADOR])
+    return await this.actualizarCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      undefined,
+      idEjecutor
+    )
+  }
+
+  async enviarCita(
+    id: string,
+    dto: EnviarCitaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0'
+  ): Promise<CitaResponseDto> {
+    return await this.citasRepository.runTransaction(async (transaccion) => {
+      const cita = await this.obtenerCitaId(id, transaccion)
+      this.validarEstado(cita, [CitasEstado.BORRADOR, CitasEstado.RECHAZADA])
+
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.idMedico = dto.idMedico ?? cita.idMedico
+      cita.estado = cita.idMedico
+        ? CitasEstado.SOLICITADA
+        : CitasEstado.CONFIRMADA
+      cita.idUsuarioEnvio = idEjecutor
+      cita.usuarioModificacion = usuarioAuditoria
+      await this.citasRepository.guardarCita(cita, transaccion)
+
+      await this.citasRepository.crearHistorialAccion(
+        {
+          idCita: cita.id,
+          idEjecutor,
+          comentario: 'Envío de cita',
+          detalleCambios: this.crearDetalleCambiosEstado(
+            estadoAnterior,
+            cita.estado
+          ),
+          usuarioCreacion: usuarioAuditoria,
+        },
+        transaccion
+      )
+
+      if (cita.estado === CitasEstado.SOLICITADA && cita.idMedico) {
+        await this.citasRepository.crearNotificacionSolicitada(
+          {
+            idCita: cita.id,
+            idMedico: cita.idMedico,
+            usuarioCreacion: usuarioAuditoria,
+          },
+          transaccion
+        )
+      }
+
+      return await this.obtenerCita(cita.id, transaccion)
+    })
+  }
+
+  async confirmarCita(
+    id: string,
+    dto: ConfirmarCitaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0'
+  ): Promise<CitaResponseDto> {
+    return await this.citasRepository.runTransaction(async (transaccion) => {
+      const cita = await this.obtenerCitaId(id, transaccion)
+      this.validarEstado(cita, [CitasEstado.SOLICITADA])
+
+      if (dto.fechaInicio) {
+        const fechaInicio = dayjs(dto.fechaInicio).toDate()
+        const servicio = await this.resolverServicio(
+          cita.idServicio as string,
+          cita.tipoCita,
+          cita.idEspecialidad ?? undefined,
+          transaccion
+        )
+        cita.fechaInicio = fechaInicio
+        cita.fechaFin = this.calcularFechaFin(
+          fechaInicio,
+          servicio.duracionMinutos
+        )
+      }
+
+      if (dto.detalle !== undefined) {
+        cita.detalle = dto.detalle
+      }
+
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.estado = CitasEstado.CONFIRMADA
+      cita.usuarioModificacion = usuarioAuditoria
+      await this.citasRepository.guardarCita(cita, transaccion)
+      await this.citasRepository.crearHistorialAccion(
+        {
+          idCita: cita.id,
+          idEjecutor,
+          comentario: 'Confirmación de cita solicitada',
+          detalleCambios: this.crearDetalleCambiosEstado(
+            estadoAnterior,
+            cita.estado
+          ),
+          usuarioCreacion: usuarioAuditoria,
+        },
+        transaccion
+      )
+      return await this.obtenerCita(cita.id, transaccion)
+    })
+  }
+
+  async rechazarCita(
+    id: string,
+    dto: RechazarCitaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0'
+  ): Promise<CitaResponseDto> {
+    return await this.actualizarEstadoCita(
+      id,
+      { estado: CitasEstado.RECHAZADA },
+      usuarioAuditoria,
+      idEjecutor,
+      [CitasEstado.SOLICITADA],
+      dto.motivoRechazo ?? undefined
+    )
+  }
+
+  async completarCita(
+    id: string,
+    usuarioAuditoria = '0',
+    idEjecutor = '0'
+  ): Promise<CitaResponseDto> {
+    return await this.actualizarEstadoCita(
+      id,
+      { estado: CitasEstado.COMPLETADA },
+      usuarioAuditoria,
+      idEjecutor,
+      [CitasEstado.CONFIRMADA]
+    )
+  }
+
+  async eliminarBorrador(
+    id: string,
+    usuarioAuditoria = '0',
+    idEjecutor = '0'
+  ): Promise<CitaResponseDto> {
+    return await this.actualizarEstadoCita(
+      id,
+      { estado: CitasEstado.INACTIVO },
+      usuarioAuditoria,
+      idEjecutor,
+      [CitasEstado.BORRADOR],
+      'Eliminación lógica de borrador'
+    )
+  }
+
   async actualizarEstadoCita(
     id: string,
     dto: ActualizarEstadoCitaDto,
     usuarioAuditoria = '0',
-    idEjecutor = '0'
+    idEjecutor = '0',
+    estadosPermitidos?: CitasEstado[],
+    comentario?: string
   ): Promise<CitaResponseDto> {
-    const actualizado = await this.citasRepository.actualizarEstadoCita(
-      id,
-      dto,
-      usuarioAuditoria,
-      idEjecutor
-    )
-    if (!actualizado) {
-      throw new NotFoundException('La cita solicitada no existe')
+    if (!estadosPermitidos?.length) {
+      const actualizado = await this.citasRepository.actualizarEstadoCita(
+        id,
+        dto,
+        usuarioAuditoria,
+        idEjecutor
+      )
+      if (!actualizado) {
+        throw new NotFoundException('La cita solicitada no existe')
+      }
+      return await this.obtenerCita(id)
     }
-    return await this.obtenerCita(id)
+
+    return await this.citasRepository.runTransaction(async (transaccion) => {
+      const cita = await this.obtenerCitaId(id, transaccion)
+      this.validarEstado(cita, estadosPermitidos)
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.estado = dto.estado
+      cita.usuarioModificacion = usuarioAuditoria
+      await this.citasRepository.guardarCita(cita, transaccion)
+      await this.citasRepository.crearHistorialAccion(
+        {
+          idCita: cita.id,
+          idEjecutor,
+          comentario: comentario ?? 'Actualización de estado de cita',
+          detalleCambios: this.crearDetalleCambiosEstado(
+            estadoAnterior,
+            cita.estado
+          ),
+          usuarioCreacion: usuarioAuditoria,
+        },
+        transaccion
+      )
+      return await this.obtenerCita(cita.id, transaccion)
+    })
   }
 
   async reprogramarCita(
@@ -373,40 +591,77 @@ export class CitasMedicasService extends BaseService {
     usuarioAuditoria = '0',
     idEjecutor = '0'
   ): Promise<CitaResponseDto> {
-    const fechaInicio = dayjs(dto.fechaInicio).toDate()
-    const tipoCita = dto.tipoCita
+    return await this.citasRepository.runTransaction(async (transaccion) => {
+      const citaOriginal = await this.obtenerCitaId(id, transaccion)
+      this.validarEstado(citaOriginal, [
+        CitasEstado.CONFIRMADA,
+        CitasEstado.CANCELADA,
+        CitasEstado.NO_ASISTIO,
+      ])
 
-    if (!tipoCita) {
-      throw new BadRequestException('El tipo de cita es obligatorio')
-    }
+      const fechaInicio = dayjs(dto.fechaInicio).toDate()
+      const tipoCita = dto.tipoCita
+      const idServicio = dto.idServicio ?? citaOriginal.idServicio
+      if (!idServicio) {
+        throw new BadRequestException('El servicio es obligatorio para la cita')
+      }
 
-    const cita = await this.obtenerCitaId(id)
-    const idServicio = dto.idServicio ?? cita.idServicio
+      const servicio = await this.resolverServicio(
+        idServicio,
+        tipoCita,
+        citaOriginal.idEspecialidad ?? undefined,
+        transaccion
+      )
+      const fechaFin = this.calcularFechaFin(
+        fechaInicio,
+        servicio.duracionMinutos
+      )
 
-    if (!idServicio) {
-      throw new BadRequestException('El servicio es obligatorio para la cita')
-    }
+      citaOriginal.estado = CitasEstado.REPROGRAMADA
+      citaOriginal.usuarioModificacion = usuarioAuditoria
 
-    const servicio = await this.resolverServicio(
-      idServicio,
-      tipoCita,
-      cita.idEspecialidad ?? undefined
-    )
-    const fechaFin = this.calcularFechaFin(
-      fechaInicio,
-      servicio.duracionMinutos
-    )
+      const nuevaCitaId = await this.citasRepository.crearCita(
+        {
+          detalle: citaOriginal.detalle,
+          fechaInicio,
+          fechaFin,
+          estado: citaOriginal.idMedico
+            ? CitasEstado.SOLICITADA
+            : CitasEstado.CONFIRMADA,
+          idMedico: citaOriginal.idMedico,
+          idPaciente: citaOriginal.idPaciente ?? null,
+          idConsultorio: citaOriginal.idConsultorio ?? null,
+          idLugar: citaOriginal.idLugar ?? null,
+          idEspecialidad: citaOriginal.idEspecialidad ?? null,
+          idServicio: servicio.id,
+          tipoCita,
+          idHistorialCita: citaOriginal.idHistorialCita ?? randomUUID(),
+          idUsuarioProgramo: citaOriginal.idUsuarioProgramo,
+          idUsuarioEnvio: idEjecutor,
+        },
+        usuarioAuditoria,
+        idEjecutor,
+        transaccion
+      )
 
-    const actualizado = await this.citasRepository.reprogramarCita(
-      id,
-      { ...dto, idServicio: servicio.id, fechaFin },
-      usuarioAuditoria,
-      idEjecutor
-    )
-    if (!actualizado) {
-      throw new NotFoundException('La cita solicitada no existe')
-    }
-    return await this.obtenerCita(id)
+      citaOriginal.idCitaNueva = nuevaCitaId
+      await this.citasRepository.guardarCita(citaOriginal, transaccion)
+      await this.citasRepository.crearHistorialAccion(
+        {
+          idCita: citaOriginal.id,
+          idEjecutor,
+          comentario: 'Reprogramación por clonación',
+          detalleCambios: this.crearDetalleCambiosEstado(
+            CitasEstado.CONFIRMADA,
+            CitasEstado.REPROGRAMADA
+          ),
+          usuarioCreacion: usuarioAuditoria,
+        },
+        transaccion
+      )
+
+      return await this.obtenerCita(nuevaCitaId, transaccion)
+    })
   }
 
   async cancelarCita(
@@ -415,6 +670,8 @@ export class CitasMedicasService extends BaseService {
     usuarioAuditoria = '0',
     idEjecutor = '0'
   ): Promise<CitaResponseDto> {
+    const cita = await this.obtenerCitaId(id)
+    this.validarEstado(cita, [CitasEstado.CONFIRMADA])
     const actualizado = await this.citasRepository.cancelarCita(
       id,
       dto,
