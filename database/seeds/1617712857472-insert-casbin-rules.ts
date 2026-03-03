@@ -135,8 +135,8 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.PERSONAL_SALUD]: 'GET',
       },
       '/api/citas/:id': {
-        [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
-        [RolEnum.PERSONAL_SALUD]: 'GET|PATCH',
+        [RolEnum.ADMINISTRADOR]: 'GET|DELETE',
+        [RolEnum.PERSONAL_SALUD]: 'GET|DELETE',
       },
       '/api/citas/paginado': {
         [RolEnum.ADMINISTRADOR]: 'GET',
@@ -146,17 +146,37 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'GET',
         [RolEnum.PERSONAL_SALUD]: 'GET',
       },
-      '/api/citas/:id/estado': {
-        [RolEnum.ADMINISTRADOR]: 'PATCH',
-        [RolEnum.PERSONAL_SALUD]: 'PATCH',
-      },
       '/api/citas/:id/reprogramar': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
         [RolEnum.PERSONAL_SALUD]: 'PATCH',
       },
       '/api/citas/:id/cancelar': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.PERSONAL_SALUD]: 'POST',
+      },
+      '/api/citas/:id/editar-borrador': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
         [RolEnum.PERSONAL_SALUD]: 'PATCH',
+      },
+      '/api/citas/:id/enviar': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.PERSONAL_SALUD]: 'POST',
+      },
+      '/api/citas/:id/confirmar': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.PERSONAL_SALUD]: 'POST',
+      },
+      '/api/citas/:id/rechazar': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.PERSONAL_SALUD]: 'POST',
+      },
+      '/api/citas/:id/completar': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.PERSONAL_SALUD]: 'POST',
+      },
+      '/api/citas/:id/no-asistio': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.PERSONAL_SALUD]: 'POST',
       },
       // CONSULTORIOS MÉDICOS
       '/api/consultorios': {

@@ -24,8 +24,6 @@ import {
 import { CitasMedicasService } from '../services/citas-medicas.service'
 import { CitasGateway } from '../gateways/citas.gateway'
 import {
-  ActualizarCitaDto,
-  ActualizarEstadoCitaDto,
   CancelarCitaDto,
   CantidadCitasPorDiaQueryDto,
   CantidadCitasPorDiaResponseDto,
@@ -269,53 +267,6 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({
-    summary: 'Actualiza datos generales de la cita',
-    deprecated: true,
-  })
-  @ApiBaseResponse(CitaResponseDto)
-  @Patch(':id')
-  async actualizar(
-    @Param() { id }: ParamIdDto,
-    @Req() req: Request,
-    @Body() dto: ActualizarCitaDto
-  ): Promise<BaseResponseDto<CitaResponseDto>> {
-    const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
-    const resultado = await this.citasService.actualizarCita(
-      id,
-      dto,
-      usuarioAuditoria,
-      undefined,
-      idEjecutor
-    )
-    this.citasGateway.emitCitaActualizada(resultado)
-    return this.successUpdate(resultado)
-  }
-
-  @ApiOperation({
-    summary: 'Actualiza únicamente el estado de la cita',
-    deprecated: true,
-  })
-  @ApiBaseResponse(CitaResponseDto)
-  @Patch(':id/estado')
-  async actualizarEstado(
-    @Param() { id }: ParamIdDto,
-    @Req() req: Request,
-    @Body() dto: ActualizarEstadoCitaDto
-  ): Promise<BaseResponseDto<CitaResponseDto>> {
-    const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
-    const resultado = await this.citasService.actualizarEstadoCita(
-      id,
-      dto,
-      usuarioAuditoria,
-      idEjecutor
-    )
-    this.citasGateway.emitCitaEstadoActualizado(resultado)
-    return this.successUpdate(resultado)
-  }
-
   @ApiOperation({ summary: 'Reprograma la fecha y hora de la cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/reprogramar')
@@ -340,26 +291,6 @@ export class CitasController extends BaseController {
   @ApiBaseResponse(CitaResponseDto)
   @Post(':id/cancelar')
   async cancelarPost(
-    @Param() { id }: ParamIdDto,
-    @Req() req: Request,
-    @Body() dto: CancelarCitaDto
-  ): Promise<BaseResponseDto<CitaResponseDto>> {
-    const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
-    const resultado = await this.citasService.cancelarCita(
-      id,
-      dto,
-      usuarioAuditoria,
-      idEjecutor
-    )
-    this.citasGateway.emitCitaCancelada(resultado)
-    return this.successUpdate(resultado)
-  }
-
-  @ApiOperation({ summary: 'Cancela una cita', deprecated: true })
-  @ApiBaseResponse(CitaResponseDto)
-  @Patch(':id/cancelar')
-  async cancelar(
     @Param() { id }: ParamIdDto,
     @Req() req: Request,
     @Body() dto: CancelarCitaDto
