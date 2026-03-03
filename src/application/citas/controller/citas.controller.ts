@@ -36,6 +36,7 @@ import {
   EnviarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  MarcarNoAsistioCitaDto,
   RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
@@ -221,6 +222,26 @@ export class CitasController extends BaseController {
     const idEjecutor = this.getUsuarioRol(req)
     const resultado = await this.citasService.completarCita(
       id,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaEstadoActualizado(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Marca una cita confirmada como no asistida' })
+  @ApiBaseResponse(CitaResponseDto)
+  @Post(':id/no-asistio')
+  async marcarNoAsistio(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: MarcarNoAsistioCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUsuarioRol(req)
+    const resultado = await this.citasService.marcarNoAsistioCita(
+      id,
+      dto,
       usuarioAuditoria,
       idEjecutor
     )
