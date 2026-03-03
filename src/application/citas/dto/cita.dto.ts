@@ -147,6 +147,52 @@ export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
   estado?: CitasEstado
 }
 
+export class CantidadCitasPorDiaQueryDto {
+  @ApiProperty({
+    description: 'Fecha de inicio del rango (ISO)',
+    example: '2024-06-01T00:00:00Z',
+  })
+  @IsDateString()
+  fechaInicio!: string
+
+  @ApiProperty({
+    description: 'Fecha de fin del rango (ISO)',
+    example: '2024-06-30T23:59:59Z',
+  })
+  @IsDateString()
+  fechaFin!: string
+
+  @ApiPropertyOptional({
+    description: 'Identificador del médico para filtrar la cantidad',
+    example: '12',
+  })
+  @IsOptional()
+  @IsString()
+  idMedico?: string
+
+  @ApiPropertyOptional({
+    enum: CitasEstado,
+    description: 'Filtrar por estado de la cita',
+  })
+  @IsOptional()
+  @IsEnum(CitasEstado)
+  estado?: CitasEstado
+}
+
+export class CantidadCitasPorDiaResponseDto {
+  @ApiProperty({
+    description: 'Fecha del día consultado en formato YYYY-MM-DD',
+    example: '2024-06-15',
+  })
+  fecha!: string
+
+  @ApiProperty({
+    description: 'Cantidad total de citas para el día',
+    example: 8,
+  })
+  cantidad!: number
+}
+
 export class FiltrosHistorialCitaPaginadoDto extends PaginacionQueryDto {
   @ApiPropertyOptional({
     description: 'Fecha de inicio (ISO) para filtrar el historial',

@@ -11,6 +11,8 @@ import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
+  CantidadCitasPorDiaQueryDto,
+  CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
   CrearCitaDto,
   FiltrosCitaDto,
@@ -87,6 +89,51 @@ export class CitasMedicasService extends BaseService {
       await this.citasRepository.listarCitasPaginadas(filtros)
 
     return [formatearCitas(citas), total]
+  }
+
+  async obtenerCantidadCitasPorDia(
+    filtros: CantidadCitasPorDiaQueryDto
+  ): Promise<CantidadCitasPorDiaResponseDto[]> {
+    const fechaInicio = dayjs(filtros.fechaInicio)
+    const fechaFin = dayjs(filtros.fechaFin)
+
+    if (fechaInicio.isAfter(fechaFin)) {
+      throw new BadRequestException(
+        'La fecha de inicio debe ser menor o igual a la fecha de fin'
+      )
+    }
+
+    const fechaInicioRango = fechaInicio.startOf('day').format('YYYY-MM-DD')
+    const fechaFinRango = fechaFin.endOf('day').format('YYYY-MM-DD')
+
+    const datosAgrupados =
+      await this.citasRepository.obtenerCantidadCitasPorDia({
+        ...filtros,
+        fechaInicio: fechaInicioRango,
+        fechaFin: fechaFinRango,
+      })
+
+    const mapaCantidades = new Map(
+      datosAgrupados.map((item) => [
+        dayjs(item.fecha).format('YYYY-MM-DD'),
+        Number(item.cantidad),
+      ])
+    )
+
+    const respuesta: CantidadCitasPorDiaResponseDto[] = []
+    let cursor = fechaInicio.startOf('day')
+    const fechaFinDia = fechaFin.startOf('day')
+
+    while (cursor.isSame(fechaFinDia) || cursor.isBefore(fechaFinDia)) {
+      const fecha = cursor.format('YYYY-MM-DD')
+      respuesta.push({
+        fecha,
+        cantidad: mapaCantidades.get(fecha) ?? 0,
+      })
+      cursor = cursor.add(1, 'day')
+    }
+
+    return respuesta
   }
 
   async listarMisCitas(filtros: FiltrosCitaDto): Promise<CitaResponseDto[]> {

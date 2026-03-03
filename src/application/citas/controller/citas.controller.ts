@@ -26,6 +26,8 @@ import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
+  CantidadCitasPorDiaQueryDto,
+  CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
   CrearCitaDto,
   FiltrosCitaDto,
@@ -64,6 +66,20 @@ export class CitasController extends BaseController {
   async listarPaginado(@Query() filtros: FiltrosCitaPaginadoDto) {
     const resultado = await this.citasService.listarCitasPaginadas(filtros)
     return this.successListRows(resultado)
+  }
+
+  @ApiOperation({
+    summary:
+      'Obtiene la cantidad de citas por día dentro de un rango de fechas',
+  })
+  @ApiBaseResponseArray(CantidadCitasPorDiaResponseDto)
+  @Get('cantidad-por-dia')
+  async obtenerCantidadPorDia(
+    @Query() filtros: CantidadCitasPorDiaQueryDto
+  ): Promise<BaseResponseDto<CantidadCitasPorDiaResponseDto[]>> {
+    const resultado =
+      await this.citasService.obtenerCantidadCitasPorDia(filtros)
+    return this.successList(resultado)
   }
 
   @ApiOperation({ summary: 'Lista solamente las citas del médico autenticado' })
