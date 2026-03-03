@@ -11,6 +11,7 @@ import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
 import {
   ActualizarEstadoCitaDto,
+  CantidadCitasPorDiaQueryDto,
   CancelarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
@@ -100,6 +101,36 @@ export class CitasMedicasRepository {
       .take(limite)
       .skip(saltar)
       .getManyAndCount()
+  }
+
+  async obtenerCantidadCitasPorDia(filtros: CantidadCitasPorDiaQueryDto) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .select('DATE(cita.fechaInicio)', 'fecha')
+      .addSelect('COUNT(cita.id)', 'cantidad')
+      .where('DATE(cita.fechaInicio) >= :fechaInicio', {
+        fechaInicio: filtros.fechaInicio,
+      })
+      .andWhere('DATE(cita.fechaInicio) <= :fechaFin', {
+        fechaFin: filtros.fechaFin,
+      })
+
+    if (filtros.idMedico) {
+      query.andWhere('cita.idMedico = :medicoId', {
+        medicoId: filtros.idMedico,
+      })
+    }
+
+    if (filtros.estado) {
+      query.andWhere('cita.estado = :estado', {
+        estado: filtros.estado,
+      })
+    }
+
+    return await query.groupBy('DATE(cita.fechaInicio)').getRawMany<{
+      fecha: string
+      cantidad: string
+    }>()
   }
 
   async obtenerCitaConRelaciones(id: string, manager?: EntityManager) {

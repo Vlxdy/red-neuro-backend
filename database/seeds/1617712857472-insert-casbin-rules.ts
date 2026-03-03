@@ -142,6 +142,10 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'GET',
         [RolEnum.PERSONAL_SALUD]: 'GET',
       },
+      '/api/citas/cantidad-por-dia': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
+      },
       '/api/citas/:id/estado': {
         [RolEnum.ADMINISTRADOR]: 'PATCH',
         [RolEnum.PERSONAL_SALUD]: 'PATCH',
