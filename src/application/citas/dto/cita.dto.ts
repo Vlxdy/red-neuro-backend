@@ -455,6 +455,16 @@ export class CancelarCitaDto {
   comentario?: string
 }
 
+export class MarcarNoAsistioCitaDto {
+  @ApiPropertyOptional({
+    description:
+      'Comentario asociado al marcado de no asistencia (se guarda en historial)',
+  })
+  @IsOptional()
+  @IsString()
+  comentario?: string
+}
+
 export class MensajeCitaDto extends CrearCitaDto {}
 
 export class MensajeActualizarCitaDto extends ActualizarCitaDto {

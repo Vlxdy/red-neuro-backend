@@ -21,6 +21,7 @@ import {
   EnviarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  MarcarNoAsistioCitaDto,
   RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
@@ -522,6 +523,22 @@ export class CitasMedicasService extends BaseService {
       usuarioAuditoria,
       idEjecutor,
       [CitasEstado.CONFIRMADA]
+    )
+  }
+
+  async marcarNoAsistioCita(
+    id: string,
+    dto: MarcarNoAsistioCitaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0'
+  ): Promise<CitaResponseDto> {
+    return await this.actualizarEstadoCita(
+      id,
+      { estado: CitasEstado.NO_ASISTIO },
+      usuarioAuditoria,
+      idEjecutor,
+      [CitasEstado.CONFIRMADA],
+      dto.comentario ?? 'Marcado manual de no asistencia'
     )
   }
 
