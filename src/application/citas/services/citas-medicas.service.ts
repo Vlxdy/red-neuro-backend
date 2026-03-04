@@ -157,8 +157,11 @@ export class CitasMedicasService extends BaseService {
     return respuesta
   }
 
-  async listarMisCitas(filtros: FiltrosCitaDto): Promise<CitaResponseDto[]> {
-    return await this.listarCitas({ ...filtros })
+  async listarMisCitas(
+    filtros: FiltrosCitaDto,
+    idMedico: string
+  ): Promise<CitaResponseDto[]> {
+    return await this.listarCitas({ ...filtros, idMedico })
   }
 
   @Cron(process.env.CITAS_REVISION_DIARIA_CRON || '0 1 * * *')
