@@ -93,8 +93,8 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
-    // const medicoId = String(req.user?.id || '')
-    const resultado = await this.citasService.listarMisCitas(filtros)
+    const idMedico = this.getUsuarioRol(req)
+    const resultado = await this.citasService.listarMisCitas(filtros, idMedico)
     return this.successList(resultado)
   }
 
