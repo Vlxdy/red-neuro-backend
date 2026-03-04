@@ -20,18 +20,18 @@ export class CrearLugarDto {
 
   @ApiProperty({ description: 'Sigla de la lugar', example: 'HGR' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(20)
-  sigla!: string
+  sigla?: string
 
   @ApiProperty({
     description: 'Dirección del lugar',
     example: 'Av. Siempre Viva #123',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(255)
-  direccion!: string
+  direccion?: string
 
   @ApiProperty({
     enum: TipoLugar,

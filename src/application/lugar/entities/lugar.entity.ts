@@ -34,8 +34,7 @@ export class Lugar extends AuditoriaEntity {
   @Column({
     type: 'varchar',
     length: 20,
-    unique: true,
-    nullable: false,
+    nullable: true,
     comment: 'Sigla de la lugar',
   })
   sigla: string
@@ -43,7 +42,7 @@ export class Lugar extends AuditoriaEntity {
   @Column({
     type: 'varchar',
     length: 255,
-    nullable: false,
+    nullable: true,
     comment: 'Dirección del lugar',
   })
   direccion: string

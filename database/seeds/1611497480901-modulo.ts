@@ -81,6 +81,17 @@ export class modulo1611497480901 implements MigrationInterface {
               orden: 3,
             },
           },
+          {
+            nombre: 'lugares',
+            url: '/admin/lugares',
+            label: 'Lugares',
+            propiedades: {
+              icono: 'location_on',
+              descripcion:
+                'Gestión de lugares físicos asociados a la atención médica, como clínicas, hospitales o centros de salud',
+              orden: 3,
+            },
+          },
         ],
       },
       {

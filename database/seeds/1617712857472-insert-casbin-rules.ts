@@ -50,6 +50,10 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'read',
         [ROL_PERSONAL_SALUD_ADMIN]: 'read',
       },
+      '/admin/lugares': {
+        [RolEnum.ADMINISTRADOR]: 'read',
+        [ROL_PERSONAL_SALUD_ADMIN]: 'read',
+      },
       // '/admin/roles': {
       //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       // },
@@ -253,6 +257,20 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/citas/:id/historial': {
         [RolEnum.ADMINISTRADOR]: 'GET',
         [RolEnum.PERSONAL_SALUD]: 'GET',
+      },
+      // LUGARES
+      '/api/lugares': {
+        [RolEnum.ADMINISTRADOR]: 'GET|POST',
+        [ROL_PERSONAL_SALUD_ADMIN]: 'GET|POST',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
+      },
+      '/api/lugares/:id': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [ROL_PERSONAL_SALUD_ADMIN]: 'PATCH',
+      },
+      '/api/lugares/:id/cambiar-estado': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [ROL_PERSONAL_SALUD_ADMIN]: 'PATCH',
       },
     }
 
