@@ -9,17 +9,7 @@ export class usuarioRol1611516017924 implements MigrationInterface {
         id: '1',
         rol: '1', //(RolEnum.ADMINISTRADOR),
         usuario: '1', //('ADMINISTRADOR'),
-      },
-      {
-        id: '2',
-        rol: '2', //(RolEnum.ADMINISTRADOR),
-        usuario: '1', //('ADMINISTRADOR'),
-        esSupervisor: true,
-      },
-      {
-        id: '3',
-        rol: '2', //(RolEnum.ADMINISTRADOR),
-        usuario: '2', //('ADMINISTRADOR'),
+        esSupervisor: false,
       },
     ]
     const usuariosRoles = items.map((item) => {
