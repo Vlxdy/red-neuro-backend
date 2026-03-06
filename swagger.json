@@ -1652,10 +1652,10 @@
             }
           },
           {
-            "name": "idMedico",
+            "name": "idPersonal",
             "required": false,
             "in": "query",
-            "description": "Identificador del médico",
+            "description": "Identificador del personal",
             "schema": {
               "example": "12",
               "type": "string"
@@ -1837,10 +1837,10 @@
             }
           },
           {
-            "name": "idMedico",
+            "name": "idPersonal",
             "required": false,
             "in": "query",
-            "description": "Identificador del médico",
+            "description": "Identificador del personal",
             "schema": {
               "example": "12",
               "type": "string"
@@ -1947,10 +1947,10 @@
             }
           },
           {
-            "name": "idMedico",
+            "name": "idPersonal",
             "required": false,
             "in": "query",
-            "description": "Identificador del médico",
+            "description": "Identificador del personal",
             "schema": {
               "example": "12",
               "type": "string"
@@ -2050,10 +2050,10 @@
             }
           },
           {
-            "name": "idMedico",
+            "name": "idPersonal",
             "required": false,
             "in": "query",
-            "description": "Identificador del médico",
+            "description": "Identificador del personal",
             "schema": {
               "example": "12",
               "type": "string"
@@ -2121,7 +2121,7 @@
             "bearer": []
           }
         ],
-        "summary": "Lista solamente las citas del médico autenticado",
+        "summary": "Lista solamente las citas del personal autenticado",
         "tags": [
           "Gestión de Citas"
         ]
@@ -2677,7 +2677,7 @@
     },
     "/citas/{id}/historial": {
       "get": {
-        "description": "Devuelve el listado paginado del historial con detalle de cambios y datos del ejecutor, incluyendo información de médico/paciente cuando corresponda.",
+        "description": "Devuelve el listado paginado del historial con detalle de cambios y datos del ejecutor, incluyendo información de personal/paciente cuando corresponda.",
         "operationId": "HistorialCitasController_listarHistorial",
         "parameters": [
           {
@@ -6068,9 +6068,9 @@
             ],
             "description": "Estado de la cita nueva"
           },
-          "medicoId": {
+          "idPersonal": {
             "type": "string",
-            "description": "Id del médico asignado"
+            "description": "Id del personal asignado"
           },
           "pacienteId": {
             "type": "string",
@@ -6092,7 +6092,7 @@
             "type": "string",
             "description": "Id del servicio asociado"
           },
-          "medico": {
+          "personal": {
             "$ref": "#/components/schemas/PersonalResponseDto"
           },
           "paciente": {
@@ -6210,9 +6210,9 @@
               }
             ]
           },
-          "medicoId": {
+          "idPersonal": {
             "type": "string",
-            "description": "Identificador del médico asignado",
+            "description": "Identificador del personal asignado",
             "example": "42"
           },
           "pacienteId": {
@@ -6240,8 +6240,8 @@
             "description": "Identificador del servicio asociado",
             "example": "5"
           },
-          "medico": {
-            "description": "Datos del profesional de salud asignado a la cita",
+          "personal": {
+            "description": "Datos del personal asignado a la cita",
             "allOf": [
               {
                 "$ref": "#/components/schemas/PersonalResponseDto"
@@ -6296,8 +6296,8 @@
           "fechaFin",
           "tipoCita",
           "estado",
-          "medicoId",
-          "medico"
+          "idPersonal",
+          "personal"
         ]
       },
       "CantidadCitasPorDiaResponseDto": {
@@ -6341,9 +6341,9 @@
             "description": "Fecha de inicio (ISO)",
             "example": "2024-06-15T10:00:00Z"
           },
-          "idMedico": {
+          "idPersonal": {
             "type": "string",
-            "description": "Identificador del médico responsable",
+            "description": "Identificador del personal responsable",
             "example": "42"
           },
           "idPaciente": {
@@ -6385,7 +6385,7 @@
           "accion",
           "detalle",
           "fechaInicio",
-          "idMedico",
+          "idPersonal",
           "tipoCita",
           "idServicio"
         ]
@@ -6412,9 +6412,9 @@
             "description": "Fecha de inicio (ISO)",
             "example": "2024-06-15T10:00:00Z"
           },
-          "idMedico": {
+          "idPersonal": {
             "type": "string",
-            "description": "Identificador del médico responsable",
+            "description": "Identificador del personal responsable",
             "example": "42"
           },
           "idPaciente": {
@@ -6456,9 +6456,9 @@
       "EnviarCitaDto": {
         "type": "object",
         "properties": {
-          "idMedico": {
+          "idPersonal": {
             "type": "string",
-            "description": "Médico a asignar para enviar como solicitada",
+            "description": "Personal de salud a asignar para enviar como solicitada",
             "example": "42"
           }
         }
@@ -6541,7 +6541,7 @@
           "field": {
             "type": "string",
             "description": "Campo modificado",
-            "example": "idMedico"
+            "example": "idPersonal"
           },
           "before": {
             "type": "string",
@@ -6553,11 +6553,11 @@
           },
           "beforeDetalle": {
             "type": "object",
-            "description": "Detalle del valor anterior si corresponde a un médico, paciente o servicio"
+            "description": "Detalle del valor anterior si corresponde a un personal, paciente o servicio"
           },
           "afterDetalle": {
             "type": "object",
-            "description": "Detalle del valor posterior si corresponde a un médico, paciente o servicio"
+            "description": "Detalle del valor posterior si corresponde a un personal, paciente o servicio"
           }
         },
         "required": [
