@@ -19,9 +19,14 @@ import {
   MensajeEstadoCitaDto,
   MensajeReprogramarCitaDto,
 } from '../dto/cita.dto'
+import {
+  CITAS_SOCKET_NAMESPACE,
+  CitasSocketInboundEvent,
+  CitasSocketOutboundEvent,
+} from '../constants'
 
 @WebSocketGateway({
-  namespace: '/citas',
+  namespace: CITAS_SOCKET_NAMESPACE,
   cors: true,
 })
 export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -33,31 +38,35 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly citasService: CitasMedicasService) {}
 
   handleConnection(client: Socket) {
-    this.logger.info(`Cliente conectado al namespace /citas: ${client.id}`)
+    this.logger.info(
+      `Cliente conectado al namespace ${CITAS_SOCKET_NAMESPACE}: ${client.id}`
+    )
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.warn(`Cliente desconectado de /citas: ${client.id}`)
+    this.logger.warn(
+      `Cliente desconectado de ${CITAS_SOCKET_NAMESPACE}: ${client.id}`
+    )
   }
 
   emitCitaCreada(cita: CitaResponseDto) {
-    this.server.emit('citas:created', cita)
+    this.server.emit(CitasSocketOutboundEvent.CREATED, cita)
   }
 
   emitCitaActualizada(cita: CitaResponseDto) {
-    this.server.emit('citas:actualizada', cita)
+    this.server.emit(CitasSocketOutboundEvent.ACTUALIZADA, cita)
   }
 
   emitCitaEstadoActualizado(cita: CitaResponseDto) {
-    this.server.emit('citas:estado-actualizado', cita)
+    this.server.emit(CitasSocketOutboundEvent.ESTADO_ACTUALIZADO, cita)
   }
 
   emitCitaReprogramada(cita: CitaResponseDto) {
-    this.server.emit('citas:reprogramada', cita)
+    this.server.emit(CitasSocketOutboundEvent.REPROGRAMADA, cita)
   }
 
   emitCitaCancelada(cita: CitaResponseDto) {
-    this.server.emit('citas:cancelada', cita)
+    this.server.emit(CitasSocketOutboundEvent.CANCELADA, cita)
   }
 
   // @AsyncApiSub({
@@ -71,18 +80,20 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   channel: 'citas:created',
   //   message: { name: 'CitaCreada', payload: MensajeCitaDto },
   // })
-  @SubscribeMessage('citas:create')
+  @SubscribeMessage(CitasSocketInboundEvent.CREATE)
   async crearCita(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeCitaDto
   ) {
     const cita = await this.citasService.crearCita(payload)
     this.emitCitaCreada(cita)
-    this.logger.debug(`citas:create recibido desde ${client.id}`)
+    this.logger.debug(
+      `${CitasSocketInboundEvent.CREATE} recibido desde ${client.id}`
+    )
     return cita
   }
 
-  @SubscribeMessage('citas:actualizar')
+  @SubscribeMessage(CitasSocketInboundEvent.ACTUALIZAR)
   async actualizarCita(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeActualizarCitaDto
@@ -90,7 +101,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const cita = await this.citasService.actualizarCita(payload.id, payload)
     this.emitCitaActualizada(cita)
     this.logger.debug(
-      `citas:actualizar recibido desde ${client.id} -> ${payload.id}`
+      `${CitasSocketInboundEvent.ACTUALIZAR} recibido desde ${client.id} -> ${payload.id}`
     )
     return cita
   }
@@ -104,7 +115,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   channel: 'citas:estado-actualizado',
   //   message: { name: 'CitaEstadoActualizado', payload: MensajeEstadoCitaDto },
   // })
-  @SubscribeMessage('citas:estado')
+  @SubscribeMessage(CitasSocketInboundEvent.ESTADO)
   async actualizarEstado(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeEstadoCitaDto
@@ -115,7 +126,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     )
     this.emitCitaEstadoActualizado(cita)
     this.logger.debug(
-      `citas:estado recibido desde ${client.id} -> ${payload.id}`
+      `${CitasSocketInboundEvent.ESTADO} recibido desde ${client.id} -> ${payload.id}`
     )
     return cita
   }
@@ -129,7 +140,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   channel: 'citas:reprogramada',
   //   message: { name: 'CitaReprogramada', payload: MensajeReprogramarCitaDto },
   // })
-  @SubscribeMessage('citas:reprogramar')
+  @SubscribeMessage(CitasSocketInboundEvent.REPROGRAMAR)
   async reprogramar(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeReprogramarCitaDto
@@ -137,7 +148,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const cita = await this.citasService.reprogramarCita(payload.id, payload)
     this.emitCitaReprogramada(cita)
     this.logger.debug(
-      `citas:reprogramar recibido desde ${client.id} -> ${payload.id}`
+      `${CitasSocketInboundEvent.REPROGRAMAR} recibido desde ${client.id} -> ${payload.id}`
     )
     return cita
   }
@@ -151,7 +162,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   channel: 'citas:cancelada',
   //   message: { name: 'CitaCancelada', payload: MensajeCancelarCitaDto },
   // })
-  @SubscribeMessage('citas:cancelar')
+  @SubscribeMessage(CitasSocketInboundEvent.CANCELAR)
   async cancelar(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: MensajeCancelarCitaDto
@@ -159,7 +170,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const cita = await this.citasService.cancelarCita(payload.id, payload)
     this.emitCitaCancelada(cita)
     this.logger.debug(
-      `citas:cancelar recibido desde ${client.id} -> ${payload.id}`
+      `${CitasSocketInboundEvent.CANCELAR} recibido desde ${client.id} -> ${payload.id}`
     )
     return cita
   }
