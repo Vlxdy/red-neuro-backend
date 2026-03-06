@@ -105,9 +105,9 @@ export interface NotificacionResponse {
   visto?: boolean
   idCita?: string | null
   idPaciente: string
-  idMedico?: string | null
+  idPersonal?: string | null
   fechaCreacion: Date | string
-  medico?: UsuarioRolResponse | null
+  personal?: UsuarioRolResponse | null
 }
 
 export interface HistorialCitasResponse {

@@ -12,13 +12,13 @@ import { TipoActualizacion } from '../entities/notificacion.entity'
 export function formatearHistorialCita(
   historial: HistorialCita,
   ejecutor?: PersonalResponseDto,
-  medicos?: Map<string, PersonalResponseDto>,
+  personals?: Map<string, PersonalResponseDto>,
   pacientes?: Map<string, PacienteResponseDto>,
   servicios?: Map<string, ServicioCitaDto>
 ): HistorialCitaResponseDto {
   const detalleCambios = formatearDetalleCambios(
     historial.detalleCambios ?? undefined,
-    medicos,
+    personals,
     pacientes,
     servicios
   )
@@ -37,7 +37,7 @@ export function formatearHistorialCita(
 export function formatearHistorialCitas(
   historial: HistorialCita[],
   ejecutores?: Map<string, PersonalResponseDto>,
-  medicos?: Map<string, PersonalResponseDto>,
+  personals?: Map<string, PersonalResponseDto>,
   pacientes?: Map<string, PacienteResponseDto>,
   servicios?: Map<string, ServicioCitaDto>
 ): HistorialCitaResponseDto[] {
@@ -45,7 +45,7 @@ export function formatearHistorialCitas(
     formatearHistorialCita(
       item,
       ejecutores?.get(item.idEjecutor),
-      medicos,
+      personals,
       pacientes,
       servicios
     )
@@ -54,7 +54,7 @@ export function formatearHistorialCitas(
 
 function formatearDetalleCambios(
   detalleCambios?: TipoActualizacion[],
-  medicos?: Map<string, PersonalResponseDto>,
+  personals?: Map<string, PersonalResponseDto>,
   pacientes?: Map<string, PacienteResponseDto>,
   servicios?: Map<string, ServicioCitaDto>
 ): HistorialCambioDto[] | undefined {
@@ -63,11 +63,13 @@ function formatearDetalleCambios(
   }
 
   return detalleCambios.map((cambio) => {
-    if (cambio.field === 'idMedico') {
+    if (cambio.field === 'idPersonal') {
       return {
         ...cambio,
-        beforeDetalle: cambio.before ? medicos?.get(cambio.before) : undefined,
-        afterDetalle: cambio.after ? medicos?.get(cambio.after) : undefined,
+        beforeDetalle: cambio.before
+          ? personals?.get(cambio.before)
+          : undefined,
+        afterDetalle: cambio.after ? personals?.get(cambio.after) : undefined,
       }
     }
 

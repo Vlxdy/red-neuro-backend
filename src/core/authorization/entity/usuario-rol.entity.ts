@@ -71,11 +71,11 @@ export class UsuarioRol extends AuditoriaEntity {
   @JoinColumn({ name: 'id_usuario', referencedColumnName: 'id' })
   usuario: Usuario
 
-  @OneToMany(() => Notificacion, (notificacion) => notificacion.medico)
-  notificacionMedicos: Notificacion[]
+  @OneToMany(() => Notificacion, (notificacion) => notificacion.personal)
+  notificacionPersonals: Notificacion[]
 
-  @OneToMany(() => Cita, (cita) => cita.medico)
-  citasMedico: Cita[]
+  @OneToMany(() => Cita, (cita) => cita.personal)
+  citasPersonal: Cita[]
 
   @OneToMany(
     () => UsuarioRolEspecialidad,

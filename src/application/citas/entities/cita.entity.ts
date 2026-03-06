@@ -112,15 +112,15 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
     name: 'id_medico',
     type: 'bigint',
     nullable: true,
-    comment: 'Clave foránea que referencia al medico',
+    comment: 'Clave foránea que referencia al personal',
   })
-  idMedico: string
+  idPersonal: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.citasMedico, {
+  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.citasPersonal, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
-  medico: UsuarioRol
+  personal: UsuarioRol
 
   @Column({
     name: 'id_paciente',

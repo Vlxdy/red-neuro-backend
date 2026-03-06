@@ -39,16 +39,16 @@ export class HistorialCitasService extends BaseService {
     const ejecutoresMap = new Map(
       ejecutores.map((ejecutor) => [ejecutor.id, formatearPersonal(ejecutor)])
     )
-    const { medicoIds, pacienteIds, servicioIds } =
+    const { idPersonals, pacienteIds, servicioIds } =
       this.obtenerIdsRelacionados(historial)
-    const medicos =
-      await this.historialRepository.obtenerUsuariosRolPorIds(medicoIds)
+    const personals =
+      await this.historialRepository.obtenerUsuariosRolPorIds(idPersonals)
     const pacientes =
       await this.historialRepository.obtenerPacientesPorIds(pacienteIds)
     const servicios =
       await this.historialRepository.obtenerServiciosPorIds(servicioIds)
-    const medicosMap = new Map(
-      medicos.map((medico) => [medico.id, formatearPersonal(medico)])
+    const personalsMap = new Map(
+      personals.map((personal) => [personal.id, formatearPersonal(personal)])
     )
     const pacientesMap = new Map(
       pacientes.map((paciente) => [paciente.id, formatearPaciente(paciente)])
@@ -60,7 +60,7 @@ export class HistorialCitasService extends BaseService {
       formatearHistorialCitas(
         historial,
         ejecutoresMap,
-        medicosMap,
+        personalsMap,
         pacientesMap,
         serviciosMap
       ),
@@ -69,21 +69,21 @@ export class HistorialCitasService extends BaseService {
   }
 
   private obtenerIdsRelacionados(historial: HistorialCita[]) {
-    const medicoIds = new Set<string>()
+    const idPersonals = new Set<string>()
     const pacienteIds = new Set<string>()
     const servicioIds = new Set<string>()
 
     historial.forEach((item) => {
       this.extraerIdsDesdeDetalle(
         item.detalleCambios ?? undefined,
-        medicoIds,
+        idPersonals,
         pacienteIds,
         servicioIds
       )
     })
 
     return {
-      medicoIds: Array.from(medicoIds),
+      idPersonals: Array.from(idPersonals),
       pacienteIds: Array.from(pacienteIds),
       servicioIds: Array.from(servicioIds),
     }
@@ -91,7 +91,7 @@ export class HistorialCitasService extends BaseService {
 
   private extraerIdsDesdeDetalle(
     detalle?: TipoActualizacion[],
-    medicoIds?: Set<string>,
+    idPersonals?: Set<string>,
     pacienteIds?: Set<string>,
     servicioIds?: Set<string>
   ) {
@@ -100,12 +100,12 @@ export class HistorialCitasService extends BaseService {
     }
 
     detalle.forEach((cambio) => {
-      if (cambio.field === 'idMedico') {
+      if (cambio.field === 'idPersonal') {
         if (cambio.before) {
-          medicoIds?.add(cambio.before)
+          idPersonals?.add(cambio.before)
         }
         if (cambio.after) {
-          medicoIds?.add(cambio.after)
+          idPersonals?.add(cambio.after)
         }
       }
 

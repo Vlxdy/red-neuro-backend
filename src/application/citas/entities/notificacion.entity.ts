@@ -104,14 +104,18 @@ export class Notificacion extends AuditoriaEntity {
     type: 'bigint',
     name: 'id_medico',
     nullable: true,
-    comment: 'Identificador del médico asociado a la notificación',
+    comment: 'Identificador del personal asociado a la notificación',
   })
-  idMedico: string
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.notificacionMedicos, {
-    nullable: true,
-  })
+  idPersonal: string
+  @ManyToOne(
+    () => UsuarioRol,
+    (usuarioRol) => usuarioRol.notificacionPersonals,
+    {
+      nullable: true,
+    }
+  )
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
-  medico: UsuarioRol
+  personal: UsuarioRol
   @BeforeInsert()
   insertarEstado() {
     this.estado = this.estado || NotificacionEstado.ACTIVE
