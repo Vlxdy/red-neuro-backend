@@ -47,16 +47,16 @@ export class CitasMedicasRepository {
   ): SelectQueryBuilder<Cita> {
     const query = this.citaRepository(manager)
       .createQueryBuilder('cita')
-      .leftJoinAndSelect('cita.medico', 'medico')
-      .leftJoinAndSelect('medico.usuario', 'usuarioMedico')
-      .leftJoinAndSelect('usuarioMedico.persona', 'personaMedico')
+      .leftJoinAndSelect('cita.personal', 'personal')
+      .leftJoinAndSelect('personal.usuario', 'usuarioPersonal')
+      .leftJoinAndSelect('usuarioPersonal.persona', 'personaPersonal')
       .leftJoinAndSelect(
-        'medico.usuarioRolEspecialidades',
-        'medicoEspecialidad'
+        'personal.usuarioRolEspecialidades',
+        'personalEspecialidad'
       )
       .leftJoinAndSelect(
-        'medicoEspecialidad.especialidad',
-        'especialidadMedico'
+        'personalEspecialidad.especialidad',
+        'especialidadPersonal'
       )
       .leftJoinAndSelect('cita.paciente', 'paciente')
       .leftJoinAndSelect('cita.consultorio', 'consultorio')
@@ -64,11 +64,14 @@ export class CitasMedicasRepository {
       .leftJoinAndSelect('cita.especialidad', 'especialidad')
       .leftJoinAndSelect('cita.servicio', 'servicio')
       .leftJoinAndSelect('cita.citaNueva', 'citaNueva')
-      .leftJoinAndSelect('citaNueva.medico', 'citaNuevaMedico')
-      .leftJoinAndSelect('citaNuevaMedico.usuario', 'citaNuevaUsuarioMedico')
+      .leftJoinAndSelect('citaNueva.personal', 'citaNuevaPersonal')
       .leftJoinAndSelect(
-        'citaNuevaUsuarioMedico.persona',
-        'citaNuevaPersonaMedico'
+        'citaNuevaPersonal.usuario',
+        'citaNuevaUsuarioPersonal'
+      )
+      .leftJoinAndSelect(
+        'citaNuevaUsuarioPersonal.persona',
+        'citaNuevaPersonaPersonal'
       )
       .leftJoinAndSelect('citaNueva.paciente', 'citaNuevaPaciente')
       .leftJoinAndSelect('citaNueva.consultorio', 'citaNuevaConsultorio')
@@ -114,9 +117,9 @@ export class CitasMedicasRepository {
       })
     }
 
-    if (filtros.idMedico) {
-      query.andWhere('cita.idMedico = :medicoId', {
-        medicoId: filtros.idMedico,
+    if (filtros.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: filtros.idPersonal,
       })
     }
 
@@ -194,9 +197,9 @@ export class CitasMedicasRepository {
         fechaFin: filtros.fechaFin,
       })
 
-    if (filtros.idMedico) {
-      query.andWhere('cita.idMedico = :medicoId', {
-        medicoId: filtros.idMedico,
+    if (filtros.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: filtros.idPersonal,
       })
     }
 
@@ -264,7 +267,7 @@ export class CitasMedicasRepository {
       fechaFin: Date
       estado: CitasEstado
       tipoCita: TipoCita
-      idMedico?: string
+      idPersonal?: string
       idPaciente?: string | null
       idConsultorio?: string | null
       idLugar?: string | null
@@ -286,7 +289,7 @@ export class CitasMedicasRepository {
       estado: data.estado,
       tipoCita: data.tipoCita,
       usuarioCreacion: usuarioAuditoria,
-      idMedico: data.idMedico,
+      idPersonal: data.idPersonal,
       idPaciente: data.idPaciente ?? null,
       idConsultorio: data.idConsultorio ?? null,
       idLugar: data.idLugar ?? null,
@@ -310,12 +313,12 @@ export class CitasMedicasRepository {
       transaccion
     )
 
-    if (guardada.idMedico && guardada.estado === CitasEstado.SOLICITADA) {
+    if (guardada.idPersonal && guardada.estado === CitasEstado.SOLICITADA) {
       const notificacion = this.notificacionRepository(transaccion).create({
         tipo: NotificacionTipo.CITA_SOLICITADA,
         mensaje: `Se asignó una nueva cita ${guardada.id} para confirmar.`,
         idCita: guardada.id,
-        idMedico: guardada.idMedico,
+        idPersonal: guardada.idPersonal,
         usuarioCreacion: usuarioAuditoria,
       })
       await this.notificacionRepository(transaccion).save(notificacion)
@@ -344,7 +347,7 @@ export class CitasMedicasRepository {
     if (data.detalle !== undefined) patch.detalle = data.detalle
     if (data.fechaInicio !== undefined) patch.fechaInicio = data.fechaInicio
     if (data.fechaFin !== undefined) patch.fechaFin = data.fechaFin
-    if (data.idMedico !== undefined) patch.idMedico = data.idMedico
+    if (data.idPersonal !== undefined) patch.idPersonal = data.idPersonal
     if (data.idPaciente !== undefined) patch.idPaciente = data.idPaciente
     if (data.idConsultorio !== undefined)
       patch.idConsultorio = data.idConsultorio
@@ -557,9 +560,9 @@ export class CitasMedicasRepository {
     )
     this.registrarCambio(
       cambios,
-      'idMedico',
-      cita.idMedico,
-      data.idMedico ?? cita.idMedico
+      'idPersonal',
+      cita.idPersonal,
+      data.idPersonal ?? cita.idPersonal
     )
     this.registrarCambio(
       cambios,
@@ -678,7 +681,7 @@ export class CitasMedicasRepository {
           tipo: NotificacionTipo.CITA_NO_ASISTIO,
           mensaje: `La cita ${cita.id} fue marcada como no asistida por vencimiento.`,
           idCita: cita.id,
-          idMedico: cita.idMedico ?? null,
+          idPersonal: cita.idPersonal ?? null,
           usuarioCreacion: usuarioAuditoria,
         })
       )
@@ -709,7 +712,7 @@ export class CitasMedicasRepository {
   async crearNotificacionSolicitada(
     data: {
       idCita: string
-      idMedico: string
+      idPersonal: string
       usuarioCreacion: string
     },
     manager?: EntityManager
@@ -718,7 +721,7 @@ export class CitasMedicasRepository {
       tipo: NotificacionTipo.CITA_SOLICITADA,
       mensaje: `Se asignó una nueva cita ${data.idCita} para confirmar.`,
       idCita: data.idCita,
-      idMedico: data.idMedico,
+      idPersonal: data.idPersonal,
       usuarioCreacion: data.usuarioCreacion,
     })
     return await this.notificacionRepository(manager).save(notificacion)

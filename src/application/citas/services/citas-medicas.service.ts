@@ -171,11 +171,11 @@ export class CitasMedicasService extends BaseService {
 
   async listarMisCitas(
     filtros: FiltrosCitaDto,
-    idMedico: string,
+    idPersonal: string,
     idUsuarioSolicitante?: string
   ): Promise<CitaResponseDto[]> {
     return await this.listarCitas(
-      { ...filtros, idMedico },
+      { ...filtros, idPersonal },
       idUsuarioSolicitante
     )
   }
@@ -273,7 +273,7 @@ export class CitasMedicasService extends BaseService {
     const estadoInicial =
       dto.accion === 'GUARDAR'
         ? CitasEstado.BORRADOR
-        : dto.idMedico
+        : dto.idPersonal
           ? CitasEstado.SOLICITADA
           : CitasEstado.CONFIRMADA
 
@@ -283,7 +283,7 @@ export class CitasMedicasService extends BaseService {
         fechaInicio,
         fechaFin,
         estado: estadoInicial,
-        idMedico: dto.idMedico,
+        idPersonal: dto.idPersonal,
         idPaciente: dto.idPaciente ?? null,
         idConsultorio: dto.idConsultorio ?? null,
         idLugar: dto.idLugar ?? null,
@@ -333,8 +333,8 @@ export class CitasMedicasService extends BaseService {
       updateData.detalle = dto.detalle
     }
 
-    if (dto.idMedico !== undefined) {
-      updateData.idMedico = dto.idMedico
+    if (dto.idPersonal !== undefined) {
+      updateData.idPersonal = dto.idPersonal
       updateData.estado = CitasEstado.SOLICITADA
     }
 
@@ -435,8 +435,8 @@ export class CitasMedicasService extends BaseService {
       this.validarEstado(cita, [CitasEstado.BORRADOR, CitasEstado.RECHAZADA])
 
       const estadoAnterior = cita.estado as CitasEstado
-      cita.idMedico = dto.idMedico ?? cita.idMedico
-      cita.estado = cita.idMedico
+      cita.idPersonal = dto.idPersonal ?? cita.idPersonal
+      cita.estado = cita.idPersonal
         ? CitasEstado.SOLICITADA
         : CitasEstado.CONFIRMADA
       cita.idUsuarioEnvio = idEjecutor
@@ -457,11 +457,11 @@ export class CitasMedicasService extends BaseService {
         transaccion
       )
 
-      if (cita.estado === CitasEstado.SOLICITADA && cita.idMedico) {
+      if (cita.estado === CitasEstado.SOLICITADA && cita.idPersonal) {
         await this.citasRepository.crearNotificacionSolicitada(
           {
             idCita: cita.id,
-            idMedico: cita.idMedico,
+            idPersonal: cita.idPersonal,
             usuarioCreacion: usuarioAuditoria,
           },
           transaccion
@@ -668,10 +668,10 @@ export class CitasMedicasService extends BaseService {
           detalle: citaOriginal.detalle,
           fechaInicio,
           fechaFin,
-          estado: citaOriginal.idMedico
+          estado: citaOriginal.idPersonal
             ? CitasEstado.SOLICITADA
             : CitasEstado.CONFIRMADA,
-          idMedico: citaOriginal.idMedico,
+          idPersonal: citaOriginal.idPersonal,
           idPaciente: citaOriginal.idPaciente ?? null,
           idConsultorio: citaOriginal.idConsultorio ?? null,
           idLugar: citaOriginal.idLugar ?? null,

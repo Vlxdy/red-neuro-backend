@@ -134,12 +134,12 @@ export class FiltrosCitaDto {
   fechaFin!: string
 
   @ApiPropertyOptional({
-    description: 'Identificador del médico',
+    description: 'Identificador del personal',
     example: '12',
   })
   @IsOptional()
   @IsString()
-  idMedico?: string
+  idPersonal?: string
 
   @ApiPropertyOptional({
     description: 'Identificador del lugar',
@@ -173,12 +173,12 @@ export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
   fechaFin?: string
 
   @ApiPropertyOptional({
-    description: 'Identificador del médico',
+    description: 'Identificador del personal',
     example: '12',
   })
   @IsOptional()
   @IsString()
-  idMedico?: string
+  idPersonal?: string
 
   @ApiPropertyOptional({
     description: 'Identificador del lugar',
@@ -260,12 +260,12 @@ export class CrearCitaDto {
   fechaInicio!: string
 
   @ApiProperty({
-    description: 'Identificador del médico responsable',
+    description: 'Identificador del personal responsable',
     example: '42',
   })
   @IsString()
   @IsOptional()
-  idMedico?: string
+  idPersonal?: string
 
   @ApiProperty({
     description: 'Identificador del paciente asignado',
@@ -365,12 +365,12 @@ export class EditarBorradorCitaDto extends PartialType(CrearCitaDto) {
 
 export class EnviarCitaDto {
   @ApiPropertyOptional({
-    description: 'Médico a asignar para enviar como solicitada',
+    description: 'Personal de salud a asignar para enviar como solicitada',
     example: '42',
   })
   @IsOptional()
   @IsString()
-  idMedico?: string
+  idPersonal?: string
 }
 
 export class ConfirmarCitaDto {
@@ -473,8 +473,8 @@ export class CitaNuevaDetalleDto {
   @ApiProperty({ enum: CitasEstado, description: 'Estado de la cita nueva' })
   estado!: CitasEstado
 
-  @ApiPropertyOptional({ description: 'Id del médico asignado' })
-  medicoId?: string
+  @ApiPropertyOptional({ description: 'Id del personal asignado' })
+  idPersonal?: string
 
   @ApiPropertyOptional({ description: 'Id del paciente asignado' })
   pacienteId?: string
@@ -492,7 +492,7 @@ export class CitaNuevaDetalleDto {
   servicioId?: string
 
   @ApiPropertyOptional({ type: () => PersonalResponseDto })
-  medico?: PersonalResponseDto
+  personal?: PersonalResponseDto
 
   @ApiPropertyOptional({ type: () => PacienteResponseDto })
   paciente?: PacienteResponseDto
@@ -582,10 +582,10 @@ export class CitaResponseDto {
   usuarioEnvio?: PersonalResponseDto
 
   @ApiProperty({
-    description: 'Identificador del médico asignado',
+    description: 'Identificador del personal asignado',
     example: '42',
   })
-  medicoId!: string
+  idPersonal!: string
 
   @ApiProperty({
     description: 'Identificador del paciente asignado',
@@ -623,10 +623,10 @@ export class CitaResponseDto {
   servicioId?: string
 
   @ApiProperty({
-    description: 'Datos del profesional de salud asignado a la cita',
+    description: 'Datos del personal asignado a la cita',
     type: () => PersonalResponseDto,
   })
-  medico?: PersonalResponseDto
+  personal?: PersonalResponseDto
 
   @ApiProperty({
     description: 'Datos del paciente asignado a la cita',
@@ -707,7 +707,7 @@ export class HistorialCitaResponseDto {
 }
 
 export class HistorialCambioDto {
-  @ApiProperty({ description: 'Campo modificado', example: 'idMedico' })
+  @ApiProperty({ description: 'Campo modificado', example: 'idPersonal' })
   field!: string
 
   @ApiProperty({
@@ -724,7 +724,7 @@ export class HistorialCambioDto {
 
   @ApiProperty({
     description:
-      'Detalle del valor anterior si corresponde a un médico, paciente o servicio',
+      'Detalle del valor anterior si corresponde a un personal, paciente o servicio',
     required: false,
     type: Object,
   })
@@ -732,7 +732,7 @@ export class HistorialCambioDto {
 
   @ApiProperty({
     description:
-      'Detalle del valor posterior si corresponde a un médico, paciente o servicio',
+      'Detalle del valor posterior si corresponde a un personal, paciente o servicio',
     required: false,
     type: Object,
   })

@@ -102,7 +102,7 @@ export class CitasController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Lista solamente las citas del médico autenticado',
+    summary: 'Lista solamente las citas del personal autenticado',
     deprecated: true,
   })
   @ApiBaseResponseArray(CitaResponseDto)
@@ -111,11 +111,11 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
-    const idMedico = this.getUsuarioRol(req)
+    const idPersonal = this.getUsuarioRol(req)
     const resultado = await this.citasService.listarMisCitas(
       filtros,
-      idMedico,
-      idMedico
+      idPersonal,
+      idPersonal
     )
     return this.successList(resultado)
   }
