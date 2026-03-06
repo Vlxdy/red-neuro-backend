@@ -11,7 +11,6 @@ import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
 import {
   ActualizarEstadoCitaDto,
-  CantidadCitasPorDiaQueryDto,
   CancelarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
@@ -42,7 +41,7 @@ export class CitasMedicasRepository {
   }
 
   buildCitasQuery(
-    filtros: FiltrosCitaDto | FiltrosCitaPaginadoDto,
+    filtros: Partial<FiltrosCitaDto | FiltrosCitaPaginadoDto> = {},
     idUsuarioSolicitante?: string,
     manager?: EntityManager
   ): SelectQueryBuilder<Cita> {
@@ -181,7 +180,7 @@ export class CitasMedicasRepository {
   }
 
   async obtenerCantidadCitasPorDia(
-    filtros: CantidadCitasPorDiaQueryDto,
+    filtros: FiltrosCitaDto,
     idUsuarioSolicitante?: string
   ) {
     const query = this.citaRepository()

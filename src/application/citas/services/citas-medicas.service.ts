@@ -13,7 +13,6 @@ import {
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
   ConfirmarCitaDto,
-  CantidadCitasPorDiaQueryDto,
   CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
   CrearCitaDto,
@@ -122,7 +121,7 @@ export class CitasMedicasService extends BaseService {
   }
 
   async obtenerCantidadCitasPorDia(
-    filtros: CantidadCitasPorDiaQueryDto,
+    filtros: FiltrosCitaDto,
     idUsuarioSolicitante?: string
   ): Promise<CantidadCitasPorDiaResponseDto[]> {
     const fechaInicio = dayjs(filtros.fechaInicio)

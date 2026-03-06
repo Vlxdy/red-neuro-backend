@@ -121,17 +121,17 @@ export class FiltrosCitaDto {
     description: 'Fecha de inicio (ISO)',
     example: '2024-06-01T08:00:00Z',
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsDateString()
-  fechaInicio?: string
+  fechaInicio!: string
 
   @ApiPropertyOptional({
     description: 'Fecha de fin (ISO)',
     example: '2024-06-30T23:59:59Z',
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsDateString()
-  fechaFin?: string
+  fechaFin!: string
 
   @ApiPropertyOptional({
     description: 'Identificador del médico',
@@ -189,46 +189,6 @@ export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
   idLugar?: string
 
   @ApiPropertyOptional({ enum: CitasEstado, description: 'Filtrar por estado' })
-  @IsOptional()
-  @IsEnum(CitasEstado)
-  estado?: CitasEstado
-}
-
-export class CantidadCitasPorDiaQueryDto {
-  @ApiProperty({
-    description: 'Fecha de inicio del rango (ISO)',
-    example: '2024-06-01T00:00:00Z',
-  })
-  @IsDateString()
-  fechaInicio!: string
-
-  @ApiProperty({
-    description: 'Fecha de fin del rango (ISO)',
-    example: '2024-06-30T23:59:59Z',
-  })
-  @IsDateString()
-  fechaFin!: string
-
-  @ApiPropertyOptional({
-    description: 'Identificador del médico para filtrar la cantidad',
-    example: '12',
-  })
-  @IsOptional()
-  @IsString()
-  idMedico?: string
-
-  @ApiPropertyOptional({
-    description: 'Identificador del lugar para filtrar la cantidad',
-    example: '2',
-  })
-  @IsOptional()
-  @IsString()
-  idLugar?: string
-
-  @ApiPropertyOptional({
-    enum: CitasEstado,
-    description: 'Filtrar por estado de la cita',
-  })
   @IsOptional()
   @IsEnum(CitasEstado)
   estado?: CitasEstado

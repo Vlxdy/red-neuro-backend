@@ -25,7 +25,6 @@ import { CitasMedicasService } from '../services/citas-medicas.service'
 import { CitasGateway } from '../gateways/citas.gateway'
 import {
   CancelarCitaDto,
-  CantidadCitasPorDiaQueryDto,
   CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
   ConfirmarCitaDto,
@@ -92,7 +91,7 @@ export class CitasController extends BaseController {
   @Get('cantidad-por-dia')
   async obtenerCantidadPorDia(
     @Req() req: Request,
-    @Query() filtros: CantidadCitasPorDiaQueryDto
+    @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CantidadCitasPorDiaResponseDto[]>> {
     const idUsuarioSolicitante = this.getUsuarioRol(req)
     const resultado = await this.citasService.obtenerCantidadCitasPorDia(
