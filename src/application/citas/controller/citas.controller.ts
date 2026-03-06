@@ -56,9 +56,14 @@ export class CitasController extends BaseController {
   @ApiBaseResponseArray(CitaResponseDto)
   @Get()
   async listar(
+    @Req() req: Request,
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
-    const resultado = await this.citasService.listarCitas(filtros)
+    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const resultado = await this.citasService.listarCitas(
+      filtros,
+      idUsuarioSolicitante
+    )
     return this.successList(resultado)
   }
 
@@ -67,8 +72,15 @@ export class CitasController extends BaseController {
   })
   @ApiBaseResponseListRows(CitaResponseDto)
   @Get('paginado')
-  async listarPaginado(@Query() filtros: FiltrosCitaPaginadoDto) {
-    const resultado = await this.citasService.listarCitasPaginadas(filtros)
+  async listarPaginado(
+    @Req() req: Request,
+    @Query() filtros: FiltrosCitaPaginadoDto
+  ) {
+    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const resultado = await this.citasService.listarCitasPaginadas(
+      filtros,
+      idUsuarioSolicitante
+    )
     return this.successListRows(resultado)
   }
 
@@ -79,14 +91,21 @@ export class CitasController extends BaseController {
   @ApiBaseResponseArray(CantidadCitasPorDiaResponseDto)
   @Get('cantidad-por-dia')
   async obtenerCantidadPorDia(
+    @Req() req: Request,
     @Query() filtros: CantidadCitasPorDiaQueryDto
   ): Promise<BaseResponseDto<CantidadCitasPorDiaResponseDto[]>> {
-    const resultado =
-      await this.citasService.obtenerCantidadCitasPorDia(filtros)
+    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const resultado = await this.citasService.obtenerCantidadCitasPorDia(
+      filtros,
+      idUsuarioSolicitante
+    )
     return this.successList(resultado)
   }
 
-  @ApiOperation({ summary: 'Lista solamente las citas del médico autenticado' })
+  @ApiOperation({
+    summary: 'Lista solamente las citas del médico autenticado',
+    deprecated: true,
+  })
   @ApiBaseResponseArray(CitaResponseDto)
   @Get('mis-citas')
   async listarMisCitas(
@@ -94,7 +113,11 @@ export class CitasController extends BaseController {
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
     const idMedico = this.getUsuarioRol(req)
-    const resultado = await this.citasService.listarMisCitas(filtros, idMedico)
+    const resultado = await this.citasService.listarMisCitas(
+      filtros,
+      idMedico,
+      idMedico
+    )
     return this.successList(resultado)
   }
 
@@ -102,9 +125,15 @@ export class CitasController extends BaseController {
   @ApiBaseResponse(CitaResponseDto)
   @Get(':id')
   async obtener(
-    @Param() { id }: ParamIdDto
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
   ): Promise<BaseResponseDto<CitaResponseDto>> {
-    const resultado = await this.citasService.obtenerCita(id)
+    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const resultado = await this.citasService.obtenerCita(
+      id,
+      undefined,
+      idUsuarioSolicitante
+    )
     return this.success(resultado)
   }
 
