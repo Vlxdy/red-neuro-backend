@@ -43,6 +43,7 @@ export class CitasMedicasRepository {
 
   buildCitasQuery(
     filtros: FiltrosCitaDto | FiltrosCitaPaginadoDto,
+    idUsuarioSolicitante?: string,
     manager?: EntityManager
   ): SelectQueryBuilder<Cita> {
     const query = this.citaRepository(manager)
@@ -126,32 +127,63 @@ export class CitasMedicasRepository {
       })
     }
 
+    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
+
     if (filtros.estado) {
       query.andWhere('cita.estado = :estado', {
         estado: filtros.estado,
       })
+
+      if (
+        idUsuarioSolicitante &&
+        estadosRestringidos.includes(filtros.estado)
+      ) {
+        query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
+          idUsuarioSolicitante,
+        })
+      }
     } else {
-      query.andWhere('cita.estado != :estadoInactivo', {
-        estadoInactivo: CitasEstado.INACTIVO,
-      })
+      query
+        .andWhere('cita.estado != :estadoInactivo', {
+          estadoInactivo: CitasEstado.INACTIVO,
+        })
+        .andWhere('cita.estado != :estadoReprogramada', {
+          estadoReprogramada: CitasEstado.REPROGRAMADA,
+        })
+
+      if (idUsuarioSolicitante) {
+        query.andWhere(
+          '(cita.estado NOT IN (:...estadosRestringidos) OR cita.idUsuarioProgramo = :idUsuarioSolicitante)',
+          {
+            estadosRestringidos,
+            idUsuarioSolicitante,
+          }
+        )
+      }
     }
 
     return query
   }
 
-  async listarCitas(filtros: FiltrosCitaDto) {
-    return await this.buildCitasQuery(filtros).getMany()
+  async listarCitas(filtros: FiltrosCitaDto, idUsuarioSolicitante?: string) {
+    return await this.buildCitasQuery(filtros, idUsuarioSolicitante).getMany()
   }
 
-  async listarCitasPaginadas(filtros: FiltrosCitaPaginadoDto) {
+  async listarCitasPaginadas(
+    filtros: FiltrosCitaPaginadoDto,
+    idUsuarioSolicitante?: string
+  ) {
     const { limite, saltar } = filtros
-    return await this.buildCitasQuery(filtros)
+    return await this.buildCitasQuery(filtros, idUsuarioSolicitante)
       .take(limite)
       .skip(saltar)
       .getManyAndCount()
   }
 
-  async obtenerCantidadCitasPorDia(filtros: CantidadCitasPorDiaQueryDto) {
+  async obtenerCantidadCitasPorDia(
+    filtros: CantidadCitasPorDiaQueryDto,
+    idUsuarioSolicitante?: string
+  ) {
     const query = this.citaRepository()
       .createQueryBuilder('cita')
       .select('DATE(cita.fechaInicio)', 'fecha')
@@ -175,10 +207,39 @@ export class CitasMedicasRepository {
       })
     }
 
+    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
+
     if (filtros.estado) {
       query.andWhere('cita.estado = :estado', {
         estado: filtros.estado,
       })
+
+      if (
+        idUsuarioSolicitante &&
+        estadosRestringidos.includes(filtros.estado)
+      ) {
+        query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
+          idUsuarioSolicitante,
+        })
+      }
+    } else {
+      query
+        .andWhere('cita.estado != :estadoInactivo', {
+          estadoInactivo: CitasEstado.INACTIVO,
+        })
+        .andWhere('cita.estado != :estadoReprogramada', {
+          estadoReprogramada: CitasEstado.REPROGRAMADA,
+        })
+
+      if (idUsuarioSolicitante) {
+        query.andWhere(
+          '(cita.estado NOT IN (:...estadosRestringidos) OR cita.idUsuarioProgramo = :idUsuarioSolicitante)',
+          {
+            estadosRestringidos,
+            idUsuarioSolicitante,
+          }
+        )
+      }
     }
 
     return await query.groupBy('DATE(cita.fechaInicio)').getRawMany<{
@@ -187,8 +248,12 @@ export class CitasMedicasRepository {
     }>()
   }
 
-  async obtenerCitaConRelaciones(id: string, manager?: EntityManager) {
-    return await this.buildCitasQuery({}, manager)
+  async obtenerCitaConRelaciones(
+    id: string,
+    manager?: EntityManager,
+    idUsuarioSolicitante?: string
+  ) {
+    return await this.buildCitasQuery({}, idUsuarioSolicitante, manager)
       .andWhere('cita.id = :id', { id })
       .getOne()
   }
