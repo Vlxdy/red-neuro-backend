@@ -48,7 +48,8 @@
     "preinstall": "mkdir -p node_modules && touch ./node_modules/.metadata_never_index",
     "postinstall": "npm run check-node-version",
     "release": "commit-and-tag-version",
-    "data:fake": "ts-node -r tsconfig-paths/register scripts/data-fake/poblar.ts"
+    "data:fake": "ts-node -r tsconfig-paths/register scripts/data-fake/poblar.ts",
+    "seed:casbin": "ts-node -r tsconfig-paths/register database/casbin/seed-casbin.script.ts"
   },
   "dependencies": {
     "@elartedelcodigo/check-node-version": "1.3.3",
