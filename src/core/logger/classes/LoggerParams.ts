@@ -184,10 +184,15 @@ export class LoggerParams {
   }
 
   private buildValidAudit(audit: string): string[] {
-    if (audit.length === 0) return []
-    if (audit.indexOf(',') >= 0) return audit.split(',') || []
-    if (audit.indexOf(' ') >= 0) return audit.split(' ') || []
-    return []
+    const normalizedAudit = audit.trim()
+    if (normalizedAudit.length === 0) return []
+
+    const auditWithoutQuotes = normalizedAudit.replace(/^['"]|['"]$/g, '')
+
+    return auditWithoutQuotes
+      .split(/[\s,]+/)
+      .map((item) => item.trim())
+      .filter(Boolean)
   }
 
   private buildValidHide(hide: string): string[] {

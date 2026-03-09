@@ -7,37 +7,22 @@ import { Persona } from '@/core/usuario/entity/persona.entity'
 
 export class usuario1611171041790 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const DEFAULT_PASS = '123'
+    const DEFAULT_PASS = '1234'
     const pass = await TextService.encrypt(DEFAULT_PASS)
     const items = [
       {
         //id: 1,
         usuario: 'ADMINISTRADOR',
-        correoElectonico: '9270815@yopmail.com',
+        correoElectonico: 'vcopafabian@gmail.com',
         persona: {
-          nombres: 'SOFÍA LENNY',
-          primerApellido: 'FLORES',
-          segundoApellido: 'GOMEZ',
+          nombres: 'VLADIMIR',
+          primerApellido: 'COPA',
+          segundoApellido: 'FABIAN',
           tipoDocumento: TipoDocumento.CI,
-          nroDocumento: '9270815',
-          fechaNacimiento: '1994-03-29',
-          genero: Genero.FEMENINO,
-          telefono: '73254479',
-        },
-      },
-      {
-        //id: 2,
-        usuario: 'MEDICO',
-        correoElectonico: 'MEDICO@yopmail.com',
-        persona: {
-          nombres: 'MEDICO',
-          primerApellido: 'MEDICO',
-          segundoApellido: 'MEDICO',
-          tipoDocumento: TipoDocumento.CI,
-          nroDocumento: '9270815',
-          fechaNacimiento: '1994-03-29',
+          nroDocumento: '6990223',
+          fechaNacimiento: '1992-03-29',
           genero: Genero.MASCULINO,
-          telefono: '73254479',
+          telefono: '65541588',
         },
       },
     ]

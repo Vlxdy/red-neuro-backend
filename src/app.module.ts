@@ -1,22 +1,28 @@
 import { AppController } from './app.controller'
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
 import { HttpExceptionFilter } from '@/common/filters/http-exception.filter'
 import { ScheduleModule } from '@nestjs/schedule'
 import { CoreModule } from '@/core/core.module'
 import { ApplicationModule } from './application/application.module'
-import { LoggerMiddleware } from '@/common/middlewares'
 import { LoggerModule } from '@/core/logger'
 import packageJson from '../package.json'
 import { AppInterceptor } from '@/common/interceptors'
 import { SwaggerDocsModule } from './swagger/docs/swagger.docs.module'
 import { SystemConnectionModule } from './socket-example/system-connection.module'
 
-const loggingEnabled = String(process.env.LOG_ENABLED) === 'true'
-const logToConsoleEnabled = String(process.env.LOG_CONSOLE) === 'true'
-const logToFileEnabled = String(process.env.LOG_FILE_ENABLED) === 'true'
-const logToLokiEnabled = String(process.env.LOG_LOKI_ENABLED) === 'true'
+const isEnvEnabled = (value: string | undefined, defaultValue: boolean) => {
+  if (typeof value === 'undefined' || value.trim().length === 0) {
+    return defaultValue
+  }
+  return String(value).toLowerCase() === 'true'
+}
+
+const loggingEnabled = isEnvEnabled(process.env.LOG_ENABLED, true)
+const logToConsoleEnabled = isEnvEnabled(process.env.LOG_CONSOLE, true)
+const logToFileEnabled = isEnvEnabled(process.env.LOG_FILE_ENABLED, true)
+const logToLokiEnabled = isEnvEnabled(process.env.LOG_LOKI_ENABLED, false)
 
 @Module({
   imports: [
@@ -67,10 +73,4 @@ const logToLokiEnabled = String(process.env.LOG_LOKI_ENABLED) === 'true'
     },
   ],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes({ path: '*path', method: RequestMethod.ALL })
-  }
-}
+export class AppModule {}

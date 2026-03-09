@@ -1,3 +1,4 @@
+import '../bootstrap/env'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
@@ -9,6 +10,7 @@ import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import { INestApplication } from '@nestjs/common'
 import { CustomValidationPipe } from '@/common/pipes'
+import { LoggerMiddleware } from '@/common/middlewares'
 import { TypeormStore } from 'connect-typeorm'
 import { Session } from '@/core/authentication/entity/session.entity'
 import { writeFileSync } from 'fs'
@@ -78,6 +80,9 @@ const bootstrap = async () => {
   app.use(passport.session())
   app.use(cookieParser())
   app.use(express.static('public'))
+
+  const loggerMiddleware = new LoggerMiddleware()
+  app.use(loggerMiddleware.use.bind(loggerMiddleware))
 
   // Configuración para servir archivos estáticos desde STORAGE_NFS_PATH
   const storagePath = configService.get('STORAGE_NFS_PATH')

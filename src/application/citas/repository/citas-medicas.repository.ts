@@ -183,6 +183,9 @@ export class CitasMedicasRepository {
         .andWhere('cita.estado != :estadoReprogramada', {
           estadoReprogramada: CitasEstado.REPROGRAMADA,
         })
+        .andWhere('cita.estado != :estadoCancelada', {
+          estadoCancelada: CitasEstado.CANCELADA,
+        })
 
       if (idUsuarioSolicitante) {
         query.andWhere(
@@ -262,6 +265,9 @@ export class CitasMedicasRepository {
         })
         .andWhere('cita.estado != :estadoReprogramada', {
           estadoReprogramada: CitasEstado.REPROGRAMADA,
+        })
+        .andWhere('cita.estado != :estadoCancelada', {
+          estadoCancelada: CitasEstado.CANCELADA,
         })
 
       if (idUsuarioSolicitante) {
