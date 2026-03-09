@@ -32,6 +32,10 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'read',
         [RolEnum.PERSONAL_SALUD]: 'read',
       },
+      '/admin/notificaciones': {
+        [RolEnum.ADMINISTRADOR]: 'read',
+        [RolEnum.PERSONAL_SALUD]: 'read',
+      },
       '/admin/especialidades': {
         [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
       },
@@ -182,6 +186,9 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
         [RolEnum.ADMINISTRADOR]: 'POST',
         [RolEnum.PERSONAL_SALUD]: 'POST',
       },
+      '/api/citas/ejecutar-auto-no-asistio': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
       // CONSULTORIOS MÉDICOS
       '/api/consultorios': {
         [RolEnum.ADMINISTRADOR]: 'GET|POST',
@@ -257,6 +264,36 @@ export class insertCasbinRules1617712857472 implements MigrationInterface {
       '/api/citas/:id/historial': {
         [RolEnum.ADMINISTRADOR]: 'GET',
         [RolEnum.PERSONAL_SALUD]: 'GET',
+      },
+      '/api/notificaciones': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
+      },
+      '/api/notificaciones/:id/visto': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'PATCH',
+      },
+      '/api/notificaciones/marcar-todas-vistas': {
+        [RolEnum.ADMINISTRADOR]: 'PATCH',
+        [RolEnum.PERSONAL_SALUD]: 'PATCH',
+      },
+      '/api/notificaciones/resumen-diario': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+        [RolEnum.PERSONAL_SALUD]: 'GET',
+      },
+      '/api/notificaciones/ejecutar-resumen-diario': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+      },
+      '/api/notificaciones/validar-config-push': {
+        [RolEnum.ADMINISTRADOR]: 'GET',
+      },
+      '/api/dispositivos-push': {
+        [RolEnum.ADMINISTRADOR]: 'POST',
+        [RolEnum.PERSONAL_SALUD]: 'POST',
+      },
+      '/api/dispositivos-push/:token': {
+        [RolEnum.ADMINISTRADOR]: 'DELETE',
+        [RolEnum.PERSONAL_SALUD]: 'DELETE',
       },
       // LUGARES
       '/api/lugares': {

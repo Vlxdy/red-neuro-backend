@@ -120,6 +120,16 @@ export class CitasController extends BaseController {
     return this.successList(resultado)
   }
 
+  @ApiOperation({
+    summary: 'Ejecuta manualmente el proceso automático de no asistió',
+  })
+  @ApiBaseResponse(Number)
+  @Post('ejecutar-auto-no-asistio')
+  async ejecutarAutoNoAsistio(): Promise<BaseResponseDto<number>> {
+    const resultado = await this.citasService.ejecutarAutoNoAsistio()
+    return this.success(resultado)
+  }
+
   @ApiOperation({ summary: 'Obtiene el detalle de una cita' })
   @ApiBaseResponse(CitaResponseDto)
   @Get(':id')

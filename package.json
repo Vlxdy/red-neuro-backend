@@ -102,7 +102,8 @@
     "typeorm": "0.3.27",
     "typeorm-adapter": "1.8.0",
     "uuid": "13.0.0",
-    "zxcvbn-typescript": "5.0.1"
+    "zxcvbn-typescript": "5.0.1",
+    "firebase-admin": "13.0.2"
   },
   "devDependencies": {
     "@commitlint/cli": "20.1.0",
