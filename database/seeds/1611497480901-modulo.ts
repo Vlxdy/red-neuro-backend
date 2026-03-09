@@ -37,6 +37,17 @@ export class modulo1611497480901 implements MigrationInterface {
               orden: 2,
             },
           },
+          {
+            nombre: 'notificaciones',
+            url: '/admin/notificaciones',
+            label: 'Notificaciones',
+            propiedades: {
+              icono: 'notifications',
+              descripcion:
+                'Bandeja de notificaciones y resumen diario de citas para el usuario autenticado',
+              orden: 3,
+            },
+          },
         ],
       },
       {

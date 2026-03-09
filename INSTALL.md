@@ -182,3 +182,25 @@ npm run seeds:run
 | `LOG_LOKI_PASSWORD`       |                   | Indica la contraseña de usuario para autenticarse con el servicio de loki.                 |
 | `LOG_LOKI_BATCHING`       | `true`            | Habilitado el envío de logs por lote cuando se utiliza loki.                               |
 | `LOG_LOKI_BATCH_INTERVAL` | `5`               | Tiempo en segundos para el envío de logs con loki si `LOG_BATCHING=true`.                  |
+
+**Configuración para notificaciones móviles**
+
+> En esta etapa se envía principalmente resumen diario por cantidad de citas (no por cada cita individual).
+
+| Variable                         | Valor por defecto | Descripción                                                                                  |
+| -------------------------------- | ----------------- | -------------------------------------------------------------------------------------------- |
+| `NOTIF_DAILY_SUMMARY_ENABLED`    | `true`            | Habilita o deshabilita el envío del resumen diario de citas.                                 |
+| `NOTIF_DAILY_SUMMARY_HOUR`       | `06:45`           | Hora de envío del resumen diario en formato `HH:mm` (24 horas).                              |
+| `NOTIF_PUSH_ALWAYS`              | `true`            | Envía push incluso cuando la app está abierta (además de socket).                            |
+| `CITAS_AUTO_NO_ASISTIO_ENABLED`  | `true`            | Habilita cambio automático a estado `NO_ASISTIO` cuando la cita no fue completada.          |
+| `CITAS_AUTO_NO_ASISTIO_CRON`     | `0 1 * * *`       | Expresión cron para ejecutar la evaluación automática de citas no completadas.               |
+
+**Configuración de credenciales push (Firebase Admin SDK)**
+
+> Para backend en esta etapa se usará el JSON descargado de Firebase Admin SDK.
+
+| Variable               | Valor por defecto | Descripción                                                                 |
+| ---------------------- | ----------------- | --------------------------------------------------------------------------- |
+| `PUSH_PROVIDER`        | `fcm`             | Proveedor push activo (actualmente `fcm`).                                 |
+| `FCM_CREDENTIALS_FILE` |                   | Ruta local al JSON de service account descargado de Firebase para backend. |
+

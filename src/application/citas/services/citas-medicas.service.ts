@@ -96,6 +96,18 @@ export class CitasMedicasService extends BaseService {
     return [{ field: 'estado', before, after }]
   }
 
+  private construirMensajeCitaSolicitada(cita: Cita): string {
+    const fechaTexto = cita.fechaInicio
+      ? dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')
+      : 'hora por confirmar'
+    const tipoTexto =
+      cita.tipoCita === TipoCita.ESTUDIO ? 'Estudio' : 'Consulta'
+    const servicio = cita.servicio?.nombre ? ` (${cita.servicio.nombre})` : ''
+    const detalle = cita.detalle ? ` Detalle: ${cita.detalle}.` : ''
+
+    return `Personal de salud te asignó una ${tipoTexto}${servicio} para ${fechaTexto}.${detalle}`
+  }
+
   // ===== Citas =====
   async listarCitas(
     filtros: FiltrosCitaDto,
@@ -180,8 +192,24 @@ export class CitasMedicasService extends BaseService {
     )
   }
 
-  @Cron(process.env.CITAS_REVISION_DIARIA_CRON || '0 1 * * *')
+  @Cron(
+    process.env.CITAS_AUTO_NO_ASISTIO_CRON ||
+      process.env.CITAS_REVISION_DIARIA_CRON ||
+      '0 1 * * *'
+  )
   async actualizarCitasVencidas(): Promise<void> {
+    const enabled =
+      (process.env.CITAS_AUTO_NO_ASISTIO_ENABLED || 'true').toLowerCase() ===
+      'true'
+
+    if (!enabled) {
+      return
+    }
+
+    await this.ejecutarAutoNoAsistio()
+  }
+
+  async ejecutarAutoNoAsistio(): Promise<number> {
     const fechaCorte = dayjs().startOf('day').toDate()
     const usuarioAuditoria = '0'
     const idEjecutor = '0'
@@ -196,6 +224,8 @@ export class CitasMedicasService extends BaseService {
         `Citas vencidas actualizadas automáticamente: ${actualizadas}`
       )
     }
+
+    return actualizadas
   }
 
   async obtenerCita(
@@ -463,6 +493,7 @@ export class CitasMedicasService extends BaseService {
             idCita: cita.id,
             idPersonal: cita.idPersonal,
             usuarioCreacion: usuarioAuditoria,
+            mensaje: this.construirMensajeCitaSolicitada(cita),
           },
           transaccion
         )
