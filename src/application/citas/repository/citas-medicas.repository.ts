@@ -350,27 +350,6 @@ export class CitasMedicasRepository {
       transaccion
     )
 
-    if (guardada.idPersonal && guardada.estado === CitasEstado.SOLICITADA) {
-      const servicio = data.idServicio
-        ? await this.obtenerServicioPorId(data.idServicio, transaccion)
-        : null
-
-      const notificacion = this.notificacionRepository(transaccion).create({
-        tipo: NotificacionTipo.CITA_SOLICITADA,
-        mensaje: this.construirMensajeCitaSolicitada({
-          asignadoPor: 'Personal de salud',
-          fechaInicio: guardada.fechaInicio,
-          tipoCita: guardada.tipoCita,
-          detalle: guardada.detalle,
-          nombreServicio: servicio?.nombre ?? null,
-        }),
-        idCita: guardada.id,
-        idPersonal: guardada.idPersonal,
-        usuarioCreacion: usuarioAuditoria,
-      })
-      await this.notificacionRepository(transaccion).save(notificacion)
-    }
-
     return guardada.id
   }
 

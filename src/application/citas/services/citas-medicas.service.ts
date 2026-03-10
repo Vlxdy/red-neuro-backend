@@ -30,12 +30,18 @@ import { formatearCita, formatearCitas } from '../utils/formatear-citas'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
+import { NotificacionesRepository } from '../repository/notificaciones.repository'
+import { DispositivosPushRepository } from '../repository/dispositivos-push.repository'
+import { FirebasePushService } from '@/core/external-services/firebase/firebase-push.service'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
   constructor(
     @Inject(CitasMedicasRepository)
-    private readonly citasRepository: CitasMedicasRepository
+    private readonly citasRepository: CitasMedicasRepository,
+    private readonly notificacionesRepository: NotificacionesRepository,
+    private readonly dispositivosPushRepository: DispositivosPushRepository,
+    private readonly firebasePushService: FirebasePushService
   ) {
     super()
   }
@@ -106,6 +112,95 @@ export class CitasMedicasService extends BaseService {
     const detalle = cita.detalle ? ` Detalle: ${cita.detalle}.` : ''
 
     return `Personal de salud te asignó una ${tipoTexto}${servicio} para ${fechaTexto}.${detalle}`
+  }
+  private async notificarCitaSolicitada(
+    cita: Cita,
+    usuarioAuditoria: string,
+    idEjecutor: string,
+    transaccion?: EntityManager
+  ): Promise<void> {
+    if (cita.estado !== CitasEstado.SOLICITADA) {
+      return
+    }
+
+    const mensaje = this.construirMensajeCitaSolicitada(cita)
+
+    if (cita.idPersonal) {
+      if (cita.idPersonal === idEjecutor) {
+        return
+      }
+
+      await this.citasRepository.crearNotificacionSolicitada(
+        {
+          idCita: cita.id,
+          idPersonal: cita.idPersonal,
+          usuarioCreacion: usuarioAuditoria,
+          mensaje,
+        },
+        transaccion
+      )
+
+      const tokens =
+        await this.dispositivosPushRepository.listarTokensActivosPorUsuarios([
+          cita.idPersonal,
+        ])
+
+      if (tokens.length) {
+        await this.firebasePushService.sendToMany({
+          tokens,
+          title: 'Nueva cita solicitada',
+          body: mensaje,
+          data: {
+            tipo: 'CITA_SOLICITADA',
+            idCita: cita.id,
+          },
+        })
+      }
+
+      return
+    }
+
+    const administradores =
+      await this.notificacionesRepository.obtenerAdministradoresActivos()
+
+    const destinatarios = administradores
+      .map((admin) => admin.id)
+      .filter((idAdmin) => idAdmin !== idEjecutor)
+
+    if (!destinatarios.length) {
+      return
+    }
+
+    await Promise.all(
+      destinatarios.map((idAdmin) =>
+        this.citasRepository.crearNotificacionSolicitada(
+          {
+            idCita: cita.id,
+            idPersonal: idAdmin,
+            usuarioCreacion: usuarioAuditoria,
+            mensaje,
+          },
+          transaccion
+        )
+      )
+    )
+
+    const tokens =
+      await this.dispositivosPushRepository.listarTokensActivosPorUsuarios(
+        destinatarios
+      )
+
+    if (tokens.length) {
+      await this.firebasePushService.sendToMany({
+        tokens,
+        title: 'Nueva cita solicitada',
+        body: mensaje,
+        data: {
+          tipo: 'CITA_SOLICITADA',
+          idCita: cita.id,
+        },
+      })
+    }
   }
 
   // ===== Citas =====
@@ -332,7 +427,15 @@ export class CitasMedicasService extends BaseService {
       throw new BadRequestException('No fue posible registrar la cita')
     }
 
-    return await this.obtenerCita(citaId, transaccion)
+    const citaCreada = await this.obtenerCitaId(citaId, transaccion)
+    await this.notificarCitaSolicitada(
+      citaCreada,
+      usuarioAuditoria,
+      idEjecutor,
+      transaccion
+    )
+
+    return formatearCita(citaCreada)
   }
 
   async actualizarCita(
@@ -487,17 +590,12 @@ export class CitasMedicasService extends BaseService {
         transaccion
       )
 
-      if (cita.estado === CitasEstado.SOLICITADA && cita.idPersonal) {
-        await this.citasRepository.crearNotificacionSolicitada(
-          {
-            idCita: cita.id,
-            idPersonal: cita.idPersonal,
-            usuarioCreacion: usuarioAuditoria,
-            mensaje: this.construirMensajeCitaSolicitada(cita),
-          },
-          transaccion
-        )
-      }
+      await this.notificarCitaSolicitada(
+        cita,
+        usuarioAuditoria,
+        idEjecutor,
+        transaccion
+      )
 
       return await this.obtenerCita(cita.id, transaccion)
     })
@@ -655,6 +753,14 @@ export class CitasMedicasService extends BaseService {
         },
         transaccion
       )
+
+      await this.notificarCitaSolicitada(
+        cita,
+        usuarioAuditoria,
+        idEjecutor,
+        transaccion
+      )
+
       return await this.obtenerCita(cita.id, transaccion)
     })
   }
@@ -734,7 +840,15 @@ export class CitasMedicasService extends BaseService {
         transaccion
       )
 
-      return await this.obtenerCita(nuevaCitaId, transaccion)
+      const nuevaCita = await this.obtenerCitaId(nuevaCitaId, transaccion)
+      await this.notificarCitaSolicitada(
+        nuevaCita,
+        usuarioAuditoria,
+        idEjecutor,
+        transaccion
+      )
+
+      return formatearCita(nuevaCita)
     })
   }
 

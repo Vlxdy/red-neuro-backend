@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common'
 import { MensajeriaModule } from './mensajeria/mensajeria.module'
-import { PushModule } from './push/push.module'
 import { FirebaseModule } from './firebase/firebase.module'
 
 @Module({
-  imports: [MensajeriaModule, FirebaseModule, PushModule],
+  imports: [MensajeriaModule, FirebaseModule],
   providers: [],
-  exports: [MensajeriaModule, FirebaseModule, PushModule],
+  exports: [MensajeriaModule, FirebaseModule],
 })
 export class ExternalServicesModule {}

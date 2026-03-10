@@ -48,3 +48,6 @@ sonar-project.properties.sample
 
 # turbo
 .turbo
+
+# firebase admin sdk credentials
+settings/*.json

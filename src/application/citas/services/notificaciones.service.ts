@@ -3,13 +3,13 @@ import { Cron } from '@nestjs/schedule'
 import dayjs from 'dayjs'
 import { NotificacionesRepository } from '../repository/notificaciones.repository'
 import { DispositivosPushRepository } from '../repository/dispositivos-push.repository'
-import { FirebasePushService } from '@/core/external-services/push/push.service'
 import {
   FiltroNotificacionDto,
   NotificacionResponseDto,
   ResumenDiarioResponseDto,
 } from '../dto/notificacion.dto'
 import { RolEnumId } from '@/core/authorization/rol.enum'
+import { FirebasePushService } from '@/core/external-services/firebase/firebase-push.service'
 
 @Injectable()
 export class NotificacionesService {
@@ -138,7 +138,7 @@ export class NotificacionesService {
     if (!tokens.length) return
 
     const body = 'Tienes un nuevo resumen diario de citas disponible.'
-    await this.firebasePushService.enviarPushMasivo({
+    await this.firebasePushService.sendToMany({
       tokens,
       title: 'Resumen diario de citas',
       body,
