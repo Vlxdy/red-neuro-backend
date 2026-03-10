@@ -33,6 +33,11 @@ import { CitasEstado, TipoCita } from '../constants'
 import { NotificacionesRepository } from '../repository/notificaciones.repository'
 import { DispositivosPushRepository } from '../repository/dispositivos-push.repository'
 import { FirebasePushService } from '@/core/external-services/firebase/firebase-push.service'
+import {
+  construirEventoPushCita,
+  construirMensajeNotificacionCita,
+  EventoPushCita,
+} from '../utils/notificacion-cita-messages'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
@@ -102,17 +107,14 @@ export class CitasMedicasService extends BaseService {
     return [{ field: 'estado', before, after }]
   }
 
-  private construirMensajeCitaSolicitada(cita: Cita): string {
-    const fechaTexto = cita.fechaInicio
-      ? dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')
-      : 'hora por confirmar'
-    const tipoTexto =
-      cita.tipoCita === TipoCita.ESTUDIO ? 'Estudio' : 'Consulta'
-    const servicio = cita.servicio?.nombre ? ` (${cita.servicio.nombre})` : ''
-    const detalle = cita.detalle ? ` Detalle: ${cita.detalle}.` : ''
-
-    return `Personal de salud te asignó una ${tipoTexto}${servicio} para ${fechaTexto}.${detalle}`
+  private async obtenerNombreAccionador(idEjecutor: string): Promise<string> {
+    return (
+      (await this.notificacionesRepository.obtenerNombreCompletoUsuarioRol(
+        idEjecutor
+      )) || 'Personal de salud'
+    )
   }
+
   private async notificarCitaSolicitada(
     cita: Cita,
     usuarioAuditoria: string,
@@ -123,7 +125,16 @@ export class CitasMedicasService extends BaseService {
       return
     }
 
-    const mensaje = this.construirMensajeCitaSolicitada(cita)
+    const accionador = await this.obtenerNombreAccionador(idEjecutor)
+    const mensaje = construirMensajeNotificacionCita({
+      accionador,
+      accion: 'ENVIADO',
+      cita,
+    })
+    const eventoPush = construirEventoPushCita({
+      evento: EventoPushCita.CITA_SOLICITADA,
+      citaId: cita.id,
+    })
 
     if (cita.idPersonal) {
       if (cita.idPersonal === idEjecutor) {
@@ -148,12 +159,9 @@ export class CitasMedicasService extends BaseService {
       if (tokens.length) {
         await this.firebasePushService.sendToMany({
           tokens,
-          title: 'Nueva cita solicitada',
+          title: eventoPush.title,
           body: mensaje,
-          data: {
-            tipo: 'CITA_SOLICITADA',
-            idCita: cita.id,
-          },
+          data: eventoPush.data,
         })
       }
 
@@ -193,12 +201,9 @@ export class CitasMedicasService extends BaseService {
     if (tokens.length) {
       await this.firebasePushService.sendToMany({
         tokens,
-        title: 'Nueva cita solicitada',
+        title: eventoPush.title,
         body: mensaje,
-        data: {
-          tipo: 'CITA_SOLICITADA',
-          idCita: cita.id,
-        },
+        data: eventoPush.data,
       })
     }
   }

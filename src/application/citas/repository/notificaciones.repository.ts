@@ -139,6 +139,40 @@ export class NotificacionesRepository {
       .getRawMany<{ idPersonal: string; cantidad: string }>()
   }
 
+  async obtenerNombreCompletoUsuarioRol(
+    idUsuarioRol: string
+  ): Promise<string | null> {
+    const registro = await this.usuarioRolRepo()
+      .createQueryBuilder('ur')
+      .leftJoin('ur.usuario', 'u')
+      .leftJoin('u.persona', 'p')
+      .select('p.nombres', 'nombres')
+      .addSelect('p.primerApellido', 'primerApellido')
+      .addSelect('p.segundoApellido', 'segundoApellido')
+      .where('ur.id = :idUsuarioRol', { idUsuarioRol })
+      .andWhere('ur.estado = :estado', { estado: 'ACTIVO' })
+      .getRawOne<{
+        nombres?: string | null
+        primerApellido?: string | null
+        segundoApellido?: string | null
+      }>()
+
+    if (!registro) {
+      return null
+    }
+
+    const nombreCompleto = [
+      registro.nombres,
+      registro.primerApellido,
+      registro.segundoApellido,
+    ]
+      .filter((valor): valor is string => Boolean(valor?.trim()))
+      .join(' ')
+      .trim()
+
+    return nombreCompleto || null
+  }
+
   async obtenerAdministradoresActivos() {
     return await this.usuarioRolRepo().find({
       where: { idRol: RolEnumId.ADMINISTRADOR, estado: 'ACTIVO' as never },
