@@ -9,14 +9,17 @@ import {
   ResumenDiarioResponseDto,
 } from '../dto/notificacion.dto'
 import { RolEnumId } from '@/core/authorization/rol.enum'
+import { Notificacion } from '../entities/notificacion.entity'
 import { FirebasePushService } from '@/core/external-services/firebase/firebase-push.service'
+import { CitasGateway } from '../gateways/citas.gateway'
 
 @Injectable()
 export class NotificacionesService {
   constructor(
     private readonly notificacionesRepository: NotificacionesRepository,
     private readonly dispositivosPushRepository: DispositivosPushRepository,
-    private readonly firebasePushService: FirebasePushService
+    private readonly firebasePushService: FirebasePushService,
+    private readonly citasGateway: CitasGateway
   ) {}
 
   @Cron('*/10 * * * *')
@@ -44,18 +47,19 @@ export class NotificacionesService {
       idRol
     )
 
-    return [
-      filas.map((n) => ({
-        id: n.id,
-        tipo: n.tipo,
-        mensaje: n.mensaje,
-        visto: Boolean(n.visto),
-        idCita: n.idCita,
-        idPersonal: n.idPersonal,
-        fechaCreacion: n.fechaCreacion,
-      })),
-      total,
-    ]
+    return [filas.map((n) => this.mapearNotificacion(n)), total]
+  }
+
+  private mapearNotificacion(n: Notificacion): NotificacionResponseDto {
+    return {
+      id: n.id,
+      tipo: n.tipo,
+      mensaje: n.mensaje,
+      visto: Boolean(n.visto),
+      idCita: n.idCita,
+      idPersonal: n.idPersonal,
+      fechaCreacion: n.fechaCreacion,
+    }
   }
 
   async marcarVisto(
@@ -74,6 +78,7 @@ export class NotificacionesService {
     notificacion.visto = true
     notificacion.usuarioModificacion = usuarioAuditoria
     await this.notificacionesRepository.guardarNotificacion(notificacion)
+    this.citasGateway.emitNotificacionVista(idUsuarioRol, id)
     return true
   }
 
@@ -94,6 +99,10 @@ export class NotificacionesService {
     })
 
     await this.notificacionesRepository.guardarNotificaciones(pendientes)
+    this.citasGateway.emitNotificacionesTodasVistas(
+      idUsuarioRol,
+      pendientes.length
+    )
     return pendientes.length
   }
 
@@ -177,7 +186,16 @@ export class NotificacionesService {
     const aGuardar = [...mensajesPersonal, ...mensajesAdmin]
     if (!aGuardar.length) return 0
 
-    await this.notificacionesRepository.guardarNotificaciones(aGuardar)
+    const guardadas =
+      await this.notificacionesRepository.guardarNotificaciones(aGuardar)
+
+    guardadas.forEach((notificacion) => {
+      if (!notificacion.idPersonal) return
+      this.citasGateway.emitNuevaNotificacion(
+        notificacion.idPersonal,
+        this.mapearNotificacion(notificacion)
+      )
+    })
 
     await this.enviarPushResumenDiario([
       ...personals.map((p) => ({
