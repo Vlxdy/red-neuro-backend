@@ -33,13 +33,15 @@ const frontendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'read',
     [RolEnum.PERSONAL_SALUD]: 'read',
   },
+  '/admin/notificaciones': {
+    [RolEnum.ADMINISTRADOR]: 'read',
+    [RolEnum.PERSONAL_SALUD]: 'read',
+  },
   '/admin/especialidades': {
     [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
-    [ROL_PERSONAL_SALUD_ADMIN]: 'read',
   },
   '/admin/estudios': {
     [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
-    [ROL_PERSONAL_SALUD_ADMIN]: 'read',
   },
   '/admin/citas': {
     [RolEnum.ADMINISTRADOR]: 'read',
@@ -185,6 +187,9 @@ const backendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'POST',
     [RolEnum.PERSONAL_SALUD]: 'POST',
   },
+  '/api/citas/ejecutar-auto-no-asistio': {
+    [RolEnum.ADMINISTRADOR]: 'POST',
+  },
   // CONSULTORIOS MÉDICOS
   '/api/consultorios': {
     [RolEnum.ADMINISTRADOR]: 'GET|POST',
@@ -260,6 +265,36 @@ const backendRoutes: CasbinValue = {
   '/api/citas/:id/historial': {
     [RolEnum.ADMINISTRADOR]: 'GET',
     [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/notificaciones': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/notificaciones/:id/visto': {
+    [RolEnum.ADMINISTRADOR]: 'PATCH',
+    [RolEnum.PERSONAL_SALUD]: 'PATCH',
+  },
+  '/api/notificaciones/marcar-todas-vistas': {
+    [RolEnum.ADMINISTRADOR]: 'PATCH',
+    [RolEnum.PERSONAL_SALUD]: 'PATCH',
+  },
+  '/api/notificaciones/resumen-diario': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/notificaciones/ejecutar-resumen-diario': {
+    [RolEnum.ADMINISTRADOR]: 'POST',
+  },
+  '/api/notificaciones/validar-config-push': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+  },
+  '/api/dispositivos-push': {
+    [RolEnum.ADMINISTRADOR]: 'POST',
+    [RolEnum.PERSONAL_SALUD]: 'POST',
+  },
+  '/api/dispositivos-push/:token': {
+    [RolEnum.ADMINISTRADOR]: 'DELETE',
+    [RolEnum.PERSONAL_SALUD]: 'DELETE',
   },
   // LUGARES
   '/api/lugares': {

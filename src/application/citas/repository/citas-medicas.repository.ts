@@ -40,6 +40,37 @@ export class CitasMedicasRepository {
     return (manager ?? this.dataSource).getRepository(Notificacion)
   }
 
+  private construirMensajeCitaSolicitada(data: {
+    asignadoPor?: string
+    fechaInicio?: Date | null
+    tipoCita?: TipoCita
+    detalle?: string
+    nombreServicio?: string | null
+  }): string {
+    const asignadoPor = data.asignadoPor || 'personal de salud'
+    const fechaTexto = data.fechaInicio
+      ? dayjs(data.fechaInicio).format('DD/MM/YYYY HH:mm')
+      : 'hora por confirmar'
+    const tipoTexto =
+      data.tipoCita === TipoCita.ESTUDIO ? 'Estudio' : 'Consulta'
+    const servicio = data.nombreServicio ? ` (${data.nombreServicio})` : ''
+    const detalle = data.detalle ? ` Detalle: ${data.detalle}.` : ''
+
+    return `${asignadoPor} te asignó una ${tipoTexto}${servicio} para ${fechaTexto}.${detalle}`
+  }
+
+  private construirMensajeNoAsistio(cita: Cita): string {
+    const fechaTexto = cita.fechaInicio
+      ? dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')
+      : 'hora registrada'
+    const tipoTexto =
+      cita.tipoCita === TipoCita.ESTUDIO ? 'Estudio' : 'Consulta'
+    const servicio = cita.servicio?.nombre ? ` (${cita.servicio.nombre})` : ''
+    const detalle = cita.detalle ? ` Detalle: ${cita.detalle}.` : ''
+
+    return `La ${tipoTexto}${servicio} programada para ${fechaTexto} fue marcada como no asistida.${detalle}`
+  }
+
   buildCitasQuery(
     filtros: Partial<FiltrosCitaDto | FiltrosCitaPaginadoDto> = {},
     idUsuarioSolicitante?: string,
@@ -318,17 +349,6 @@ export class CitasMedicasRepository {
       },
       transaccion
     )
-
-    if (guardada.idPersonal && guardada.estado === CitasEstado.SOLICITADA) {
-      const notificacion = this.notificacionRepository(transaccion).create({
-        tipo: NotificacionTipo.CITA_SOLICITADA,
-        mensaje: `Se asignó una nueva cita ${guardada.id} para confirmar.`,
-        idCita: guardada.id,
-        idPersonal: guardada.idPersonal,
-        usuarioCreacion: usuarioAuditoria,
-      })
-      await this.notificacionRepository(transaccion).save(notificacion)
-    }
 
     return guardada.id
   }
@@ -685,7 +705,7 @@ export class CitasMedicasRepository {
       const notificaciones = citasConEstadoAnterior.map(({ cita }) =>
         this.notificacionRepository(manager).create({
           tipo: NotificacionTipo.CITA_NO_ASISTIO,
-          mensaje: `La cita ${cita.id} fue marcada como no asistida por vencimiento.`,
+          mensaje: this.construirMensajeNoAsistio(cita),
           idCita: cita.id,
           idPersonal: cita.idPersonal ?? null,
           usuarioCreacion: usuarioAuditoria,
@@ -720,12 +740,15 @@ export class CitasMedicasRepository {
       idCita: string
       idPersonal: string
       usuarioCreacion: string
+      mensaje?: string
     },
     manager?: EntityManager
   ) {
     const notificacion = this.notificacionRepository(manager).create({
       tipo: NotificacionTipo.CITA_SOLICITADA,
-      mensaje: `Se asignó una nueva cita ${data.idCita} para confirmar.`,
+      mensaje:
+        data.mensaje ||
+        'Tienes una cita asignada pendiente de confirmación en tu agenda.',
       idCita: data.idCita,
       idPersonal: data.idPersonal,
       usuarioCreacion: data.usuarioCreacion,

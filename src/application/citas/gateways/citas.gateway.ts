@@ -19,11 +19,19 @@ import {
   MensajeEstadoCitaDto,
   MensajeReprogramarCitaDto,
 } from '../dto/cita.dto'
+import { NotificacionResponseDto } from '../dto/notificacion.dto'
 import {
   CITAS_SOCKET_NAMESPACE,
   CitasSocketInboundEvent,
   CitasSocketOutboundEvent,
+  NotificacionesSocketInboundEvent,
+  NotificacionesSocketOutboundEvent,
 } from '../constants'
+import { forwardRef, Inject } from '@nestjs/common'
+
+interface SuscripcionNotificacionesPayload {
+  idUsuarioRol: string
+}
 
 @WebSocketGateway({
   namespace: CITAS_SOCKET_NAMESPACE,
@@ -35,7 +43,10 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private readonly logger = LoggerService.getInstance()
 
-  constructor(private readonly citasService: CitasMedicasService) {}
+  constructor(
+    @Inject(forwardRef(() => CitasMedicasService))
+    private readonly citasService: CitasMedicasService
+  ) {}
 
   handleConnection(client: Socket) {
     this.logger.info(
@@ -47,6 +58,46 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.warn(
       `Cliente desconectado de ${CITAS_SOCKET_NAMESPACE}: ${client.id}`
     )
+  }
+
+  @SubscribeMessage(NotificacionesSocketInboundEvent.SUBSCRIBE)
+  suscribirseNotificaciones(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: SuscripcionNotificacionesPayload
+  ) {
+    if (!payload?.idUsuarioRol) {
+      return { ok: false }
+    }
+
+    const room = this.getNotificacionesRoom(payload.idUsuarioRol)
+    void client.join(room)
+
+    this.logger.debug(
+      `${NotificacionesSocketInboundEvent.SUBSCRIBE} recibido desde ${client.id} -> ${room}`
+    )
+
+    return { ok: true, room }
+  }
+
+  emitNuevaNotificacion(
+    idUsuarioRol: string,
+    notificacion: NotificacionResponseDto
+  ) {
+    this.server
+      .to(this.getNotificacionesRoom(idUsuarioRol))
+      .emit(NotificacionesSocketOutboundEvent.NUEVA, notificacion)
+  }
+
+  emitNotificacionVista(idUsuarioRol: string, idNotificacion: string) {
+    this.server
+      .to(this.getNotificacionesRoom(idUsuarioRol))
+      .emit(NotificacionesSocketOutboundEvent.VISTA, { id: idNotificacion })
+  }
+
+  emitNotificacionesTodasVistas(idUsuarioRol: string, total: number) {
+    this.server
+      .to(this.getNotificacionesRoom(idUsuarioRol))
+      .emit(NotificacionesSocketOutboundEvent.TODAS_VISTAS, { total })
   }
 
   emitCitaCreada(cita: CitaResponseDto) {
@@ -173,5 +224,9 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
       `${CitasSocketInboundEvent.CANCELAR} recibido desde ${client.id} -> ${payload.id}`
     )
     return cita
+  }
+
+  private getNotificacionesRoom(idUsuarioRol: string) {
+    return `usuario-rol:${idUsuarioRol}`
   }
 }

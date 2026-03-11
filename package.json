@@ -79,6 +79,7 @@
     "express-session": "1.18.2",
     "file-stream-rotator": "1.0.0",
     "file-type": "21.1.1",
+    "firebase-admin": "13.7.0",
     "flatted": "3.3.3",
     "helmet": "8.1.0",
     "html-to-pdfmake": "2.5.32",

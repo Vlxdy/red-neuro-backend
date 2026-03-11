@@ -2127,6 +2127,44 @@
         ]
       }
     },
+    "/citas/ejecutar-auto-no-asistio": {
+      "post": {
+        "operationId": "CitasController_ejecutarAutoNoAsistio",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/Number"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Ejecuta manualmente el proceso automático de no asistió",
+        "tags": [
+          "Gestión de Citas"
+        ]
+      }
+    },
     "/citas/{id}": {
       "get": {
         "operationId": "CitasController_obtener",
@@ -2799,6 +2837,404 @@
         "summary": "Lista el historial de una cita médica",
         "tags": [
           "Historial de Citas"
+        ]
+      }
+    },
+    "/notificaciones": {
+      "get": {
+        "operationId": "NotificacionesController_listar",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 10,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "filtro",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ordenRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "noLeidasRaw",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tipo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "number"
+                            },
+                            "filas": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/NotificacionResponseDto"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtiene la bandeja de notificaciones",
+        "tags": [
+          "Notificaciones"
+        ]
+      }
+    },
+    "/notificaciones/{id}/visto": {
+      "patch": {
+        "operationId": "NotificacionesController_marcarVisto",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/Boolean"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Marca una notificación como vista",
+        "tags": [
+          "Notificaciones"
+        ]
+      }
+    },
+    "/notificaciones/marcar-todas-vistas": {
+      "patch": {
+        "operationId": "NotificacionesController_marcarTodas",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/Number"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Marca todas las notificaciones como vistas",
+        "tags": [
+          "Notificaciones"
+        ]
+      }
+    },
+    "/notificaciones/validar-config-push": {
+      "get": {
+        "operationId": "NotificacionesController_validarConfigPush",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/Object"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Valida credenciales Firebase cargadas desde archivo local",
+        "tags": [
+          "Notificaciones"
+        ]
+      }
+    },
+    "/notificaciones/resumen-diario": {
+      "get": {
+        "operationId": "NotificacionesController_resumen",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/ResumenDiarioResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resumen diario de citas para notificaciones",
+        "tags": [
+          "Notificaciones"
+        ]
+      }
+    },
+    "/notificaciones/ejecutar-resumen-diario": {
+      "post": {
+        "operationId": "NotificacionesController_ejecutarResumen",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/Number"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Ejecuta manualmente el envío de resumen diario",
+        "tags": [
+          "Notificaciones"
+        ]
+      }
+    },
+    "/dispositivos-push": {
+      "post": {
+        "operationId": "DispositivosPushController_registrar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarDispositivoPushDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/Boolean"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Registra o actualiza token push del dispositivo",
+        "tags": [
+          "Dispositivos Push"
+        ]
+      }
+    },
+    "/dispositivos-push/{token}": {
+      "delete": {
+        "operationId": "DispositivosPushController_eliminar",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/Boolean"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Inactiva token push de dispositivo",
+        "tags": [
+          "Dispositivos Push"
         ]
       }
     },
@@ -6319,6 +6755,10 @@
           "cantidad"
         ]
       },
+      "Number": {
+        "type": "object",
+        "properties": {}
+      },
       "CrearCitaDto": {
         "type": "object",
         "properties": {
@@ -6608,6 +7048,87 @@
           "citaId",
           "idEjecutor",
           "fechaCreacion"
+        ]
+      },
+      "NotificacionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string"
+          },
+          "mensaje": {
+            "type": "string"
+          },
+          "visto": {
+            "type": "boolean"
+          },
+          "idCita": {
+            "type": "string"
+          },
+          "idPersonal": {
+            "type": "string"
+          },
+          "fechaCreacion": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tipo",
+          "mensaje",
+          "visto",
+          "fechaCreacion"
+        ]
+      },
+      "Boolean": {
+        "type": "object",
+        "properties": {}
+      },
+      "Object": {
+        "type": "object",
+        "properties": {}
+      },
+      "ResumenDiarioResponseDto": {
+        "type": "object",
+        "properties": {
+          "citasConfirmadasAsignadas": {
+            "type": "number"
+          },
+          "citasConPersonal": {
+            "type": "number"
+          },
+          "citasSinPersonal": {
+            "type": "number"
+          },
+          "fecha": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fecha"
+        ]
+      },
+      "RegistrarDispositivoPushDto": {
+        "type": "object",
+        "properties": {
+          "plataforma": {
+            "type": "string",
+            "example": "android"
+          },
+          "token": {
+            "type": "string"
+          },
+          "versionApp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "plataforma",
+          "token"
         ]
       },
       "CrearConsultorioDto": {
