@@ -27,6 +27,7 @@ import {
   NotificacionesSocketInboundEvent,
   NotificacionesSocketOutboundEvent,
 } from '../constants'
+import { forwardRef, Inject } from '@nestjs/common'
 
 interface SuscripcionNotificacionesPayload {
   idUsuarioRol: string
@@ -42,7 +43,10 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private readonly logger = LoggerService.getInstance()
 
-  constructor(private readonly citasService: CitasMedicasService) {}
+  constructor(
+    @Inject(forwardRef(() => CitasMedicasService))
+    private readonly citasService: CitasMedicasService
+  ) {}
 
   handleConnection(client: Socket) {
     this.logger.info(
