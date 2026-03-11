@@ -27,7 +27,8 @@ export enum TipoCita {
   ESTUDIO = 'ESTUDIO',
 }
 
-export const CITAS_SOCKET_NAMESPACE = '/citas'
+export const SOCKET_NAMESPACE = '/realtime'
+export const CITAS_SOCKET_NAMESPACE = SOCKET_NAMESPACE
 
 export enum CitasSocketInboundEvent {
   CREATE = 'citas:create',
@@ -43,4 +44,14 @@ export enum CitasSocketOutboundEvent {
   ESTADO_ACTUALIZADO = 'citas:estado-actualizado',
   REPROGRAMADA = 'citas:reprogramada',
   CANCELADA = 'citas:cancelada',
+}
+
+export enum NotificacionesSocketInboundEvent {
+  SUBSCRIBE = 'notificaciones:subscribe',
+}
+
+export enum NotificacionesSocketOutboundEvent {
+  NUEVA = 'notificaciones:nueva',
+  VISTA = 'notificaciones:vista',
+  TODAS_VISTAS = 'notificaciones:todas-vistas',
 }

@@ -38,6 +38,7 @@ import {
   construirMensajeNotificacionCita,
   EventoPushCita,
 } from '../utils/notificacion-cita-messages'
+import { CitasGateway } from '../gateways/citas.gateway'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
@@ -46,7 +47,8 @@ export class CitasMedicasService extends BaseService {
     private readonly citasRepository: CitasMedicasRepository,
     private readonly notificacionesRepository: NotificacionesRepository,
     private readonly dispositivosPushRepository: DispositivosPushRepository,
-    private readonly firebasePushService: FirebasePushService
+    private readonly firebasePushService: FirebasePushService,
+    private readonly citasGateway: CitasGateway
   ) {
     super()
   }
@@ -141,15 +143,26 @@ export class CitasMedicasService extends BaseService {
         return
       }
 
-      await this.citasRepository.crearNotificacionSolicitada(
-        {
-          idCita: cita.id,
-          idPersonal: cita.idPersonal,
-          usuarioCreacion: usuarioAuditoria,
-          mensaje,
-        },
-        transaccion
-      )
+      const notificacion =
+        await this.citasRepository.crearNotificacionSolicitada(
+          {
+            idCita: cita.id,
+            idPersonal: cita.idPersonal,
+            usuarioCreacion: usuarioAuditoria,
+            mensaje,
+          },
+          transaccion
+        )
+
+      this.citasGateway.emitNuevaNotificacion(cita.idPersonal, {
+        id: notificacion.id,
+        tipo: notificacion.tipo,
+        mensaje: notificacion.mensaje,
+        visto: Boolean(notificacion.visto),
+        idCita: notificacion.idCita,
+        idPersonal: notificacion.idPersonal,
+        fechaCreacion: notificacion.fechaCreacion,
+      })
 
       const tokens =
         await this.dispositivosPushRepository.listarTokensActivosPorUsuarios([
@@ -179,7 +192,7 @@ export class CitasMedicasService extends BaseService {
       return
     }
 
-    await Promise.all(
+    const notificaciones = await Promise.all(
       destinatarios.map((idAdmin) =>
         this.citasRepository.crearNotificacionSolicitada(
           {
@@ -192,6 +205,19 @@ export class CitasMedicasService extends BaseService {
         )
       )
     )
+
+    notificaciones.forEach((notificacion) => {
+      if (!notificacion.idPersonal) return
+      this.citasGateway.emitNuevaNotificacion(notificacion.idPersonal, {
+        id: notificacion.id,
+        tipo: notificacion.tipo,
+        mensaje: notificacion.mensaje,
+        visto: Boolean(notificacion.visto),
+        idCita: notificacion.idCita,
+        idPersonal: notificacion.idPersonal,
+        fechaCreacion: notificacion.fechaCreacion,
+      })
+    })
 
     const tokens =
       await this.dispositivosPushRepository.listarTokensActivosPorUsuarios(
