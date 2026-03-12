@@ -71,13 +71,13 @@ export class modulo1611497480901 implements MigrationInterface {
             },
           },
           {
-            nombre: 'especialidades',
-            url: '/admin/especialidades',
-            label: 'Especialidades',
+            nombre: 'ocupaciones',
+            url: '/admin/ocupaciones',
+            label: 'Ocupaciones',
             propiedades: {
               icono: 'medical_services',
               descripcion:
-                'Gestión de las especialidades médicas disponibles en el sistema',
+                'Gestión de las ocupaciones disponibles en el sistema',
               orden: 2,
             },
           },

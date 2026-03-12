@@ -5,7 +5,7 @@ import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { RolEstado } from '@/core/authorization/constant'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { Status } from '@/common/constants'
-import { UsuarioRolEspecialidad } from '../entities/usuaro-rol-especialidad.entity'
+import { UsuarioRolOcupacion } from '../entities/usuaro-rol-ocupacion.entity'
 
 @Injectable()
 export class PersonalSaludRepository {
@@ -15,8 +15,8 @@ export class PersonalSaludRepository {
     return (manager ?? this.dataSource).getRepository(UsuarioRol)
   }
 
-  private usuarioRolEspecialidadRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(UsuarioRolEspecialidad)
+  private usuarioRolOcupacionRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(UsuarioRolOcupacion)
   }
 
   async listarPersonalSaludPaginado(
@@ -33,13 +33,10 @@ export class PersonalSaludRepository {
         rolEstado: RolEstado.ACTIVE,
       })
       .leftJoinAndSelect(
-        'usuarioRol.usuarioRolEspecialidades',
-        'usuarioRolEspecialidades'
+        'usuarioRol.usuarioRolOcupaciones',
+        'usuarioRolOcupaciones'
       )
-      .leftJoinAndSelect(
-        'usuarioRolEspecialidades.especialidad',
-        'especialidad'
-      )
+      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'ocupacion')
       .select([
         'usuarioRol.id',
         'usuarioRol.idUsuario',
@@ -56,12 +53,11 @@ export class PersonalSaludRepository {
         'persona.fechaNacimiento',
         'persona.telefono',
         'persona.genero',
-        'usuarioRolEspecialidades',
-        'especialidad.id',
-        'especialidad.nombre',
-        'especialidad.descripcion',
-        'especialidad.estado',
-        'especialidad.colorHex',
+        'usuarioRolOcupaciones',
+        'ocupacion.id',
+        'ocupacion.nombre',
+        'ocupacion.descripcion',
+        'ocupacion.estado',
         'rol.id',
         'rol.rol',
       ])
@@ -149,13 +145,10 @@ export class PersonalSaludRepository {
         rolEstado: RolEstado.ACTIVE,
       })
       .leftJoinAndSelect(
-        'usuarioRol.usuarioRolEspecialidades',
-        'usuarioRolEspecialidades'
+        'usuarioRol.usuarioRolOcupaciones',
+        'usuarioRolOcupaciones'
       )
-      .leftJoinAndSelect(
-        'usuarioRolEspecialidades.especialidad',
-        'especialidad'
-      )
+      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'ocupacion')
       .select([
         'usuarioRol.id',
         'usuarioRol.idUsuario',
@@ -172,12 +165,11 @@ export class PersonalSaludRepository {
         'persona.fechaNacimiento',
         'persona.telefono',
         'persona.genero',
-        'usuarioRolEspecialidades',
-        'especialidad.id',
-        'especialidad.nombre',
-        'especialidad.descripcion',
-        'especialidad.estado',
-        'especialidad.colorHex',
+        'usuarioRolOcupaciones',
+        'ocupacion.id',
+        'ocupacion.nombre',
+        'ocupacion.descripcion',
+        'ocupacion.estado',
         'rol.id',
         'rol.rol',
       ])
@@ -205,13 +197,10 @@ export class PersonalSaludRepository {
         rolEstado: RolEstado.ACTIVE,
       })
       .leftJoinAndSelect(
-        'usuarioRol.usuarioRolEspecialidades',
-        'usuarioRolEspecialidades'
+        'usuarioRol.usuarioRolOcupaciones',
+        'usuarioRolOcupaciones'
       )
-      .leftJoinAndSelect(
-        'usuarioRolEspecialidades.especialidad',
-        'especialidad'
-      )
+      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'ocupacion')
       .select([
         'usuarioRol.id',
         'usuarioRol.idUsuario',
@@ -228,12 +217,11 @@ export class PersonalSaludRepository {
         'persona.fechaNacimiento',
         'persona.telefono',
         'persona.genero',
-        'usuarioRolEspecialidades',
-        'especialidad.id',
-        'especialidad.nombre',
-        'especialidad.descripcion',
-        'especialidad.estado',
-        'especialidad.colorHex',
+        'usuarioRolOcupaciones',
+        'ocupacion.id',
+        'ocupacion.nombre',
+        'ocupacion.descripcion',
+        'ocupacion.estado',
         'rol.id',
         'rol.rol',
       ])
@@ -269,19 +257,19 @@ export class PersonalSaludRepository {
     })
   }
 
-  async crearUsuarioRolEspecialidades(
+  async crearUsuarioRolOcupaciones(
     idUsuarioRol: string,
-    idEspecialidades: string[],
+    idOcupaciones: string[],
     usuarioAuditoria: string,
     manager?: EntityManager
   ) {
-    const repo = this.usuarioRolEspecialidadRepository(manager)
-    const especialidadesUnicas = Array.from(new Set(idEspecialidades))
+    const repo = this.usuarioRolOcupacionRepository(manager)
+    const ocupacionesUnicas = Array.from(new Set(idOcupaciones))
 
-    const registros = especialidadesUnicas.map((idEspecialidad) =>
+    const registros = ocupacionesUnicas.map((idOcupacion) =>
       repo.create({
         idUsuarioRol,
-        idEspecialidad,
+        idOcupacion,
         usuarioCreacion: usuarioAuditoria,
       })
     )
@@ -289,32 +277,32 @@ export class PersonalSaludRepository {
     return await repo.save(registros)
   }
 
-  async eliminarUsuarioRolEspecialidades(
+  async eliminarUsuarioRolOcupaciones(
     idUsuarioRol: string,
     manager?: EntityManager
   ) {
-    return await this.usuarioRolEspecialidadRepository(manager).delete({
+    return await this.usuarioRolOcupacionRepository(manager).delete({
       idUsuarioRol,
     })
   }
 
-  async reemplazarEspecialidades(
+  async reemplazarOcupaciones(
     idUsuarioRol: string,
-    idEspecialidades: string[],
+    idOcupaciones: string[],
     usuarioAuditoria: string,
     manager?: EntityManager
   ) {
     const repo = manager ?? this.dataSource
     return await repo.transaction(async (transaction) => {
-      await this.eliminarUsuarioRolEspecialidades(idUsuarioRol, transaction)
+      await this.eliminarUsuarioRolOcupaciones(idUsuarioRol, transaction)
 
-      if (idEspecialidades.length === 0) {
+      if (idOcupaciones.length === 0) {
         return []
       }
 
-      return await this.crearUsuarioRolEspecialidades(
+      return await this.crearUsuarioRolOcupaciones(
         idUsuarioRol,
-        idEspecialidades,
+        idOcupaciones,
         usuarioAuditoria,
         transaction
       )

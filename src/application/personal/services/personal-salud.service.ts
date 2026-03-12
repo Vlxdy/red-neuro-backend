@@ -98,7 +98,7 @@ export class PersonalSaludService extends BaseService {
     dto: CrearPersonalSaludDto,
     usuarioAuditoria: string
   ): Promise<PersonalResponseDto> {
-    const { idEspecialidades, ...usuarioDto } = dto
+    const { idOcupaciones, ...usuarioDto } = dto
 
     const resultado = await this.usuarioService.crear(
       {
@@ -117,24 +117,24 @@ export class PersonalSaludService extends BaseService {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
     }
 
-    if (idEspecialidades && idEspecialidades.length > 0) {
-      await this.personalSaludRepository.crearUsuarioRolEspecialidades(
+    if (idOcupaciones && idOcupaciones.length > 0) {
+      await this.personalSaludRepository.crearUsuarioRolOcupaciones(
         personalCreado.id,
-        idEspecialidades,
+        idOcupaciones,
         usuarioAuditoria
       )
     }
 
-    const personalConEspecialidades =
+    const personalConOcupaciones =
       await this.personalSaludRepository.obtenerPersonalSaludPorId({
         id: personalCreado.id,
       })
 
-    if (!personalConEspecialidades) {
+    if (!personalConOcupaciones) {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
     }
 
-    return formatearPersonal(personalConEspecialidades)
+    return formatearPersonal(personalConOcupaciones)
   }
 
   async actualizarPersonalSalud(
@@ -143,7 +143,7 @@ export class PersonalSaludService extends BaseService {
     usuarioAuditoria: string
   ): Promise<PersonalResponseDto> {
     const personal = await this.buscarPersonalSaludPorId(id)
-    const { idEspecialidades, persona, correoElectronico, esSupervisor } = dto
+    const { idOcupaciones, persona, correoElectronico, esSupervisor } = dto
 
     const requiereActualizarDatos =
       persona !== undefined ||
@@ -162,10 +162,10 @@ export class PersonalSaludService extends BaseService {
       )
     }
 
-    if (idEspecialidades !== undefined) {
-      await this.personalSaludRepository.reemplazarEspecialidades(
+    if (idOcupaciones !== undefined) {
+      await this.personalSaludRepository.reemplazarOcupaciones(
         personal.id,
-        idEspecialidades,
+        idOcupaciones,
         usuarioAuditoria
       )
     }

@@ -1,6 +1,6 @@
 import { Status } from '@/common/constants'
 
-export enum EspecialidadEstado {
+export enum OcupacionEstado {
   INACTIVO = Status.INACTIVE,
   ACTIVO = Status.ACTIVE,
 }

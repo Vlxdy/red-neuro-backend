@@ -8,16 +8,16 @@ import {
 } from 'typeorm'
 import 'bootstrap/env'
 import { Servicio } from './servicio.entity'
-import { Especialidad } from '@/application/personal/entities/especialidad.entity'
+import { Ocupacion } from '@/application/personal/entities/ocupacion.entity'
 import { ServicioEstado } from '../constants'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 
-@Entity({ name: 'servicio_especialidad', schema: process.env.DB_SCHEMA })
-export class ServicioEspecialidad extends AuditoriaEntity<ServicioEstado> {
+@Entity({ name: 'servicio_ocupacion', schema: process.env.DB_SCHEMA })
+export class ServicioOcupacion extends AuditoriaEntity<ServicioEstado> {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla intermedia servicio_especialidad',
+    comment: 'Clave primaria de la tabla intermedia servicio_ocupacion',
   })
   id: string
 
@@ -30,12 +30,12 @@ export class ServicioEspecialidad extends AuditoriaEntity<ServicioEstado> {
   servicioId: string
 
   @Column({
-    name: 'id_especialidad',
+    name: 'id_ocupacion',
     type: 'bigint',
     nullable: false,
-    comment: 'Clave foránea que referencia a la especialidad',
+    comment: 'Clave foránea que referencia a la ocupacion',
   })
-  especialidadId: string
+  ocupacionId: string
 
   // Compatibilidad temporal
   get estudioId() {
@@ -54,25 +54,20 @@ export class ServicioEspecialidad extends AuditoriaEntity<ServicioEstado> {
     this.servicio = value
   }
 
-  @ManyToOne(() => Servicio, (servicio) => servicio.servicioEspecialidades, {
+  @ManyToOne(() => Servicio, (servicio) => servicio.servicioOcupaciones, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_servicio', referencedColumnName: 'id' })
   servicio: Servicio
 
-  @ManyToOne(
-    () => Especialidad,
-    (especialidad) => especialidad.servicioEspecialidades,
-    { onDelete: 'CASCADE' }
-  )
-  @JoinColumn({ name: 'id_especialidad', referencedColumnName: 'id' })
-  especialidad: Especialidad
+  @ManyToOne(() => Ocupacion, (ocupacion) => ocupacion.servicioOcupaciones, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'id_ocupacion', referencedColumnName: 'id' })
+  ocupacion: Ocupacion
 
   @BeforeInsert()
   insertarEstado() {
     this.estado = this.estado || ServicioEstado.ACTIVO
   }
 }
-
-// Alias temporal para compatibilidad
-export { ServicioEspecialidad as EstudioEspecialidad }

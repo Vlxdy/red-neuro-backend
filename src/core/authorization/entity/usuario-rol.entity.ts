@@ -16,7 +16,7 @@ import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Notificacion } from '@/application/citas/entities/notificacion.entity'
 import { Cita } from '@/application/citas/entities/cita.entity'
-import { UsuarioRolEspecialidad } from '@/application/personal/entities/usuaro-rol-especialidad.entity'
+import { UsuarioRolOcupacion } from '@/application/personal/entities/usuaro-rol-ocupacion.entity'
 
 dotenv.config()
 
@@ -78,10 +78,10 @@ export class UsuarioRol extends AuditoriaEntity {
   citasPersonal: Cita[]
 
   @OneToMany(
-    () => UsuarioRolEspecialidad,
-    (usuarioRolEspecialidad) => usuarioRolEspecialidad.usuarioRol
+    () => UsuarioRolOcupacion,
+    (usuarioRolOcupacion) => usuarioRolOcupacion.usuarioRol
   )
-  usuarioRolEspecialidades: UsuarioRolEspecialidad[]
+  usuarioRolOcupaciones: UsuarioRolOcupacion[]
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)

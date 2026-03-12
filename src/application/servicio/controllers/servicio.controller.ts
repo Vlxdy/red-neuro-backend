@@ -54,15 +54,15 @@ export class ServicioController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Lista los servicios paginados por especialidad',
+    summary: 'Lista los servicios paginados por ocupación',
   })
   @ApiBaseResponseListRows(ServicioResponseDto)
-  @Get('especialidades/:id')
-  async listarPorEspecialidad(
+  @Get('ocupaciones/:id')
+  async listarPorOcupacion(
     @Param() { id }: ParamIdDto,
     @Query() paginacionQuery: ListarServiciosQueryDto
   ): Promise<BaseResponseListRowsDto<ServicioResponseDto>> {
-    const resultado = await this.servicioService.listarServiciosPorEspecialidad(
+    const resultado = await this.servicioService.listarServiciosPorOcupacion(
       id,
       paginacionQuery
     )

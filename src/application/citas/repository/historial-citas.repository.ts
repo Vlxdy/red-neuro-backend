@@ -96,13 +96,10 @@ export class HistorialCitasRepository {
       .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
       .leftJoinAndSelect(
-        'usuarioRol.usuarioRolEspecialidades',
-        'usuarioRolEspecialidades'
+        'usuarioRol.usuarioRolOcupaciones',
+        'usuarioRolOcupaciones'
       )
-      .leftJoinAndSelect(
-        'usuarioRolEspecialidades.especialidad',
-        'especialidad'
-      )
+      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'ocupacion')
       .where('usuarioRol.id IN (:...ids)', { ids })
       .getMany()
   }

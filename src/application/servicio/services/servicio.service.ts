@@ -24,23 +24,22 @@ export class ServicioService extends BaseService {
     super()
   }
 
-  private async validarEspecialidades(
-    especialidadIds: string[] = [],
+  private async validarOcupaciones(
+    ocupacionIds: string[] = [],
     transaccion?: EntityManager
   ) {
-    if (especialidadIds.length === 0) {
+    if (ocupacionIds.length === 0) {
       return
     }
 
-    const idsUnicos = Array.from(new Set(especialidadIds))
-    const especialidades =
-      await this.servicioRepository.obtenerEspecialidadesPorIds(
-        idsUnicos,
-        transaccion
-      )
+    const idsUnicos = Array.from(new Set(ocupacionIds))
+    const ocupaciones = await this.servicioRepository.obtenerOcupacionesPorIds(
+      idsUnicos,
+      transaccion
+    )
 
-    if (especialidades.length !== idsUnicos.length) {
-      throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
+    if (ocupaciones.length !== idsUnicos.length) {
+      throw new NotFoundException(Messages.OCUPACION_NOT_FOUND)
     }
   }
 
@@ -52,20 +51,20 @@ export class ServicioService extends BaseService {
     return [formatearServicios(servicios), total]
   }
 
-  async listarServiciosPorEspecialidad(
-    especialidadId: string,
+  async listarServiciosPorOcupacion(
+    ocupacionId: string,
     paginacionQuery: ListarServiciosQueryDto
   ): Promise<[ServicioResponseDto[], number]> {
-    const especialidad =
-      await this.servicioRepository.obtenerEspecialidadPorId(especialidadId)
+    const ocupacion =
+      await this.servicioRepository.obtenerOcupacionPorId(ocupacionId)
 
-    if (!especialidad) {
-      throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
+    if (!ocupacion) {
+      throw new NotFoundException(Messages.OCUPACION_NOT_FOUND)
     }
 
     const [servicios, total] =
-      await this.servicioRepository.listarServiciosPorEspecialidadPaginado(
-        especialidadId,
+      await this.servicioRepository.listarServiciosPorOcupacionPaginado(
+        ocupacionId,
         paginacionQuery
       )
     return [formatearServicios(servicios), total]
@@ -96,7 +95,7 @@ export class ServicioService extends BaseService {
       return await this.servicioRepository.runTransaction(op)
     }
 
-    await this.validarEspecialidades(dto.especialidadIds ?? [], transaccion)
+    await this.validarOcupaciones(dto.ocupacionIds ?? [], transaccion)
 
     const nuevoServicio = await this.servicioRepository.crearServicio(
       dto,
@@ -104,10 +103,10 @@ export class ServicioService extends BaseService {
       transaccion
     )
 
-    if (dto.especialidadIds && dto.especialidadIds.length > 0) {
-      await this.servicioRepository.crearServicioEspecialidades(
+    if (dto.ocupacionIds && dto.ocupacionIds.length > 0) {
+      await this.servicioRepository.crearServicioOcupaciones(
         nuevoServicio.id,
-        dto.especialidadIds,
+        dto.ocupacionIds,
         usuarioAuditoria,
         transaccion
       )
@@ -138,11 +137,11 @@ export class ServicioService extends BaseService {
 
     const servicio = await this.obtenerServicioPorId(id, transaccion)
 
-    if (dto.especialidadIds !== undefined && dto.especialidadIds !== null) {
-      await this.validarEspecialidades(dto.especialidadIds, transaccion)
-      await this.servicioRepository.reemplazarServicioEspecialidades(
+    if (dto.ocupacionIds !== undefined && dto.ocupacionIds !== null) {
+      await this.validarOcupaciones(dto.ocupacionIds, transaccion)
+      await this.servicioRepository.reemplazarServicioOcupaciones(
         servicio.id,
-        dto.especialidadIds,
+        dto.ocupacionIds,
         usuarioAuditoria,
         transaccion
       )
