@@ -1,24 +1,22 @@
-// src/scripts/main.ts (or original file)
-
 import {
   runStep,
   step1_authenticateAdmin,
-  step2_registerInitialNutritionists,
-  step3_bulkRegisterPatients,
-  step4_assignPatientsToNutritionist,
-  step5_authenticateNutriologist,
-  step6_generateAppointmentsAndEvaluations,
-} from './populationSteps' // Import your new modular steps
+  step2_registerHealthcareStaff,
+  step3_registerCategories,
+  step4_registerServices,
+  step5_registerPatients,
+  step6_registerPlaces,
+  step7_registerAppointments,
+} from './populationSteps'
 
 async function main() {
-  const summary: string[] = [] // To store a summary of each step
+  const summary: string[] = []
   const separator = '------------------------------------------------------'
 
   console.log(`\n${separator}`)
   console.log('🚀 INICIANDO PROCESO DE POBLACIÓN DE BASE DE DATOS 🚀')
   console.log(`${separator}\n`)
 
-  // Define steps as an array of objects
   const steps = [
     {
       number: 1,
@@ -27,57 +25,52 @@ async function main() {
     },
     {
       number: 2,
-      name: 'REGISTRO DE NUTRICIONISTAS INICIALES',
-      action: step2_registerInitialNutritionists,
+      name: 'REGISTRO DE PERSONAL DE SALUD (PRIMERAS 10 PERSONAS)',
+      action: step2_registerHealthcareStaff,
     },
     {
       number: 3,
-      name: 'REGISTRO MASIVO DE PACIENTES',
-      action: step3_bulkRegisterPatients,
+      name: 'REGISTRO DE CATEGORÍAS (INCLUYE SEED)',
+      action: step3_registerCategories,
     },
     {
       number: 4,
-      name: 'ASIGNACIÓN DE PACIENTES A NUTRICIONISTA',
-      action: step4_assignPatientsToNutritionist,
+      name: 'REGISTRO DE SERVICIOS REALISTAS (INCLUYE SEED)',
+      action: step4_registerServices,
     },
     {
       number: 5,
-      name: 'AUTENTICACIÓN DEL NUTRIÓLOGO',
-      action: step5_authenticateNutriologist,
+      name: 'REGISTRO DE PACIENTES (RESTO DE PERSONAS)',
+      action: step5_registerPatients,
     },
     {
       number: 6,
-      name: 'GENERACIÓN DE CITAS Y EVALUACIONES',
-      action: step6_generateAppointmentsAndEvaluations,
+      name: 'REGISTRO DE LUGARES',
+      action: step6_registerPlaces,
     },
-    // Add more steps here easily!
+    {
+      number: 7,
+      name: 'REGISTRO DE CITAS CON LUGAR',
+      action: step7_registerAppointments,
+    },
   ]
 
   for (const step of steps) {
     const success = await runStep(step.number, step.name, step.action, summary)
     if (!success) {
-      // If runStep returned false, it means a critical error occurred and the process was aborted
-      // The error message and aborted status are already logged by runStep
       return
     }
   }
 
-  // ---
-  // PROCESO FINALIZADO
-  // ---
   console.log(`\n${separator}`)
   console.log('🎉 PROCESO DE POBLACIÓN DE BASE DE DATOS FINALIZADO 🎉')
   console.log(`${separator}`)
 
-  // ---
-  // RESUMEN FINAL DEL PROCESO
-  // ---
   console.log(`\n${separator}`)
   console.log('📊 RESUMEN FINAL DEL PROCESO:')
   console.log(`${separator}`)
   summary.forEach((line) => {
-    // No need for index if it's already in the summary line
-    console.log(`   ${line}`) // Indent summary lines for better readability
+    console.log(`   ${line}`)
   })
   console.log(`${separator}\n`)
 }
