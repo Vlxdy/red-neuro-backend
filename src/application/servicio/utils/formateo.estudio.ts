@@ -1,32 +1,27 @@
-import { ServicioResponseDto, OcupacionResumenDto } from '../dto/servicio.dto'
+import { ServicioResponseDto, CategoriaResumenDto } from '../dto/servicio.dto'
 import { Servicio } from '../entities/servicio.entity'
 import { ServicioEstado } from '../constants'
-import { OcupacionEstado } from '@/application/personal/constants'
 
-const formatearOcupaciones = (
-  servicioOcupaciones: Servicio['servicioOcupaciones']
-): OcupacionResumenDto[] => {
-  if (!servicioOcupaciones?.length) {
-    return []
-  }
+const formatearCategorias = (
+  servicioCategorias: Servicio['servicioCategorias']
+): CategoriaResumenDto[] => {
+  if (!servicioCategorias?.length) return []
 
-  const ocupacionesUnicas = new Map<string, OcupacionResumenDto>()
+  const categoriasUnicas = new Map<string, CategoriaResumenDto>()
 
-  for (const servicioOcupacion of servicioOcupaciones) {
-    if (servicioOcupacion.estado !== ServicioEstado.ACTIVO) {
-      continue
-    }
+  for (const servicioCategoria of servicioCategorias) {
+    if (servicioCategoria.estado !== ServicioEstado.ACTIVO) continue
+    const categoria = servicioCategoria.categoria
+    if (!categoria || categoria.estado !== ServicioEstado.ACTIVO) continue
 
-    const ocupacion = servicioOcupacion.ocupacion
-    if (!ocupacion || ocupacion.estado !== OcupacionEstado.ACTIVO) continue
-
-    ocupacionesUnicas.set(String(ocupacion.id), {
-      id: ocupacion.id,
-      nombre: ocupacion.nombre,
+    categoriasUnicas.set(String(categoria.id), {
+      id: categoria.id,
+      nombre: categoria.nombre,
+      colorHex: categoria.colorHex,
     })
   }
 
-  return Array.from(ocupacionesUnicas.values())
+  return Array.from(categoriasUnicas.values())
 }
 
 export function formatearServicio(servicio: Servicio): ServicioResponseDto {
@@ -38,7 +33,7 @@ export function formatearServicio(servicio: Servicio): ServicioResponseDto {
     estado: servicio.estado,
     tipo: servicio.tipo,
     costo: Number(servicio.costo),
-    ocupaciones: formatearOcupaciones(servicio.servicioOcupaciones),
+    categorias: formatearCategorias(servicio.servicioCategorias),
   }
 }
 

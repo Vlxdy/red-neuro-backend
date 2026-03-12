@@ -1,11 +1,6 @@
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger'
 import { CrearUsuarioDto } from '@/core/usuario/dto/crear-usuario.dto'
-import {
-  IsArray,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from '@/common/validation'
+import { IsOptional, IsString, ValidateNested } from '@/common/validation'
 import { Type } from 'class-transformer'
 import { PersonaDto } from '@/core/usuario/dto/persona.dto'
 
@@ -21,14 +16,13 @@ export class CrearPersonalSaludDto extends OmitType(CrearUsuarioDto, [
   persona: PersonaDto
 
   @ApiProperty({
-    description: 'Ocupaciones asociadas al profesional de salud',
-    example: ['1', '2'],
+    description: 'Ocupación del profesional de salud',
+    example: 'Cardiología',
     required: false,
   })
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  idOcupaciones?: string[]
+  @IsString()
+  ocupacion?: string
 }
 
 export class ActualizarPersonalSaludDto extends PartialType(

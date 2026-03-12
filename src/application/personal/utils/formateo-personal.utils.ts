@@ -1,25 +1,13 @@
-import { OcupacionPersonalDto, PersonalResponseDto } from '../dto/personal.dto'
+import { PersonalResponseDto } from '../dto/personal.dto'
 import dayjs from 'dayjs'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
-const formatearOcupacionPersonal = (
-  ocupacion: UsuarioRol['usuarioRolOcupaciones'][number]['ocupacion']
-): OcupacionPersonalDto => {
-  return {
-    id: ocupacion.id,
-    nombre: ocupacion.nombre,
-    descripcion: ocupacion.descripcion,
-    estado: ocupacion.estado,
-  }
-}
-
 export function formatearPersonal(usuarioRol: UsuarioRol): PersonalResponseDto {
   const { usuario } = usuarioRol
-  const esSupervisor = usuarioRol.esSupervisor
   return {
     id: usuarioRol.id,
     estado: usuarioRol.estado,
-    esSupervisor,
+    esSupervisor: usuarioRol.esSupervisor,
     nroDocumento: usuario.persona.nroDocumento,
     nombres: usuario.persona.nombres,
     primerApellido: usuario.persona.primerApellido,
@@ -29,10 +17,7 @@ export function formatearPersonal(usuarioRol: UsuarioRol): PersonalResponseDto {
     correoElectronico: usuario.correoElectronico,
     genero: usuario.persona.genero,
     urlFoto: usuario.urlFoto,
-    ocupaciones:
-      usuarioRol.usuarioRolOcupaciones?.map((usuarioOcupacion) =>
-        formatearOcupacionPersonal(usuarioOcupacion.ocupacion)
-      ) ?? [],
+    ocupacion: usuarioRol.ocupacion,
   }
 }
 

@@ -98,7 +98,7 @@ export class PersonalSaludService extends BaseService {
     dto: CrearPersonalSaludDto,
     usuarioAuditoria: string
   ): Promise<PersonalResponseDto> {
-    const { idOcupaciones, ...usuarioDto } = dto
+    const { ocupacion, ...usuarioDto } = dto
 
     const resultado = await this.usuarioService.crear(
       {
@@ -117,24 +117,24 @@ export class PersonalSaludService extends BaseService {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
     }
 
-    if (idOcupaciones && idOcupaciones.length > 0) {
-      await this.personalSaludRepository.crearUsuarioRolOcupaciones(
+    if (ocupacion !== undefined) {
+      await this.personalSaludRepository.actualizarOcupacion(
         personalCreado.id,
-        idOcupaciones,
+        ocupacion,
         usuarioAuditoria
       )
     }
 
-    const personalConOcupaciones =
+    const personalActual =
       await this.personalSaludRepository.obtenerPersonalSaludPorId({
         id: personalCreado.id,
       })
 
-    if (!personalConOcupaciones) {
+    if (!personalActual) {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
     }
 
-    return formatearPersonal(personalConOcupaciones)
+    return formatearPersonal(personalActual)
   }
 
   async actualizarPersonalSalud(
@@ -143,7 +143,7 @@ export class PersonalSaludService extends BaseService {
     usuarioAuditoria: string
   ): Promise<PersonalResponseDto> {
     const personal = await this.buscarPersonalSaludPorId(id)
-    const { idOcupaciones, persona, correoElectronico, esSupervisor } = dto
+    const { ocupacion, persona, correoElectronico, esSupervisor } = dto
 
     const requiereActualizarDatos =
       persona !== undefined ||
@@ -162,10 +162,10 @@ export class PersonalSaludService extends BaseService {
       )
     }
 
-    if (idOcupaciones !== undefined) {
-      await this.personalSaludRepository.reemplazarOcupaciones(
+    if (ocupacion !== undefined) {
+      await this.personalSaludRepository.actualizarOcupacion(
         personal.id,
-        idOcupaciones,
+        ocupacion ?? null,
         usuarioAuditoria
       )
     }

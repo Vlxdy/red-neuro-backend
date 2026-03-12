@@ -1,122 +1,40 @@
-import { Ocupacion } from '@/application/personal/entities/ocupacion.entity'
+import { Categoria } from '@/application/servicio/entities/categoria.entity'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
-import { ServicioOcupacion } from '@/application/servicio/entities/servicio-ocupacion.entity'
+import { ServicioCategoria } from '@/application/servicio/entities/servicio-categoria.entity'
 import { USUARIO_SISTEMA } from '@/common/constants'
 import { MigrationInterface, QueryRunner } from 'typeorm'
-import { OcupacionEstado } from '@/application/personal/constants'
 import { ServicioEstado } from '@/application/servicio/constants'
 import { TipoCita } from '@/application/citas/constants'
 
 export class ocupacionEstudio1720000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const ocupacionesBase = [
-      {
-        nombre: 'Cardiología',
-        descripcion: 'Ocupacion enfocada en corazón y sistema vascular.',
-        grado: 'Ocupacion médica',
-      },
-      {
-        nombre: 'Neurología',
-        descripcion: 'Ocupacion del sistema nervioso central y periférico.',
-        grado: 'Ocupacion médica',
-      },
-      {
-        nombre: 'Radiología',
-        descripcion: 'Ocupacion orientada a imágenes diagnósticas.',
-        grado: 'Ocupacion médica',
-      },
-      {
-        nombre: 'Laboratorio Clínico',
-        descripcion: 'Ocupacion para análisis clínicos y biomarcadores.',
-        grado: 'Área técnica',
-      },
-      {
-        nombre: 'Nutrición',
-        descripcion: 'Evaluación y manejo nutricional integral.',
-        grado: 'Licenciatura',
-      },
+    const categoriasBase = [
+      { nombre: 'Cardiología', descripcion: 'Categoría enfocada en corazón y sistema vascular.' },
+      { nombre: 'Neurología', descripcion: 'Categoría del sistema nervioso central y periférico.' },
+      { nombre: 'Radiología', descripcion: 'Categoría orientada a imágenes diagnósticas.' },
+      { nombre: 'Laboratorio Clínico', descripcion: 'Categoría para análisis clínicos y biomarcadores.' },
+      { nombre: 'Nutrición', descripcion: 'Evaluación y manejo nutricional integral.' },
     ]
 
-    const ocupaciones = await queryRunner.manager.save(
-      ocupacionesBase.map((item) =>
-        queryRunner.manager.create(Ocupacion, {
+    const categorias = await queryRunner.manager.save(
+      categoriasBase.map((item) =>
+        queryRunner.manager.create(Categoria, {
           ...item,
-          estado: OcupacionEstado.ACTIVO,
+          estado: ServicioEstado.ACTIVO,
           transaccion: 'SEEDS',
           usuarioCreacion: USUARIO_SISTEMA,
         })
       )
     )
 
-    const ocupacionPorNombre = new Map(
-      ocupaciones.map((ocupacion) => [ocupacion.nombre, ocupacion])
+    const categoriaPorNombre = new Map(
+      categorias.map((categoria) => [categoria.nombre, categoria])
     )
 
     const serviciosBase = [
-      {
-        nombre: 'Consulta General',
-        descripcion: 'Consulta médica de primera valoración.',
-        tipo: TipoCita.CONSULTA,
-        duracionMinutos: 30,
-        costo: 120.5,
-        ocupaciones: [],
-      },
-      {
-        nombre: 'Control Nutricional',
-        descripcion: 'Seguimiento de plan alimentario y hábitos.',
-        tipo: TipoCita.CONSULTA,
-        duracionMinutos: 25,
-        costo: 90.0,
-        ocupaciones: ['Nutrición'],
-      },
-      {
-        nombre: 'Electrocardiograma',
-        descripcion: 'Registro de actividad eléctrica cardiaca.',
-        tipo: TipoCita.ESTUDIO,
-        duracionMinutos: 20,
-        costo: 150.75,
-        ocupaciones: ['Cardiología'],
-      },
-      {
-        nombre: 'Tomografía Cerebral',
-        descripcion: 'Estudio por imágenes para evaluación neurológica.',
-        tipo: TipoCita.ESTUDIO,
-        duracionMinutos: 45,
-        costo: 480.25,
-        ocupaciones: ['Neurología', 'Radiología'],
-      },
-      {
-        nombre: 'Resonancia de Columna',
-        descripcion: 'Imágenes de alta precisión de columna vertebral.',
-        tipo: TipoCita.ESTUDIO,
-        duracionMinutos: 60,
-        costo: 620.9,
-        ocupaciones: ['Radiología'],
-      },
-      {
-        nombre: 'Perfil Lipídico',
-        descripcion: 'Análisis de colesterol total y fracciones.',
-        tipo: TipoCita.ESTUDIO,
-        duracionMinutos: 15,
-        costo: 80.4,
-        ocupaciones: ['Laboratorio Clínico'],
-      },
-      {
-        nombre: 'Consulta de Neurología',
-        descripcion: 'Atención clínica para síntomas neurológicos.',
-        tipo: TipoCita.CONSULTA,
-        duracionMinutos: 35,
-        costo: 210.0,
-        ocupaciones: ['Neurología'],
-      },
-      {
-        nombre: 'Eco Doppler Cardíaco',
-        descripcion: 'Evaluación ecográfica del flujo sanguíneo cardíaco.',
-        tipo: TipoCita.ESTUDIO,
-        duracionMinutos: 40,
-        costo: 320.6,
-        ocupaciones: ['Cardiología'],
-      },
+      { nombre: 'Consulta General', descripcion: 'Consulta médica de primera valoración.', tipo: TipoCita.CONSULTA, duracionMinutos: 30, costo: 120.5, categorias: [] },
+      { nombre: 'Control Nutricional', descripcion: 'Seguimiento de plan alimentario y hábitos.', tipo: TipoCita.CONSULTA, duracionMinutos: 25, costo: 90.0, categorias: ['Nutrición'] },
+      { nombre: 'Electrocardiograma', descripcion: 'Registro de actividad eléctrica cardiaca.', tipo: TipoCita.ESTUDIO, duracionMinutos: 20, costo: 150.75, categorias: ['Cardiología'] },
     ]
 
     const servicios = await queryRunner.manager.save(
@@ -142,30 +60,28 @@ export class ocupacionEstudio1720000000000 implements MigrationInterface {
       const servicio = servicioPorNombre.get(item.nombre)
       if (!servicio) return []
 
-      return item.ocupaciones
-        .map((nombreOcupacion) => {
-          const ocupacion = ocupacionPorNombre.get(nombreOcupacion)
-          if (!ocupacion) {
-            return null
-          }
+      return item.categorias
+        .map((nombreCategoria) => {
+          const categoria = categoriaPorNombre.get(nombreCategoria)
+          if (!categoria) return null
 
-          return queryRunner.manager.create(ServicioOcupacion, {
+          return queryRunner.manager.create(ServicioCategoria, {
             servicioId: servicio.id,
-            ocupacionId: ocupacion.id,
+            categoriaId: categoria.id,
             usuarioCreacion: USUARIO_SISTEMA,
           })
         })
-        .filter((relacion): relacion is ServicioOcupacion => relacion !== null)
+        .filter((relacion): relacion is ServicioCategoria => relacion !== null)
     })
 
     if (relaciones.length > 0) {
-      await queryRunner.manager.save(ServicioOcupacion, relaciones)
+      await queryRunner.manager.save(ServicioCategoria, relaciones)
     }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.manager.delete(ServicioOcupacion, {})
+    await queryRunner.manager.delete(ServicioCategoria, {})
     await queryRunner.manager.delete(Servicio, {})
-    await queryRunner.manager.delete(Ocupacion, {})
+    await queryRunner.manager.delete(Categoria, {})
   }
 }

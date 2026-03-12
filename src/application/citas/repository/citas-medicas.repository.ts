@@ -81,8 +81,6 @@ export class CitasMedicasRepository {
       .leftJoinAndSelect('cita.personal', 'personal')
       .leftJoinAndSelect('personal.usuario', 'usuarioPersonal')
       .leftJoinAndSelect('usuarioPersonal.persona', 'personaPersonal')
-      .leftJoinAndSelect('personal.usuarioRolOcupaciones', 'personalOcupacion')
-      .leftJoinAndSelect('personalOcupacion.ocupacion', 'ocupacionPersonal')
       .leftJoinAndSelect('cita.paciente', 'paciente')
       .leftJoinAndSelect('cita.consultorio', 'consultorio')
       .leftJoinAndSelect('cita.lugar', 'lugar')
@@ -107,25 +105,9 @@ export class CitasMedicasRepository {
         'usuarioProgramoUsuario.persona',
         'usuarioProgramoPersona'
       )
-      .leftJoinAndSelect(
-        'usuarioProgramo.usuarioRolOcupaciones',
-        'usuarioProgramoOcupaciones'
-      )
-      .leftJoinAndSelect(
-        'usuarioProgramoOcupaciones.ocupacion',
-        'usuarioProgramoOcupacion'
-      )
       .leftJoinAndSelect('cita.usuarioEnvio', 'usuarioEnvio')
       .leftJoinAndSelect('usuarioEnvio.usuario', 'usuarioEnvioUsuario')
       .leftJoinAndSelect('usuarioEnvioUsuario.persona', 'usuarioEnvioPersona')
-      .leftJoinAndSelect(
-        'usuarioEnvio.usuarioRolOcupaciones',
-        'usuarioEnvioOcupaciones'
-      )
-      .leftJoinAndSelect(
-        'usuarioEnvioOcupaciones.ocupacion',
-        'usuarioEnvioOcupacion'
-      )
       .distinct(true)
 
     if (filtros.fechaInicio) {
@@ -745,8 +727,8 @@ export class CitasMedicasRepository {
     return await entityManager
       .getRepository(Servicio)
       .createQueryBuilder('servicio')
-      .leftJoinAndSelect('servicio.servicioOcupaciones', 'servicioOcupaciones')
-      .leftJoinAndSelect('servicioOcupaciones.ocupacion', 'ocupacion')
+      .leftJoinAndSelect('servicio.servicioCategorias', 'servicioCategorias')
+      .leftJoinAndSelect('servicioCategorias.categoria', 'categoria')
       .where('servicio.id = :idServicio', { idServicio })
       .getOne()
   }
