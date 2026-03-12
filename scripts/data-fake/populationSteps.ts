@@ -4,7 +4,7 @@ import { personasFake, UsuarioFake } from './data/usuarios.fake'
 import { TipoLugar } from '@/application/lugar/constants'
 
 const separator = '------------------------------------------------------'
-const DEFAULT_PASSWORD = '123'
+const DEFAULT_PASSWORD = '1234'
 const PERSONAL_SALUD_COUNT = 10
 
 type CategoriaCreada = { id: string; nombre: string }
