@@ -6,9 +6,8 @@ import {
   CrearServicioDto,
   ListarServiciosQueryDto,
 } from '../dto/servicio.dto'
-import { Ocupacion } from '@/application/personal/entities/ocupacion.entity'
-import { ServicioOcupacion } from '../entities/servicio-ocupacion.entity'
-import { OcupacionEstado } from '@/application/personal/constants'
+import { Categoria } from '../entities/categoria.entity'
+import { ServicioCategoria } from '../entities/servicio-categoria.entity'
 import { ServicioEstado } from '../constants'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
@@ -20,12 +19,12 @@ export class ServicioRepository {
     return (manager ?? this.dataSource).getRepository(Servicio)
   }
 
-  private ocupacionRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(Ocupacion)
+  private categoriaRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Categoria)
   }
 
-  private servicioOcupacionRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(ServicioOcupacion)
+  private servicioCategoriaRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(ServicioCategoria)
   }
 
   async listarServiciosPaginado(paginacionQuery: ListarServiciosQueryDto) {
@@ -34,16 +33,16 @@ export class ServicioRepository {
     const query = this.servicioRepository()
       .createQueryBuilder('servicio')
       .leftJoinAndSelect(
-        'servicio.servicioOcupaciones',
-        'servicioOcupaciones',
-        'servicioOcupaciones.estado = :estadoRelacion',
+        'servicio.servicioCategorias',
+        'servicioCategorias',
+        'servicioCategorias.estado = :estadoRelacion',
         { estadoRelacion: ServicioEstado.ACTIVO }
       )
       .leftJoinAndSelect(
-        'servicioOcupaciones.ocupacion',
-        'ocupacion',
-        'ocupacion.estado = :estadoOcupacion',
-        { estadoOcupacion: OcupacionEstado.ACTIVO }
+        'servicioCategorias.categoria',
+        'categoria',
+        'categoria.estado = :estadoCategoria',
+        { estadoCategoria: ServicioEstado.ACTIVO }
       )
       .distinct(true)
       .take(limite)
@@ -69,9 +68,7 @@ export class ServicioRepository {
     if (filtro) {
       query.andWhere(
         new Brackets((qb) => {
-          qb.orWhere('servicio.nombre ilike :filtro', {
-            filtro: `%${filtro}%`,
-          })
+          qb.orWhere('servicio.nombre ilike :filtro', { filtro: `%${filtro}%` })
           qb.orWhere('servicio.descripcion ilike :filtro', {
             filtro: `%${filtro}%`,
           })
@@ -86,8 +83,8 @@ export class ServicioRepository {
     return await query.getManyAndCount()
   }
 
-  async listarServiciosPorOcupacionPaginado(
-    ocupacionId: string,
+  async listarServiciosPorCategoriaPaginado(
+    categoriaId: string,
     paginacionQuery: ListarServiciosQueryDto
   ) {
     const { limite, saltar, filtro, orden, sentido, tipo } = paginacionQuery
@@ -95,44 +92,26 @@ export class ServicioRepository {
     const query = this.servicioRepository()
       .createQueryBuilder('servicio')
       .innerJoinAndSelect(
-        'servicio.servicioOcupaciones',
-        'servicioOcupaciones',
-        'servicioOcupaciones.ocupacionId = :ocupacionId AND servicioOcupaciones.estado = :estadoRelacion',
-        { ocupacionId, estadoRelacion: ServicioEstado.ACTIVO }
+        'servicio.servicioCategorias',
+        'servicioCategorias',
+        'servicioCategorias.categoriaId = :categoriaId AND servicioCategorias.estado = :estadoRelacion',
+        { categoriaId, estadoRelacion: ServicioEstado.ACTIVO }
       )
       .innerJoinAndSelect(
-        'servicioOcupaciones.ocupacion',
-        'ocupacion',
-        'ocupacion.estado = :estadoOcupacion',
-        { estadoOcupacion: OcupacionEstado.ACTIVO }
+        'servicioCategorias.categoria',
+        'categoria',
+        'categoria.estado = :estadoCategoria',
+        { estadoCategoria: ServicioEstado.ACTIVO }
       )
       .distinct(true)
       .take(limite)
       .skip(saltar)
 
-    switch (orden) {
-      case 'nombre':
-        query.addOrderBy('servicio.nombre', sentido)
-        break
-      case 'descripcion':
-        query.addOrderBy('servicio.descripcion', sentido)
-        break
-      case 'duracionMinutos':
-        query.addOrderBy('servicio.duracionMinutos', sentido)
-        break
-      case 'estado':
-        query.addOrderBy('servicio.estado', sentido)
-        break
-      default:
-        query.addOrderBy('servicio.id', 'ASC')
-    }
-
+    if (tipo) query.andWhere('servicio.tipo = :tipo', { tipo })
     if (filtro) {
       query.andWhere(
         new Brackets((qb) => {
-          qb.orWhere('servicio.nombre ilike :filtro', {
-            filtro: `%${filtro}%`,
-          })
+          qb.orWhere('servicio.nombre ilike :filtro', { filtro: `%${filtro}%` })
           qb.orWhere('servicio.descripcion ilike :filtro', {
             filtro: `%${filtro}%`,
           })
@@ -140,8 +119,12 @@ export class ServicioRepository {
       )
     }
 
-    if (tipo) {
-      query.andWhere('servicio.tipo = :tipo', { tipo })
+    switch (orden) {
+      case 'nombre':
+        query.addOrderBy('servicio.nombre', sentido)
+        break
+      default:
+        query.addOrderBy('servicio.id', 'ASC')
     }
 
     return await query.getManyAndCount()
@@ -151,30 +134,28 @@ export class ServicioRepository {
     return await this.servicioRepository(manager)
       .createQueryBuilder('servicio')
       .leftJoinAndSelect(
-        'servicio.servicioOcupaciones',
-        'servicioOcupaciones',
-        'servicioOcupaciones.estado = :estadoRelacion',
+        'servicio.servicioCategorias',
+        'servicioCategorias',
+        'servicioCategorias.estado = :estadoRelacion',
         { estadoRelacion: ServicioEstado.ACTIVO }
       )
       .leftJoinAndSelect(
-        'servicioOcupaciones.ocupacion',
-        'ocupacion',
-        'ocupacion.estado = :estadoOcupacion',
-        { estadoOcupacion: OcupacionEstado.ACTIVO }
+        'servicioCategorias.categoria',
+        'categoria',
+        'categoria.estado = :estadoCategoria',
+        { estadoCategoria: ServicioEstado.ACTIVO }
       )
       .where('servicio.id = :id', { id })
       .getOne()
   }
 
-  async obtenerOcupacionPorId(id: string, manager?: EntityManager) {
-    return await this.ocupacionRepository(manager).findOne({ where: { id } })
+  async obtenerCategoriaPorId(id: string, manager?: EntityManager) {
+    return await this.categoriaRepository(manager).findOne({ where: { id } })
   }
 
-  async obtenerOcupacionesPorIds(ids: string[], manager?: EntityManager) {
+  async obtenerCategoriasPorIds(ids: string[], manager?: EntityManager) {
     if (ids.length === 0) return []
-    return await this.ocupacionRepository(manager).findBy({
-      id: In(ids),
-    })
+    return await this.categoriaRepository(manager).findBy({ id: In(ids) })
   }
 
   async crearServicio(
@@ -186,7 +167,6 @@ export class ServicioRepository {
       ...dto,
       usuarioCreacion: usuarioAuditoria,
     })
-
     return await this.servicioRepository(transaccion).save(nuevo)
   }
 
@@ -197,7 +177,6 @@ export class ServicioRepository {
     transaccion: EntityManager
   ) {
     const repo = this.servicioRepository(transaccion)
-
     const partial: QueryDeepPartialEntity<Servicio> = {
       usuarioModificacion: usuarioAuditoria,
     }
@@ -211,86 +190,73 @@ export class ServicioRepository {
     if (dto.costo !== undefined) partial.costo = Number(dto.costo)
 
     await repo.update({ id: servicio.id }, partial)
-
     return await repo.findOneOrFail({ where: { id: servicio.id } })
   }
-  async crearServicioOcupaciones(
+
+  async crearServicioCategorias(
     servicioId: string,
-    ocupacionIds: string[],
+    categoriaIds: string[],
     usuarioAuditoria: string,
     manager: EntityManager
   ) {
-    const repo = this.servicioOcupacionRepository(manager)
-    const idsUnicos = Array.from(new Set(ocupacionIds))
-
+    const repo = this.servicioCategoriaRepository(manager)
+    const idsUnicos = Array.from(new Set(categoriaIds))
     const existentes = await repo.find({
-      where: { servicioId, ocupacionId: In(idsUnicos) },
+      where: { servicioId, categoriaId: In(idsUnicos) },
     })
     const existentesMap = new Map(
-      existentes.map((relacion) => [String(relacion.ocupacionId), relacion])
+      existentes.map((relacion) => [String(relacion.categoriaId), relacion])
     )
 
-    const cambios: ServicioOcupacion[] = []
-
-    for (const ocupacionId of idsUnicos) {
-      const existente = existentesMap.get(String(ocupacionId))
+    const cambios: ServicioCategoria[] = []
+    for (const categoriaId of idsUnicos) {
+      const existente = existentesMap.get(String(categoriaId))
       if (!existente) {
         cambios.push(
           repo.create({
             servicioId,
-            ocupacionId,
+            categoriaId,
             estado: ServicioEstado.ACTIVO,
             usuarioCreacion: usuarioAuditoria,
           })
         )
-        continue
-      }
-
-      if (existente.estado !== ServicioEstado.ACTIVO) {
+      } else if (existente.estado !== ServicioEstado.ACTIVO) {
         existente.estado = ServicioEstado.ACTIVO
         cambios.push(existente)
       }
     }
 
-    if (cambios.length === 0) {
-      return []
-    }
-
-    return await repo.save(cambios)
+    return cambios.length ? await repo.save(cambios) : []
   }
 
-  async reemplazarServicioOcupaciones(
+  async reemplazarServicioCategorias(
     servicioId: string,
-    ocupacionIds: string[],
+    categoriaIds: string[],
     usuarioAuditoria: string,
     manager: EntityManager
   ) {
-    const repo = this.servicioOcupacionRepository(manager)
-    const idsUnicos = Array.from(new Set(ocupacionIds))
+    const repo = this.servicioCategoriaRepository(manager)
+    const idsUnicos = Array.from(new Set(categoriaIds))
     const idsSet = new Set(idsUnicos.map((id) => String(id)))
     const existentes = await repo.find({ where: { servicioId } })
 
-    const cambios: ServicioOcupacion[] = []
+    const cambios: ServicioCategoria[] = []
     const existentesMap = new Map(
-      existentes.map((relacion) => [String(relacion.ocupacionId), relacion])
+      existentes.map((relacion) => [String(relacion.categoriaId), relacion])
     )
 
-    for (const ocupacionId of idsUnicos) {
-      const existente = existentesMap.get(String(ocupacionId))
-
+    for (const categoriaId of idsUnicos) {
+      const existente = existentesMap.get(String(categoriaId))
       if (!existente) {
         cambios.push(
           repo.create({
             servicioId,
-            ocupacionId,
+            categoriaId,
             usuarioCreacion: usuarioAuditoria,
             estado: ServicioEstado.ACTIVO,
           })
         )
-        continue
-      }
-
-      if (existente.estado !== ServicioEstado.ACTIVO) {
+      } else if (existente.estado !== ServicioEstado.ACTIVO) {
         existente.estado = ServicioEstado.ACTIVO
         existente.usuarioModificacion = usuarioAuditoria
         cambios.push(existente)
@@ -298,19 +264,14 @@ export class ServicioRepository {
     }
 
     for (const relacion of existentes) {
-      const estaEnPayload = idsSet.has(String(relacion.ocupacionId))
-      if (!estaEnPayload && relacion.estado !== ServicioEstado.INACTIVO) {
+      if (!idsSet.has(String(relacion.categoriaId))) {
         relacion.estado = ServicioEstado.INACTIVO
         relacion.usuarioModificacion = usuarioAuditoria
         cambios.push(relacion)
       }
     }
 
-    if (cambios.length === 0) {
-      return []
-    }
-
-    return await repo.save(cambios)
+    return cambios.length ? await repo.save(cambios) : []
   }
 
   async eliminarServicio(id: string, transaccion: EntityManager) {

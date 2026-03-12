@@ -95,11 +95,6 @@ export class HistorialCitasRepository {
       .createQueryBuilder('usuarioRol')
       .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
-      .leftJoinAndSelect(
-        'usuarioRol.usuarioRolOcupaciones',
-        'usuarioRolOcupaciones'
-      )
-      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'ocupacion')
       .where('usuarioRol.id IN (:...ids)', { ids })
       .getMany()
   }

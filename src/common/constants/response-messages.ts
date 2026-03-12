@@ -71,4 +71,5 @@ export enum Messages {
   ESTUDIO_NOT_FOUND = 'El estudio no se encuentra registrado.',
   SERVICIO_NOT_FOUND = 'El servicio no se encuentra registrado.',
   OCUPACION_NOT_FOUND = 'La ocupación no se encuentra registrada.',
+  CATEGORIA_NOT_FOUND = 'La categoría no se encuentra registrada.',
 }

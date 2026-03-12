@@ -37,8 +37,8 @@ const frontendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'read',
     [RolEnum.PERSONAL_SALUD]: 'read',
   },
-  '/admin/ocupaciones': {
-    [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+  '/admin/categorias': {
+    [RolEnum.ADMINISTRADOR]: 'read|create|update',
   },
   '/admin/estudios': {
     [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
@@ -206,7 +206,7 @@ const backendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'GET|POST',
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },
-  '/api/servicios/ocupaciones/:id': {
+  '/api/servicios/categorias/:id': {
     [RolEnum.ADMINISTRADOR]: 'GET',
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },
@@ -214,22 +214,19 @@ const backendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },
-  '/api/servicios/:id/ocupaciones': {
-    [RolEnum.ADMINISTRADOR]: 'POST',
-  },
   '/api/servicios/:id/cambiar-estado': {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
   },
-  // OCUPACIONES MÉDICAS
-  '/api/ocupaciones': {
+  // CATEGORÍAS DE SERVICIOS
+  '/api/categorias': {
     [RolEnum.ADMINISTRADOR]: 'GET|POST',
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },
-  '/api/ocupaciones/:id': {
+  '/api/categorias/:id': {
     [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },
-  '/api/ocupaciones/:id/cambiar-estado': {
+  '/api/categorias/:id/cambiar-estado': {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
   },
   // PACIENTES

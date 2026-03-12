@@ -24,22 +24,22 @@ export class ServicioService extends BaseService {
     super()
   }
 
-  private async validarOcupaciones(
-    ocupacionIds: string[] = [],
+  private async validarCategorias(
+    categoriaIds: string[] = [],
     transaccion?: EntityManager
   ) {
-    if (ocupacionIds.length === 0) {
+    if (categoriaIds.length === 0) {
       return
     }
 
-    const idsUnicos = Array.from(new Set(ocupacionIds))
-    const ocupaciones = await this.servicioRepository.obtenerOcupacionesPorIds(
+    const idsUnicos = Array.from(new Set(categoriaIds))
+    const categorias = await this.servicioRepository.obtenerCategoriasPorIds(
       idsUnicos,
       transaccion
     )
 
-    if (ocupaciones.length !== idsUnicos.length) {
-      throw new NotFoundException(Messages.OCUPACION_NOT_FOUND)
+    if (categorias.length !== idsUnicos.length) {
+      throw new NotFoundException(Messages.CATEGORIA_NOT_FOUND)
     }
   }
 
@@ -51,20 +51,20 @@ export class ServicioService extends BaseService {
     return [formatearServicios(servicios), total]
   }
 
-  async listarServiciosPorOcupacion(
-    ocupacionId: string,
+  async listarServiciosPorCategoria(
+    categoriaId: string,
     paginacionQuery: ListarServiciosQueryDto
   ): Promise<[ServicioResponseDto[], number]> {
-    const ocupacion =
-      await this.servicioRepository.obtenerOcupacionPorId(ocupacionId)
+    const categoria =
+      await this.servicioRepository.obtenerCategoriaPorId(categoriaId)
 
-    if (!ocupacion) {
-      throw new NotFoundException(Messages.OCUPACION_NOT_FOUND)
+    if (!categoria) {
+      throw new NotFoundException(Messages.CATEGORIA_NOT_FOUND)
     }
 
     const [servicios, total] =
-      await this.servicioRepository.listarServiciosPorOcupacionPaginado(
-        ocupacionId,
+      await this.servicioRepository.listarServiciosPorCategoriaPaginado(
+        categoriaId,
         paginacionQuery
       )
     return [formatearServicios(servicios), total]
@@ -95,7 +95,7 @@ export class ServicioService extends BaseService {
       return await this.servicioRepository.runTransaction(op)
     }
 
-    await this.validarOcupaciones(dto.ocupacionIds ?? [], transaccion)
+    await this.validarCategorias(dto.categoriaIds ?? [], transaccion)
 
     const nuevoServicio = await this.servicioRepository.crearServicio(
       dto,
@@ -103,10 +103,10 @@ export class ServicioService extends BaseService {
       transaccion
     )
 
-    if (dto.ocupacionIds && dto.ocupacionIds.length > 0) {
-      await this.servicioRepository.crearServicioOcupaciones(
+    if (dto.categoriaIds && dto.categoriaIds.length > 0) {
+      await this.servicioRepository.crearServicioCategorias(
         nuevoServicio.id,
-        dto.ocupacionIds,
+        dto.categoriaIds,
         usuarioAuditoria,
         transaccion
       )
@@ -137,11 +137,11 @@ export class ServicioService extends BaseService {
 
     const servicio = await this.obtenerServicioPorId(id, transaccion)
 
-    if (dto.ocupacionIds !== undefined && dto.ocupacionIds !== null) {
-      await this.validarOcupaciones(dto.ocupacionIds, transaccion)
-      await this.servicioRepository.reemplazarServicioOcupaciones(
+    if (dto.categoriaIds !== undefined && dto.categoriaIds !== null) {
+      await this.validarCategorias(dto.categoriaIds, transaccion)
+      await this.servicioRepository.reemplazarServicioCategorias(
         servicio.id,
-        dto.ocupacionIds,
+        dto.categoriaIds,
         usuarioAuditoria,
         transaccion
       )

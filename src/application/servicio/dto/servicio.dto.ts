@@ -25,18 +25,25 @@ export class ListarServiciosQueryDto extends PaginacionQueryDto {
   tipo?: TipoCita
 }
 
-export class OcupacionResumenDto {
+export class CategoriaResumenDto {
   @ApiProperty({
-    description: 'Identificador único de la ocupación',
+    description: 'Identificador único de la categoría',
     example: '12',
   })
   id!: string
 
   @ApiProperty({
-    description: 'Nombre visible de la ocupación',
+    description: 'Nombre visible de la categoría',
     example: 'Cardiología',
   })
   nombre!: string
+
+  @ApiProperty({
+    description: 'Color identificador de la categoría',
+    required: false,
+    example: '#ef4444',
+  })
+  colorHex?: string
 }
 
 export class CrearServicioDto {
@@ -84,7 +91,7 @@ export class CrearServicioDto {
   costo!: number
 
   @ApiProperty({
-    description: 'Identificadores de ocupaciones asociadas (opcional)',
+    description: 'Identificadores de categorías asociadas (opcional)',
     example: ['2', '5'],
     required: false,
     type: [String],
@@ -92,7 +99,7 @@ export class CrearServicioDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  ocupacionIds?: string[]
+  categoriaIds?: string[]
 }
 
 export class ServicioResponseDto {
@@ -137,10 +144,10 @@ export class ServicioResponseDto {
   costo!: number
 
   @ApiProperty({
-    description: 'Ocupaciones asociadas al servicio',
-    type: [OcupacionResumenDto],
+    description: 'Categorías asociadas al servicio',
+    type: [CategoriaResumenDto],
   })
-  ocupaciones!: OcupacionResumenDto[]
+  categorias!: CategoriaResumenDto[]
 }
 
 export class ActualizarServicioDto extends PartialType(CrearServicioDto) {
