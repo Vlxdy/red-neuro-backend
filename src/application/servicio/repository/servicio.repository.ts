@@ -6,8 +6,8 @@ import {
   CrearServicioDto,
   ListarServiciosQueryDto,
 } from '../dto/servicio.dto'
-import { Ocupacion } from '@/application/personal/entities/especialidad.entity'
-import { ServicioOcupacion } from '../entities/servicio-especialidad.entity'
+import { Ocupacion } from '@/application/personal/entities/ocupacion.entity'
+import { ServicioOcupacion } from '../entities/servicio-ocupacion.entity'
 import { OcupacionEstado } from '@/application/personal/constants'
 import { ServicioEstado } from '../constants'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
@@ -41,8 +41,8 @@ export class ServicioRepository {
       )
       .leftJoinAndSelect(
         'servicioOcupaciones.ocupacion',
-        'especialidad',
-        'especialidad.estado = :estadoOcupacion',
+        'ocupacion',
+        'ocupacion.estado = :estadoOcupacion',
         { estadoOcupacion: OcupacionEstado.ACTIVO }
       )
       .distinct(true)
@@ -102,8 +102,8 @@ export class ServicioRepository {
       )
       .innerJoinAndSelect(
         'servicioOcupaciones.ocupacion',
-        'especialidad',
-        'especialidad.estado = :estadoOcupacion',
+        'ocupacion',
+        'ocupacion.estado = :estadoOcupacion',
         { estadoOcupacion: OcupacionEstado.ACTIVO }
       )
       .distinct(true)
@@ -158,8 +158,8 @@ export class ServicioRepository {
       )
       .leftJoinAndSelect(
         'servicioOcupaciones.ocupacion',
-        'especialidad',
-        'especialidad.estado = :estadoOcupacion',
+        'ocupacion',
+        'ocupacion.estado = :estadoOcupacion',
         { estadoOcupacion: OcupacionEstado.ACTIVO }
       )
       .where('servicio.id = :id', { id })

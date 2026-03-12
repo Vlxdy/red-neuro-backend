@@ -1,33 +1,33 @@
-import { Especialidad } from '@/application/personal/entities/especialidad.entity'
+import { Ocupacion } from '@/application/personal/entities/ocupacion.entity'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
-import { ServicioOcupacion } from '@/application/servicio/entities/servicio-especialidad.entity'
+import { ServicioOcupacion } from '@/application/servicio/entities/servicio-ocupacion.entity'
 import { USUARIO_SISTEMA } from '@/common/constants'
 import { MigrationInterface, QueryRunner } from 'typeorm'
 import { OcupacionEstado } from '@/application/personal/constants'
 import { ServicioEstado } from '@/application/servicio/constants'
 import { TipoCita } from '@/application/citas/constants'
 
-export class especialidadEstudio1720000000000 implements MigrationInterface {
+export class ocupacionEstudio1720000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const especialidadesBase = [
+    const ocupacionesBase = [
       {
         nombre: 'Cardiología',
-        descripcion: 'Especialidad enfocada en corazón y sistema vascular.',
-        grado: 'Especialidad médica',
+        descripcion: 'Ocupacion enfocada en corazón y sistema vascular.',
+        grado: 'Ocupacion médica',
       },
       {
         nombre: 'Neurología',
-        descripcion: 'Especialidad del sistema nervioso central y periférico.',
-        grado: 'Especialidad médica',
+        descripcion: 'Ocupacion del sistema nervioso central y periférico.',
+        grado: 'Ocupacion médica',
       },
       {
         nombre: 'Radiología',
-        descripcion: 'Especialidad orientada a imágenes diagnósticas.',
-        grado: 'Especialidad médica',
+        descripcion: 'Ocupacion orientada a imágenes diagnósticas.',
+        grado: 'Ocupacion médica',
       },
       {
         nombre: 'Laboratorio Clínico',
-        descripcion: 'Especialidad para análisis clínicos y biomarcadores.',
+        descripcion: 'Ocupacion para análisis clínicos y biomarcadores.',
         grado: 'Área técnica',
       },
       {
@@ -37,9 +37,9 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
       },
     ]
 
-    const especialidades = await queryRunner.manager.save(
-      especialidadesBase.map((item) =>
-        queryRunner.manager.create(Especialidad, {
+    const ocupaciones = await queryRunner.manager.save(
+      ocupacionesBase.map((item) =>
+        queryRunner.manager.create(Ocupacion, {
           ...item,
           estado: OcupacionEstado.ACTIVO,
           transaccion: 'SEEDS',
@@ -48,8 +48,8 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
       )
     )
 
-    const especialidadPorNombre = new Map(
-      especialidades.map((especialidad) => [especialidad.nombre, especialidad])
+    const ocupacionPorNombre = new Map(
+      ocupaciones.map((ocupacion) => [ocupacion.nombre, ocupacion])
     )
 
     const serviciosBase = [
@@ -59,7 +59,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.CONSULTA,
         duracionMinutos: 30,
         costo: 120.5,
-        especialidades: [],
+        ocupaciones: [],
       },
       {
         nombre: 'Control Nutricional',
@@ -67,7 +67,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.CONSULTA,
         duracionMinutos: 25,
         costo: 90.0,
-        especialidades: ['Nutrición'],
+        ocupaciones: ['Nutrición'],
       },
       {
         nombre: 'Electrocardiograma',
@@ -75,7 +75,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 20,
         costo: 150.75,
-        especialidades: ['Cardiología'],
+        ocupaciones: ['Cardiología'],
       },
       {
         nombre: 'Tomografía Cerebral',
@@ -83,7 +83,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 45,
         costo: 480.25,
-        especialidades: ['Neurología', 'Radiología'],
+        ocupaciones: ['Neurología', 'Radiología'],
       },
       {
         nombre: 'Resonancia de Columna',
@@ -91,7 +91,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 60,
         costo: 620.9,
-        especialidades: ['Radiología'],
+        ocupaciones: ['Radiología'],
       },
       {
         nombre: 'Perfil Lipídico',
@@ -99,7 +99,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 15,
         costo: 80.4,
-        especialidades: ['Laboratorio Clínico'],
+        ocupaciones: ['Laboratorio Clínico'],
       },
       {
         nombre: 'Consulta de Neurología',
@@ -107,7 +107,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.CONSULTA,
         duracionMinutos: 35,
         costo: 210.0,
-        especialidades: ['Neurología'],
+        ocupaciones: ['Neurología'],
       },
       {
         nombre: 'Eco Doppler Cardíaco',
@@ -115,7 +115,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
         tipo: TipoCita.ESTUDIO,
         duracionMinutos: 40,
         costo: 320.6,
-        especialidades: ['Cardiología'],
+        ocupaciones: ['Cardiología'],
       },
     ]
 
@@ -142,16 +142,16 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
       const servicio = servicioPorNombre.get(item.nombre)
       if (!servicio) return []
 
-      return item.especialidades
-        .map((nombreEspecialidad) => {
-          const especialidad = especialidadPorNombre.get(nombreEspecialidad)
-          if (!especialidad) {
+      return item.ocupaciones
+        .map((nombreOcupacion) => {
+          const ocupacion = ocupacionPorNombre.get(nombreOcupacion)
+          if (!ocupacion) {
             return null
           }
 
           return queryRunner.manager.create(ServicioOcupacion, {
             servicioId: servicio.id,
-            ocupacionId: especialidad.id,
+            ocupacionId: ocupacion.id,
             usuarioCreacion: USUARIO_SISTEMA,
           })
         })
@@ -166,6 +166,6 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.manager.delete(ServicioOcupacion, {})
     await queryRunner.manager.delete(Servicio, {})
-    await queryRunner.manager.delete(Especialidad, {})
+    await queryRunner.manager.delete(Ocupacion, {})
   }
 }

@@ -39,7 +39,7 @@ export class ServicioService extends BaseService {
     )
 
     if (ocupaciones.length !== idsUnicos.length) {
-      throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
+      throw new NotFoundException(Messages.OCUPACION_NOT_FOUND)
     }
   }
 
@@ -55,11 +55,11 @@ export class ServicioService extends BaseService {
     ocupacionId: string,
     paginacionQuery: ListarServiciosQueryDto
   ): Promise<[ServicioResponseDto[], number]> {
-    const especialidad =
+    const ocupacion =
       await this.servicioRepository.obtenerOcupacionPorId(ocupacionId)
 
-    if (!especialidad) {
-      throw new NotFoundException(Messages.ESPECIALIDAD_NOT_FOUND)
+    if (!ocupacion) {
+      throw new NotFoundException(Messages.OCUPACION_NOT_FOUND)
     }
 
     const [servicios, total] =

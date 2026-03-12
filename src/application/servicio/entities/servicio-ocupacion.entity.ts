@@ -8,7 +8,7 @@ import {
 } from 'typeorm'
 import 'bootstrap/env'
 import { Servicio } from './servicio.entity'
-import { Ocupacion } from '@/application/personal/entities/especialidad.entity'
+import { Ocupacion } from '@/application/personal/entities/ocupacion.entity'
 import { ServicioEstado } from '../constants'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 
@@ -17,7 +17,7 @@ export class ServicioOcupacion extends AuditoriaEntity<ServicioEstado> {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla intermedia servicio_especialidad',
+    comment: 'Clave primaria de la tabla intermedia servicio_ocupacion',
   })
   id: string
 
@@ -33,7 +33,7 @@ export class ServicioOcupacion extends AuditoriaEntity<ServicioEstado> {
     name: 'id_ocupacion',
     type: 'bigint',
     nullable: false,
-    comment: 'Clave foránea que referencia a la especialidad',
+    comment: 'Clave foránea que referencia a la ocupacion',
   })
   ocupacionId: string
 
@@ -66,29 +66,8 @@ export class ServicioOcupacion extends AuditoriaEntity<ServicioEstado> {
   @JoinColumn({ name: 'id_ocupacion', referencedColumnName: 'id' })
   ocupacion: Ocupacion
 
-  get especialidadId() {
-    return this.ocupacionId
-  }
-
-  set especialidadId(value: string) {
-    this.ocupacionId = value
-  }
-
-  get especialidad() {
-    return this.ocupacion
-  }
-
-  set especialidad(value: Ocupacion) {
-    this.ocupacion = value
-  }
-
   @BeforeInsert()
   insertarEstado() {
     this.estado = this.estado || ServicioEstado.ACTIVO
   }
 }
-
-// Alias temporal para compatibilidad
-export { ServicioOcupacion as EstudioEspecialidad }
-
-export { ServicioOcupacion as ServicioEspecialidad }

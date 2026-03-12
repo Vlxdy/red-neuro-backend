@@ -16,7 +16,7 @@ import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Notificacion } from '@/application/citas/entities/notificacion.entity'
 import { Cita } from '@/application/citas/entities/cita.entity'
-import { UsuarioRolOcupacion } from '@/application/personal/entities/usuaro-rol-especialidad.entity'
+import { UsuarioRolOcupacion } from '@/application/personal/entities/usuaro-rol-ocupacion.entity'
 
 dotenv.config()
 
@@ -86,14 +86,6 @@ export class UsuarioRol extends AuditoriaEntity {
   constructor(data?: Partial<UsuarioRol>) {
     super(data)
     Object.assign(this, data)
-  }
-
-  get usuarioRolEspecialidades() {
-    return this.usuarioRolOcupaciones
-  }
-
-  set usuarioRolEspecialidades(value: UsuarioRolOcupacion[]) {
-    this.usuarioRolOcupaciones = value
   }
 
   @BeforeInsert()

@@ -220,7 +220,7 @@ const backendRoutes: CasbinValue = {
   '/api/servicios/:id/cambiar-estado': {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
   },
-  // ESPECIALIDADES MÉDICAS
+  // OCUPACIONES MÉDICAS
   '/api/ocupaciones': {
     [RolEnum.ADMINISTRADOR]: 'GET|POST',
     [RolEnum.PERSONAL_SALUD]: 'GET',

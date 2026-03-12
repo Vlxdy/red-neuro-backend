@@ -11,7 +11,7 @@ import {
 import 'bootstrap/env'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { OcupacionEstado } from '../constants'
-import { Ocupacion } from './especialidad.entity'
+import { Ocupacion } from './ocupacion.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 
 @Check(UtilService.buildStatusCheck(OcupacionEstado))
@@ -20,7 +20,7 @@ export class UsuarioRolOcupacion extends AuditoriaEntity<OcupacionEstado> {
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'id',
-    comment: 'Clave primaria de la tabla de usuario rol especialidad',
+    comment: 'Clave primaria de la tabla de usuario rol ocupacion',
   })
   id: string
 
@@ -28,7 +28,7 @@ export class UsuarioRolOcupacion extends AuditoriaEntity<OcupacionEstado> {
     name: 'id_ocupacion',
     type: 'bigint',
     nullable: false,
-    comment: 'Clave foránea que referencia a la especialidad',
+    comment: 'Clave foránea que referencia a la ocupacion',
   })
   idOcupacion: string
 
@@ -42,13 +42,13 @@ export class UsuarioRolOcupacion extends AuditoriaEntity<OcupacionEstado> {
     name: 'id_usuario_rol',
     type: 'bigint',
     nullable: false,
-    comment: 'Clave foránea que referencia a la especialidad',
+    comment: 'Clave foránea que referencia a la ocupacion',
   })
   idUsuarioRol: string
 
   @ManyToOne(
     () => UsuarioRol,
-    (usuarioRol) => usuarioRol.usuarioRolEspecialidades,
+    (usuarioRol) => usuarioRol.usuarioRolOcupaciones,
     {
       onDelete: 'CASCADE',
     }
@@ -61,26 +61,8 @@ export class UsuarioRolOcupacion extends AuditoriaEntity<OcupacionEstado> {
     Object.assign(this, data)
   }
 
-  get idEspecialidad() {
-    return this.idOcupacion
-  }
-
-  set idEspecialidad(value: string) {
-    this.idOcupacion = value
-  }
-
-  get especialidad() {
-    return this.ocupacion
-  }
-
-  set especialidad(value: Ocupacion) {
-    this.ocupacion = value
-  }
-
   @BeforeInsert()
   insertarEstado() {
     this.estado = this.estado || OcupacionEstado.ACTIVO
   }
 }
-
-export { UsuarioRolOcupacion as UsuarioRolEspecialidad }

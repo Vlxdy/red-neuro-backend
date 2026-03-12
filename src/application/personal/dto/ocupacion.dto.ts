@@ -26,7 +26,7 @@ export class ServicioResumenDto {
   duracionMinutos!: number
 }
 
-export class CrearEspecialidadDto {
+export class CrearOcupacionDto {
   @ApiProperty({
     description: 'Nombre visible de la ocupación',
     example: 'Enfermería',
@@ -57,7 +57,7 @@ export class CrearEspecialidadDto {
   grado?: string
 }
 
-export class EspecialidadResponseDto {
+export class OcupacionResponseDto {
   @ApiProperty({
     description: 'Identificador único de la ocupación',
     example: '12',
@@ -101,9 +101,7 @@ export class EspecialidadResponseDto {
   servicios!: ServicioResumenDto[]
 }
 
-export class ActualizarEspecialidadDto extends PartialType(
-  CrearEspecialidadDto
-) {
+export class ActualizarOcupacionDto extends PartialType(CrearOcupacionDto) {
   @ApiProperty({
     description: 'Permite reactivar o desactivar la ocupación',
     example: 'ACTIVO',

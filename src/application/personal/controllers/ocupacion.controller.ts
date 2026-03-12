@@ -23,56 +23,55 @@ import {
 } from '@/common/decorators/api-base-responde.decorator'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 import { Request } from 'express'
-import { EspecialidadService } from '../services/especialidad.service'
+import { OcupacionService } from '../services/ocupacion.service'
 import {
-  ActualizarEspecialidadDto,
-  CrearEspecialidadDto,
-  EspecialidadResponseDto,
-} from '../dto/especialidad.dto'
+  ActualizarOcupacionDto,
+  CrearOcupacionDto,
+  OcupacionResponseDto,
+} from '../dto/ocupacion.dto'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
-import { formatearEspecialidad } from '../utils/formateo-especialidad.utils'
+import { formatearOcupacion } from '../utils/formateo-ocupacion.utils'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
 @Controller('ocupaciones')
 @ApiTags('Ocupaciones')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, CasbinGuard)
-export class EspecialidadController extends BaseController {
-  constructor(private readonly especialidadService: EspecialidadService) {
+export class OcupacionController extends BaseController {
+  constructor(private readonly ocupacionService: OcupacionService) {
     super()
   }
 
   @ApiOperation({ summary: 'Lista las ocupaciones configuradas' })
-  @ApiBaseResponseListRows(EspecialidadResponseDto)
+  @ApiBaseResponseListRows(OcupacionResponseDto)
   @Get()
   async listar(
     @Query() paginacionQuery: PaginacionQueryDto
-  ): Promise<BaseResponseListRowsDto<EspecialidadResponseDto>> {
+  ): Promise<BaseResponseListRowsDto<OcupacionResponseDto>> {
     const resultado =
-      await this.especialidadService.listarEspecialidades(paginacionQuery)
+      await this.ocupacionService.listarOcupaciones(paginacionQuery)
     return this.successListRows(resultado)
   }
 
   @ApiOperation({ summary: 'Obtiene el detalle de una ocupación' })
-  @ApiBaseResponse(EspecialidadResponseDto)
+  @ApiBaseResponse(OcupacionResponseDto)
   @Get(':id')
   async obtenerPorId(
     @Param() { id }: ParamIdDto
-  ): Promise<BaseResponseDto<EspecialidadResponseDto>> {
-    const resultado =
-      await this.especialidadService.obtenerEspecialidadPorId(id)
-    return this.success(formatearEspecialidad(resultado))
+  ): Promise<BaseResponseDto<OcupacionResponseDto>> {
+    const resultado = await this.ocupacionService.obtenerOcupacionPorId(id)
+    return this.success(formatearOcupacion(resultado))
   }
 
   @ApiOperation({ summary: 'Crea una nueva ocupación' })
-  @ApiBaseResponse(EspecialidadResponseDto)
+  @ApiBaseResponse(OcupacionResponseDto)
   @Post()
   async crear(
     @Req() req: Request,
-    @Body() dto: CrearEspecialidadDto
-  ): Promise<BaseResponseDto<EspecialidadResponseDto>> {
+    @Body() dto: CrearOcupacionDto
+  ): Promise<BaseResponseDto<OcupacionResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.especialidadService.crearEspecialidad(
+    const resultado = await this.ocupacionService.crearOcupacion(
       dto,
       usuarioAuditoria
     )
@@ -80,15 +79,15 @@ export class EspecialidadController extends BaseController {
   }
 
   @ApiOperation({ summary: 'Actualiza la información de una ocupación' })
-  @ApiBaseResponse(EspecialidadResponseDto)
+  @ApiBaseResponse(OcupacionResponseDto)
   @Patch(':id')
   async actualizar(
     @Param() { id }: ParamIdDto,
     @Req() req: Request,
-    @Body() dto: ActualizarEspecialidadDto
-  ): Promise<BaseResponseDto<EspecialidadResponseDto>> {
+    @Body() dto: ActualizarOcupacionDto
+  ): Promise<BaseResponseDto<OcupacionResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.especialidadService.actualizarEspecialidad(
+    const resultado = await this.ocupacionService.actualizarOcupacion(
       id,
       dto,
       usuarioAuditoria
@@ -97,14 +96,14 @@ export class EspecialidadController extends BaseController {
   }
 
   @ApiOperation({ summary: 'Elimina una ocupación' })
-  @ApiBaseResponse(EspecialidadResponseDto)
+  @ApiBaseResponse(OcupacionResponseDto)
   @Delete(':id')
   async eliminar(
     @Param() { id }: ParamIdDto,
     @Req() req: Request
-  ): Promise<BaseResponseDto<EspecialidadResponseDto>> {
+  ): Promise<BaseResponseDto<OcupacionResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.especialidadService.eliminarEspecialidad(
+    const resultado = await this.ocupacionService.eliminarOcupacion(
       id,
       usuarioAuditoria
     )
@@ -112,14 +111,14 @@ export class EspecialidadController extends BaseController {
   }
 
   @ApiOperation({ summary: 'Cambiar estado de la ocupación' })
-  @ApiBaseResponse(EspecialidadResponseDto)
+  @ApiBaseResponse(OcupacionResponseDto)
   @Patch(':id/cambiar-estado')
   async cambiarEstado(
     @Param() { id }: ParamIdDto,
     @Req() req: Request
-  ): Promise<BaseResponseDto<EspecialidadResponseDto>> {
+  ): Promise<BaseResponseDto<OcupacionResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const resultado = await this.especialidadService.cambiarEstadoEspecialidad(
+    const resultado = await this.ocupacionService.cambiarEstadoOcupacion(
       id,
       usuarioAuditoria
     )

@@ -5,7 +5,7 @@ import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { RolEstado } from '@/core/authorization/constant'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { Status } from '@/common/constants'
-import { UsuarioRolOcupacion } from '../entities/usuaro-rol-especialidad.entity'
+import { UsuarioRolOcupacion } from '../entities/usuaro-rol-ocupacion.entity'
 
 @Injectable()
 export class PersonalSaludRepository {
@@ -36,7 +36,7 @@ export class PersonalSaludRepository {
         'usuarioRol.usuarioRolOcupaciones',
         'usuarioRolOcupaciones'
       )
-      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'especialidad')
+      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'ocupacion')
       .select([
         'usuarioRol.id',
         'usuarioRol.idUsuario',
@@ -54,10 +54,10 @@ export class PersonalSaludRepository {
         'persona.telefono',
         'persona.genero',
         'usuarioRolOcupaciones',
-        'especialidad.id',
-        'especialidad.nombre',
-        'especialidad.descripcion',
-        'especialidad.estado',
+        'ocupacion.id',
+        'ocupacion.nombre',
+        'ocupacion.descripcion',
+        'ocupacion.estado',
         'rol.id',
         'rol.rol',
       ])
@@ -148,7 +148,7 @@ export class PersonalSaludRepository {
         'usuarioRol.usuarioRolOcupaciones',
         'usuarioRolOcupaciones'
       )
-      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'especialidad')
+      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'ocupacion')
       .select([
         'usuarioRol.id',
         'usuarioRol.idUsuario',
@@ -166,10 +166,10 @@ export class PersonalSaludRepository {
         'persona.telefono',
         'persona.genero',
         'usuarioRolOcupaciones',
-        'especialidad.id',
-        'especialidad.nombre',
-        'especialidad.descripcion',
-        'especialidad.estado',
+        'ocupacion.id',
+        'ocupacion.nombre',
+        'ocupacion.descripcion',
+        'ocupacion.estado',
         'rol.id',
         'rol.rol',
       ])
@@ -200,7 +200,7 @@ export class PersonalSaludRepository {
         'usuarioRol.usuarioRolOcupaciones',
         'usuarioRolOcupaciones'
       )
-      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'especialidad')
+      .leftJoinAndSelect('usuarioRolOcupaciones.ocupacion', 'ocupacion')
       .select([
         'usuarioRol.id',
         'usuarioRol.idUsuario',
@@ -218,10 +218,10 @@ export class PersonalSaludRepository {
         'persona.telefono',
         'persona.genero',
         'usuarioRolOcupaciones',
-        'especialidad.id',
-        'especialidad.nombre',
-        'especialidad.descripcion',
-        'especialidad.estado',
+        'ocupacion.id',
+        'ocupacion.nombre',
+        'ocupacion.descripcion',
+        'ocupacion.estado',
         'rol.id',
         'rol.rol',
       ])

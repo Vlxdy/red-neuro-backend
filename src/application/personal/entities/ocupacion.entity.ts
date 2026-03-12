@@ -10,8 +10,8 @@ import {
 import 'bootstrap/env'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { OcupacionEstado } from '../constants'
-import { UsuarioRolOcupacion } from './usuaro-rol-especialidad.entity'
-import { ServicioOcupacion } from '@/application/servicio/entities/servicio-especialidad.entity'
+import { UsuarioRolOcupacion } from './usuaro-rol-ocupacion.entity'
+import { ServicioOcupacion } from '@/application/servicio/entities/servicio-ocupacion.entity'
 
 @Check(UtilService.buildStatusCheck(OcupacionEstado))
 @Entity({ name: 'ocupaciones', schema: process.env.DB_SCHEMA })
@@ -50,13 +50,13 @@ export class Ocupacion extends AuditoriaEntity<OcupacionEstado> {
 
   @OneToMany(
     () => UsuarioRolOcupacion,
-    (usuarioRolEspecialidad) => usuarioRolEspecialidad.especialidad
+    (usuarioRolOcupacion) => usuarioRolOcupacion.ocupacion
   )
   usuarioRolOcupaciones: UsuarioRolOcupacion[]
 
   @OneToMany(
     () => ServicioOcupacion,
-    (servicioEspecialidad) => servicioEspecialidad.especialidad
+    (servicioOcupacion) => servicioOcupacion.ocupacion
   )
   servicioOcupaciones: ServicioOcupacion[]
 
@@ -70,5 +70,3 @@ export class Ocupacion extends AuditoriaEntity<OcupacionEstado> {
     this.estado = this.estado || OcupacionEstado.ACTIVO
   }
 }
-
-export { Ocupacion as Especialidad }
