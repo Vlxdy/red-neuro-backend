@@ -39,9 +39,11 @@ const frontendRoutes: CasbinValue = {
   },
   '/admin/categorias': {
     [RolEnum.ADMINISTRADOR]: 'read|create|update',
+    [RolEnum.PERSONAL_SALUD]: 'read',
   },
   '/admin/estudios': {
     [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+    [RolEnum.PERSONAL_SALUD]: 'read',
   },
   '/admin/citas': {
     [RolEnum.ADMINISTRADOR]: 'read',
