@@ -18,39 +18,6 @@ export enum AccionCita {
   ENVIAR = 'ENVIAR',
 }
 
-export class EspecialidadCitaDto {
-  @ApiProperty({
-    description: 'Identificador de la especialidad',
-    example: '3',
-  })
-  id!: string
-
-  @ApiProperty({
-    description: 'Nombre de la especialidad',
-    example: 'Radiología',
-  })
-  nombre!: string
-
-  @ApiProperty({
-    description: 'Descripción de la especialidad',
-    example: 'Especialidad dedicada a estudios por imagen',
-    required: false,
-  })
-  descripcion?: string
-
-  @ApiProperty({
-    description: 'Color principal de la especialidad en formato hexadecimal',
-    example: '#0ea5e9',
-  })
-  colorHex!: string
-
-  @ApiProperty({
-    description: 'Estado actual de la especialidad',
-    example: 'ACTIVO',
-  })
-  estado!: string
-}
-
 export class LugarCitaDto {
   @ApiProperty({ description: 'Identificador de la institución', example: '2' })
   id!: string
@@ -295,15 +262,6 @@ export class CrearCitaDto {
   idLugar?: string
 
   @ApiProperty({
-    description: 'Identificador de la especialidad asociada (opcional)',
-    example: '12',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  idEspecialidad?: string
-
-  @ApiProperty({
     enum: TipoCita,
     description: 'Tipo de cita: CONSULTA o ESTUDIO',
     example: TipoCita.CONSULTA,
@@ -485,9 +443,6 @@ export class CitaNuevaDetalleDto {
   @ApiPropertyOptional({ description: 'Id de la institución asociada' })
   lugarId?: string
 
-  @ApiPropertyOptional({ description: 'Id de la especialidad asociada' })
-  especialidadId?: string
-
   @ApiPropertyOptional({ description: 'Id del servicio asociado' })
   servicioId?: string
 
@@ -496,9 +451,6 @@ export class CitaNuevaDetalleDto {
 
   @ApiPropertyOptional({ type: () => PacienteResponseDto })
   paciente?: PacienteResponseDto
-
-  @ApiPropertyOptional({ type: () => EspecialidadCitaDto })
-  especialidad?: EspecialidadCitaDto
 
   @ApiPropertyOptional({ type: () => ServicioCitaDto })
   servicio?: ServicioCitaDto
@@ -609,13 +561,6 @@ export class CitaResponseDto {
   lugarId?: string
 
   @ApiProperty({
-    description: 'Identificador de la especialidad asociada',
-    example: '12',
-    required: false,
-  })
-  especialidadId?: string
-
-  @ApiProperty({
     description: 'Identificador del servicio asociado',
     example: '5',
     required: false,
@@ -634,13 +579,6 @@ export class CitaResponseDto {
     required: false,
   })
   paciente?: PacienteResponseDto
-
-  @ApiProperty({
-    description: 'Especialidad asociada a la cita',
-    type: () => EspecialidadCitaDto,
-    required: false,
-  })
-  especialidad?: EspecialidadCitaDto
 
   @ApiProperty({
     description: 'Servicio asociado a la cita',

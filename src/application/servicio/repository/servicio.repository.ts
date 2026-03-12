@@ -6,9 +6,9 @@ import {
   CrearServicioDto,
   ListarServiciosQueryDto,
 } from '../dto/servicio.dto'
-import { Especialidad } from '@/application/personal/entities/especialidad.entity'
-import { ServicioEspecialidad } from '../entities/servicio-especialidad.entity'
-import { EspecialidadEstado } from '@/application/personal/constants'
+import { Ocupacion } from '@/application/personal/entities/especialidad.entity'
+import { ServicioOcupacion } from '../entities/servicio-especialidad.entity'
+import { OcupacionEstado } from '@/application/personal/constants'
 import { ServicioEstado } from '../constants'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
@@ -20,12 +20,12 @@ export class ServicioRepository {
     return (manager ?? this.dataSource).getRepository(Servicio)
   }
 
-  private especialidadRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(Especialidad)
+  private ocupacionRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Ocupacion)
   }
 
-  private servicioEspecialidadRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(ServicioEspecialidad)
+  private servicioOcupacionRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(ServicioOcupacion)
   }
 
   async listarServiciosPaginado(paginacionQuery: ListarServiciosQueryDto) {
@@ -34,16 +34,16 @@ export class ServicioRepository {
     const query = this.servicioRepository()
       .createQueryBuilder('servicio')
       .leftJoinAndSelect(
-        'servicio.servicioEspecialidades',
-        'servicioEspecialidades',
-        'servicioEspecialidades.estado = :estadoRelacion',
+        'servicio.servicioOcupaciones',
+        'servicioOcupaciones',
+        'servicioOcupaciones.estado = :estadoRelacion',
         { estadoRelacion: ServicioEstado.ACTIVO }
       )
       .leftJoinAndSelect(
-        'servicioEspecialidades.especialidad',
+        'servicioOcupaciones.ocupacion',
         'especialidad',
-        'especialidad.estado = :estadoEspecialidad',
-        { estadoEspecialidad: EspecialidadEstado.ACTIVO }
+        'especialidad.estado = :estadoOcupacion',
+        { estadoOcupacion: OcupacionEstado.ACTIVO }
       )
       .distinct(true)
       .take(limite)
@@ -86,8 +86,8 @@ export class ServicioRepository {
     return await query.getManyAndCount()
   }
 
-  async listarServiciosPorEspecialidadPaginado(
-    especialidadId: string,
+  async listarServiciosPorOcupacionPaginado(
+    ocupacionId: string,
     paginacionQuery: ListarServiciosQueryDto
   ) {
     const { limite, saltar, filtro, orden, sentido, tipo } = paginacionQuery
@@ -95,16 +95,16 @@ export class ServicioRepository {
     const query = this.servicioRepository()
       .createQueryBuilder('servicio')
       .innerJoinAndSelect(
-        'servicio.servicioEspecialidades',
-        'servicioEspecialidades',
-        'servicioEspecialidades.especialidadId = :especialidadId AND servicioEspecialidades.estado = :estadoRelacion',
-        { especialidadId, estadoRelacion: ServicioEstado.ACTIVO }
+        'servicio.servicioOcupaciones',
+        'servicioOcupaciones',
+        'servicioOcupaciones.ocupacionId = :ocupacionId AND servicioOcupaciones.estado = :estadoRelacion',
+        { ocupacionId, estadoRelacion: ServicioEstado.ACTIVO }
       )
       .innerJoinAndSelect(
-        'servicioEspecialidades.especialidad',
+        'servicioOcupaciones.ocupacion',
         'especialidad',
-        'especialidad.estado = :estadoEspecialidad',
-        { estadoEspecialidad: EspecialidadEstado.ACTIVO }
+        'especialidad.estado = :estadoOcupacion',
+        { estadoOcupacion: OcupacionEstado.ACTIVO }
       )
       .distinct(true)
       .take(limite)
@@ -151,28 +151,28 @@ export class ServicioRepository {
     return await this.servicioRepository(manager)
       .createQueryBuilder('servicio')
       .leftJoinAndSelect(
-        'servicio.servicioEspecialidades',
-        'servicioEspecialidades',
-        'servicioEspecialidades.estado = :estadoRelacion',
+        'servicio.servicioOcupaciones',
+        'servicioOcupaciones',
+        'servicioOcupaciones.estado = :estadoRelacion',
         { estadoRelacion: ServicioEstado.ACTIVO }
       )
       .leftJoinAndSelect(
-        'servicioEspecialidades.especialidad',
+        'servicioOcupaciones.ocupacion',
         'especialidad',
-        'especialidad.estado = :estadoEspecialidad',
-        { estadoEspecialidad: EspecialidadEstado.ACTIVO }
+        'especialidad.estado = :estadoOcupacion',
+        { estadoOcupacion: OcupacionEstado.ACTIVO }
       )
       .where('servicio.id = :id', { id })
       .getOne()
   }
 
-  async obtenerEspecialidadPorId(id: string, manager?: EntityManager) {
-    return await this.especialidadRepository(manager).findOne({ where: { id } })
+  async obtenerOcupacionPorId(id: string, manager?: EntityManager) {
+    return await this.ocupacionRepository(manager).findOne({ where: { id } })
   }
 
-  async obtenerEspecialidadesPorIds(ids: string[], manager?: EntityManager) {
+  async obtenerOcupacionesPorIds(ids: string[], manager?: EntityManager) {
     if (ids.length === 0) return []
-    return await this.especialidadRepository(manager).findBy({
+    return await this.ocupacionRepository(manager).findBy({
       id: In(ids),
     })
   }
@@ -214,31 +214,31 @@ export class ServicioRepository {
 
     return await repo.findOneOrFail({ where: { id: servicio.id } })
   }
-  async crearServicioEspecialidades(
+  async crearServicioOcupaciones(
     servicioId: string,
-    especialidadIds: string[],
+    ocupacionIds: string[],
     usuarioAuditoria: string,
     manager: EntityManager
   ) {
-    const repo = this.servicioEspecialidadRepository(manager)
-    const idsUnicos = Array.from(new Set(especialidadIds))
+    const repo = this.servicioOcupacionRepository(manager)
+    const idsUnicos = Array.from(new Set(ocupacionIds))
 
     const existentes = await repo.find({
-      where: { servicioId, especialidadId: In(idsUnicos) },
+      where: { servicioId, ocupacionId: In(idsUnicos) },
     })
     const existentesMap = new Map(
-      existentes.map((relacion) => [String(relacion.especialidadId), relacion])
+      existentes.map((relacion) => [String(relacion.ocupacionId), relacion])
     )
 
-    const cambios: ServicioEspecialidad[] = []
+    const cambios: ServicioOcupacion[] = []
 
-    for (const especialidadId of idsUnicos) {
-      const existente = existentesMap.get(String(especialidadId))
+    for (const ocupacionId of idsUnicos) {
+      const existente = existentesMap.get(String(ocupacionId))
       if (!existente) {
         cambios.push(
           repo.create({
             servicioId,
-            especialidadId,
+            ocupacionId,
             estado: ServicioEstado.ACTIVO,
             usuarioCreacion: usuarioAuditoria,
           })
@@ -259,30 +259,30 @@ export class ServicioRepository {
     return await repo.save(cambios)
   }
 
-  async reemplazarServicioEspecialidades(
+  async reemplazarServicioOcupaciones(
     servicioId: string,
-    especialidadIds: string[],
+    ocupacionIds: string[],
     usuarioAuditoria: string,
     manager: EntityManager
   ) {
-    const repo = this.servicioEspecialidadRepository(manager)
-    const idsUnicos = Array.from(new Set(especialidadIds))
+    const repo = this.servicioOcupacionRepository(manager)
+    const idsUnicos = Array.from(new Set(ocupacionIds))
     const idsSet = new Set(idsUnicos.map((id) => String(id)))
     const existentes = await repo.find({ where: { servicioId } })
 
-    const cambios: ServicioEspecialidad[] = []
+    const cambios: ServicioOcupacion[] = []
     const existentesMap = new Map(
-      existentes.map((relacion) => [String(relacion.especialidadId), relacion])
+      existentes.map((relacion) => [String(relacion.ocupacionId), relacion])
     )
 
-    for (const especialidadId of idsUnicos) {
-      const existente = existentesMap.get(String(especialidadId))
+    for (const ocupacionId of idsUnicos) {
+      const existente = existentesMap.get(String(ocupacionId))
 
       if (!existente) {
         cambios.push(
           repo.create({
             servicioId,
-            especialidadId,
+            ocupacionId,
             usuarioCreacion: usuarioAuditoria,
             estado: ServicioEstado.ACTIVO,
           })
@@ -298,7 +298,7 @@ export class ServicioRepository {
     }
 
     for (const relacion of existentes) {
-      const estaEnPayload = idsSet.has(String(relacion.especialidadId))
+      const estaEnPayload = idsSet.has(String(relacion.ocupacionId))
       if (!estaEnPayload && relacion.estado !== ServicioEstado.INACTIVO) {
         relacion.estado = ServicioEstado.INACTIVO
         relacion.usuarioModificacion = usuarioAuditoria

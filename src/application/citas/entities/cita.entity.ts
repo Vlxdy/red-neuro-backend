@@ -19,7 +19,6 @@ import { HistorialCita } from './cita-historial.entity'
 import { CitasEstado, TipoCita } from '../constants'
 import { Notificacion } from './notificacion.entity'
 import { Consultorio } from '@/application/consultorio/entities/consultorio.entity'
-import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
 import { Lugar } from '@/application/lugar/entities/lugar.entity'
 
@@ -214,20 +213,6 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   @ManyToOne(() => UsuarioRol, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_usuario_envio', referencedColumnName: 'id' })
   usuarioEnvio?: UsuarioRol | null
-
-  @Column({
-    name: 'id_especialidad',
-    type: 'bigint',
-    nullable: true,
-    comment: 'Clave foránea que referencia al consultorio asociado a la cita',
-  })
-  idEspecialidad?: string | null
-
-  @ManyToOne(() => Especialidad, (especialidad) => especialidad.citas, {
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn({ name: 'id_especialidad', referencedColumnName: 'id' })
-  especialidad?: Especialidad | null
 
   @Column({
     name: 'tipo_cita',

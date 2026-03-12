@@ -2,7 +2,6 @@ import dayjs from 'dayjs'
 import {
   CitaNuevaDetalleDto,
   CitaResponseDto,
-  EspecialidadCitaDto,
   LugarCitaDto,
   ServicioCitaDto,
 } from '../dto/cita.dto'
@@ -11,21 +10,6 @@ import { formatearPersonal } from '@/application/personal/utils/formateo-persona
 import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
 import { formatearConsultorio } from '@/application/consultorio/utils/formateo.consultorio'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
-
-const formatearEspecialidad = (
-  especialidad: Cita['especialidad']
-): EspecialidadCitaDto | undefined => {
-  if (!especialidad) {
-    return undefined
-  }
-  return {
-    id: especialidad.id,
-    nombre: especialidad.nombre,
-    descripcion: especialidad.descripcion,
-    colorHex: especialidad.colorHex,
-    estado: especialidad.estado,
-  }
-}
 
 const formatearLugar = (lugar: Cita['lugar']): LugarCitaDto | undefined => {
   if (!lugar) {
@@ -57,11 +41,9 @@ const formatearCitaNueva = (
     pacienteId: cita.idPaciente ?? undefined,
     consultorioId: cita.idConsultorio ?? undefined,
     lugarId: cita.idLugar ?? undefined,
-    especialidadId: cita.idEspecialidad ?? undefined,
     servicioId: cita.idServicio ?? undefined,
     personal: cita.personal ? formatearPersonal(cita.personal) : undefined,
     paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
-    especialidad: formatearEspecialidad(cita.especialidad),
     servicio: cita.servicio ? formatearServicio(cita.servicio) : undefined,
     consultorio: cita.consultorio
       ? formatearConsultorio(cita.consultorio)
@@ -92,7 +74,6 @@ export function formatearCita(cita: Cita): CitaResponseDto {
     pacienteId: cita.idPaciente ?? undefined,
     consultorioId: cita.idConsultorio ?? undefined,
     lugarId: cita.idLugar ?? undefined,
-    especialidadId: cita.idEspecialidad ?? undefined,
     servicioId: cita.idServicio ?? undefined,
     estado: cita.estado,
     tipoCita: cita.tipoCita,
@@ -109,7 +90,6 @@ export function formatearCita(cita: Cita): CitaResponseDto {
       : undefined,
     personal: cita.personal ? formatearPersonal(cita.personal) : undefined,
     paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
-    especialidad: formatearEspecialidad(cita.especialidad),
     servicio: cita.servicio ? formatearServicio(cita.servicio) : undefined,
     consultorio: cita.consultorio
       ? formatearConsultorio(cita.consultorio)

@@ -21,14 +21,14 @@ export class CrearPersonalSaludDto extends OmitType(CrearUsuarioDto, [
   persona: PersonaDto
 
   @ApiProperty({
-    description: 'Especialidades asociadas al profesional de salud',
+    description: 'Ocupaciones asociadas al profesional de salud',
     example: ['1', '2'],
     required: false,
   })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  idEspecialidades?: string[]
+  idOcupaciones?: string[]
 }
 
 export class ActualizarPersonalSaludDto extends PartialType(

@@ -82,17 +82,16 @@ export class CitasMedicasRepository {
       .leftJoinAndSelect('personal.usuario', 'usuarioPersonal')
       .leftJoinAndSelect('usuarioPersonal.persona', 'personaPersonal')
       .leftJoinAndSelect(
-        'personal.usuarioRolEspecialidades',
+        'personal.usuarioRolOcupaciones',
         'personalEspecialidad'
       )
       .leftJoinAndSelect(
-        'personalEspecialidad.especialidad',
+        'personalEspecialidad.ocupacion',
         'especialidadPersonal'
       )
       .leftJoinAndSelect('cita.paciente', 'paciente')
       .leftJoinAndSelect('cita.consultorio', 'consultorio')
       .leftJoinAndSelect('cita.lugar', 'lugar')
-      .leftJoinAndSelect('cita.especialidad', 'especialidad')
       .leftJoinAndSelect('cita.servicio', 'servicio')
       .leftJoinAndSelect('cita.citaNueva', 'citaNueva')
       .leftJoinAndSelect('citaNueva.personal', 'citaNuevaPersonal')
@@ -107,7 +106,6 @@ export class CitasMedicasRepository {
       .leftJoinAndSelect('citaNueva.paciente', 'citaNuevaPaciente')
       .leftJoinAndSelect('citaNueva.consultorio', 'citaNuevaConsultorio')
       .leftJoinAndSelect('citaNueva.lugar', 'citaNuevaLugar')
-      .leftJoinAndSelect('citaNueva.especialidad', 'citaNuevaEspecialidad')
       .leftJoinAndSelect('citaNueva.servicio', 'citaNuevaServicio')
       .leftJoinAndSelect('cita.usuarioProgramo', 'usuarioProgramo')
       .leftJoinAndSelect('usuarioProgramo.usuario', 'usuarioProgramoUsuario')
@@ -116,22 +114,22 @@ export class CitasMedicasRepository {
         'usuarioProgramoPersona'
       )
       .leftJoinAndSelect(
-        'usuarioProgramo.usuarioRolEspecialidades',
+        'usuarioProgramo.usuarioRolOcupaciones',
         'usuarioProgramoEspecialidades'
       )
       .leftJoinAndSelect(
-        'usuarioProgramoEspecialidades.especialidad',
+        'usuarioProgramoEspecialidades.ocupacion',
         'usuarioProgramoEspecialidad'
       )
       .leftJoinAndSelect('cita.usuarioEnvio', 'usuarioEnvio')
       .leftJoinAndSelect('usuarioEnvio.usuario', 'usuarioEnvioUsuario')
       .leftJoinAndSelect('usuarioEnvioUsuario.persona', 'usuarioEnvioPersona')
       .leftJoinAndSelect(
-        'usuarioEnvio.usuarioRolEspecialidades',
+        'usuarioEnvio.usuarioRolOcupaciones',
         'usuarioEnvioEspecialidades'
       )
       .leftJoinAndSelect(
-        'usuarioEnvioEspecialidades.especialidad',
+        'usuarioEnvioEspecialidades.ocupacion',
         'usuarioEnvioEspecialidad'
       )
       .distinct(true)
@@ -308,7 +306,6 @@ export class CitasMedicasRepository {
       idPaciente?: string | null
       idConsultorio?: string | null
       idLugar?: string | null
-      idEspecialidad?: string | null
       idServicio?: string | null
       idCitaNueva?: string | null
       idHistorialCita?: string | null
@@ -330,7 +327,6 @@ export class CitasMedicasRepository {
       idPaciente: data.idPaciente ?? null,
       idConsultorio: data.idConsultorio ?? null,
       idLugar: data.idLugar ?? null,
-      idEspecialidad: data.idEspecialidad ?? null,
       idServicio: data.idServicio ?? null,
       idCitaNueva: data.idCitaNueva ?? null,
       idHistorialCita: data.idHistorialCita ?? null,
@@ -378,8 +374,6 @@ export class CitasMedicasRepository {
     if (data.idConsultorio !== undefined)
       patch.idConsultorio = data.idConsultorio
     if (data.idLugar !== undefined) patch.idLugar = data.idLugar
-    if (data.idEspecialidad !== undefined)
-      patch.idEspecialidad = data.idEspecialidad
 
     if (data.tipoCita !== undefined) {
       patch.tipoCita = data.tipoCita
@@ -616,14 +610,6 @@ export class CitasMedicasRepository {
     )
     this.registrarCambio(
       cambios,
-      'idEspecialidad',
-      cita.idEspecialidad ?? undefined,
-      data.idEspecialidad !== undefined
-        ? (data.idEspecialidad ?? undefined)
-        : (cita.idEspecialidad ?? undefined)
-    )
-    this.registrarCambio(
-      cambios,
       'idServicio',
       cita.idServicio ?? undefined,
       data.tipoCita === TipoCita.ESTUDIO
@@ -765,11 +751,8 @@ export class CitasMedicasRepository {
     return await entityManager
       .getRepository(Servicio)
       .createQueryBuilder('servicio')
-      .leftJoinAndSelect(
-        'servicio.servicioEspecialidades',
-        'servicioEspecialidades'
-      )
-      .leftJoinAndSelect('servicioEspecialidades.especialidad', 'especialidad')
+      .leftJoinAndSelect('servicio.servicioOcupaciones', 'servicioOcupaciones')
+      .leftJoinAndSelect('servicioOcupaciones.ocupacion', 'especialidad')
       .where('servicio.id = :idServicio', { idServicio })
       .getOne()
   }

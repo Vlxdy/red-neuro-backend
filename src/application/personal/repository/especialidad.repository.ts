@@ -21,10 +21,10 @@ export class EspecialidadRepository {
     const query = this.especialidadRepository()
       .createQueryBuilder('especialidad')
       .leftJoinAndSelect(
-        'especialidad.servicioEspecialidades',
-        'servicioEspecialidades'
+        'especialidad.servicioOcupaciones',
+        'servicioOcupaciones'
       )
-      .leftJoinAndSelect('servicioEspecialidades.servicio', 'servicio')
+      .leftJoinAndSelect('servicioOcupaciones.servicio', 'servicio')
       .distinct(true)
       .take(limite)
       .skip(saltar)
@@ -36,8 +36,8 @@ export class EspecialidadRepository {
       case 'descripcion':
         query.addOrderBy('especialidad.descripcion', sentido)
         break
-      case 'colorHex':
-        query.addOrderBy('especialidad.colorHex', sentido)
+      case 'grado':
+        query.addOrderBy('especialidad.grado', sentido)
         break
       case 'estado':
         query.addOrderBy('especialidad.estado', sentido)
@@ -55,6 +55,9 @@ export class EspecialidadRepository {
           qb.orWhere('especialidad.descripcion ilike :filtro', {
             filtro: `%${filtro}%`,
           })
+          qb.orWhere('especialidad.grado ilike :filtro', {
+            filtro: `%${filtro}%`,
+          })
         })
       )
     }
@@ -66,7 +69,7 @@ export class EspecialidadRepository {
     return await this.especialidadRepository(manager).findOne({
       where: { id },
       relations: {
-        servicioEspecialidades: {
+        servicioOcupaciones: {
           servicio: true,
         },
       },

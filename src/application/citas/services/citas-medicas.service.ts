@@ -60,7 +60,6 @@ export class CitasMedicasService extends BaseService {
   private async resolverServicio(
     idServicio: string,
     tipoCita: TipoCita,
-    idEspecialidad?: string,
     transaccion?: EntityManager
   ) {
     const servicio = await this.citasRepository.obtenerServicioPorId(
@@ -76,19 +75,6 @@ export class CitasMedicasService extends BaseService {
       throw new BadRequestException(
         'El servicio seleccionado no coincide con el tipo de cita'
       )
-    }
-
-    if (idEspecialidad) {
-      const perteneceEspecialidad = servicio.servicioEspecialidades?.some(
-        (servicioEspecialidad) =>
-          String(servicioEspecialidad.especialidadId) === String(idEspecialidad)
-      )
-
-      if (!perteneceEspecialidad) {
-        throw new BadRequestException(
-          'El servicio seleccionado no pertenece a la especialidad indicada'
-        )
-      }
     }
 
     return servicio
@@ -418,7 +404,6 @@ export class CitasMedicasService extends BaseService {
     const servicio = await this.resolverServicio(
       idServicio,
       tipoCita,
-      dto.idEspecialidad,
       transaccion
     )
     const fechaFin = this.calcularFechaFin(
@@ -443,7 +428,6 @@ export class CitasMedicasService extends BaseService {
         idPaciente: dto.idPaciente ?? null,
         idConsultorio: dto.idConsultorio ?? null,
         idLugar: dto.idLugar ?? null,
-        idEspecialidad: dto.idEspecialidad ?? null,
         idServicio: servicio.id,
         tipoCita,
         idHistorialCita: randomUUID(),
@@ -514,15 +498,10 @@ export class CitasMedicasService extends BaseService {
       updateData.idLugar = dto.idLugar
     }
 
-    if (dto.idEspecialidad !== undefined) {
-      updateData.idEspecialidad = dto.idEspecialidad
-    }
-
     const requiereRecalculo =
       dto.fechaInicio !== undefined ||
       dto.idServicio !== undefined ||
-      dto.tipoCita !== undefined ||
-      dto.idEspecialidad !== undefined
+      dto.tipoCita !== undefined
 
     if (requiereRecalculo) {
       const fechaInicio = dto.fechaInicio
@@ -530,8 +509,6 @@ export class CitasMedicasService extends BaseService {
         : cita.fechaInicio
 
       const tipoCita = dto.tipoCita ?? cita.tipoCita ?? TipoCita.CONSULTA
-      const idEspecialidad =
-        dto.idEspecialidad ?? cita.idEspecialidad ?? undefined
       const idServicio = dto.idServicio ?? cita.idServicio
 
       if (!idServicio) {
@@ -541,7 +518,6 @@ export class CitasMedicasService extends BaseService {
       const servicio = await this.resolverServicio(
         idServicio,
         tipoCita,
-        idEspecialidad,
         transaccion
       )
 
@@ -647,7 +623,6 @@ export class CitasMedicasService extends BaseService {
         const servicio = await this.resolverServicio(
           cita.idServicio as string,
           cita.tipoCita,
-          cita.idEspecialidad ?? undefined,
           transaccion
         )
         cita.fechaInicio = fechaInicio
@@ -820,7 +795,6 @@ export class CitasMedicasService extends BaseService {
       const servicio = await this.resolverServicio(
         idServicio,
         tipoCita,
-        citaOriginal.idEspecialidad ?? undefined,
         transaccion
       )
       const fechaFin = this.calcularFechaFin(
@@ -843,7 +817,6 @@ export class CitasMedicasService extends BaseService {
           idPaciente: citaOriginal.idPaciente ?? null,
           idConsultorio: citaOriginal.idConsultorio ?? null,
           idLugar: citaOriginal.idLugar ?? null,
-          idEspecialidad: citaOriginal.idEspecialidad ?? null,
           idServicio: servicio.id,
           tipoCita,
           idHistorialCita: citaOriginal.idHistorialCita ?? randomUUID(),

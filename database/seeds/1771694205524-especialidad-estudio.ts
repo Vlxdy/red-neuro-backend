@@ -1,9 +1,9 @@
 import { Especialidad } from '@/application/personal/entities/especialidad.entity'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
-import { ServicioEspecialidad } from '@/application/servicio/entities/servicio-especialidad.entity'
+import { ServicioOcupacion } from '@/application/servicio/entities/servicio-especialidad.entity'
 import { USUARIO_SISTEMA } from '@/common/constants'
 import { MigrationInterface, QueryRunner } from 'typeorm'
-import { EspecialidadEstado } from '@/application/personal/constants'
+import { OcupacionEstado } from '@/application/personal/constants'
 import { ServicioEstado } from '@/application/servicio/constants'
 import { TipoCita } from '@/application/citas/constants'
 
@@ -13,27 +13,27 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
       {
         nombre: 'Cardiología',
         descripcion: 'Especialidad enfocada en corazón y sistema vascular.',
-        colorHex: '#E53935',
+        grado: 'Especialidad médica',
       },
       {
         nombre: 'Neurología',
         descripcion: 'Especialidad del sistema nervioso central y periférico.',
-        colorHex: '#3949AB',
+        grado: 'Especialidad médica',
       },
       {
         nombre: 'Radiología',
         descripcion: 'Especialidad orientada a imágenes diagnósticas.',
-        colorHex: '#00897B',
+        grado: 'Especialidad médica',
       },
       {
         nombre: 'Laboratorio Clínico',
         descripcion: 'Especialidad para análisis clínicos y biomarcadores.',
-        colorHex: '#6D4C41',
+        grado: 'Área técnica',
       },
       {
         nombre: 'Nutrición',
         descripcion: 'Evaluación y manejo nutricional integral.',
-        colorHex: '#9CCC65',
+        grado: 'Licenciatura',
       },
     ]
 
@@ -41,7 +41,7 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
       especialidadesBase.map((item) =>
         queryRunner.manager.create(Especialidad, {
           ...item,
-          estado: EspecialidadEstado.ACTIVO,
+          estado: OcupacionEstado.ACTIVO,
           transaccion: 'SEEDS',
           usuarioCreacion: USUARIO_SISTEMA,
         })
@@ -149,24 +149,22 @@ export class especialidadEstudio1720000000000 implements MigrationInterface {
             return null
           }
 
-          return queryRunner.manager.create(ServicioEspecialidad, {
+          return queryRunner.manager.create(ServicioOcupacion, {
             servicioId: servicio.id,
-            especialidadId: especialidad.id,
+            ocupacionId: especialidad.id,
             usuarioCreacion: USUARIO_SISTEMA,
           })
         })
-        .filter(
-          (relacion): relacion is ServicioEspecialidad => relacion !== null
-        )
+        .filter((relacion): relacion is ServicioOcupacion => relacion !== null)
     })
 
     if (relaciones.length > 0) {
-      await queryRunner.manager.save(ServicioEspecialidad, relaciones)
+      await queryRunner.manager.save(ServicioOcupacion, relaciones)
     }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.manager.delete(ServicioEspecialidad, {})
+    await queryRunner.manager.delete(ServicioOcupacion, {})
     await queryRunner.manager.delete(Servicio, {})
     await queryRunner.manager.delete(Especialidad, {})
   }

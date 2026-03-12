@@ -33,8 +33,8 @@ import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { formatearEspecialidad } from '../utils/formateo-especialidad.utils'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 
-@Controller('especialidades')
-@ApiTags('Especialidades')
+@Controller('ocupaciones')
+@ApiTags('Ocupaciones')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, CasbinGuard)
 export class EspecialidadController extends BaseController {
@@ -42,7 +42,7 @@ export class EspecialidadController extends BaseController {
     super()
   }
 
-  @ApiOperation({ summary: 'Lista las especialidades médicas configuradas' })
+  @ApiOperation({ summary: 'Lista las ocupaciones configuradas' })
   @ApiBaseResponseListRows(EspecialidadResponseDto)
   @Get()
   async listar(
@@ -53,7 +53,7 @@ export class EspecialidadController extends BaseController {
     return this.successListRows(resultado)
   }
 
-  @ApiOperation({ summary: 'Obtiene el detalle de una especialidad médica' })
+  @ApiOperation({ summary: 'Obtiene el detalle de una ocupación' })
   @ApiBaseResponse(EspecialidadResponseDto)
   @Get(':id')
   async obtenerPorId(
@@ -64,7 +64,7 @@ export class EspecialidadController extends BaseController {
     return this.success(formatearEspecialidad(resultado))
   }
 
-  @ApiOperation({ summary: 'Crea una nueva especialidad médica' })
+  @ApiOperation({ summary: 'Crea una nueva ocupación' })
   @ApiBaseResponse(EspecialidadResponseDto)
   @Post()
   async crear(
@@ -79,7 +79,7 @@ export class EspecialidadController extends BaseController {
     return this.successCreate(resultado)
   }
 
-  @ApiOperation({ summary: 'Actualiza la información de una especialidad' })
+  @ApiOperation({ summary: 'Actualiza la información de una ocupación' })
   @ApiBaseResponse(EspecialidadResponseDto)
   @Patch(':id')
   async actualizar(
@@ -96,7 +96,7 @@ export class EspecialidadController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Elimina una especialidad médica' })
+  @ApiOperation({ summary: 'Elimina una ocupación' })
   @ApiBaseResponse(EspecialidadResponseDto)
   @Delete(':id')
   async eliminar(
@@ -111,7 +111,7 @@ export class EspecialidadController extends BaseController {
     return this.successDelete(resultado)
   }
 
-  @ApiOperation({ summary: 'Cambiar estado de la especialidad' })
+  @ApiOperation({ summary: 'Cambiar estado de la ocupación' })
   @ApiBaseResponse(EspecialidadResponseDto)
   @Patch(':id/cambiar-estado')
   async cambiarEstado(

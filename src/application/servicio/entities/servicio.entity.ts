@@ -12,7 +12,7 @@ import 'bootstrap/env'
 import { ServicioEstado } from '../constants'
 import { Cita } from '@/application/citas/entities/cita.entity'
 import { TipoCita } from '@/application/citas/constants'
-import { ServicioEspecialidad } from './servicio-especialidad.entity'
+import { ServicioOcupacion } from './servicio-especialidad.entity'
 
 @Check(UtilService.buildStatusCheck(ServicioEstado))
 @Check(UtilService.buildCheck('tipo', TipoCita))
@@ -75,10 +75,18 @@ export class Servicio extends AuditoriaEntity<ServicioEstado> {
   citas: Cita[]
 
   @OneToMany(
-    () => ServicioEspecialidad,
+    () => ServicioOcupacion,
     (servicioEspecialidad) => servicioEspecialidad.servicio
   )
-  servicioEspecialidades: ServicioEspecialidad[]
+  servicioOcupaciones: ServicioOcupacion[]
+
+  get servicioEspecialidades() {
+    return this.servicioOcupaciones
+  }
+
+  set servicioEspecialidades(value: ServicioOcupacion[]) {
+    this.servicioOcupaciones = value
+  }
 
   @BeforeInsert()
   insertarEstado() {

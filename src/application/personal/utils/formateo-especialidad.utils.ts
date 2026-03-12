@@ -5,7 +5,7 @@ import {
 import { Especialidad } from '../entities/especialidad.entity'
 
 const formatearServicio = (
-  servicioEspecialidad: Especialidad['servicioEspecialidades'][number]
+  servicioEspecialidad: Especialidad['servicioOcupaciones'][number]
 ): ServicioResumenDto | undefined => {
   const servicio = servicioEspecialidad.servicio
   if (!servicio) {
@@ -26,10 +26,10 @@ export function formatearEspecialidad(
     id: especialidad.id,
     nombre: especialidad.nombre,
     descripcion: especialidad.descripcion,
+    grado: especialidad.grado,
     estado: especialidad.estado,
-    colorHex: especialidad.colorHex,
     servicios:
-      especialidad.servicioEspecialidades
+      especialidad.servicioOcupaciones
         ?.map(formatearServicio)
         .filter((servicio): servicio is ServicioResumenDto => !!servicio) ?? [],
   }

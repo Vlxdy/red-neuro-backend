@@ -10,7 +10,7 @@ import { PersonalSaludService } from './services/personal-salud.service'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Persona } from '@/core/usuario/entity/persona.entity'
-import { UsuarioRolEspecialidad } from './entities/usuaro-rol-especialidad.entity'
+import { UsuarioRolOcupacion } from './entities/usuaro-rol-especialidad.entity'
 import { UsuarioModule } from '@/core/usuario/usuario.module'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
 
@@ -22,7 +22,7 @@ import { Servicio } from '@/application/servicio/entities/servicio.entity'
       UsuarioRol,
       Usuario,
       Persona,
-      UsuarioRolEspecialidad,
+      UsuarioRolOcupacion,
     ]),
     UsuarioModule,
   ],

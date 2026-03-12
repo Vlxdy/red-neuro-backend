@@ -2,7 +2,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  Matches,
   MaxLength,
 } from '@/common/validation'
 import { ApiProperty, PartialType } from '@nestjs/swagger'
@@ -29,8 +28,8 @@ export class ServicioResumenDto {
 
 export class CrearEspecialidadDto {
   @ApiProperty({
-    description: 'Nombre visible de la especialidad médica',
-    example: 'Cardiología',
+    description: 'Nombre visible de la ocupación',
+    example: 'Enfermería',
   })
   @IsString()
   @IsNotEmpty()
@@ -38,8 +37,8 @@ export class CrearEspecialidadDto {
   nombre!: string
 
   @ApiProperty({
-    description: 'Descripción opcional de la especialidad médica',
-    example: 'Especialidad dedicada al diagnóstico de enfermedades cardíacas',
+    description: 'Descripción opcional de la ocupación',
+    example: 'Perfil orientado al cuidado integral del paciente',
     required: false,
   })
   @IsOptional()
@@ -47,48 +46,56 @@ export class CrearEspecialidadDto {
   descripcion?: string
 
   @ApiProperty({
-    description: 'Color principal de la especialidad en formato hexadecimal',
-    example: '#0ea5e9',
+    description:
+      'Grado o nivel profesional opcional para diferenciar perfiles de una misma ocupación',
+    example: 'Licenciatura',
+    required: false,
   })
+  @IsOptional()
   @IsString()
-  @Matches(/^#[0-9A-Fa-f]{6}$/)
-  colorHex!: string
+  @MaxLength(80)
+  grado?: string
 }
 
 export class EspecialidadResponseDto {
   @ApiProperty({
-    description: 'Identificador único de la especialidad',
+    description: 'Identificador único de la ocupación',
     example: '12',
   })
   id!: string
 
   @ApiProperty({
-    description: 'Nombre visible de la especialidad médica',
-    example: 'Cardiología',
+    description: 'Nombre visible de la ocupación',
+    example: 'Enfermería',
   })
   nombre!: string
 
   @ApiProperty({
-    description: 'Descripción opcional de la especialidad médica',
-    example: 'Especialidad dedicada al diagnóstico de enfermedades cardíacas',
+    description: 'Descripción opcional de la ocupación',
+    example: 'Perfil orientado al cuidado integral del paciente',
     required: false,
   })
   descripcion?: string
 
   @ApiProperty({
-    description: 'Estado actual del registro de especialidad',
+    description:
+      'Grado o nivel profesional opcional para diferenciar perfiles de una misma ocupación',
+    example: 'Licenciatura',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  grado?: string
+
+  @ApiProperty({
+    description: 'Estado actual del registro de ocupación',
     example: 'ACTIVO',
   })
   estado!: string
 
   @ApiProperty({
-    description: 'Color principal de la especialidad en formato hexadecimal',
-    example: '#0ea5e9',
-  })
-  colorHex!: string
-
-  @ApiProperty({
-    description: 'Servicios asociados a la especialidad',
+    description: 'Servicios asociados a la ocupación',
     type: [ServicioResumenDto],
   })
   servicios!: ServicioResumenDto[]
@@ -98,7 +105,7 @@ export class ActualizarEspecialidadDto extends PartialType(
   CrearEspecialidadDto
 ) {
   @ApiProperty({
-    description: 'Permite reactivar o desactivar la especialidad',
+    description: 'Permite reactivar o desactivar la ocupación',
     example: 'ACTIVO',
     required: false,
   })
