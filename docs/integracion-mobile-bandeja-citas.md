@@ -8,7 +8,7 @@ Esta guía describe cómo implementar en la app mobile la nueva bandeja de citas
 2. Mostrar contadores y previews por prioridad.
 3. Abrir cada bandeja completa de forma independiente.
 4. Manejar carga incremental (sin páginas numéricas).
-5. En confirmadas, cargar incremental por días.
+5. En programadas, cargar incremental por días.
 
 ---
 
@@ -18,7 +18,7 @@ Esta guía describe cómo implementar en la app mobile la nueva bandeja de citas
    - Pendientes de aprobación
    - Rechazadas
 2. Borradores
-3. Confirmadas asignadas
+3. Programadas asignadas
 
 ---
 
@@ -50,7 +50,7 @@ Esta guía describe cómo implementar en la app mobile la nueva bandeja de citas
       "pendientesAprobacionAsignadas": 12,
       "rechazadasSolicitadasPorMi": 5,
       "borradores": 8,
-      "confirmadasAsignadas": 34
+      "programadasAsignadas": 34
     },
     "preview": {
       "pendientesAprobacionAsignadas": {
@@ -71,7 +71,7 @@ Esta guía describe cómo implementar en la app mobile la nueva bandeja de citas
         "limitAplicado": 10,
         "hasMore": false
       },
-      "confirmadasAsignadas": {
+      "programadasAsignadas": {
         "items": [],
         "total": 34,
         "limitAplicado": 10,
@@ -84,10 +84,10 @@ Esta guía describe cómo implementar en la app mobile la nueva bandeja de citas
 }
 ```
 
-### Regla especial confirmadas en preview
+### Regla especial programadas en preview
 
 - Mostrar top 10 próximas por fecha.
-- Si hoy tiene más de 10 confirmadas, mostrar todas las de hoy.
+- Si hoy tiene más de 10 programadas, mostrar todas las de hoy.
 
 ---
 
@@ -105,9 +105,9 @@ Esta guía describe cómo implementar en la app mobile la nueva bandeja de citas
 
 `GET /citas/home/borradores`
 
-## Confirmadas (incremental por días)
+## Programadas (incremental por días)
 
-`GET /citas/home/confirmadas-asignadas`
+`GET /citas/home/programadas-asignadas`
 
 ---
 
@@ -144,7 +144,7 @@ Para pendientes/rechazadas/borradores (heredan `PaginacionQueryDto`):
 
 ---
 
-## 4) Confirmadas paginadas agrupadas por días
+## 4) Programadas paginadas agrupadas por días
 
 ### Query params
 
@@ -167,7 +167,7 @@ Para pendientes/rechazadas/borradores (heredan `PaginacionQueryDto`):
 }
 ```
 
-### Estrategia UI para confirmadas
+### Estrategia UI para programadas
 
 - Renderizar por secciones (`dia`).
 - Al paginar, pedir siguiente `pagina` manteniendo agrupación por `dia`.

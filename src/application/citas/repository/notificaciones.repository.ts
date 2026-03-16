@@ -85,7 +85,7 @@ export class NotificacionesRepository {
     return await this.notificacionRepo().save(notificacion)
   }
 
-  async contarConfirmadasAsignadas(
+  async contarProgramadasAsignadas(
     idUsuarioRol: string,
     fecha: string
   ): Promise<number> {
@@ -95,12 +95,12 @@ export class NotificacionesRepository {
     return await this.citaRepo()
       .createQueryBuilder('c')
       .where('c.idPersonal = :idUsuarioRol', { idUsuarioRol })
-      .andWhere('c.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+      .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
       .andWhere('c.fecha_inicio between :inicio and :fin', { inicio, fin })
       .getCount()
   }
 
-  async contarConfirmadasAdmin(
+  async contarProgramadasAdmin(
     fecha: string
   ): Promise<{ citasConPersonal: number; citasSinPersonal: number }> {
     const inicio = dayjs(fecha).startOf('day').toDate()
@@ -110,13 +110,13 @@ export class NotificacionesRepository {
       this.citaRepo()
         .createQueryBuilder('c')
         .where('c.fecha_inicio between :inicio and :fin', { inicio, fin })
-        .andWhere('c.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+        .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
         .andWhere('c.idPersonal is not null')
         .getCount(),
       this.citaRepo()
         .createQueryBuilder('c')
         .where('c.fecha_inicio between :inicio and :fin', { inicio, fin })
-        .andWhere('c.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+        .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
         .andWhere('c.idPersonal is null')
         .getCount(),
     ])
@@ -133,7 +133,7 @@ export class NotificacionesRepository {
       .select('c.idPersonal', 'idPersonal')
       .addSelect('count(*)', 'cantidad')
       .where('c.fecha_inicio between :inicio and :fin', { inicio, fin })
-      .andWhere('c.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+      .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
       .andWhere('c.idPersonal is not null')
       .groupBy('c.idPersonal')
       .getRawMany<{ idPersonal: string; cantidad: string }>()
@@ -181,8 +181,8 @@ export class NotificacionesRepository {
 
   crearNotificacionResumenPersonal(idPersonal: string, cantidad: number) {
     return this.notificacionRepo().create({
-      tipo: NotificacionTipo.CITA_CONFIRMADA,
-      mensaje: `Resumen diario: tienes ${cantidad} citas confirmadas para hoy.`,
+      tipo: NotificacionTipo.CITA_PROGRAMADA,
+      mensaje: `Resumen diario: tienes ${cantidad} citas programadas para hoy.`,
       idPersonal,
       usuarioCreacion: '0',
     })
@@ -194,7 +194,7 @@ export class NotificacionesRepository {
     citasSinPersonal: number
   ) {
     return this.notificacionRepo().create({
-      tipo: NotificacionTipo.CITA_CONFIRMADA,
+      tipo: NotificacionTipo.CITA_PROGRAMADA,
       mensaje: `Resumen diario: con personal ${citasConPersonal}, sin personal ${citasSinPersonal}.`,
       idPersonal,
       usuarioCreacion: '0',

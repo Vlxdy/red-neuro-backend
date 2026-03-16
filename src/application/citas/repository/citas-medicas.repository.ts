@@ -432,14 +432,14 @@ export class CitasMedicasRepository {
       .getManyAndCount()
   }
 
-  async contarConfirmadasAsignadas(params: {
+  async contarProgramadasAsignadas(params: {
     idPersonal?: string
     idLugar?: string
     fechaBase: string
   }) {
     const query = this.citaRepository()
       .createQueryBuilder('cita')
-      .where('cita.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+      .where('cita.estado = :estado', { estado: CitasEstado.PROGRAMADA })
       .andWhere('cita.fechaInicio >= :fechaBase', {
         fechaBase: params.fechaBase,
       })
@@ -457,7 +457,7 @@ export class CitasMedicasRepository {
     return await query.getCount()
   }
 
-  async listarConfirmadasAsignadas(params: {
+  async listarProgramadasAsignadas(params: {
     idPersonal?: string
     idLugar?: string
     fechaBase: string
@@ -466,7 +466,7 @@ export class CitasMedicasRepository {
     cursorId?: string
   }) {
     const query = this.buildCitasQuery({
-      estado: CitasEstado.CONFIRMADA,
+      estado: CitasEstado.PROGRAMADA,
       fechaInicio: params.fechaBase,
       idPersonal: params.idPersonal,
       idLugar: params.idLugar,
@@ -481,7 +481,7 @@ export class CitasMedicasRepository {
     return await query.take(params.limite + 1).getMany()
   }
 
-  async listarConfirmadasAsignadasDelDia(params: {
+  async listarProgramadasAsignadasDelDia(params: {
     idPersonal?: string
     idLugar?: string
     dia: string
@@ -490,7 +490,7 @@ export class CitasMedicasRepository {
     const fin = dayjs(params.dia).endOf('day').toISOString()
 
     const query = this.buildCitasQuery({
-      estado: CitasEstado.CONFIRMADA,
+      estado: CitasEstado.PROGRAMADA,
       idPersonal: params.idPersonal,
       idLugar: params.idLugar,
     })
@@ -502,7 +502,7 @@ export class CitasMedicasRepository {
     return await query.getMany()
   }
 
-  async listarConfirmadasAsignadasEntreDias(params: {
+  async listarProgramadasAsignadasEntreDias(params: {
     idPersonal?: string
     idLugar?: string
     diaInicio: string
@@ -512,7 +512,7 @@ export class CitasMedicasRepository {
     cursorId?: string
   }) {
     const query = this.buildCitasQuery({
-      estado: CitasEstado.CONFIRMADA,
+      estado: CitasEstado.PROGRAMADA,
       idPersonal: params.idPersonal,
       idLugar: params.idLugar,
     })
@@ -530,7 +530,7 @@ export class CitasMedicasRepository {
     return await query.take(params.limite + 1).getMany()
   }
 
-  async listarConfirmadasAsignadasPaginado(params: {
+  async listarProgramadasAsignadasPaginado(params: {
     idPersonal?: string
     idLugar?: string
     fechaBase: string
@@ -539,7 +539,7 @@ export class CitasMedicasRepository {
     saltar: number
   }) {
     const query = this.buildCitasQuery({
-      estado: CitasEstado.CONFIRMADA,
+      estado: CitasEstado.PROGRAMADA,
       idPersonal: params.idPersonal,
       idLugar: params.idLugar,
       fechaInicio: params.fechaBase,
@@ -570,8 +570,8 @@ export class CitasMedicasRepository {
         'solicitadasPendientesConfirmacion'
       )
       .addSelect(
-        `SUM(CASE WHEN cita.estado = :estadoConfirmada THEN 1 ELSE 0 END)`,
-        'proximasConfirmadas'
+        `SUM(CASE WHEN cita.estado = :estadoProgramada THEN 1 ELSE 0 END)`,
+        'proximasProgramadas'
       )
       .addSelect(
         `SUM(CASE WHEN cita.estado IN (:...estadosOperativos) THEN 1 ELSE 0 END)`,
@@ -580,11 +580,11 @@ export class CitasMedicasRepository {
       .addSelect('MIN(DATE(cita.fechaInicio))', 'primeraFechaConCitas')
       .where('cita.fechaInicio >= :desde', { desde: params.desde })
       .andWhere('cita.estado IN (:...estadosOperativos)', {
-        estadosOperativos: [CitasEstado.SOLICITADA, CitasEstado.CONFIRMADA],
+        estadosOperativos: [CitasEstado.SOLICITADA, CitasEstado.PROGRAMADA],
       })
       .setParameters({
         estadoSolicitada: CitasEstado.SOLICITADA,
-        estadoConfirmada: CitasEstado.CONFIRMADA,
+        estadoProgramada: CitasEstado.PROGRAMADA,
       })
 
     if (params.hasta) {
@@ -603,7 +603,7 @@ export class CitasMedicasRepository {
 
     return await query.getRawOne<{
       solicitadasPendientesConfirmacion: string | null
-      proximasConfirmadas: string | null
+      proximasProgramadas: string | null
       totalDesdeHoy: string | null
       primeraFechaConCitas: string | null
     }>()
@@ -674,8 +674,8 @@ export class CitasMedicasRepository {
     cursorId?: string
   }) {
     const estados = params.incluirSolicitadas
-      ? [CitasEstado.CONFIRMADA, CitasEstado.SOLICITADA]
-      : [CitasEstado.CONFIRMADA]
+      ? [CitasEstado.PROGRAMADA, CitasEstado.SOLICITADA]
+      : [CitasEstado.PROGRAMADA]
 
     const query = this.buildCitasQuery({
       fechaInicio: params.desde,
@@ -1125,7 +1125,7 @@ export class CitasMedicasRepository {
     idEjecutor: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
-      const estadosElegibles = [CitasEstado.SOLICITADA, CitasEstado.CONFIRMADA]
+      const estadosElegibles = [CitasEstado.SOLICITADA, CitasEstado.PROGRAMADA]
       const citasVencidas = await this.citaRepository(manager).find({
         where: {
           fechaInicio: LessThan(fechaCorte),

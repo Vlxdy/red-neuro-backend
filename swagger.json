@@ -2038,7 +2038,7 @@
                 "INACTIVO",
                 "BORRADOR",
                 "SOLICITADA",
-                "CONFIRMADA",
+                "PROGRAMADA",
                 "COMPLETADA",
                 "NO_ASISTIO",
                 "REPROGRAMADA",
@@ -2223,7 +2223,7 @@
                 "INACTIVO",
                 "BORRADOR",
                 "SOLICITADA",
-                "CONFIRMADA",
+                "PROGRAMADA",
                 "COMPLETADA",
                 "NO_ASISTIO",
                 "REPROGRAMADA",
@@ -2333,7 +2333,7 @@
                 "INACTIVO",
                 "BORRADOR",
                 "SOLICITADA",
-                "CONFIRMADA",
+                "PROGRAMADA",
                 "COMPLETADA",
                 "NO_ASISTIO",
                 "REPROGRAMADA",
@@ -2436,7 +2436,7 @@
                 "INACTIVO",
                 "BORRADOR",
                 "SOLICITADA",
-                "CONFIRMADA",
+                "PROGRAMADA",
                 "COMPLETADA",
                 "NO_ASISTIO",
                 "REPROGRAMADA",
@@ -2889,7 +2889,7 @@
             "bearer": []
           }
         ],
-        "summary": "Completa una cita confirmada",
+        "summary": "Completa una cita programada",
         "tags": [
           "Gestión de Citas"
         ]
@@ -2947,7 +2947,7 @@
             "bearer": []
           }
         ],
-        "summary": "Marca una cita confirmada como no asistida",
+        "summary": "Marca una cita programada como no asistida",
         "tags": [
           "Gestión de Citas"
         ]
@@ -3063,7 +3063,7 @@
             "bearer": []
           }
         ],
-        "summary": "Cancela una cita confirmada",
+        "summary": "Cancela una cita programada",
         "tags": [
           "Gestión de Citas"
         ]
@@ -3561,9 +3561,9 @@
         ]
       }
     },
-    "/citas/home/confirmadas-asignadas": {
+    "/citas/home/programadas-asignadas": {
       "get": {
-        "operationId": "HomeCitasController_homeConfirmadasAsignadas",
+        "operationId": "HomeCitasController_homeProgramadasAsignadas",
         "parameters": [
           {
             "name": "limite",
@@ -3697,7 +3697,7 @@
             "bearer": []
           }
         ],
-        "summary": "Lista incremental de confirmadas asignadas agrupadas por día",
+        "summary": "Lista incremental de programadas asignadas agrupadas por día",
         "tags": [
           "Gestión de Citas Home"
         ]
@@ -7069,7 +7069,7 @@
             "type": "number",
             "example": 12
           },
-          "proximasConfirmadas": {
+          "proximasProgramadas": {
             "type": "number",
             "example": 7
           },
@@ -7084,7 +7084,7 @@
         },
         "required": [
           "solicitadasPendientesConfirmacion",
-          "proximasConfirmadas",
+          "proximasProgramadas",
           "totalDesdeHoy"
         ]
       },
@@ -7384,7 +7384,7 @@
               "INACTIVO",
               "BORRADOR",
               "SOLICITADA",
-              "CONFIRMADA",
+              "PROGRAMADA",
               "COMPLETADA",
               "NO_ASISTIO",
               "REPROGRAMADA",
@@ -7475,7 +7475,7 @@
               "INACTIVO",
               "BORRADOR",
               "SOLICITADA",
-              "CONFIRMADA",
+              "PROGRAMADA",
               "COMPLETADA",
               "NO_ASISTIO",
               "REPROGRAMADA",
@@ -7932,7 +7932,7 @@
             "type": "number",
             "example": 8
           },
-          "confirmadasAsignadas": {
+          "programadasAsignadas": {
             "type": "number",
             "example": 34
           }
@@ -7941,7 +7941,7 @@
           "pendientesAprobacionAsignadas",
           "rechazadasSolicitadasPorMi",
           "borradores",
-          "confirmadasAsignadas"
+          "programadasAsignadas"
         ]
       },
       "HomePreviewBloqueResponseDto": {
@@ -7973,7 +7973,7 @@
           "hasMore"
         ]
       },
-      "HomePreviewConfirmadasResponseDto": {
+      "HomePreviewProgramadasResponseDto": {
         "type": "object",
         "properties": {
           "items": {
@@ -8019,15 +8019,15 @@
           "borradores": {
             "$ref": "#/components/schemas/HomePreviewBloqueResponseDto"
           },
-          "confirmadasAsignadas": {
-            "$ref": "#/components/schemas/HomePreviewConfirmadasResponseDto"
+          "programadasAsignadas": {
+            "$ref": "#/components/schemas/HomePreviewProgramadasResponseDto"
           }
         },
         "required": [
           "pendientesAprobacionAsignadas",
           "rechazadasSolicitadasPorMi",
           "borradores",
-          "confirmadasAsignadas"
+          "programadasAsignadas"
         ]
       },
       "HomeBandejaResponseDto": {
@@ -8203,7 +8203,7 @@
       "ResumenDiarioResponseDto": {
         "type": "object",
         "properties": {
-          "citasConfirmadasAsignadas": {
+          "citasProgramadasAsignadas": {
             "type": "number"
           },
           "citasConPersonal": {

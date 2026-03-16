@@ -14,7 +14,7 @@ Definir un flujo de citas con reglas claras de transición, trazabilidad complet
 
 - `BORRADOR`: cita guardada, aún no enviada.
 - `SOLICITADA`: cita enviada con personal de salud asignado.
-- `CONFIRMADA`: cita validada para atención.
+- `PROGRAMADA`: cita validada para atención.
 - `RECHAZADA`: cita rechazada por el profesional asignado.
 - `CANCELADA`: cita cancelada.
 - `NO_ASISTIO`: cita vencida sin atención efectiva.
@@ -31,7 +31,7 @@ Toda creación debe indicar intención:
 1. `GUARDAR` -> crea en `BORRADOR`.
 2. `ENVIAR`:
    - con `idMedico` -> pasa a `SOLICITADA`.
-   - sin `idMedico` -> pasa a `CONFIRMADA`.
+   - sin `idMedico` -> pasa a `PROGRAMADA`.
 
 ### Notificación
 
@@ -43,7 +43,7 @@ La notificación al médico asignado se envía **solo** cuando la cita entra a e
 
 - `BORRADOR`
   - Editable solo por **creador** o **administrador**.
-  - Puede enviarse (`SOLICITADA` o `CONFIRMADA`).
+  - Puede enviarse (`SOLICITADA` o `PROGRAMADA`).
   - Puede cancelarse.
   - Puede eliminarse de forma lógica (nunca física), para evitar confusión con citas activas.
   - Solo la visualiza quien la creó y el administrador.
@@ -54,7 +54,7 @@ La notificación al médico asignado se envía **solo** cuando la cita entra a e
   - Tras una modificación, el siguiente paso operativo es confirmar o rechazar (sin guardar intermedio adicional).
   - No se cancela directamente en este estado.
 
-- `CONFIRMADA`
+- `PROGRAMADA`
   - No editable.
   - Permite cancelar o reprogramar.
 
@@ -81,7 +81,7 @@ No se permite borrado físico de citas en ningún estado.
 
 ## 5. Reprogramación y trazabilidad
 
-Cuando se reprograma una cita (`CONFIRMADA`, `CANCELADA` o `NO_ASISTIO`):
+Cuando se reprograma una cita (`PROGRAMADA`, `CANCELADA` o `NO_ASISTIO`):
 
 1. La cita original pasa a `REPROGRAMADA`.
 2. Se crea una nueva cita con fecha/datos nuevos.
@@ -92,9 +92,9 @@ Cuando se reprograma una cita (`CONFIRMADA`, `CANCELADA` o `NO_ASISTIO`):
 
 ## 6. Matriz de transiciones recomendada
 
-- `BORRADOR` -> `SOLICITADA` | `CONFIRMADA` | `CANCELADA` | `INACTIVO` (eliminación lógica)
-- `SOLICITADA` -> `CONFIRMADA` | `RECHAZADA` | `SOLICITADA` (modificación sin cambiar estado)
-- `CONFIRMADA` -> `REPROGRAMADA` | `CANCELADA` | `COMPLETADA`
+- `BORRADOR` -> `SOLICITADA` | `PROGRAMADA` | `CANCELADA` | `INACTIVO` (eliminación lógica)
+- `SOLICITADA` -> `PROGRAMADA` | `RECHAZADA` | `SOLICITADA` (modificación sin cambiar estado)
+- `PROGRAMADA` -> `REPROGRAMADA` | `CANCELADA` | `COMPLETADA`
 - `RECHAZADA` -> `SOLICITADA` (al modificar y reenviar)
 - `CANCELADA` -> `REPROGRAMADA`
 - `NO_ASISTIO` -> `REPROGRAMADA`
@@ -143,8 +143,8 @@ Para cumplir el requerimiento de trazabilidad de actores, la cita debe registrar
 7. Restringir visibilidad de `BORRADOR` y `RECHAZADA` a creador/admin.
 8. Reprogramar en transacción: cerrar original + crear nueva + actualizar vínculos.
 9. Para `RECHAZADA`, habilitar flujo de corrección y reenvío (`RECHAZADA -> SOLICITADA`) sin reprogramación.
-10. Permitir cancelación solo desde `CONFIRMADA`.
-11. Permitir `COMPLETADA` desde `CONFIRMADA` cuando se registre atención efectiva.
+10. Permitir cancelación solo desde `PROGRAMADA`.
+11. Permitir `COMPLETADA` desde `PROGRAMADA` cuando se registre atención efectiva.
 12. Mantener notificación al médico únicamente al entrar en `SOLICITADA`.
 13. SLA de notificaciones: pendiente de definición funcional.
 14. Inhabilitar borrado físico de citas en repositorio.

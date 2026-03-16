@@ -289,7 +289,7 @@ export class MisResumenResponseDto {
   solicitadasPendientesConfirmacion!: number
 
   @ApiProperty({ example: 7 })
-  proximasConfirmadas!: number
+  proximasProgramadas!: number
 
   @ApiProperty({ example: 19 })
   totalDesdeHoy!: number
@@ -381,7 +381,7 @@ export class HomeListadoQueryDto extends PaginacionQueryDto {
   fechaBase?: string
 }
 
-export class HomeConfirmadasListadoQueryDto extends HomeListadoQueryDto {
+export class HomeProgramadasListadoQueryDto extends HomeListadoQueryDto {
   @ApiPropertyOptional({
     description: 'Filtro opcional por día (YYYY-MM-DD)',
     example: '2026-03-17',
@@ -402,7 +402,7 @@ export class HomeContadoresResponseDto {
   borradores!: number
 
   @ApiProperty({ example: 34 })
-  confirmadasAsignadas!: number
+  programadasAsignadas!: number
 }
 
 export class HomePreviewBloqueResponseDto {
@@ -419,7 +419,7 @@ export class HomePreviewBloqueResponseDto {
   hasMore!: boolean
 }
 
-export class HomePreviewConfirmadasResponseDto extends HomePreviewBloqueResponseDto {
+export class HomePreviewProgramadasResponseDto extends HomePreviewBloqueResponseDto {
   @ApiProperty({ example: 'top10_o_todas_las_de_hoy_si_hoy_gt_10' })
   reglaAplicada!: string
 }
@@ -434,8 +434,8 @@ export class HomePreviewResponseDto {
   @ApiProperty({ type: () => HomePreviewBloqueResponseDto })
   borradores!: HomePreviewBloqueResponseDto
 
-  @ApiProperty({ type: () => HomePreviewConfirmadasResponseDto })
-  confirmadasAsignadas!: HomePreviewConfirmadasResponseDto
+  @ApiProperty({ type: () => HomePreviewProgramadasResponseDto })
+  programadasAsignadas!: HomePreviewProgramadasResponseDto
 }
 
 export class HomeBandejaResponseDto {
@@ -471,7 +471,7 @@ export class HomeGrupoDiaResponseDto {
   items!: CitaResponseDto[]
 }
 
-export class HomeConfirmadasListadoResponseDto {
+export class HomeProgramadasListadoResponseDto {
   @ApiProperty({ type: () => [HomeGrupoDiaResponseDto] })
   grupos!: HomeGrupoDiaResponseDto[]
 }

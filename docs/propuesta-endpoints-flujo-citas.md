@@ -66,7 +66,7 @@ Motivo: mezcla edición de borrador y cambios operativos.
 - Desde `BORRADOR` o `RECHAZADA`.
 - Transiciones:
   - con `idMedico` -> `SOLICITADA`
-  - sin `idMedico` -> `CONFIRMADA`
+  - sin `idMedico` -> `PROGRAMADA`
 - Registra `idUsuarioEnvio` (idUsuarioRol de quien envía).
 - Si pasa a `SOLICITADA`, envía notificación al médico asignado.
 
@@ -87,7 +87,7 @@ Motivo: mezcla edición de borrador y cambios operativos.
 ### `POST /citas/:id/confirmar`
 - Solo si estado = `SOLICITADA`.
 - Solo médico asignado o admin.
-- Transición: `SOLICITADA -> CONFIRMADA`.
+- Transición: `SOLICITADA -> PROGRAMADA`.
 
 ### `POST /citas/:id/rechazar`
 - Solo si estado = `SOLICITADA`.
@@ -97,18 +97,18 @@ Motivo: mezcla edición de borrador y cambios operativos.
 
 ---
 
-## 4.3 Gestión de cita confirmada
+## 4.3 Gestión de cita programada
 
 ### `POST /citas/:id/cancelar`
-- Solo si estado = `CONFIRMADA`.
-- Transición: `CONFIRMADA -> CANCELADA`.
+- Solo si estado = `PROGRAMADA`.
+- Transición: `PROGRAMADA -> CANCELADA`.
 
 ### `POST /citas/:id/completar`
-- Solo si estado = `CONFIRMADA`.
-- Transición: `CONFIRMADA -> COMPLETADA`.
+- Solo si estado = `PROGRAMADA`.
+- Transición: `PROGRAMADA -> COMPLETADA`.
 
 ### `POST /citas/:id/reprogramar`
-- Solo si estado = `CONFIRMADA`, `CANCELADA` o `NO_ASISTIO`.
+- Solo si estado = `PROGRAMADA`, `CANCELADA` o `NO_ASISTIO`.
 - Reprogramación por clonación transaccional:
   1. original -> `REPROGRAMADA`
   2. crear nueva cita
@@ -161,14 +161,14 @@ Agregar en respuestas de cita:
 ## 6) Matriz de transición soportada por endpoints explícitos
 
 - `BORRADOR` -> `SOLICITADA` (`POST /:id/enviar` con médico)
-- `BORRADOR` -> `CONFIRMADA` (`POST /:id/enviar` sin médico)
+- `BORRADOR` -> `PROGRAMADA` (`POST /:id/enviar` sin médico)
 - `BORRADOR` -> `INACTIVO` (`DELETE /:id` lógico)
-- `SOLICITADA` -> `CONFIRMADA` (`POST /:id/confirmar`)
+- `SOLICITADA` -> `PROGRAMADA` (`POST /:id/confirmar`)
 - `SOLICITADA` -> `RECHAZADA` (`POST /:id/rechazar`)
-- `RECHAZADA` -> `SOLICITADA|CONFIRMADA` (`POST /:id/enviar`)
-- `CONFIRMADA` -> `CANCELADA` (`POST /:id/cancelar`)
-- `CONFIRMADA` -> `COMPLETADA` (`POST /:id/completar`)
-- `CONFIRMADA|CANCELADA|NO_ASISTIO` -> `REPROGRAMADA` + nueva cita (`POST /:id/reprogramar`)
+- `RECHAZADA` -> `SOLICITADA|PROGRAMADA` (`POST /:id/enviar`)
+- `PROGRAMADA` -> `CANCELADA` (`POST /:id/cancelar`)
+- `PROGRAMADA` -> `COMPLETADA` (`POST /:id/completar`)
+- `PROGRAMADA|CANCELADA|NO_ASISTIO` -> `REPROGRAMADA` + nueva cita (`POST /:id/reprogramar`)
 
 ---
 
