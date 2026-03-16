@@ -28,6 +28,13 @@ import {
   MisSolicitadasResponseDto,
   MisTimelineQueryDto,
   MisTimelineResponseDto,
+  HomeBandejaQueryDto,
+  HomeBandejaResponseDto,
+  HomeConfirmadasListadoQueryDto,
+  HomeGrupoDiaResponseDto,
+  HomeListadoQueryDto,
+  HomePreviewBloqueResponseDto,
+  CitasScope,
   RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
@@ -231,17 +238,32 @@ export class CitasMedicasService extends BaseService {
   private resolverScope(
     scope: string | undefined,
     idRol: string,
+    esSupervisor: boolean,
     idUsuarioRol: string,
     idPersonal?: string
   ) {
-    const esAdmin = String(idRol) === RolEnumId.ADMINISTRADOR
-    const usarScopeAll = scope === 'all' && esAdmin
+    const esSupervisorPersonalSalud =
+      String(idRol) === RolEnumId.PERSONAL_SALUD && esSupervisor === true
 
-    if (!usarScopeAll) {
-      return { idPersonal: idUsuarioRol }
+    if (!esSupervisorPersonalSalud || !scope || scope === 'mine') {
+      return { idPersonal: idUsuarioRol, scopeAplicado: CitasScope.MINE }
     }
 
-    return { idPersonal }
+    if (scope === 'personal') {
+      if (!idPersonal) {
+        throw new BadRequestException(
+          'idPersonal es requerido cuando scope=personal'
+        )
+      }
+
+      return { idPersonal, scopeAplicado: CitasScope.PERSONAL }
+    }
+
+    if (scope === 'all') {
+      return { idPersonal: undefined, scopeAplicado: CitasScope.ALL }
+    }
+
+    return { idPersonal: idUsuarioRol, scopeAplicado: CitasScope.MINE }
   }
 
   private obtenerDesdePorDefecto(desde?: string): string {
@@ -279,14 +301,270 @@ export class CitasMedicasService extends BaseService {
     return { hasMore, recortadas, nextCursor }
   }
 
+  private construirBloquePreview(
+    citas: Cita[],
+    limite: number,
+    total: number
+  ): HomePreviewBloqueResponseDto {
+    return {
+      items: formatearCitas(citas.slice(0, limite)),
+      total,
+      limitAplicado: limite,
+      hasMore: total > limite,
+    }
+  }
+
+  async obtenerHomeBandeja(
+    filtros: HomeBandejaQueryDto,
+    idUsuarioRol: string,
+    idRol: string,
+    esSupervisor: boolean
+  ): Promise<HomeBandejaResponseDto> {
+    const { idPersonal, scopeAplicado } = this.resolverScope(
+      filtros.scope,
+      idRol,
+      esSupervisor,
+      idUsuarioRol,
+      filtros.idPersonal
+    )
+
+    const fechaBase = filtros.fechaBase
+      ? dayjs(filtros.fechaBase).startOf('day')
+      : dayjs().startOf('day')
+    const limite = filtros.limitPreview ?? 10
+
+    const [
+      countPendientes,
+      countRechazadas,
+      countBorradores,
+      countConfirmadas,
+      pendientes,
+      rechazadas,
+      borradores,
+      confirmadasHoy,
+      confirmadasResto,
+    ] = await Promise.all([
+      this.citasRepository.contarPendientesAprobacion({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        fechaBase: fechaBase.toISOString(),
+      }),
+      this.citasRepository.contarRechazadasSolicitadas({
+        idSolicitante: idPersonal,
+        idLugar: filtros.idLugar,
+      }),
+      this.citasRepository.contarBorradores({
+        idSolicitante: idPersonal,
+        idLugar: filtros.idLugar,
+      }),
+      this.citasRepository.contarConfirmadasAsignadas({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        fechaBase: fechaBase.toISOString(),
+      }),
+      this.citasRepository.listarPendientesAprobacion({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        fechaBase: fechaBase.toISOString(),
+        limite,
+      }),
+      this.citasRepository.listarRechazadasSolicitadas({
+        idSolicitante: idPersonal,
+        idLugar: filtros.idLugar,
+        limite,
+      }),
+      this.citasRepository.listarBorradores({
+        idSolicitante: idPersonal,
+        idLugar: filtros.idLugar,
+        limite,
+      }),
+      this.citasRepository.listarConfirmadasAsignadasDelDia({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        dia: fechaBase.format('YYYY-MM-DD'),
+      }),
+      this.citasRepository.listarConfirmadasAsignadas({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        fechaBase: fechaBase.toISOString(),
+        limite,
+      }),
+    ])
+
+    const confirmadasPreview =
+      confirmadasHoy.length > limite
+        ? confirmadasHoy
+        : confirmadasResto.slice(0, limite)
+
+    return {
+      scopeAplicado,
+      idPersonalAplicado: idPersonal,
+      fechaBase: fechaBase.format('YYYY-MM-DD'),
+      contadores: {
+        pendientesAprobacionAsignadas: countPendientes,
+        rechazadasSolicitadasPorMi: countRechazadas,
+        borradores: countBorradores,
+        confirmadasAsignadas: countConfirmadas,
+      },
+      preview: {
+        pendientesAprobacionAsignadas: this.construirBloquePreview(
+          pendientes,
+          limite,
+          countPendientes
+        ),
+        rechazadasSolicitadasPorMi: this.construirBloquePreview(
+          rechazadas,
+          limite,
+          countRechazadas
+        ),
+        borradores: this.construirBloquePreview(
+          borradores,
+          limite,
+          countBorradores
+        ),
+        confirmadasAsignadas: {
+          items: formatearCitas(confirmadasPreview),
+          total: countConfirmadas,
+          limitAplicado: limite,
+          reglaAplicada: 'top10_o_todas_las_de_hoy_si_hoy_gt_10',
+          hasMore: countConfirmadas > confirmadasPreview.length,
+        },
+      },
+      updatedAt: dayjs().toISOString(),
+    }
+  }
+
+  async listarHomePendientesAprobacion(
+    filtros: HomeListadoQueryDto,
+    idUsuarioRol: string,
+    idRol: string,
+    esSupervisor: boolean
+  ): Promise<[CitaResponseDto[], number]> {
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      idRol,
+      esSupervisor,
+      idUsuarioRol,
+      filtros.idPersonal
+    )
+
+    const limite = filtros.limite
+    const fechaBase = filtros.fechaBase
+      ? dayjs(filtros.fechaBase).startOf('day').toISOString()
+      : dayjs().startOf('day').toISOString()
+
+    const [citas, total] =
+      await this.citasRepository.listarPendientesAprobacionPaginado({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        fechaBase,
+        limite,
+        saltar: filtros.saltar,
+      })
+
+    return [formatearCitas(citas), total]
+  }
+
+  async listarHomeRechazadasSolicitadas(
+    filtros: HomeListadoQueryDto,
+    idUsuarioRol: string,
+    idRol: string,
+    esSupervisor: boolean
+  ): Promise<[CitaResponseDto[], number]> {
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      idRol,
+      esSupervisor,
+      idUsuarioRol,
+      filtros.idPersonal
+    )
+    const limite = filtros.limite
+
+    const [citas, total] =
+      await this.citasRepository.listarRechazadasSolicitadasPaginado({
+        idSolicitante: idPersonal,
+        idLugar: filtros.idLugar,
+        limite,
+        saltar: filtros.saltar,
+      })
+
+    return [formatearCitas(citas), total]
+  }
+
+  async listarHomeBorradores(
+    filtros: HomeListadoQueryDto,
+    idUsuarioRol: string,
+    idRol: string,
+    esSupervisor: boolean
+  ): Promise<[CitaResponseDto[], number]> {
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      idRol,
+      esSupervisor,
+      idUsuarioRol,
+      filtros.idPersonal
+    )
+    const limite = filtros.limite
+
+    const [citas, total] = await this.citasRepository.listarBorradoresPaginado({
+      idSolicitante: idPersonal,
+      idLugar: filtros.idLugar,
+      limite,
+      saltar: filtros.saltar,
+    })
+
+    return [formatearCitas(citas), total]
+  }
+
+  async listarHomeConfirmadasAsignadas(
+    filtros: HomeConfirmadasListadoQueryDto,
+    idUsuarioRol: string,
+    idRol: string,
+    esSupervisor: boolean
+  ): Promise<[HomeGrupoDiaResponseDto[], number]> {
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      idRol,
+      esSupervisor,
+      idUsuarioRol,
+      filtros.idPersonal
+    )
+    const limite = filtros.limite
+    const fechaBase = this.obtenerDesdePorDefecto(filtros.fechaBase)
+    const [citas, total] =
+      await this.citasRepository.listarConfirmadasAsignadasPaginado({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        fechaBase,
+        dia: filtros.dia,
+        limite,
+        saltar: filtros.saltar,
+      })
+
+    const gruposMap = new Map<string, CitaResponseDto[]>()
+
+    for (const cita of formatearCitas(citas)) {
+      const dia = dayjs(cita.fechaInicio).format('YYYY-MM-DD')
+      const actual = gruposMap.get(dia) ?? []
+      actual.push(cita)
+      gruposMap.set(dia, actual)
+    }
+
+    const grupos = Array.from(gruposMap).map(([dia, items]) => ({ dia, items }))
+
+    return [grupos, total]
+  }
+
   async obtenerMisResumen(
     filtros: MisResumenCitasDto,
     idUsuarioRol: string,
-    idRol: string
+    idRol: string,
+    esSupervisor: boolean
   ): Promise<MisResumenResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
       idRol,
+      esSupervisor,
       idUsuarioRol,
       filtros.idPersonal
     )
@@ -313,11 +591,13 @@ export class CitasMedicasService extends BaseService {
   async listarMisSolicitadas(
     filtros: MisSolicitadasQueryDto,
     idUsuarioRol: string,
-    idRol: string
+    idRol: string,
+    esSupervisor: boolean
   ): Promise<MisSolicitadasResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
       idRol,
+      esSupervisor,
       idUsuarioRol,
       filtros.idPersonal
     )
@@ -357,11 +637,13 @@ export class CitasMedicasService extends BaseService {
   async listarMisTimeline(
     filtros: MisTimelineQueryDto,
     idUsuarioRol: string,
-    idRol: string
+    idRol: string,
+    esSupervisor: boolean
   ): Promise<MisTimelineResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
       idRol,
+      esSupervisor,
       idUsuarioRol,
       filtros.idPersonal
     )

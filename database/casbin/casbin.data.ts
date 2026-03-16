@@ -145,6 +145,26 @@ const backendRoutes: CasbinValue = {
   '/api/citas/mis-citas': {
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },
+  '/api/citas/home/bandeja': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/pendientes-aprobacion': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/rechazadas-solicitadas': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/borradores': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/confirmadas-asignadas': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
   '/api/citas/:id': {
     [RolEnum.ADMINISTRADOR]: 'GET|DELETE',
     [RolEnum.PERSONAL_SALUD]: 'GET|DELETE',

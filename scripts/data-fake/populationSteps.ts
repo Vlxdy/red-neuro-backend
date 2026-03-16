@@ -289,7 +289,7 @@ export async function step2_registerHealthcareStaff(
   for (let i = 0; i < basePersonalSalud.length; i++) {
     const persona = basePersonalSalud[i]
     const payload = {
-      usuario: `psalud_${persona.usuario}`,
+      usuario: `${persona.usuario}`,
       contrasena: DEFAULT_PASSWORD,
       repetirContrasena: DEFAULT_PASSWORD,
       correoElectronico: `psalud.${persona.usuario}@seed.local`,

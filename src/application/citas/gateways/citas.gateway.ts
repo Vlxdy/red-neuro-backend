@@ -102,22 +102,38 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   emitCitaCreada(cita: CitaResponseDto) {
     this.server.emit(CitasSocketOutboundEvent.CREATED, cita)
+    this.emitHomeActualizada(cita)
   }
 
   emitCitaActualizada(cita: CitaResponseDto) {
     this.server.emit(CitasSocketOutboundEvent.ACTUALIZADA, cita)
+    this.emitHomeActualizada(cita)
   }
 
   emitCitaEstadoActualizado(cita: CitaResponseDto) {
     this.server.emit(CitasSocketOutboundEvent.ESTADO_ACTUALIZADO, cita)
+    this.emitHomeActualizada(cita)
   }
 
   emitCitaReprogramada(cita: CitaResponseDto) {
     this.server.emit(CitasSocketOutboundEvent.REPROGRAMADA, cita)
+    this.emitHomeActualizada(cita)
   }
 
   emitCitaCancelada(cita: CitaResponseDto) {
     this.server.emit(CitasSocketOutboundEvent.CANCELADA, cita)
+    this.emitHomeActualizada(cita)
+  }
+
+  emitHomeActualizada(cita: CitaResponseDto) {
+    this.server.emit(CitasSocketOutboundEvent.HOME_ACTUALIZADA, {
+      id: cita.id,
+      estado: cita.estado,
+      fechaInicio: cita.fechaInicio,
+      idPersonal: cita.personal?.id,
+      idUsuarioProgramo: cita.usuarioProgramo?.id,
+      timestamp: new Date().toISOString(),
+    })
   }
 
   // @AsyncApiSub({
