@@ -34,6 +34,12 @@ import {
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
   MarcarNoAsistioCitaDto,
+  MisResumenCitasDto,
+  MisResumenResponseDto,
+  MisSolicitadasQueryDto,
+  MisSolicitadasResponseDto,
+  MisTimelineQueryDto,
+  MisTimelineResponseDto,
   RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
@@ -49,6 +55,67 @@ export class CitasController extends BaseController {
     private readonly citasGateway: CitasGateway
   ) {
     super()
+  }
+
+  @ApiOperation({ summary: 'Obtiene el resumen operativo de citas desde hoy' })
+  @ApiBaseResponse(MisResumenResponseDto)
+  @Get('mis-resumen')
+  async misResumen(
+    @Req() req: Request,
+    @Query() filtros: MisResumenCitasDto
+  ): Promise<BaseResponseDto<MisResumenResponseDto>> {
+    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+
+    const resultado = await this.citasService.obtenerMisResumen(
+      filtros,
+      idUsuarioSolicitante,
+      idRol
+    )
+
+    return this.success(resultado)
+  }
+
+  @ApiOperation({
+    summary: 'Lista citas solicitadas con paginación por cursor',
+  })
+  @ApiBaseResponse(MisSolicitadasResponseDto)
+  @Get('mis-solicitadas')
+  async misSolicitadas(
+    @Req() req: Request,
+    @Query() filtros: MisSolicitadasQueryDto
+  ): Promise<BaseResponseDto<MisSolicitadasResponseDto>> {
+    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+
+    const resultado = await this.citasService.listarMisSolicitadas(
+      filtros,
+      idUsuarioSolicitante,
+      idRol
+    )
+
+    return this.successList(resultado)
+  }
+
+  @ApiOperation({
+    summary: 'Lista timeline de citas agrupado por fecha y con cursor',
+  })
+  @ApiBaseResponse(MisTimelineResponseDto)
+  @Get('mis-timeline')
+  async misTimeline(
+    @Req() req: Request,
+    @Query() filtros: MisTimelineQueryDto
+  ): Promise<BaseResponseDto<MisTimelineResponseDto>> {
+    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idRol = this.getRol(req)
+
+    const resultado = await this.citasService.listarMisTimeline(
+      filtros,
+      idUsuarioSolicitante,
+      idRol
+    )
+
+    return this.successList(resultado)
   }
 
   @ApiOperation({ summary: 'Lista todas las citas con filtros opcionales' })

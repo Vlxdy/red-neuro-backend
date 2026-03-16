@@ -20,7 +20,14 @@ import {
   EnviarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  GrupoCitasPorFechaDto,
   MarcarNoAsistioCitaDto,
+  MisResumenCitasDto,
+  MisResumenResponseDto,
+  MisSolicitadasQueryDto,
+  MisSolicitadasResponseDto,
+  MisTimelineQueryDto,
+  MisTimelineResponseDto,
   RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
@@ -30,6 +37,7 @@ import { formatearCita, formatearCitas } from '../utils/formatear-citas'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
+import { RolEnumId } from '@/core/authorization/rol.enum'
 import { NotificacionesRepository } from '../repository/notificaciones.repository'
 import { DispositivosPushRepository } from '../repository/dispositivos-push.repository'
 import { FirebasePushService } from '@/core/external-services/firebase/firebase-push.service'
@@ -217,6 +225,188 @@ export class CitasMedicasService extends BaseService {
         body: mensaje,
         data: eventoPush.data,
       })
+    }
+  }
+
+  private resolverScope(
+    scope: string | undefined,
+    idRol: string,
+    idUsuarioRol: string,
+    idPersonal?: string
+  ) {
+    const esAdmin = String(idRol) === RolEnumId.ADMINISTRADOR
+    const usarScopeAll = scope === 'all' && esAdmin
+
+    if (!usarScopeAll) {
+      return { idPersonal: idUsuarioRol }
+    }
+
+    return { idPersonal }
+  }
+
+  private obtenerDesdePorDefecto(desde?: string): string {
+    return desde
+      ? dayjs(desde).toISOString()
+      : dayjs().startOf('day').toISOString()
+  }
+
+  private parseCursor(
+    cursor?: string
+  ): { cursorFechaHora: string; cursorId: string } | undefined {
+    if (!cursor) return undefined
+    const [cursorFechaHora, cursorId] = cursor.split('|')
+
+    if (!cursorFechaHora || !cursorId) {
+      throw new BadRequestException('El cursor debe tener formato fechaISO|id')
+    }
+
+    if (!dayjs(cursorFechaHora).isValid()) {
+      throw new BadRequestException('La fecha del cursor no es válida')
+    }
+
+    return { cursorFechaHora, cursorId }
+  }
+
+  private construirRespuestaCursor(citas: Cita[], limite: number) {
+    const hasMore = citas.length > limite
+    const recortadas = hasMore ? citas.slice(0, limite) : citas
+    const ultimo = recortadas.at(-1)
+    const nextCursor =
+      hasMore && ultimo
+        ? `${dayjs(ultimo.fechaInicio).toISOString()}|${ultimo.id}`
+        : undefined
+
+    return { hasMore, recortadas, nextCursor }
+  }
+
+  async obtenerMisResumen(
+    filtros: MisResumenCitasDto,
+    idUsuarioRol: string,
+    idRol: string
+  ): Promise<MisResumenResponseDto> {
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      idRol,
+      idUsuarioRol,
+      filtros.idPersonal
+    )
+
+    const desde = this.obtenerDesdePorDefecto(filtros.desde)
+
+    const resumen = await this.citasRepository.obtenerMisResumen({
+      idPersonal,
+      idLugar: filtros.idLugar,
+      desde,
+      hasta: filtros.hasta,
+    })
+
+    return {
+      solicitadasPendientesConfirmacion: Number(
+        resumen?.solicitadasPendientesConfirmacion ?? 0
+      ),
+      proximasConfirmadas: Number(resumen?.proximasConfirmadas ?? 0),
+      totalDesdeHoy: Number(resumen?.totalDesdeHoy ?? 0),
+      primeraFechaConCitas: resumen?.primeraFechaConCitas ?? null,
+    }
+  }
+
+  async listarMisSolicitadas(
+    filtros: MisSolicitadasQueryDto,
+    idUsuarioRol: string,
+    idRol: string
+  ): Promise<MisSolicitadasResponseDto> {
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      idRol,
+      idUsuarioRol,
+      filtros.idPersonal
+    )
+    const desde = this.obtenerDesdePorDefecto(filtros.desde)
+    const cursor = this.parseCursor(filtros.cursor)
+
+    const citas = await this.citasRepository.listarMisSolicitadas({
+      idPersonal,
+      idLugar: filtros.idLugar,
+      desde,
+      hasta: filtros.hasta,
+      limite: filtros.limite ?? 20,
+      cursorFechaHora: cursor?.cursorFechaHora,
+      cursorId: cursor?.cursorId,
+    })
+
+    const { hasMore, recortadas, nextCursor } = this.construirRespuestaCursor(
+      citas,
+      filtros.limite ?? 20
+    )
+
+    const totalAprox = await this.citasRepository.contarMisSolicitadasAprox({
+      idPersonal,
+      idLugar: filtros.idLugar,
+      desde,
+      hasta: filtros.hasta,
+    })
+
+    return {
+      items: formatearCitas(recortadas),
+      nextCursor,
+      hasMore,
+      totalAprox,
+    }
+  }
+
+  async listarMisTimeline(
+    filtros: MisTimelineQueryDto,
+    idUsuarioRol: string,
+    idRol: string
+  ): Promise<MisTimelineResponseDto> {
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      idRol,
+      idUsuarioRol,
+      filtros.idPersonal
+    )
+
+    const limite = filtros.limite ?? 30
+    const desde = this.obtenerDesdePorDefecto(filtros.desde)
+
+    const citas = await this.citasRepository.listarMisTimeline({
+      idPersonal,
+      idLugar: filtros.idLugar,
+      desde,
+      hasta: filtros.hasta,
+      limite,
+      incluirSolicitadas: filtros.incluirSolicitadas === 'true',
+      cursorFechaHora: filtros.cursorFechaHora,
+      cursorId: filtros.cursorId,
+    })
+
+    const { hasMore, recortadas, nextCursor } = this.construirRespuestaCursor(
+      citas,
+      limite
+    )
+
+    const gruposMap = new Map<string, CitaResponseDto[]>()
+
+    for (const cita of formatearCitas(recortadas)) {
+      const fecha = dayjs(cita.fechaInicio).format('YYYY-MM-DD')
+      const actual = gruposMap.get(fecha) ?? []
+      actual.push(cita)
+      gruposMap.set(fecha, actual)
+    }
+
+    const grupos: GrupoCitasPorFechaDto[] = Array.from(gruposMap).map(
+      ([fecha, items]) => ({ fecha, items })
+    )
+
+    const nextCursorParts = nextCursor?.split('|')
+
+    return {
+      grupos,
+      nextCursor: {
+        cursorFechaHora: nextCursorParts?.[0],
+        cursorId: nextCursorParts?.[1],
+      },
+      hasMore,
     }
   }
 

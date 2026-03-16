@@ -190,6 +190,154 @@ export class CitasMedicasRepository {
       .getManyAndCount()
   }
 
+  private aplicarFiltroCursor(
+    query: SelectQueryBuilder<Cita>,
+    cursorFechaHora: string,
+    cursorId: string
+  ) {
+    query.andWhere(
+      '(cita.fechaInicio > :cursorFechaHora OR (cita.fechaInicio = :cursorFechaHora AND cita.id > :cursorId))',
+      { cursorFechaHora, cursorId }
+    )
+  }
+
+  async obtenerMisResumen(params: {
+    idPersonal?: string
+    idLugar?: string
+    desde: string
+    hasta?: string
+  }) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .select(
+        `SUM(CASE WHEN cita.estado = :estadoSolicitada THEN 1 ELSE 0 END)`,
+        'solicitadasPendientesConfirmacion'
+      )
+      .addSelect(
+        `SUM(CASE WHEN cita.estado = :estadoConfirmada THEN 1 ELSE 0 END)`,
+        'proximasConfirmadas'
+      )
+      .addSelect(
+        `SUM(CASE WHEN cita.estado IN (:...estadosOperativos) THEN 1 ELSE 0 END)`,
+        'totalDesdeHoy'
+      )
+      .addSelect('MIN(DATE(cita.fechaInicio))', 'primeraFechaConCitas')
+      .where('cita.fechaInicio >= :desde', { desde: params.desde })
+      .andWhere('cita.estado IN (:...estadosOperativos)', {
+        estadosOperativos: [CitasEstado.SOLICITADA, CitasEstado.CONFIRMADA],
+      })
+      .setParameters({
+        estadoSolicitada: CitasEstado.SOLICITADA,
+        estadoConfirmada: CitasEstado.CONFIRMADA,
+      })
+
+    if (params.hasta) {
+      query.andWhere('cita.fechaInicio <= :hasta', { hasta: params.hasta })
+    }
+
+    if (params.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: params.idPersonal,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getRawOne<{
+      solicitadasPendientesConfirmacion: string | null
+      proximasConfirmadas: string | null
+      totalDesdeHoy: string | null
+      primeraFechaConCitas: string | null
+    }>()
+  }
+
+  async listarMisSolicitadas(params: {
+    idPersonal?: string
+    idLugar?: string
+    desde: string
+    hasta?: string
+    limite: number
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const query = this.buildCitasQuery({
+      estado: CitasEstado.SOLICITADA,
+      fechaInicio: params.desde,
+      fechaFin: params.hasta,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursor(query, params.cursorFechaHora, params.cursorId)
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
+  async contarMisSolicitadasAprox(params: {
+    idPersonal?: string
+    idLugar?: string
+    desde: string
+    hasta?: string
+  }) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .where('cita.estado = :estado', { estado: CitasEstado.SOLICITADA })
+      .andWhere('cita.fechaInicio >= :desde', { desde: params.desde })
+
+    if (params.hasta) {
+      query.andWhere('cita.fechaInicio <= :hasta', { hasta: params.hasta })
+    }
+
+    if (params.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: params.idPersonal,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getCount()
+  }
+
+  async listarMisTimeline(params: {
+    idPersonal?: string
+    idLugar?: string
+    desde: string
+    hasta?: string
+    limite: number
+    incluirSolicitadas: boolean
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const estados = params.incluirSolicitadas
+      ? [CitasEstado.CONFIRMADA, CitasEstado.SOLICITADA]
+      : [CitasEstado.CONFIRMADA]
+
+    const query = this.buildCitasQuery({
+      fechaInicio: params.desde,
+      fechaFin: params.hasta,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .andWhere('cita.estado IN (:...estados)', { estados })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursor(query, params.cursorFechaHora, params.cursorId)
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
   async obtenerCantidadCitasPorDia(
     filtros: FiltrosCitaDto,
     idUsuarioSolicitante?: string
