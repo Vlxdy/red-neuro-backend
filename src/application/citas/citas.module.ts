@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { CitasMedicasService } from './services/citas-medicas.service'
 import { CitasController } from './controller/citas.controller'
+import { HomeCitasController } from './controller/home-citas.controller'
 import { HistorialCitasController } from './controller/historial-citas.controller'
 import { NotificacionesController } from './controller/notificaciones.controller'
 import { DispositivosPushController } from './controller/dispositivos-push.controller'
@@ -50,6 +51,7 @@ import { ExternalServicesModule } from '@/core/external-services/external.module
   ],
   controllers: [
     CitasController,
+    HomeCitasController,
     HistorialCitasController,
     NotificacionesController,
     DispositivosPushController,

@@ -66,11 +66,13 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<MisResumenResponseDto>> {
     const idUsuarioSolicitante = this.getUsuarioRol(req)
     const idRol = this.getRol(req)
+    const esSupervisor = req.user?.esSupervisor === true
 
     const resultado = await this.citasService.obtenerMisResumen(
       filtros,
       idUsuarioSolicitante,
-      idRol
+      idRol,
+      esSupervisor
     )
 
     return this.success(resultado)
@@ -87,11 +89,13 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<MisSolicitadasResponseDto>> {
     const idUsuarioSolicitante = this.getUsuarioRol(req)
     const idRol = this.getRol(req)
+    const esSupervisor = req.user?.esSupervisor === true
 
     const resultado = await this.citasService.listarMisSolicitadas(
       filtros,
       idUsuarioSolicitante,
-      idRol
+      idRol,
+      esSupervisor
     )
 
     return this.successList(resultado)
@@ -108,11 +112,13 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<MisTimelineResponseDto>> {
     const idUsuarioSolicitante = this.getUsuarioRol(req)
     const idRol = this.getRol(req)
+    const esSupervisor = req.user?.esSupervisor === true
 
     const resultado = await this.citasService.listarMisTimeline(
       filtros,
       idUsuarioSolicitante,
-      idRol
+      idRol,
+      esSupervisor
     )
 
     return this.successList(resultado)

@@ -44,6 +44,7 @@ export enum CitasSocketOutboundEvent {
   ESTADO_ACTUALIZADO = 'citas:estado-actualizado',
   REPROGRAMADA = 'citas:reprogramada',
   CANCELADA = 'citas:cancelada',
+  HOME_ACTUALIZADA = 'citas:home-actualizada',
 }
 
 export enum NotificacionesSocketInboundEvent {

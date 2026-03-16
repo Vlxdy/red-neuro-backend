@@ -166,6 +166,7 @@ export class FiltrosCitaPaginadoDto extends PaginacionQueryDto {
 
 export enum CitasScope {
   MINE = 'mine',
+  PERSONAL = 'personal',
   ALL = 'all',
 }
 
@@ -293,6 +294,182 @@ export class MisResumenResponseDto {
 
   @ApiPropertyOptional({ example: '2026-03-13' })
   primeraFechaConCitas?: string | null
+}
+
+export class HomeBandejaQueryDto {
+  @ApiPropertyOptional({
+    enum: CitasScope,
+    description: 'Alcance de consulta',
+    example: CitasScope.MINE,
+  })
+  @IsOptional()
+  @IsIn(Object.values(CitasScope))
+  scope?: CitasScope
+
+  @ApiPropertyOptional({
+    description: 'Filtra por personal cuando scope=personal',
+    example: '42',
+  })
+  @IsOptional()
+  @IsString()
+  idPersonal?: string
+
+  @ApiPropertyOptional({
+    description: 'Filtra por lugar/institución',
+    example: '2',
+  })
+  @IsOptional()
+  @IsString()
+  idLugar?: string
+
+  @ApiPropertyOptional({
+    description: 'Fecha base de referencia para la bandeja',
+    example: '2026-03-16',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaBase?: string
+
+  @ApiPropertyOptional({
+    description: 'Límite de preview por bloque',
+    default: 10,
+    minimum: 1,
+    maximum: 20,
+  })
+  @IsOptional()
+  @Min(1)
+  @Max(20)
+  limitPreview?: number = 10
+}
+
+export class HomeListadoQueryDto extends PaginacionQueryDto {
+  @ApiPropertyOptional({
+    enum: CitasScope,
+    description: 'Alcance de consulta',
+    example: CitasScope.MINE,
+  })
+  @IsOptional()
+  @IsIn(Object.values(CitasScope))
+  scope?: CitasScope
+
+  @ApiPropertyOptional({
+    description: 'Filtra por personal cuando scope=personal',
+    example: '42',
+  })
+  @IsOptional()
+  @IsString()
+  idPersonal?: string
+
+  @ApiPropertyOptional({
+    description: 'Filtra por lugar/institución',
+    example: '2',
+  })
+  @IsOptional()
+  @IsString()
+  idLugar?: string
+
+  @ApiPropertyOptional({
+    description: 'Fecha base de referencia para la bandeja',
+    example: '2026-03-16',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaBase?: string
+}
+
+export class HomeConfirmadasListadoQueryDto extends HomeListadoQueryDto {
+  @ApiPropertyOptional({
+    description: 'Filtro opcional por día (YYYY-MM-DD)',
+    example: '2026-03-17',
+  })
+  @IsOptional()
+  @IsString()
+  dia?: string
+}
+
+export class HomeContadoresResponseDto {
+  @ApiProperty({ example: 12 })
+  pendientesAprobacionAsignadas!: number
+
+  @ApiProperty({ example: 5 })
+  rechazadasSolicitadasPorMi!: number
+
+  @ApiProperty({ example: 8 })
+  borradores!: number
+
+  @ApiProperty({ example: 34 })
+  confirmadasAsignadas!: number
+}
+
+export class HomePreviewBloqueResponseDto {
+  @ApiProperty({ type: () => [CitaResponseDto] })
+  items!: CitaResponseDto[]
+
+  @ApiProperty({ example: 12 })
+  total!: number
+
+  @ApiProperty({ example: 10 })
+  limitAplicado!: number
+
+  @ApiProperty({ example: true })
+  hasMore!: boolean
+}
+
+export class HomePreviewConfirmadasResponseDto extends HomePreviewBloqueResponseDto {
+  @ApiProperty({ example: 'top10_o_todas_las_de_hoy_si_hoy_gt_10' })
+  reglaAplicada!: string
+}
+
+export class HomePreviewResponseDto {
+  @ApiProperty({ type: () => HomePreviewBloqueResponseDto })
+  pendientesAprobacionAsignadas!: HomePreviewBloqueResponseDto
+
+  @ApiProperty({ type: () => HomePreviewBloqueResponseDto })
+  rechazadasSolicitadasPorMi!: HomePreviewBloqueResponseDto
+
+  @ApiProperty({ type: () => HomePreviewBloqueResponseDto })
+  borradores!: HomePreviewBloqueResponseDto
+
+  @ApiProperty({ type: () => HomePreviewConfirmadasResponseDto })
+  confirmadasAsignadas!: HomePreviewConfirmadasResponseDto
+}
+
+export class HomeBandejaResponseDto {
+  @ApiProperty({ example: CitasScope.MINE })
+  scopeAplicado!: CitasScope
+
+  @ApiPropertyOptional({ example: '42' })
+  idPersonalAplicado?: string
+
+  @ApiProperty({ example: '2026-03-16' })
+  fechaBase!: string
+
+  @ApiProperty({ type: () => HomeContadoresResponseDto })
+  contadores!: HomeContadoresResponseDto
+
+  @ApiProperty({ type: () => HomePreviewResponseDto })
+  preview!: HomePreviewResponseDto
+
+  @ApiProperty({ example: '2026-03-16T14:20:00.000Z' })
+  updatedAt!: string
+}
+
+export class HomeListadoResponseDto {
+  @ApiProperty({ type: () => [CitaResponseDto] })
+  items!: CitaResponseDto[]
+}
+
+export class HomeGrupoDiaResponseDto {
+  @ApiProperty({ example: '2026-03-16' })
+  dia!: string
+
+  @ApiProperty({ type: () => [CitaResponseDto] })
+  items!: CitaResponseDto[]
+}
+
+export class HomeConfirmadasListadoResponseDto {
+  @ApiProperty({ type: () => [HomeGrupoDiaResponseDto] })
+  grupos!: HomeGrupoDiaResponseDto[]
 }
 
 export class CursorResponseDto {
