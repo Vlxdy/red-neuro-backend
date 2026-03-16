@@ -309,6 +309,9 @@ export class CitasMedicasRepository {
     cursorFechaHora?: string
     cursorId?: string
   }) {
+    const fechaOrdenExpr =
+      'COALESCE(cita.fechaModificacion, cita.fechaCreacion)'
+
     const query = this.buildCitasQuery(
       {
         estado: CitasEstado.RECHAZADA,
@@ -316,7 +319,8 @@ export class CitasMedicasRepository {
       },
       params.idSolicitante
     )
-      .orderBy('COALESCE(cita.fechaModificacion, cita.fechaCreacion)', 'DESC')
+      .addSelect(fechaOrdenExpr, 'fecha_orden')
+      .orderBy('fecha_orden', 'DESC')
       .addOrderBy('cita.id', 'DESC')
 
     if (params.cursorFechaHora && params.cursorId) {
@@ -336,6 +340,9 @@ export class CitasMedicasRepository {
     limite: number
     saltar: number
   }) {
+    const fechaOrdenExpr =
+      'COALESCE(cita.fechaModificacion, cita.fechaCreacion)'
+
     return await this.buildCitasQuery(
       {
         estado: CitasEstado.RECHAZADA,
@@ -343,7 +350,8 @@ export class CitasMedicasRepository {
       },
       params.idSolicitante
     )
-      .orderBy('COALESCE(cita.fechaModificacion, cita.fechaCreacion)', 'DESC')
+      .addSelect(fechaOrdenExpr, 'fecha_orden')
+      .orderBy('fecha_orden', 'DESC')
       .addOrderBy('cita.id', 'DESC')
       .take(params.limite)
       .skip(params.saltar)
@@ -375,6 +383,9 @@ export class CitasMedicasRepository {
     cursorFechaHora?: string
     cursorId?: string
   }) {
+    const fechaOrdenExpr =
+      'COALESCE(cita.fechaModificacion, cita.fechaCreacion)'
+
     const query = this.buildCitasQuery(
       {
         estado: CitasEstado.BORRADOR,
@@ -382,7 +393,8 @@ export class CitasMedicasRepository {
       },
       params.idSolicitante
     )
-      .orderBy('COALESCE(cita.fechaModificacion, cita.fechaCreacion)', 'DESC')
+      .addSelect(fechaOrdenExpr, 'fecha_orden')
+      .orderBy('fecha_orden', 'DESC')
       .addOrderBy('cita.id', 'DESC')
 
     if (params.cursorFechaHora && params.cursorId) {
@@ -402,6 +414,9 @@ export class CitasMedicasRepository {
     limite: number
     saltar: number
   }) {
+    const fechaOrdenExpr =
+      'COALESCE(cita.fechaModificacion, cita.fechaCreacion)'
+
     return await this.buildCitasQuery(
       {
         estado: CitasEstado.BORRADOR,
@@ -409,7 +424,8 @@ export class CitasMedicasRepository {
       },
       params.idSolicitante
     )
-      .orderBy('COALESCE(cita.fechaModificacion, cita.fechaCreacion)', 'DESC')
+      .addSelect(fechaOrdenExpr, 'fecha_orden')
+      .orderBy('fecha_orden', 'DESC')
       .addOrderBy('cita.id', 'DESC')
       .take(params.limite)
       .skip(params.saltar)

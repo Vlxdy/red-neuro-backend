@@ -9,12 +9,14 @@ import {
   MaxLength,
   Max,
   Min,
+  IsInt,
 } from 'class-validator'
 import { CitasEstado, TipoCita } from '../constants'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { PersonalResponseDto } from '@/application/personal/dto/personal.dto'
 import { PacienteResponseDto } from '@/application/paciente/dto/paciente.dto'
 import { ConsultorioResponseDto } from '@/application/consultorio/dto/consultorio.dto'
+import { Type } from 'class-transformer'
 
 export enum AccionCita {
   GUARDAR = 'GUARDAR',
@@ -337,6 +339,8 @@ export class HomeBandejaQueryDto {
     maximum: 20,
   })
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
   @Min(1)
   @Max(20)
   limitPreview?: number = 10
