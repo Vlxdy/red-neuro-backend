@@ -161,7 +161,7 @@ const backendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'GET',
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },
-  '/api/citas/home/confirmadas-asignadas': {
+  '/api/citas/home/programadas-asignadas': {
     [RolEnum.ADMINISTRADOR]: 'GET',
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },

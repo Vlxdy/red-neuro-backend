@@ -37,7 +37,7 @@ export class NotificacionResponseDto {
 
 export class ResumenDiarioResponseDto {
   @ApiPropertyOptional()
-  citasConfirmadasAsignadas?: number
+  citasProgramadasAsignadas?: number
   @ApiPropertyOptional()
   citasConPersonal?: number
   @ApiPropertyOptional()

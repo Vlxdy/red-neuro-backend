@@ -7,7 +7,7 @@ Este documento describe cómo consumir la API de citas e historial desde un fron
 ### 1.1 Creación de cita
 
 - **Si se asigna médico** → la cita se crea en **SOLICITADA** y se notifica al médico para confirmación.
-- **Si no se asigna médico** → la cita se crea directamente en **CONFIRMADA**.
+- **Si no se asigna médico** → la cita se crea directamente en **PROGRAMADA**.
 
 **Endpoint:**
 
@@ -25,7 +25,7 @@ POST /citas
 
 ### 1.2 Confirmación
 
-- El médico asignado puede confirmar la cita (cambiar estado a **CONFIRMADA**).
+- El médico asignado puede confirmar la cita (cambiar estado a **PROGRAMADA**).
 
 **Endpoint:**
 
@@ -36,7 +36,7 @@ PATCH /citas/:id/estado
 **Payload:**
 
 ```json
-{ "estado": "CONFIRMADA" }
+{ "estado": "PROGRAMADA" }
 ```
 
 ### 1.3 Reprogramación
@@ -64,7 +64,7 @@ PATCH /citas/:id/cancelar
 **Estados:**
 
 - SOLICITADA
-- CONFIRMADA
+- PROGRAMADA
 - EN_CURSO
 - COMPLETADA
 - NO_ASISTIO
@@ -74,7 +74,7 @@ PATCH /citas/:id/cancelar
 **Reglas de UX sugeridas:**
 
 - **SOLICITADA**: mostrar botón “Confirmar”.
-- **CONFIRMADA**: mostrar botón “Iniciar consulta”.
+- **PROGRAMADA**: mostrar botón “Iniciar consulta”.
 - **EN_CURSO**: mostrar botón “Finalizar”.
 - **RECHAZADA / CANCELADA / NO_ASISTIO**: mostrar en gris y bloquear edición.
 

@@ -63,7 +63,7 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
     type: 'timestamp without time zone',
     nullable: true,
     comment:
-      'Fecha y hora en la que la cita fue confirmada y quedó bloqueada para el paciente',
+      'Fecha y hora en la que la cita fue programada y quedó bloqueada para el paciente',
   })
   lockedAt?: Date | null
 

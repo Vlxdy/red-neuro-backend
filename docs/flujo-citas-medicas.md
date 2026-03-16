@@ -10,7 +10,7 @@ Los estados están alineados con los valores ya definidos en el backend:
 
 - **INACTIVO**: registro no operativo o depurado del flujo (no visible para la operación diaria).
 - **SOLICITADA**: cita enviada para revisión/confirmación por el personal.
-- **CONFIRMADA**: cita validada y bloqueada; se reserva el slot para el paciente.
+- **PROGRAMADA**: cita validada y bloqueada; se reserva el slot para el paciente.
 - **EN_CURSO**: la atención ya inició.
 - **COMPLETADA**: consulta/estudio finalizado.
 - **NO_ASISTIO**: el paciente no se presentó.
@@ -25,7 +25,7 @@ El sistema está dirigido únicamente a personal interno (sin acceso de paciente
 | ---------- | --------------- | ----------------------------- | ------------------- |
 | INACTIVO   | ❌              | ⚠️ (solo auditoría)           | ⚠️ (solo auditoría) |
 | SOLICITADA | ✅              | ⚠️ (solo en casos necesarios) | ❌                  |
-| CONFIRMADA | ✅              | ⚠️ (solo en casos necesarios) | ❌                  |
+| PROGRAMADA | ✅              | ⚠️ (solo en casos necesarios) | ❌                  |
 | EN_CURSO   | ✅              | ⚠️ (solo en casos necesarios) | ❌                  |
 | COMPLETADA | ✅              | ⚠️ (solo en casos necesarios) | ❌                  |
 | NO_ASISTIO | ✅              | ⚠️ (solo en casos necesarios) | ❌                  |
@@ -36,10 +36,10 @@ El sistema está dirigido únicamente a personal interno (sin acceso de paciente
 
 ## Flujo propuesto (alto nivel)
 
-1. **Creación (SOLICITADA o CONFIRMADA)**
+1. **Creación (SOLICITADA o PROGRAMADA)**
    - Si la cita **se asigna a un médico**, se crea en **SOLICITADA** y se notifica al médico asignado para su confirmación.
-   - Si la cita **no se asigna a un médico**, se crea directamente en **CONFIRMADA**.
-2. **Confirmación por médico (CONFIRMADA)**
+   - Si la cita **no se asigna a un médico**, se crea directamente en **PROGRAMADA**.
+2. **Confirmación por médico (PROGRAMADA)**
    - El médico asignado confirma la cita solicitada.
    - Se bloquea el horario.
 3. **Atención (EN_CURSO)**
@@ -119,7 +119,7 @@ Devuelve una lista paginada ordenada por fecha de creación (más reciente prime
 
 ## Automatización diaria (citas vencidas)
 
-Existe un proceso programado que se ejecuta diariamente para revisar citas con fecha anterior al día actual. Si la cita **no cambió de estado** y pertenece a estados operativos (SOLICITADA, CONFIRMADA o EN_CURSO), se marca automáticamente como **NO_ASISTIO**, se genera historial y se crea una notificación asociada.
+Existe un proceso programado que se ejecuta diariamente para revisar citas con fecha anterior al día actual. Si la cita **no cambió de estado** y pertenece a estados operativos (SOLICITADA, PROGRAMADA o EN_CURSO), se marca automáticamente como **NO_ASISTIO**, se genera historial y se crea una notificación asociada.
 
 - **Cron**: `CITAS_REVISION_DIARIA_CRON` (por defecto `0 1 * * *`, 01:00 AM).
 - **Criterio de vencimiento**: `fecha_inicio < inicio_del_día_actual` (no afecta citas del mismo día).

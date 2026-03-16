@@ -25,7 +25,7 @@ La Home muestra primero un resumen y luego previews por prioridad.
    - Citas asignadas al usuario y pendientes de aprobación.
    - Citas rechazadas donde el usuario fue quien solicitó.
 2. **Borradores creados por el usuario**
-3. **Citas confirmadas asignadas al usuario**
+3. **Citas programadas asignadas al usuario**
 
 ---
 
@@ -38,7 +38,7 @@ Debe mostrar los contadores de los 4 grupos:
 - pendientes de aprobación (asignadas),
 - rechazadas solicitadas por mí,
 - borradores,
-- confirmadas asignadas.
+- programadas asignadas.
 
 Al tocar un contador, se abre la bandeja completa de ese grupo.
 
@@ -48,10 +48,10 @@ Regla base de preview por grupo:
 
 - mostrar **máximo 10** ítems por grupo.
 
-Regla especial para confirmadas asignadas:
+Regla especial para programadas asignadas:
 
 - ordenar por `fechaInicio ASC` (las próximas primero),
-- si hoy tiene más de 10 confirmadas, mostrar **todas las de hoy**,
+- si hoy tiene más de 10 programadas, mostrar **todas las de hoy**,
 - si hoy tiene 10 o menos, completar hasta 10 con fechas siguientes.
 
 Motivo: evitar ocultar carga crítica del día.
@@ -75,7 +75,7 @@ Si un grupo tiene más resultados que su preview:
 ├───────────────────────────────────────────────┤
 │ CONTADORES                                    │
 │ [Pend. Aprobación: 12] [Rechazadas: 5]        │
-│ [Borradores: 8]       [Confirmadas: 34]       │
+│ [Borradores: 8]       [Programadas: 34]       │
 ├───────────────────────────────────────────────┤
 │ 1) ALERTAS OPERATIVAS                         │
 │   Pendientes de aprobación                     │
@@ -90,7 +90,7 @@ Si un grupo tiene más resultados que su preview:
 │   • ... (preview)                             │
 │   [Ver todas (8)]                             │
 ├───────────────────────────────────────────────┤
-│ 3) CONFIRMADAS ASIGNADAS                      │
+│ 3) PROGRAMADAS ASIGNADAS                      │
 │   • Hoy 08:00                                 │
 │   • Hoy 08:30                                 │
 │   • Hoy 09:00                                 │
@@ -163,7 +163,7 @@ Retornar todo lo necesario para renderizar la Home en una sola llamada:
     "pendientesAprobacionAsignadas": 12,
     "rechazadasSolicitadasPorMi": 5,
     "borradores": 8,
-    "confirmadasAsignadas": 34
+    "programadasAsignadas": 34
   },
   "preview": {
     "pendientesAprobacionAsignadas": {
@@ -184,7 +184,7 @@ Retornar todo lo necesario para renderizar la Home en una sola llamada:
       "limitAplicado": 10,
       "hasMore": false
     },
-    "confirmadasAsignadas": {
+    "programadasAsignadas": {
       "items": [],
       "total": 34,
       "reglaAplicada": "top10_o_todas_las_de_hoy_si_hoy_gt_10",
@@ -204,7 +204,7 @@ Para que cada vista “Ver todas” consulte solo su propio dominio:
 1. `GET /citas/home/pendientes-aprobacion`
 2. `GET /citas/home/rechazadas-solicitadas`
 3. `GET /citas/home/borradores`
-4. `GET /citas/home/confirmadas-asignadas` (paginado y agrupado por días)
+4. `GET /citas/home/programadas-asignadas` (paginado y agrupado por días)
 
 ### Query params comunes
 
@@ -215,7 +215,7 @@ Para que cada vista “Ver todas” consulte solo su propio dominio:
 - `limite` (default 10)
 - `pagina` (default 1)
 
-### Query params adicionales para confirmadas (por días)
+### Query params adicionales para programadas (por días)
 
 - `dia` (opcional, formato `YYYY-MM-DD`)
 
@@ -230,7 +230,7 @@ Para que cada vista “Ver todas” consulte solo su propio dominio:
 
 > Se propone paginación estándar con `limite` y `pagina`, heredando `PaginacionQueryDto`.
 
-### Respuesta sugerida para confirmadas por días
+### Respuesta sugerida para programadas por días
 
 ```json
 {
@@ -255,7 +255,7 @@ Para que cada vista “Ver todas” consulte solo su propio dominio:
 - `pendientes-aprobacion`: prioridad operativa, luego `fechaInicio ASC`, `id ASC`.
 - `rechazadas-solicitadas`: `updatedAt DESC`, `id DESC`.
 - `borradores`: `updatedAt DESC`, `id DESC`.
-- `confirmadas-asignadas`: agrupadas por día (`dia ASC`) y dentro de cada día `fechaInicio ASC`, `id ASC`.
+- `programadas-asignadas`: agrupadas por día (`dia ASC`) y dentro de cada día `fechaInicio ASC`, `id ASC`.
 
 ---
 
@@ -267,7 +267,7 @@ Para cualquier bandeja completa:
 2. para más resultados, incrementar `pagina`,
 3. usar `limite` para tamaño de página.
 
-Para **confirmadas**, además de paginar, se renderiza agrupado por día.
+Para **programadas**, además de paginar, se renderiza agrupado por día.
 
 ---
 
@@ -309,7 +309,7 @@ Para **confirmadas**, además de paginar, se renderiza agrupado por día.
 - `GET /citas/home/pendientes-aprobacion`
 - `GET /citas/home/rechazadas-solicitadas`
 - `GET /citas/home/borradores`
-- `GET /citas/home/confirmadas-asignadas`
+- `GET /citas/home/programadas-asignadas`
 - Publicación de eventos socket de citas (creada/actualizada/estado/eliminada).
 
 ## 10.2 Modificar
@@ -317,7 +317,7 @@ Para **confirmadas**, además de paginar, se renderiza agrupado por día.
 - Capa de autorización para aplicar `scope` por rol en todos los endpoints.
 - Servicio de consultas para soportar paginación (`limite` + `saltar`).
 - Capa de agregación para construir `contadores + previews` del endpoint Home.
-- Reglas de negocio de confirmadas para excepción “todas las de hoy si hoy >10”.
+- Reglas de negocio de programadas para excepción “todas las de hoy si hoy >10”.
 
 ## 10.3 Reutilizar
 
@@ -361,7 +361,7 @@ Recomendaciones:
 - Orden en Home respeta prioridad funcional definida.
 - Cada contador/CTA abre solo su bandeja específica.
 - Cada bandeja completa carga con paginación por `limite` y `pagina`.
-- Confirmadas se renderiza agrupada por día (caso especial).
-- Regla especial de confirmadas de hoy aplicada correctamente.
+- Programadas se renderiza agrupada por día (caso especial).
+- Regla especial de programadas de hoy aplicada correctamente.
 - Funciona para `PERSONAL` y para `PERSONAL_SALUD` supervisor (`esSupervisor=true`) según reglas de scope.
 - Cambios se reflejan en tiempo real o fallback de polling.

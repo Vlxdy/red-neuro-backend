@@ -30,7 +30,7 @@ import {
   MisTimelineResponseDto,
   HomeBandejaQueryDto,
   HomeBandejaResponseDto,
-  HomeConfirmadasListadoQueryDto,
+  HomeProgramadasListadoQueryDto,
   HomeGrupoDiaResponseDto,
   HomeListadoQueryDto,
   HomePreviewBloqueResponseDto,
@@ -337,12 +337,12 @@ export class CitasMedicasService extends BaseService {
       countPendientes,
       countRechazadas,
       countBorradores,
-      countConfirmadas,
+      countProgramadas,
       pendientes,
       rechazadas,
       borradores,
-      confirmadasHoy,
-      confirmadasResto,
+      programadasHoy,
+      programadasResto,
     ] = await Promise.all([
       this.citasRepository.contarPendientesAprobacion({
         idPersonal,
@@ -357,7 +357,7 @@ export class CitasMedicasService extends BaseService {
         idSolicitante: idPersonal,
         idLugar: filtros.idLugar,
       }),
-      this.citasRepository.contarConfirmadasAsignadas({
+      this.citasRepository.contarProgramadasAsignadas({
         idPersonal,
         idLugar: filtros.idLugar,
         fechaBase: fechaBase.toISOString(),
@@ -378,12 +378,12 @@ export class CitasMedicasService extends BaseService {
         idLugar: filtros.idLugar,
         limite,
       }),
-      this.citasRepository.listarConfirmadasAsignadasDelDia({
+      this.citasRepository.listarProgramadasAsignadasDelDia({
         idPersonal,
         idLugar: filtros.idLugar,
         dia: fechaBase.format('YYYY-MM-DD'),
       }),
-      this.citasRepository.listarConfirmadasAsignadas({
+      this.citasRepository.listarProgramadasAsignadas({
         idPersonal,
         idLugar: filtros.idLugar,
         fechaBase: fechaBase.toISOString(),
@@ -391,10 +391,10 @@ export class CitasMedicasService extends BaseService {
       }),
     ])
 
-    const confirmadasPreview =
-      confirmadasHoy.length > limite
-        ? confirmadasHoy
-        : confirmadasResto.slice(0, limite)
+    const programadasPreview =
+      programadasHoy.length > limite
+        ? programadasHoy
+        : programadasResto.slice(0, limite)
 
     return {
       scopeAplicado,
@@ -404,7 +404,7 @@ export class CitasMedicasService extends BaseService {
         pendientesAprobacionAsignadas: countPendientes,
         rechazadasSolicitadasPorMi: countRechazadas,
         borradores: countBorradores,
-        confirmadasAsignadas: countConfirmadas,
+        programadasAsignadas: countProgramadas,
       },
       preview: {
         pendientesAprobacionAsignadas: this.construirBloquePreview(
@@ -422,12 +422,12 @@ export class CitasMedicasService extends BaseService {
           limite,
           countBorradores
         ),
-        confirmadasAsignadas: {
-          items: formatearCitas(confirmadasPreview),
-          total: countConfirmadas,
+        programadasAsignadas: {
+          items: formatearCitas(programadasPreview),
+          total: countProgramadas,
           limitAplicado: limite,
           reglaAplicada: 'top10_o_todas_las_de_hoy_si_hoy_gt_10',
-          hasMore: countConfirmadas > confirmadasPreview.length,
+          hasMore: countProgramadas > programadasPreview.length,
         },
       },
       updatedAt: dayjs().toISOString(),
@@ -516,8 +516,8 @@ export class CitasMedicasService extends BaseService {
     return [formatearCitas(citas), total]
   }
 
-  async listarHomeConfirmadasAsignadas(
-    filtros: HomeConfirmadasListadoQueryDto,
+  async listarHomeProgramadasAsignadas(
+    filtros: HomeProgramadasListadoQueryDto,
     idUsuarioRol: string,
     idRol: string,
     esSupervisor: boolean
@@ -532,7 +532,7 @@ export class CitasMedicasService extends BaseService {
     const limite = filtros.limite
     const fechaBase = this.obtenerDesdePorDefecto(filtros.fechaBase)
     const [citas, total] =
-      await this.citasRepository.listarConfirmadasAsignadasPaginado({
+      await this.citasRepository.listarProgramadasAsignadasPaginado({
         idPersonal,
         idLugar: filtros.idLugar,
         fechaBase,
@@ -582,7 +582,7 @@ export class CitasMedicasService extends BaseService {
       solicitadasPendientesConfirmacion: Number(
         resumen?.solicitadasPendientesConfirmacion ?? 0
       ),
-      proximasConfirmadas: Number(resumen?.proximasConfirmadas ?? 0),
+      proximasProgramadas: Number(resumen?.proximasProgramadas ?? 0),
       totalDesdeHoy: Number(resumen?.totalDesdeHoy ?? 0),
       primeraFechaConCitas: resumen?.primeraFechaConCitas ?? null,
     }
@@ -888,7 +888,7 @@ export class CitasMedicasService extends BaseService {
         ? CitasEstado.BORRADOR
         : dto.idPersonal
           ? CitasEstado.SOLICITADA
-          : CitasEstado.CONFIRMADA
+          : CitasEstado.PROGRAMADA
 
     const citaId = await this.citasRepository.crearCita(
       {
@@ -1050,7 +1050,7 @@ export class CitasMedicasService extends BaseService {
       cita.idPersonal = dto.idPersonal ?? cita.idPersonal
       cita.estado = cita.idPersonal
         ? CitasEstado.SOLICITADA
-        : CitasEstado.CONFIRMADA
+        : CitasEstado.PROGRAMADA
       cita.idUsuarioEnvio = idEjecutor
       cita.usuarioModificacion = usuarioAuditoria
       await this.citasRepository.guardarCita(cita, transaccion)
@@ -1109,7 +1109,7 @@ export class CitasMedicasService extends BaseService {
       }
 
       const estadoAnterior = cita.estado as CitasEstado
-      cita.estado = CitasEstado.CONFIRMADA
+      cita.estado = CitasEstado.PROGRAMADA
       cita.usuarioModificacion = usuarioAuditoria
       await this.citasRepository.guardarCita(cita, transaccion)
       await this.citasRepository.crearHistorialAccion(
@@ -1155,7 +1155,7 @@ export class CitasMedicasService extends BaseService {
       { estado: CitasEstado.COMPLETADA },
       usuarioAuditoria,
       idEjecutor,
-      [CitasEstado.CONFIRMADA]
+      [CitasEstado.PROGRAMADA]
     )
   }
 
@@ -1170,7 +1170,7 @@ export class CitasMedicasService extends BaseService {
       { estado: CitasEstado.NO_ASISTIO },
       usuarioAuditoria,
       idEjecutor,
-      [CitasEstado.CONFIRMADA],
+      [CitasEstado.PROGRAMADA],
       dto.comentario ?? 'Marcado manual de no asistencia'
     )
   }
@@ -1252,7 +1252,7 @@ export class CitasMedicasService extends BaseService {
     return await this.citasRepository.runTransaction(async (transaccion) => {
       const citaOriginal = await this.obtenerCitaId(id, transaccion)
       this.validarEstado(citaOriginal, [
-        CitasEstado.CONFIRMADA,
+        CitasEstado.PROGRAMADA,
         CitasEstado.CANCELADA,
         CitasEstado.NO_ASISTIO,
       ])
@@ -1284,7 +1284,7 @@ export class CitasMedicasService extends BaseService {
           fechaFin,
           estado: citaOriginal.idPersonal
             ? CitasEstado.SOLICITADA
-            : CitasEstado.CONFIRMADA,
+            : CitasEstado.PROGRAMADA,
           idPersonal: citaOriginal.idPersonal,
           idPaciente: citaOriginal.idPaciente ?? null,
           idConsultorio: citaOriginal.idConsultorio ?? null,
@@ -1308,7 +1308,7 @@ export class CitasMedicasService extends BaseService {
           idEjecutor,
           comentario: 'Reprogramación por clonación',
           detalleCambios: this.crearDetalleCambiosEstado(
-            CitasEstado.CONFIRMADA,
+            CitasEstado.PROGRAMADA,
             CitasEstado.REPROGRAMADA
           ),
           usuarioCreacion: usuarioAuditoria,
@@ -1335,7 +1335,7 @@ export class CitasMedicasService extends BaseService {
     idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     const cita = await this.obtenerCitaId(id)
-    this.validarEstado(cita, [CitasEstado.CONFIRMADA])
+    this.validarEstado(cita, [CitasEstado.PROGRAMADA])
     const actualizado = await this.citasRepository.cancelarCita(
       id,
       dto,

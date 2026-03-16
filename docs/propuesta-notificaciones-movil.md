@@ -12,7 +12,7 @@
 
 Para evitar exceso de notificaciones, se enviará **resumen por cantidad de citas del día** (no detalle por cada cita):
 
-- **Personal de salud**: cantidad de citas confirmadas asignadas a ese personal.
+- **Personal de salud**: cantidad de citas programadas asignadas a ese personal.
 - **Administrador**:
   - cantidad de citas con personal asignado,
   - cantidad de citas sin personal asignado.
@@ -87,7 +87,7 @@ Y para gestión de token push:
 
 4. `GET /notificaciones/resumen-diario`
    - Devuelve conteo del día según rol:
-   - personal: `citasConfirmadasAsignadas`.
+   - personal: `citasProgramadasAsignadas`.
    - admin: `citasConPersonal`, `citasSinPersonal`.
 
 ### Dispositivos push

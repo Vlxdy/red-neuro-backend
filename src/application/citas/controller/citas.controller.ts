@@ -320,7 +320,7 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Completa una cita confirmada' })
+  @ApiOperation({ summary: 'Completa una cita programada' })
   @ApiBaseResponse(CitaResponseDto)
   @Post(':id/completar')
   async completar(
@@ -338,7 +338,7 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Marca una cita confirmada como no asistida' })
+  @ApiOperation({ summary: 'Marca una cita programada como no asistida' })
   @ApiBaseResponse(CitaResponseDto)
   @Post(':id/no-asistio')
   async marcarNoAsistio(
@@ -398,7 +398,7 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Cancela una cita confirmada' })
+  @ApiOperation({ summary: 'Cancela una cita programada' })
   @ApiBaseResponse(CitaResponseDto)
   @Post(':id/cancelar')
   async cancelarPost(

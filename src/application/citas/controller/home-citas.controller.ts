@@ -14,7 +14,7 @@ import {
   CitaResponseDto,
   HomeBandejaQueryDto,
   HomeBandejaResponseDto,
-  HomeConfirmadasListadoQueryDto,
+  HomeProgramadasListadoQueryDto,
   HomeGrupoDiaResponseDto,
   HomeListadoQueryDto,
 } from '../dto/cita.dto'
@@ -117,19 +117,19 @@ export class HomeCitasController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Lista incremental de confirmadas asignadas agrupadas por día',
+    summary: 'Lista incremental de programadas asignadas agrupadas por día',
   })
   @ApiBaseResponseListRows(HomeGrupoDiaResponseDto)
-  @Get('confirmadas-asignadas')
-  async homeConfirmadasAsignadas(
+  @Get('programadas-asignadas')
+  async homeProgramadasAsignadas(
     @Req() req: Request,
-    @Query() filtros: HomeConfirmadasListadoQueryDto
+    @Query() filtros: HomeProgramadasListadoQueryDto
   ) {
     const idUsuarioSolicitante = this.getUsuarioRol(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 
-    const resultado = await this.citasService.listarHomeConfirmadasAsignadas(
+    const resultado = await this.citasService.listarHomeProgramadasAsignadas(
       filtros,
       idUsuarioSolicitante,
       idRol,

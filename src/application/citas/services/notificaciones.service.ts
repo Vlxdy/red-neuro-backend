@@ -112,20 +112,20 @@ export class NotificacionesService {
     fecha = dayjs().format('YYYY-MM-DD')
   ): Promise<ResumenDiarioResponseDto> {
     if (idRol === RolEnumId.PERSONAL_SALUD) {
-      const citasConfirmadasAsignadas =
-        await this.notificacionesRepository.contarConfirmadasAsignadas(
+      const citasProgramadasAsignadas =
+        await this.notificacionesRepository.contarProgramadasAsignadas(
           idUsuarioRol,
           fecha
         )
 
       return {
         fecha,
-        citasConfirmadasAsignadas,
+        citasProgramadasAsignadas,
       }
     }
 
     const { citasConPersonal, citasSinPersonal } =
-      await this.notificacionesRepository.contarConfirmadasAdmin(fecha)
+      await this.notificacionesRepository.contarProgramadasAdmin(fecha)
 
     return {
       fecha,
@@ -170,7 +170,7 @@ export class NotificacionesService {
     )
 
     const { citasConPersonal, citasSinPersonal } =
-      await this.notificacionesRepository.contarConfirmadasAdmin(fecha)
+      await this.notificacionesRepository.contarProgramadasAdmin(fecha)
 
     const admins =
       await this.notificacionesRepository.obtenerAdministradoresActivos()
@@ -201,7 +201,7 @@ export class NotificacionesService {
       ...personals.map((p) => ({
         idUsuarioRol: p.idPersonal,
         title: 'Resumen diario de citas',
-        body: `Tienes ${Number(p.cantidad)} citas confirmadas para hoy.`,
+        body: `Tienes ${Number(p.cantidad)} citas programadas para hoy.`,
       })),
       ...admins.map((a) => ({
         idUsuarioRol: a.id,
