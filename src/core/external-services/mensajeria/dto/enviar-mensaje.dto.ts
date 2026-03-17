@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString } from '@/common/validation'
+import {
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from '@/common/validation'
 
 export class EnviarMensajeDto {
   @IsEmail()
@@ -11,4 +17,22 @@ export class EnviarMensajeDto {
   @IsString()
   @IsNotEmpty()
   mensaje: string
+
+  @IsArray()
+  @IsOptional()
+  adjuntos?: AdjuntoCorreoDto[]
+}
+
+export class AdjuntoCorreoDto {
+  @IsString()
+  @IsNotEmpty()
+  filename: string
+
+  @IsString()
+  @IsNotEmpty()
+  path: string
+
+  @IsString()
+  @IsNotEmpty()
+  cid: string
 }

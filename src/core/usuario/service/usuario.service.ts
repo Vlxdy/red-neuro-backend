@@ -159,7 +159,8 @@ export class UsuarioService extends BaseService {
     await this.enviarCorreoContrasenia(
       datosCorreo,
       usuarioDto.persona.nroDocumento,
-      contrasena
+      contrasena,
+      'registro'
     ).catch((error) => {
       const mensaje = `Falló al enviar la contraseña del usuario por correo electrónico`
       this.logger.error(error, mensaje)
@@ -627,7 +628,8 @@ export class UsuarioService extends BaseService {
       await this.enviarCorreoContrasenia(
         datosCorreo,
         usuario.usuario,
-        contrasena
+        contrasena,
+        'registro'
       ).catch((err) => {
         const mensaje = `Falló al enviar el correo de activación de cuenta`
         this.logger.error(err, mensaje)
@@ -671,19 +673,33 @@ export class UsuarioService extends BaseService {
   async enviarCorreoContrasenia(
     datosCorreo: { correo: string; asunto: Messages },
     usuario: string,
-    contrasena: string
+    contrasena: string,
+    tipo: 'registro' | 'restablecimiento'
   ) {
-    const url = this.configService.get('URL_FRONTEND')
-    const template = TemplateEmailService.armarPlantillaActivacionCuenta(
-      url,
+    const template = TemplateEmailService.armarPlantillaCredencialesAcceso(
       usuario,
-      contrasena
+      contrasena,
+      tipo,
+      {
+        empresa:
+          this.configService.get('EMPRESA_NOMBRE') ??
+          'Centro Neurológico NeuroAX',
+        celular: this.configService.get('EMPRESA_CELULAR') ?? 'No disponible',
+        correo: this.configService.get('EMPRESA_CORREO') ?? 'No disponible',
+      }
     )
 
     const result = await this.mensajeriaService.enviarCorreo({
       para: datosCorreo.correo,
       asunto: datosCorreo.asunto,
       mensaje: template,
+      adjuntos: [
+        {
+          filename: 'logo.png',
+          path: 'public/logo.png',
+          cid: 'logo-neuroax',
+        },
+      ],
     })
     return result.finalizado
   }
@@ -776,7 +792,8 @@ export class UsuarioService extends BaseService {
         await this.enviarCorreoContrasenia(
           datosCorreo,
           usuarioActualizado.usuario,
-          contrasena
+          contrasena,
+          'restablecimiento'
         ).catch((error) => {
           const mensaje = `Ocurrió un error al enviar el correo electrónico para restaurar la contraseña`
           this.logger.error(error, mensaje)
