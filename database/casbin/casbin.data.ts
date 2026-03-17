@@ -37,14 +37,6 @@ const frontendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'read',
     [RolEnum.PERSONAL_SALUD]: 'read',
   },
-  '/admin/categorias': {
-    [RolEnum.ADMINISTRADOR]: 'read|create|update',
-    [RolEnum.PERSONAL_SALUD]: 'read',
-  },
-  '/admin/estudios': {
-    [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
-    [RolEnum.PERSONAL_SALUD]: 'read',
-  },
   '/admin/citas': {
     [RolEnum.ADMINISTRADOR]: 'read',
     [RolEnum.PERSONAL_SALUD]: 'read',
@@ -57,16 +49,14 @@ const frontendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'read',
     [ROL_PERSONAL_SALUD_ADMIN]: 'read',
   },
+  '/admin/servicios': {
+    [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+    [ROL_PERSONAL_SALUD_ADMIN]: 'read',
+  },
   '/admin/lugares': {
     [RolEnum.ADMINISTRADOR]: 'read',
     [ROL_PERSONAL_SALUD_ADMIN]: 'read',
   },
-  // '/admin/roles': {
-  //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
-  // },
-  // '/admin/nutricionistas': {
-  //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
-  // },
 }
 
 const backendRoutes: CasbinValue = {
