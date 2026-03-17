@@ -60,6 +60,7 @@ export class MensajeriaService extends BaseService {
             subject: dto.asunto,
             text: dto.mensaje,
             html: dto.mensaje,
+            attachments: dto.adjuntos,
           },
           (error, info) => {
             if (error) return reject(error)
