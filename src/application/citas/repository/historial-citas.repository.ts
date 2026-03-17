@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { DataSource, EntityManager, SelectQueryBuilder } from 'typeorm'
 import { HistorialCita } from '../entities/cita-historial.entity'
+import { Cita } from '../entities/cita.entity'
 import { FiltrosHistorialCitaPaginadoDto } from '../dto/cita.dto'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import dayjs from 'dayjs'
@@ -13,6 +14,10 @@ export class HistorialCitasRepository {
 
   private historialRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(HistorialCita)
+  }
+
+  private citaRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Cita)
   }
 
   private usuarioRolRepository(manager?: EntityManager) {
@@ -30,6 +35,11 @@ export class HistorialCitasRepository {
   async crearHistorial(data: Partial<HistorialCita>, manager?: EntityManager) {
     const repo = this.historialRepository(manager)
     data.fechaCreacion = dayjs().toDate()
+    data.idHistorialCita =
+      data.idHistorialCita ??
+      (data.idCita
+        ? await this.obtenerIdHistorialCitaDeCita(data.idCita, manager)
+        : null)
     const historial = repo.create(data)
     return await repo.save(historial)
   }
@@ -42,17 +52,45 @@ export class HistorialCitasRepository {
       return []
     }
     const repo = this.historialRepository(manager)
-    const historial = repo.create(data)
+    const enriched = await Promise.all(
+      data.map(async (item) => ({
+        ...item,
+        idHistorialCita:
+          item.idHistorialCita ??
+          (item.idCita
+            ? await this.obtenerIdHistorialCitaDeCita(item.idCita, manager)
+            : null),
+      }))
+    )
+    const historial = repo.create(enriched)
     return await repo.save(historial)
+  }
+
+  private async obtenerIdHistorialCitaDeCita(
+    idCita: string,
+    manager?: EntityManager
+  ): Promise<string | null> {
+    const cita = await this.citaRepository(manager).findOne({
+      where: { id: idCita },
+      select: { idHistorialCita: true },
+    })
+    return cita?.idHistorialCita ?? null
   }
 
   buildHistorialQuery(
     idCita: string,
-    filtros: FiltrosHistorialCitaPaginadoDto
+    filtros: FiltrosHistorialCitaPaginadoDto,
+    idHistorialCita?: string | null
   ): SelectQueryBuilder<HistorialCita> {
-    const query = this.historialRepository()
-      .createQueryBuilder('historial')
-      .where('historial.idCita = :idCita', { idCita })
+    const query = this.historialRepository().createQueryBuilder('historial')
+
+    if (idHistorialCita) {
+      query.where('historial.idHistorialCita = :idHistorialCita', {
+        idHistorialCita,
+      })
+    } else {
+      query.where('historial.idCita = :idCita', { idCita })
+    }
 
     if (filtros.fechaInicio) {
       query.andWhere('historial.fechaCreacion >= :fechaInicio', {
@@ -72,7 +110,9 @@ export class HistorialCitasRepository {
       })
     }
 
-    return query.orderBy('historial.fechaCreacion', 'DESC')
+    return query
+      .orderBy('historial.fechaCreacion', 'DESC')
+      .addOrderBy('historial.id', 'DESC')
   }
 
   async listarHistorialCitaPaginado(
@@ -80,7 +120,8 @@ export class HistorialCitasRepository {
     filtros: FiltrosHistorialCitaPaginadoDto
   ) {
     const { limite, saltar } = filtros
-    return await this.buildHistorialQuery(idCita, filtros)
+    const idHistorialCita = await this.obtenerIdHistorialCitaDeCita(idCita)
+    return await this.buildHistorialQuery(idCita, filtros, idHistorialCita)
       .take(limite)
       .skip(saltar)
       .getManyAndCount()

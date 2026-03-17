@@ -27,6 +27,7 @@ export function formatearHistorialCita(
     id: historial.id,
     citaId: historial.idCita,
     idEjecutor: historial.idEjecutor,
+    historialCitaId: historial.idHistorialCita ?? undefined,
     comentario: historial.comentario ?? undefined,
     detalleCambios,
     ejecutor,

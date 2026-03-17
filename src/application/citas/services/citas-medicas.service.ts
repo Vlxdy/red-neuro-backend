@@ -1270,6 +1270,9 @@ export class CitasMedicasService extends BaseService {
       const fechaInicio = dayjs(dto.fechaInicio).toDate()
       const tipoCita = dto.tipoCita
       const idServicio = dto.idServicio ?? citaOriginal.idServicio
+      const estadoAnterior = citaOriginal.estado as CitasEstado
+      const fechaInicioAnterior = citaOriginal.fechaInicio
+      const fechaFinAnterior = citaOriginal.fechaFin
       if (!idServicio) {
         throw new BadRequestException('El servicio es obligatorio para la cita')
       }
@@ -1284,6 +1287,8 @@ export class CitasMedicasService extends BaseService {
         servicio.duracionMinutos
       )
 
+      const historialCitaId = citaOriginal.idHistorialCita ?? randomUUID()
+      citaOriginal.idHistorialCita = historialCitaId
       citaOriginal.estado = CitasEstado.REPROGRAMADA
       citaOriginal.usuarioModificacion = usuarioAuditoria
 
@@ -1302,26 +1307,55 @@ export class CitasMedicasService extends BaseService {
           idLugar: citaOriginal.idLugar ?? null,
           idServicio: servicio.id,
           tipoCita,
-          idHistorialCita: citaOriginal.idHistorialCita ?? randomUUID(),
+          idHistorialCita: historialCitaId,
           idUsuarioProgramo: citaOriginal.idUsuarioProgramo,
           idUsuarioEnvio: idEjecutor,
         },
         usuarioAuditoria,
         idEjecutor,
-        transaccion
+        transaccion,
+        {
+          crearHistorialInicial: false,
+        }
       )
 
       citaOriginal.idCitaNueva = nuevaCitaId
       await this.citasRepository.guardarCita(citaOriginal, transaccion)
+      const rangoAnterior = `${
+        fechaInicioAnterior
+          ? dayjs(fechaInicioAnterior).format('DD/MM/YYYY HH:mm')
+          : 'sin fecha'
+      } - ${
+        fechaFinAnterior
+          ? dayjs(fechaFinAnterior).format('DD/MM/YYYY HH:mm')
+          : 'sin fecha'
+      }`
+      const rangoNuevo = `${dayjs(fechaInicio).format(
+        'DD/MM/YYYY HH:mm'
+      )} - ${dayjs(fechaFin).format('DD/MM/YYYY HH:mm')}`
+      const comentarioReprogramacion = `Cita reprogramada: antes ${rangoAnterior}, ahora ${rangoNuevo}`
+
       await this.citasRepository.crearHistorialAccion(
         {
           idCita: citaOriginal.id,
           idEjecutor,
-          comentario: 'Reprogramación por clonación',
-          detalleCambios: this.crearDetalleCambiosEstado(
-            CitasEstado.PROGRAMADA,
-            CitasEstado.REPROGRAMADA
-          ),
+          comentario: comentarioReprogramacion,
+          detalleCambios: [
+            ...this.crearDetalleCambiosEstado(
+              estadoAnterior,
+              CitasEstado.REPROGRAMADA
+            ),
+            {
+              field: 'fechaInicio',
+              before: fechaInicioAnterior?.toISOString(),
+              after: fechaInicio.toISOString(),
+            },
+            {
+              field: 'fechaFin',
+              before: fechaFinAnterior?.toISOString(),
+              after: fechaFin.toISOString(),
+            },
+          ],
           usuarioCreacion: usuarioAuditoria,
         },
         transaccion
