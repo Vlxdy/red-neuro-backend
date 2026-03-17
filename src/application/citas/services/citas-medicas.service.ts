@@ -110,6 +110,17 @@ export class CitasMedicasService extends BaseService {
     return [{ field: 'estado', before, after }]
   }
 
+  private resolverEstadoConAsignacion(
+    idPersonal: string | null | undefined,
+    idEjecutor: string
+  ): CitasEstado {
+    if (!idPersonal || idPersonal === idEjecutor) {
+      return CitasEstado.PROGRAMADA
+    }
+
+    return CitasEstado.SOLICITADA
+  }
+
   private async obtenerNombreAccionador(idEjecutor: string): Promise<string> {
     return (
       (await this.notificacionesRepository.obtenerNombreCompletoUsuarioRol(
@@ -886,9 +897,7 @@ export class CitasMedicasService extends BaseService {
     const estadoInicial =
       dto.accion === 'GUARDAR'
         ? CitasEstado.BORRADOR
-        : dto.idPersonal
-          ? CitasEstado.SOLICITADA
-          : CitasEstado.PROGRAMADA
+        : this.resolverEstadoConAsignacion(dto.idPersonal, idEjecutor)
 
     const citaId = await this.citasRepository.crearCita(
       {
@@ -1048,9 +1057,10 @@ export class CitasMedicasService extends BaseService {
 
       const estadoAnterior = cita.estado as CitasEstado
       cita.idPersonal = dto.idPersonal ?? cita.idPersonal
-      cita.estado = cita.idPersonal
-        ? CitasEstado.SOLICITADA
-        : CitasEstado.PROGRAMADA
+      cita.estado = this.resolverEstadoConAsignacion(
+        cita.idPersonal,
+        idEjecutor
+      )
       cita.idUsuarioEnvio = idEjecutor
       cita.usuarioModificacion = usuarioAuditoria
       await this.citasRepository.guardarCita(cita, transaccion)
@@ -1282,9 +1292,10 @@ export class CitasMedicasService extends BaseService {
           detalle: citaOriginal.detalle,
           fechaInicio,
           fechaFin,
-          estado: citaOriginal.idPersonal
-            ? CitasEstado.SOLICITADA
-            : CitasEstado.PROGRAMADA,
+          estado: this.resolverEstadoConAsignacion(
+            citaOriginal.idPersonal,
+            idEjecutor
+          ),
           idPersonal: citaOriginal.idPersonal,
           idPaciente: citaOriginal.idPaciente ?? null,
           idConsultorio: citaOriginal.idConsultorio ?? null,
