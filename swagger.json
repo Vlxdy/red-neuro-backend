@@ -5550,6 +5550,36 @@
         ]
       }
     },
+    "/personal-salud/{id}/restauracion-contrasena": {
+      "patch": {
+        "operationId": "PersonalSaludController_restablecerContrasena",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Restablece la contraseña del profesional de salud y la envía por correo",
+        "tags": [
+          "Personal Salud"
+        ]
+      }
+    },
     "/pacientes": {
       "get": {
         "operationId": "PacienteController_listar",
