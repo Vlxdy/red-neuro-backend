@@ -1076,7 +1076,7 @@ export class CitasMedicasService extends BaseService {
         transaccion
       )
 
-      return await this.obtenerCita(cita.id, transaccion)
+      return formatearCita(cita)
     })
   }
 
@@ -1185,7 +1185,7 @@ export class CitasMedicasService extends BaseService {
       { estado: CitasEstado.INACTIVO },
       usuarioAuditoria,
       idEjecutor,
-      [CitasEstado.BORRADOR],
+      [CitasEstado.BORRADOR, CitasEstado.RECHAZADA],
       'Eliminación lógica de borrador'
     )
   }
@@ -1239,7 +1239,7 @@ export class CitasMedicasService extends BaseService {
         transaccion
       )
 
-      return await this.obtenerCita(cita.id, transaccion)
+      return formatearCita(cita)
     })
   }
 
@@ -1345,6 +1345,8 @@ export class CitasMedicasService extends BaseService {
     if (!actualizado) {
       throw new NotFoundException('La cita solicitada no existe')
     }
-    return await this.obtenerCita(id)
+
+    cita.estado = CitasEstado.CANCELADA
+    return formatearCita(cita)
   }
 }
