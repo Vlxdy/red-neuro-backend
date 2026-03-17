@@ -23,7 +23,6 @@ import { PushConfigService } from '../services/push-config.service'
 import {
   FiltroNotificacionDto,
   NotificacionResponseDto,
-  ResumenDiarioResponseDto,
 } from '../dto/notificacion.dto'
 
 @Controller('notificaciones')
@@ -43,11 +42,9 @@ export class NotificacionesController extends BaseController {
   @Get()
   async listar(@Req() req: Request, @Query() filtros: FiltroNotificacionDto) {
     const idUsuarioRol = this.getUsuarioRol(req)
-    const idRol = this.getRol(req)
     const resultado = await this.notificacionesService.listar(
       filtros,
-      idUsuarioRol,
-      idRol
+      idUsuarioRol
     )
     return this.successListRows(resultado)
   }
@@ -59,7 +56,6 @@ export class NotificacionesController extends BaseController {
     const ok = await this.notificacionesService.marcarVisto(
       id,
       this.getUser(req),
-      this.getRol(req),
       this.getUsuarioRol(req)
     )
     return this.successUpdate(ok)
@@ -71,7 +67,6 @@ export class NotificacionesController extends BaseController {
   async marcarTodas(@Req() req: Request) {
     const actualizadas = await this.notificacionesService.marcarTodasVistas(
       this.getUser(req),
-      this.getRol(req),
       this.getUsuarioRol(req)
     )
     return this.successUpdate(actualizadas)
@@ -86,17 +81,6 @@ export class NotificacionesController extends BaseController {
     const resultado =
       this.pushConfigService.validarCredencialesFirebaseDesdeArchivo()
     return this.success(resultado)
-  }
-
-  @ApiOperation({ summary: 'Resumen diario de citas para notificaciones' })
-  @ApiBaseResponse(ResumenDiarioResponseDto)
-  @Get('resumen-diario')
-  async resumen(@Req() req: Request) {
-    const data = await this.notificacionesService.obtenerResumenDiario(
-      this.getUsuarioRol(req),
-      this.getRol(req)
-    )
-    return this.success(data)
   }
 
   @ApiOperation({ summary: 'Ejecuta manualmente el envío de resumen diario' })

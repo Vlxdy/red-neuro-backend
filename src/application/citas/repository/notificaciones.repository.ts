@@ -26,16 +26,12 @@ export class NotificacionesRepository {
 
   async listar(
     filtros: FiltroNotificacionDto,
-    idUsuarioRol: string,
-    idRol: string
+    idUsuarioRol: string
   ): Promise<[Notificacion[], number]> {
     const qb = this.notificacionRepo().createQueryBuilder('n')
 
     qb.where('n.estado = :estado', { estado: 'ACTIVO' })
-
-    if (idRol === RolEnumId.PERSONAL_SALUD) {
-      qb.andWhere('n.idPersonal = :idUsuarioRol', { idUsuarioRol })
-    }
+    qb.andWhere('n.idPersonal = :idUsuarioRol', { idUsuarioRol })
 
     if (filtros.noLeidas) {
       qb.andWhere('n.visto = false')
@@ -54,27 +50,21 @@ export class NotificacionesRepository {
 
   async obtenerPorId(
     id: string,
-    idRol: string,
     idUsuarioRol: string
   ): Promise<Notificacion | null> {
-    const where =
-      idRol === RolEnumId.PERSONAL_SALUD
-        ? { id, idPersonal: idUsuarioRol }
-        : { id }
-
-    return await this.notificacionRepo().findOne({ where })
+    return await this.notificacionRepo().findOne({
+      where: { id, idPersonal: idUsuarioRol, estado: 'ACTIVO' as never },
+    })
   }
 
-  async obtenerPendientes(
-    idRol: string,
-    idUsuarioRol: string
-  ): Promise<Notificacion[]> {
-    const where =
-      idRol === RolEnumId.PERSONAL_SALUD
-        ? { idPersonal: idUsuarioRol, visto: false }
-        : { visto: false }
-
-    return await this.notificacionRepo().find({ where })
+  async obtenerPendientes(idUsuarioRol: string): Promise<Notificacion[]> {
+    return await this.notificacionRepo().find({
+      where: {
+        idPersonal: idUsuarioRol,
+        visto: false,
+        estado: 'ACTIVO' as never,
+      },
+    })
   }
 
   async guardarNotificaciones(notificaciones: Notificacion[]) {
@@ -85,7 +75,7 @@ export class NotificacionesRepository {
     return await this.notificacionRepo().save(notificacion)
   }
 
-  async contarConfirmadasAsignadas(
+  async contarProgramadasAsignadas(
     idUsuarioRol: string,
     fecha: string
   ): Promise<number> {
@@ -95,12 +85,12 @@ export class NotificacionesRepository {
     return await this.citaRepo()
       .createQueryBuilder('c')
       .where('c.idPersonal = :idUsuarioRol', { idUsuarioRol })
-      .andWhere('c.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+      .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
       .andWhere('c.fecha_inicio between :inicio and :fin', { inicio, fin })
       .getCount()
   }
 
-  async contarConfirmadasAdmin(
+  async contarProgramadasAdmin(
     fecha: string
   ): Promise<{ citasConPersonal: number; citasSinPersonal: number }> {
     const inicio = dayjs(fecha).startOf('day').toDate()
@@ -110,13 +100,13 @@ export class NotificacionesRepository {
       this.citaRepo()
         .createQueryBuilder('c')
         .where('c.fecha_inicio between :inicio and :fin', { inicio, fin })
-        .andWhere('c.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+        .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
         .andWhere('c.idPersonal is not null')
         .getCount(),
       this.citaRepo()
         .createQueryBuilder('c')
         .where('c.fecha_inicio between :inicio and :fin', { inicio, fin })
-        .andWhere('c.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+        .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
         .andWhere('c.idPersonal is null')
         .getCount(),
     ])
@@ -133,7 +123,7 @@ export class NotificacionesRepository {
       .select('c.idPersonal', 'idPersonal')
       .addSelect('count(*)', 'cantidad')
       .where('c.fecha_inicio between :inicio and :fin', { inicio, fin })
-      .andWhere('c.estado = :estado', { estado: CitasEstado.CONFIRMADA })
+      .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
       .andWhere('c.idPersonal is not null')
       .groupBy('c.idPersonal')
       .getRawMany<{ idPersonal: string; cantidad: string }>()
@@ -181,8 +171,8 @@ export class NotificacionesRepository {
 
   crearNotificacionResumenPersonal(idPersonal: string, cantidad: number) {
     return this.notificacionRepo().create({
-      tipo: NotificacionTipo.CITA_CONFIRMADA,
-      mensaje: `Resumen diario: tienes ${cantidad} citas confirmadas para hoy.`,
+      tipo: NotificacionTipo.CITA_PROGRAMADA,
+      mensaje: `Resumen diario: tienes ${cantidad} citas programadas para hoy.`,
       idPersonal,
       usuarioCreacion: '0',
     })
@@ -194,7 +184,7 @@ export class NotificacionesRepository {
     citasSinPersonal: number
   ) {
     return this.notificacionRepo().create({
-      tipo: NotificacionTipo.CITA_CONFIRMADA,
+      tipo: NotificacionTipo.CITA_PROGRAMADA,
       mensaje: `Resumen diario: con personal ${citasConPersonal}, sin personal ${citasSinPersonal}.`,
       idPersonal,
       usuarioCreacion: '0',

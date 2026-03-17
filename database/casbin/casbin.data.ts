@@ -37,14 +37,6 @@ const frontendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'read',
     [RolEnum.PERSONAL_SALUD]: 'read',
   },
-  '/admin/categorias': {
-    [RolEnum.ADMINISTRADOR]: 'read|create|update',
-    [RolEnum.PERSONAL_SALUD]: 'read',
-  },
-  '/admin/estudios': {
-    [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
-    [RolEnum.PERSONAL_SALUD]: 'read',
-  },
   '/admin/citas': {
     [RolEnum.ADMINISTRADOR]: 'read',
     [RolEnum.PERSONAL_SALUD]: 'read',
@@ -57,16 +49,14 @@ const frontendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'read',
     [ROL_PERSONAL_SALUD_ADMIN]: 'read',
   },
+  '/admin/servicios': {
+    [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
+    [ROL_PERSONAL_SALUD_ADMIN]: 'read',
+  },
   '/admin/lugares': {
     [RolEnum.ADMINISTRADOR]: 'read',
     [ROL_PERSONAL_SALUD_ADMIN]: 'read',
   },
-  // '/admin/roles': {
-  //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
-  // },
-  // '/admin/nutricionistas': {
-  //   [RolEnum.ADMINISTRADOR]: 'read|create|update|delete',
-  // },
 }
 
 const backendRoutes: CasbinValue = {
@@ -143,6 +133,26 @@ const backendRoutes: CasbinValue = {
     [RolEnum.PERSONAL_SALUD]: 'GET|POST',
   },
   '/api/citas/mis-citas': {
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/bandeja': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/pendientes-aprobacion': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/rechazadas-solicitadas': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/borradores': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.PERSONAL_SALUD]: 'GET',
+  },
+  '/api/citas/home/programadas-asignadas': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
     [RolEnum.PERSONAL_SALUD]: 'GET',
   },
   '/api/citas/:id': {
@@ -257,6 +267,10 @@ const backendRoutes: CasbinValue = {
     [RolEnum.PERSONAL_SALUD]: 'PATCH',
   },
   '/api/personal-salud/:id/inactivacion': {
+    [RolEnum.ADMINISTRADOR]: 'PATCH',
+    [RolEnum.PERSONAL_SALUD]: 'PATCH',
+  },
+  '/api/personal-salud/:id/restauracion-contrasena': {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
     [RolEnum.PERSONAL_SALUD]: 'PATCH',
   },

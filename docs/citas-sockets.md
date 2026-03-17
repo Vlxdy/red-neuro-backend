@@ -87,7 +87,7 @@ Evento: `citas:estado`
 | Campo | Tipo | Requerido | Descripción |
 | --- | --- | --- | --- |
 | `id` | string | ✅ | Identificador de la cita. |
-| `estado` | string | ✅ | Estado de la cita (ej. `CONFIRMADA`, `EN_CURSO`). |
+| `estado` | string | ✅ | Estado de la cita (ej. `PROGRAMADA`, `EN_CURSO`). |
 
 **Servidor → Todos los clientes**
 

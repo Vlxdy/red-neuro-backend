@@ -6,9 +6,7 @@ import { DispositivosPushRepository } from '../repository/dispositivos-push.repo
 import {
   FiltroNotificacionDto,
   NotificacionResponseDto,
-  ResumenDiarioResponseDto,
 } from '../dto/notificacion.dto'
-import { RolEnumId } from '@/core/authorization/rol.enum'
 import { Notificacion } from '../entities/notificacion.entity'
 import { FirebasePushService } from '@/core/external-services/firebase/firebase-push.service'
 import { CitasGateway } from '../gateways/citas.gateway'
@@ -38,13 +36,11 @@ export class NotificacionesService {
 
   async listar(
     filtros: FiltroNotificacionDto,
-    idUsuarioRol: string,
-    idRol: string
+    idUsuarioRol: string
   ): Promise<[NotificacionResponseDto[], number]> {
     const [filas, total] = await this.notificacionesRepository.listar(
       filtros,
-      idUsuarioRol,
-      idRol
+      idUsuarioRol
     )
 
     return [filas.map((n) => this.mapearNotificacion(n)), total]
@@ -65,12 +61,10 @@ export class NotificacionesService {
   async marcarVisto(
     id: string,
     usuarioAuditoria: string,
-    idRol: string,
     idUsuarioRol: string
   ) {
     const notificacion = await this.notificacionesRepository.obtenerPorId(
       id,
-      idRol,
       idUsuarioRol
     )
     if (!notificacion) return false
@@ -84,13 +78,10 @@ export class NotificacionesService {
 
   async marcarTodasVistas(
     usuarioAuditoria: string,
-    idRol: string,
     idUsuarioRol: string
   ): Promise<number> {
-    const pendientes = await this.notificacionesRepository.obtenerPendientes(
-      idRol,
-      idUsuarioRol
-    )
+    const pendientes =
+      await this.notificacionesRepository.obtenerPendientes(idUsuarioRol)
     if (!pendientes.length) return 0
 
     pendientes.forEach((n) => {
@@ -104,34 +95,6 @@ export class NotificacionesService {
       pendientes.length
     )
     return pendientes.length
-  }
-
-  async obtenerResumenDiario(
-    idUsuarioRol: string,
-    idRol: string,
-    fecha = dayjs().format('YYYY-MM-DD')
-  ): Promise<ResumenDiarioResponseDto> {
-    if (idRol === RolEnumId.PERSONAL_SALUD) {
-      const citasConfirmadasAsignadas =
-        await this.notificacionesRepository.contarConfirmadasAsignadas(
-          idUsuarioRol,
-          fecha
-        )
-
-      return {
-        fecha,
-        citasConfirmadasAsignadas,
-      }
-    }
-
-    const { citasConPersonal, citasSinPersonal } =
-      await this.notificacionesRepository.contarConfirmadasAdmin(fecha)
-
-    return {
-      fecha,
-      citasConPersonal,
-      citasSinPersonal,
-    }
   }
 
   private async enviarPushResumenDiario(
@@ -170,7 +133,7 @@ export class NotificacionesService {
     )
 
     const { citasConPersonal, citasSinPersonal } =
-      await this.notificacionesRepository.contarConfirmadasAdmin(fecha)
+      await this.notificacionesRepository.contarProgramadasAdmin(fecha)
 
     const admins =
       await this.notificacionesRepository.obtenerAdministradoresActivos()
@@ -201,7 +164,7 @@ export class NotificacionesService {
       ...personals.map((p) => ({
         idUsuarioRol: p.idPersonal,
         title: 'Resumen diario de citas',
-        body: `Tienes ${Number(p.cantidad)} citas confirmadas para hoy.`,
+        body: `Tienes ${Number(p.cantidad)} citas programadas para hoy.`,
       })),
       ...admins.map((a) => ({
         idUsuarioRol: a.id,

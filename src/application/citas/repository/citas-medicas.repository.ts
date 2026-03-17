@@ -122,10 +122,30 @@ export class CitasMedicasRepository {
       })
     }
 
+    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
+    const incluirRestringidasProgramadasPorSolicitante =
+      Boolean(filtros.idPersonal) &&
+      Boolean(idUsuarioSolicitante) &&
+      filtros.idPersonal === idUsuarioSolicitante
+
     if (filtros.idPersonal) {
-      query.andWhere('cita.idPersonal = :idPersonal', {
-        idPersonal: filtros.idPersonal,
-      })
+      if (
+        incluirRestringidasProgramadasPorSolicitante &&
+        (!filtros.estado || estadosRestringidos.includes(filtros.estado))
+      ) {
+        query.andWhere(
+          '(cita.idPersonal = :idPersonal OR (cita.estado IN (:...estadosRestringidos) AND cita.idUsuarioProgramo = :idUsuarioSolicitante))',
+          {
+            idPersonal: filtros.idPersonal,
+            estadosRestringidos,
+            idUsuarioSolicitante,
+          }
+        )
+      } else {
+        query.andWhere('cita.idPersonal = :idPersonal', {
+          idPersonal: filtros.idPersonal,
+        })
+      }
     }
 
     if (filtros.idLugar) {
@@ -133,8 +153,6 @@ export class CitasMedicasRepository {
         idLugar: filtros.idLugar,
       })
     }
-
-    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
 
     if (filtros.estado) {
       query.andWhere('cita.estado = :estado', {
@@ -145,9 +163,19 @@ export class CitasMedicasRepository {
         idUsuarioSolicitante &&
         estadosRestringidos.includes(filtros.estado)
       ) {
-        query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
-          idUsuarioSolicitante,
-        })
+        if (incluirRestringidasProgramadasPorSolicitante) {
+          query.andWhere(
+            '(cita.idPersonal = :idPersonal OR cita.idUsuarioProgramo = :idUsuarioSolicitante)',
+            {
+              idPersonal: filtros.idPersonal,
+              idUsuarioSolicitante,
+            }
+          )
+        } else {
+          query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
+            idUsuarioSolicitante,
+          })
+        }
       }
     } else {
       query
@@ -190,10 +218,520 @@ export class CitasMedicasRepository {
       .getManyAndCount()
   }
 
+  private aplicarFiltroCursor(
+    query: SelectQueryBuilder<Cita>,
+    cursorFechaHora: string,
+    cursorId: string
+  ) {
+    query.andWhere(
+      '(cita.fechaInicio > :cursorFechaHora OR (cita.fechaInicio = :cursorFechaHora AND cita.id > :cursorId))',
+      { cursorFechaHora, cursorId }
+    )
+  }
+
+  private aplicarFiltroCursorDesc(
+    query: SelectQueryBuilder<Cita>,
+    cursorFechaHora: string,
+    cursorId: string
+  ) {
+    query.andWhere(
+      '(COALESCE(cita.fechaModificacion, cita.fechaCreacion) < :cursorFechaHora OR (COALESCE(cita.fechaModificacion, cita.fechaCreacion) = :cursorFechaHora AND cita.id < :cursorId))',
+      { cursorFechaHora, cursorId }
+    )
+  }
+
+  async contarPendientesAprobacion(params: {
+    idPersonal?: string
+    idLugar?: string
+    fechaBase: string
+  }) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .where('cita.estado = :estado', { estado: CitasEstado.SOLICITADA })
+      .andWhere('cita.fechaInicio >= :fechaBase', {
+        fechaBase: params.fechaBase,
+      })
+
+    if (params.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: params.idPersonal,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getCount()
+  }
+
+  async listarPendientesAprobacion(params: {
+    idPersonal?: string
+    idLugar?: string
+    fechaBase: string
+    limite: number
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const query = this.buildCitasQuery({
+      estado: CitasEstado.SOLICITADA,
+      fechaInicio: params.fechaBase,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursor(query, params.cursorFechaHora, params.cursorId)
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
+  async listarPendientesAprobacionPaginado(params: {
+    idPersonal?: string
+    idLugar?: string
+    fechaBase: string
+    limite: number
+    saltar: number
+  }) {
+    return await this.buildCitasQuery({
+      estado: CitasEstado.SOLICITADA,
+      fechaInicio: params.fechaBase,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+      .take(params.limite)
+      .skip(params.saltar)
+      .getManyAndCount()
+  }
+
+  async contarRechazadasSolicitadas(params: {
+    idSolicitante?: string
+    idLugar?: string
+  }) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .where('cita.estado = :estado', { estado: CitasEstado.RECHAZADA })
+
+    if (params.idSolicitante) {
+      query.andWhere('cita.idUsuarioProgramo = :idSolicitante', {
+        idSolicitante: params.idSolicitante,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getCount()
+  }
+
+  async listarRechazadasSolicitadas(params: {
+    idSolicitante?: string
+    idLugar?: string
+    limite: number
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const fechaOrdenExpr =
+      'COALESCE(cita.fechaModificacion, cita.fechaCreacion)'
+
+    const query = this.buildCitasQuery(
+      {
+        estado: CitasEstado.RECHAZADA,
+        idLugar: params.idLugar,
+      },
+      params.idSolicitante
+    )
+      .addSelect(fechaOrdenExpr, 'fecha_orden')
+      .orderBy('fecha_orden', 'DESC')
+      .addOrderBy('cita.id', 'DESC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursorDesc(
+        query,
+        params.cursorFechaHora,
+        params.cursorId
+      )
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
+  async listarRechazadasSolicitadasPaginado(params: {
+    idSolicitante?: string
+    idLugar?: string
+    limite: number
+    saltar: number
+  }) {
+    const fechaOrdenExpr =
+      'COALESCE(cita.fechaModificacion, cita.fechaCreacion)'
+
+    return await this.buildCitasQuery(
+      {
+        estado: CitasEstado.RECHAZADA,
+        idLugar: params.idLugar,
+      },
+      params.idSolicitante
+    )
+      .addSelect(fechaOrdenExpr, 'fecha_orden')
+      .orderBy('fecha_orden', 'DESC')
+      .addOrderBy('cita.id', 'DESC')
+      .take(params.limite)
+      .skip(params.saltar)
+      .getManyAndCount()
+  }
+
+  async contarBorradores(params: { idSolicitante?: string; idLugar?: string }) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .where('cita.estado = :estado', { estado: CitasEstado.BORRADOR })
+
+    if (params.idSolicitante) {
+      query.andWhere('cita.idUsuarioProgramo = :idSolicitante', {
+        idSolicitante: params.idSolicitante,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getCount()
+  }
+
+  async listarBorradores(params: {
+    idSolicitante?: string
+    idLugar?: string
+    limite: number
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const fechaOrdenExpr =
+      'COALESCE(cita.fechaModificacion, cita.fechaCreacion)'
+
+    const query = this.buildCitasQuery(
+      {
+        estado: CitasEstado.BORRADOR,
+        idLugar: params.idLugar,
+      },
+      params.idSolicitante
+    )
+      .addSelect(fechaOrdenExpr, 'fecha_orden')
+      .orderBy('fecha_orden', 'DESC')
+      .addOrderBy('cita.id', 'DESC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursorDesc(
+        query,
+        params.cursorFechaHora,
+        params.cursorId
+      )
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
+  async listarBorradoresPaginado(params: {
+    idSolicitante?: string
+    idLugar?: string
+    limite: number
+    saltar: number
+  }) {
+    const fechaOrdenExpr =
+      'COALESCE(cita.fechaModificacion, cita.fechaCreacion)'
+
+    return await this.buildCitasQuery(
+      {
+        estado: CitasEstado.BORRADOR,
+        idLugar: params.idLugar,
+      },
+      params.idSolicitante
+    )
+      .addSelect(fechaOrdenExpr, 'fecha_orden')
+      .orderBy('fecha_orden', 'DESC')
+      .addOrderBy('cita.id', 'DESC')
+      .take(params.limite)
+      .skip(params.saltar)
+      .getManyAndCount()
+  }
+
+  async contarProgramadasAsignadas(params: {
+    idPersonal?: string
+    idLugar?: string
+    fechaBase: string
+  }) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .where('cita.estado = :estado', { estado: CitasEstado.PROGRAMADA })
+      .andWhere('cita.fechaInicio >= :fechaBase', {
+        fechaBase: params.fechaBase,
+      })
+
+    if (params.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: params.idPersonal,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getCount()
+  }
+
+  async listarProgramadasAsignadas(params: {
+    idPersonal?: string
+    idLugar?: string
+    fechaBase: string
+    limite: number
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const query = this.buildCitasQuery({
+      estado: CitasEstado.PROGRAMADA,
+      fechaInicio: params.fechaBase,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursor(query, params.cursorFechaHora, params.cursorId)
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
+  async listarProgramadasAsignadasDelDia(params: {
+    idPersonal?: string
+    idLugar?: string
+    dia: string
+  }) {
+    const inicio = dayjs(params.dia).startOf('day').toISOString()
+    const fin = dayjs(params.dia).endOf('day').toISOString()
+
+    const query = this.buildCitasQuery({
+      estado: CitasEstado.PROGRAMADA,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .andWhere('cita.fechaInicio >= :inicio', { inicio })
+      .andWhere('cita.fechaInicio <= :fin', { fin })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    return await query.getMany()
+  }
+
+  async listarProgramadasAsignadasEntreDias(params: {
+    idPersonal?: string
+    idLugar?: string
+    diaInicio: string
+    diaFin: string
+    limite: number
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const query = this.buildCitasQuery({
+      estado: CitasEstado.PROGRAMADA,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .andWhere('cita.fechaInicio >= :diaInicio', {
+        diaInicio: params.diaInicio,
+      })
+      .andWhere('cita.fechaInicio < :diaFin', { diaFin: params.diaFin })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursor(query, params.cursorFechaHora, params.cursorId)
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
+  async listarProgramadasAsignadasPaginado(params: {
+    idPersonal?: string
+    idLugar?: string
+    fechaBase: string
+    dia?: string
+    limite: number
+    saltar: number
+  }) {
+    const query = this.buildCitasQuery({
+      estado: CitasEstado.PROGRAMADA,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+      fechaInicio: params.fechaBase,
+    })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.dia) {
+      const inicio = dayjs(params.dia).startOf('day').toISOString()
+      const fin = dayjs(params.dia).endOf('day').toISOString()
+      query.andWhere('cita.fechaInicio >= :inicio', { inicio })
+      query.andWhere('cita.fechaInicio <= :fin', { fin })
+    }
+
+    return await query.take(params.limite).skip(params.saltar).getManyAndCount()
+  }
+
+  async obtenerMisResumen(params: {
+    idPersonal?: string
+    idLugar?: string
+    desde: string
+    hasta?: string
+  }) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .select(
+        `SUM(CASE WHEN cita.estado = :estadoSolicitada THEN 1 ELSE 0 END)`,
+        'solicitadasPendientesConfirmacion'
+      )
+      .addSelect(
+        `SUM(CASE WHEN cita.estado = :estadoProgramada THEN 1 ELSE 0 END)`,
+        'proximasProgramadas'
+      )
+      .addSelect(
+        `SUM(CASE WHEN cita.estado IN (:...estadosOperativos) THEN 1 ELSE 0 END)`,
+        'totalDesdeHoy'
+      )
+      .addSelect('MIN(DATE(cita.fechaInicio))', 'primeraFechaConCitas')
+      .where('cita.fechaInicio >= :desde', { desde: params.desde })
+      .andWhere('cita.estado IN (:...estadosOperativos)', {
+        estadosOperativos: [CitasEstado.SOLICITADA, CitasEstado.PROGRAMADA],
+      })
+      .setParameters({
+        estadoSolicitada: CitasEstado.SOLICITADA,
+        estadoProgramada: CitasEstado.PROGRAMADA,
+      })
+
+    if (params.hasta) {
+      query.andWhere('cita.fechaInicio <= :hasta', { hasta: params.hasta })
+    }
+
+    if (params.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: params.idPersonal,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getRawOne<{
+      solicitadasPendientesConfirmacion: string | null
+      proximasProgramadas: string | null
+      totalDesdeHoy: string | null
+      primeraFechaConCitas: string | null
+    }>()
+  }
+
+  async listarMisSolicitadas(params: {
+    idPersonal?: string
+    idLugar?: string
+    desde: string
+    hasta?: string
+    limite: number
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const query = this.buildCitasQuery({
+      estado: CitasEstado.SOLICITADA,
+      fechaInicio: params.desde,
+      fechaFin: params.hasta,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursor(query, params.cursorFechaHora, params.cursorId)
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
+  async contarMisSolicitadasAprox(params: {
+    idPersonal?: string
+    idLugar?: string
+    desde: string
+    hasta?: string
+  }) {
+    const query = this.citaRepository()
+      .createQueryBuilder('cita')
+      .where('cita.estado = :estado', { estado: CitasEstado.SOLICITADA })
+      .andWhere('cita.fechaInicio >= :desde', { desde: params.desde })
+
+    if (params.hasta) {
+      query.andWhere('cita.fechaInicio <= :hasta', { hasta: params.hasta })
+    }
+
+    if (params.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: params.idPersonal,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getCount()
+  }
+
+  async listarMisTimeline(params: {
+    idPersonal?: string
+    idLugar?: string
+    desde: string
+    hasta?: string
+    limite: number
+    incluirSolicitadas: boolean
+    cursorFechaHora?: string
+    cursorId?: string
+  }) {
+    const estados = params.incluirSolicitadas
+      ? [CitasEstado.PROGRAMADA, CitasEstado.SOLICITADA]
+      : [CitasEstado.PROGRAMADA]
+
+    const query = this.buildCitasQuery({
+      fechaInicio: params.desde,
+      fechaFin: params.hasta,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .andWhere('cita.estado IN (:...estados)', { estados })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.cursorFechaHora && params.cursorId) {
+      this.aplicarFiltroCursor(query, params.cursorFechaHora, params.cursorId)
+    }
+
+    return await query.take(params.limite + 1).getMany()
+  }
+
   async obtenerCantidadCitasPorDia(
     filtros: FiltrosCitaDto,
     idUsuarioSolicitante?: string
   ) {
+    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
+    const incluirRestringidasProgramadasPorSolicitante =
+      Boolean(filtros.idPersonal) &&
+      Boolean(idUsuarioSolicitante) &&
+      filtros.idPersonal === idUsuarioSolicitante
+
     const query = this.citaRepository()
       .createQueryBuilder('cita')
       .select('DATE(cita.fechaInicio)', 'fecha')
@@ -206,9 +744,23 @@ export class CitasMedicasRepository {
       })
 
     if (filtros.idPersonal) {
-      query.andWhere('cita.idPersonal = :idPersonal', {
-        idPersonal: filtros.idPersonal,
-      })
+      if (
+        incluirRestringidasProgramadasPorSolicitante &&
+        (!filtros.estado || estadosRestringidos.includes(filtros.estado))
+      ) {
+        query.andWhere(
+          '(cita.idPersonal = :idPersonal OR (cita.estado IN (:...estadosRestringidos) AND cita.idUsuarioProgramo = :idUsuarioSolicitante))',
+          {
+            idPersonal: filtros.idPersonal,
+            estadosRestringidos,
+            idUsuarioSolicitante,
+          }
+        )
+      } else {
+        query.andWhere('cita.idPersonal = :idPersonal', {
+          idPersonal: filtros.idPersonal,
+        })
+      }
     }
 
     if (filtros.idLugar) {
@@ -216,8 +768,6 @@ export class CitasMedicasRepository {
         idLugar: filtros.idLugar,
       })
     }
-
-    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
 
     if (filtros.estado) {
       query.andWhere('cita.estado = :estado', {
@@ -228,9 +778,19 @@ export class CitasMedicasRepository {
         idUsuarioSolicitante &&
         estadosRestringidos.includes(filtros.estado)
       ) {
-        query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
-          idUsuarioSolicitante,
-        })
+        if (incluirRestringidasProgramadasPorSolicitante) {
+          query.andWhere(
+            '(cita.idPersonal = :idPersonal OR cita.idUsuarioProgramo = :idUsuarioSolicitante)',
+            {
+              idPersonal: filtros.idPersonal,
+              idUsuarioSolicitante,
+            }
+          )
+        } else {
+          query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
+            idUsuarioSolicitante,
+          })
+        }
       }
     } else {
       query
@@ -621,7 +1181,7 @@ export class CitasMedicasRepository {
     idEjecutor: string
   ) {
     return await this.dataSource.transaction(async (manager) => {
-      const estadosElegibles = [CitasEstado.SOLICITADA, CitasEstado.CONFIRMADA]
+      const estadosElegibles = [CitasEstado.SOLICITADA, CitasEstado.PROGRAMADA]
       const citasVencidas = await this.citaRepository(manager).find({
         where: {
           fechaInicio: LessThan(fechaCorte),

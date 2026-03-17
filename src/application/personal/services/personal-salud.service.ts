@@ -21,6 +21,12 @@ import {
 import { PersonalSaludRepository } from '../repository/personal-salud.repository'
 import { Status } from '@/common/constants'
 
+type UsuarioSesionPersonal = {
+  rol?: string
+  roles?: string[]
+  esSupervisor?: boolean
+}
+
 @Injectable()
 export class PersonalSaludService extends BaseService {
   constructor(
@@ -33,15 +39,14 @@ export class PersonalSaludService extends BaseService {
 
   async listarPersonalSalud(
     paginacionQuery: ListarPersonalSaludQueryDto,
-    usuarioSesion: {
-      rol?: string
-      roles?: string[]
-      esSupervisor?: boolean
-    }
+    usuarioSesion: UsuarioSesionPersonal
   ): Promise<[PersonalResponseDto[], number]> {
     const incluirInactivos = paginacionQuery.incluirInactivos ?? false
 
-    if (incluirInactivos && !this.puedeListarInactivos(usuarioSesion)) {
+    if (
+      incluirInactivos &&
+      !this.tienePermisosAdministradorPersonal(usuarioSesion)
+    ) {
       throw new ForbiddenException(
         'No cuenta con permisos para listar personal de salud inactivo.'
       )
@@ -56,11 +61,9 @@ export class PersonalSaludService extends BaseService {
     return [formatearPersonales(personal), total]
   }
 
-  private puedeListarInactivos(usuarioSesion: {
-    rol?: string
-    roles?: string[]
-    esSupervisor?: boolean
-  }): boolean {
+  private tienePermisosAdministradorPersonal(
+    usuarioSesion: UsuarioSesionPersonal
+  ): boolean {
     if (usuarioSesion.rol === RolEnum.ADMINISTRADOR) {
       return true
     }
@@ -73,6 +76,16 @@ export class PersonalSaludService extends BaseService {
       usuarioSesion.rol === RolEnum.PERSONAL_SALUD &&
       usuarioSesion.esSupervisor === true
     )
+  }
+
+  private validarPermisosAdministradorPersonal(
+    usuarioSesion: UsuarioSesionPersonal
+  ) {
+    if (!this.tienePermisosAdministradorPersonal(usuarioSesion)) {
+      throw new ForbiddenException(
+        'No cuenta con permisos administrativos para gestionar personal de salud.'
+      )
+    }
   }
 
   private async buscarPersonalSaludPorId(id: string, estadoActivo = true) {
@@ -96,8 +109,11 @@ export class PersonalSaludService extends BaseService {
 
   async crearPersonalSalud(
     dto: CrearPersonalSaludDto,
-    usuarioAuditoria: string
+    usuarioAuditoria: string,
+    usuarioSesion: UsuarioSesionPersonal
   ): Promise<PersonalResponseDto> {
+    this.validarPermisosAdministradorPersonal(usuarioSesion)
+
     const { ocupacion, ...usuarioDto } = dto
 
     const resultado = await this.usuarioService.crear(
@@ -214,5 +230,19 @@ export class PersonalSaludService extends BaseService {
     personal.estado = Status.INACTIVE
 
     return formatearPersonal(personal)
+  }
+
+  async restablecerContrasenaPersonalSalud(
+    id: string,
+    usuarioAuditoria: string,
+    usuarioSesion: UsuarioSesionPersonal
+  ): Promise<{ id: string; estado: string }> {
+    this.validarPermisosAdministradorPersonal(usuarioSesion)
+
+    const personal = await this.buscarPersonalSaludPorId(id)
+    return this.usuarioService.restaurarContrasena(
+      personal.idUsuario,
+      usuarioAuditoria
+    )
   }
 }

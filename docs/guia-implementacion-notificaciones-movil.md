@@ -37,14 +37,14 @@ Implementar notificaciones con bajo ruido usando resumen diario por cantidad de 
 - Lista por fecha: hoy / semana / anteriores.
 - Acción “Marcar todas como vistas”.
 - Vista de resumen diario:
-  - Personal: `citasConfirmadasAsignadas`.
+  - Personal: `citasProgramadasAsignadas`.
   - Admin: `citasConPersonal`, `citasSinPersonal`.
 
 ## 4. Comportamiento por rol
 
 ### PERSONAL_SALUD
 - Ve su bandeja.
-- Ve resumen diario de citas confirmadas asignadas.
+- Ve resumen diario de citas programadas asignadas.
 
 ### ADMINISTRADOR
 - Ve bandeja global.

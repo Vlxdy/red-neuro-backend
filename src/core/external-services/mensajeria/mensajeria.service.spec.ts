@@ -108,6 +108,7 @@ describe('MensajeriaService', () => {
           subject: dto.asunto,
           text: dto.mensaje,
           html: dto.mensaje,
+          attachments: undefined,
         },
         expect.any(Function)
       )

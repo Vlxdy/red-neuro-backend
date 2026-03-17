@@ -55,7 +55,7 @@ Este documento describe:
 6. Se calcula `fechaFin = fechaInicio + duracionServicio`.
 7. Se define estado inicial:
    - con `idMedico` -> `SOLICITADA`
-   - sin `idMedico` -> `CONFIRMADA`
+   - sin `idMedico` -> `PROGRAMADA`
 8. Se guarda cita.
 9. Se registra historial de creación.
 10. Si quedó `SOLICITADA` y hay médico, se genera notificación.
@@ -65,8 +65,8 @@ Este documento describe:
 
 - **Si se envía `idMedico`**: la cita nace en **`SOLICITADA`**.
   - Esto significa que la app debe mostrarla como pendiente de confirmación/gestión.
-- **Si NO se envía `idMedico`**: la cita nace en **`CONFIRMADA`**.
-  - Esto significa que la app puede tratarla como cita ya confirmada.
+- **Si NO se envía `idMedico`**: la cita nace en **`PROGRAMADA`**.
+  - Esto significa que la app puede tratarla como cita ya programada.
 
 Este comportamiento ya está implementado en backend y es automático durante la creación.
 
@@ -227,7 +227,7 @@ Situación reportada: **en la aplicación no se está cambiando el estado de la 
 Consecuencia funcional:
 
 - Citas creadas con médico quedan en `SOLICITADA` indefinidamente.
-- Citas creadas sin médico quedan en `CONFIRMADA` indefinidamente.
+- Citas creadas sin médico quedan en `PROGRAMADA` indefinidamente.
 - No se refleja inicio de atención (`EN_CURSO`), cierre (`COMPLETADA`) o inasistencia/cancelación en tiempo real.
 - El historial operativo se vuelve incompleto porque no se disparan transiciones de estado esperadas por negocio.
 
@@ -241,11 +241,11 @@ La app debe tratar la creación como el inicio del flujo, no como el fin.
 
 Transiciones principales esperadas:
 
-1. `SOLICITADA -> CONFIRMADA` (cuando se acepta/valida la cita).
-2. `CONFIRMADA -> EN_CURSO` (cuando inicia la atención).
+1. `SOLICITADA -> PROGRAMADA` (cuando se acepta/valida la cita).
+2. `PROGRAMADA -> EN_CURSO` (cuando inicia la atención).
 3. `EN_CURSO -> COMPLETADA` (cuando finaliza la atención).
-4. `CONFIRMADA -> NO_ASISTIO` (si paciente no llega; manual o por proceso automático).
-5. `SOLICITADA|CONFIRMADA|EN_CURSO -> CANCELADA` (si se anula la cita).
+4. `PROGRAMADA -> NO_ASISTIO` (si paciente no llega; manual o por proceso automático).
+5. `SOLICITADA|PROGRAMADA|EN_CURSO -> CANCELADA` (si se anula la cita).
 6. `SOLICITADA -> RECHAZADA` (si se rechaza la solicitud).
 7. `RECHAZADA -> SOLICITADA` (si se reprograma; ya contemplado en backend).
 
@@ -254,11 +254,11 @@ Transiciones principales esperadas:
 ### 12.2 Qué debe hacer la app en cada momento
 
 - **Al crear cita (`POST /citas`)**
-  - Leer el estado retornado (`SOLICITADA` o `CONFIRMADA`).
+  - Leer el estado retornado (`SOLICITADA` o `PROGRAMADA`).
   - Renderizar acciones disponibles según estado.
 
 - **Al confirmar cita**
-  - Invocar `PATCH /citas/:id/estado` con `{ "estado": "CONFIRMADA" }`.
+  - Invocar `PATCH /citas/:id/estado` con `{ "estado": "PROGRAMADA" }`.
 
 - **Al iniciar atención**
   - Invocar `PATCH /citas/:id/estado` con `{ "estado": "EN_CURSO" }`.

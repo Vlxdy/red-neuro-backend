@@ -4,7 +4,7 @@ export enum CitasEstado {
   INACTIVO = 'INACTIVO',
   BORRADOR = 'BORRADOR',
   SOLICITADA = 'SOLICITADA',
-  CONFIRMADA = 'CONFIRMADA',
+  PROGRAMADA = 'PROGRAMADA',
   COMPLETADA = 'COMPLETADA',
   NO_ASISTIO = 'NO_ASISTIO',
   REPROGRAMADA = 'REPROGRAMADA',
@@ -44,6 +44,7 @@ export enum CitasSocketOutboundEvent {
   ESTADO_ACTUALIZADO = 'citas:estado-actualizado',
   REPROGRAMADA = 'citas:reprogramada',
   CANCELADA = 'citas:cancelada',
+  HOME_ACTUALIZADA = 'citas:home-actualizada',
 }
 
 export enum NotificacionesSocketInboundEvent {

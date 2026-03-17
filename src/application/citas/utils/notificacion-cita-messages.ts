@@ -4,7 +4,7 @@ import { Cita } from '../entities/cita.entity'
 
 export enum EventoPushCita {
   CITA_SOLICITADA = 'CITA_SOLICITADA',
-  CITA_CONFIRMADA = 'CITA_CONFIRMADA',
+  CITA_PROGRAMADA = 'CITA_PROGRAMADA',
   CITA_RECHAZADA = 'CITA_RECHAZADA',
   CITA_CANCELADA = 'CITA_CANCELADA',
   CITA_REPROGRAMADA = 'CITA_REPROGRAMADA',
@@ -22,7 +22,7 @@ type MensajeCitaAccion =
 
 const TITULO_EVENTO_PUSH: Record<EventoPushCita, string> = {
   CITA_SOLICITADA: 'Nueva cita solicitada',
-  CITA_CONFIRMADA: 'Cita confirmada',
+  CITA_PROGRAMADA: 'Cita programada',
   CITA_RECHAZADA: 'Cita rechazada',
   CITA_CANCELADA: 'Cita cancelada',
   CITA_REPROGRAMADA: 'Cita reprogramada',
