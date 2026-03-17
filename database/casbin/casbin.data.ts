@@ -280,6 +280,10 @@ const backendRoutes: CasbinValue = {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
     [RolEnum.PERSONAL_SALUD]: 'PATCH',
   },
+  '/api/personal-salud/:id/restauracion-contrasena': {
+    [RolEnum.ADMINISTRADOR]: 'PATCH',
+    [RolEnum.PERSONAL_SALUD]: 'PATCH',
+  },
   // HISTORIAL DE CITAS
   '/api/citas/:id/historial': {
     [RolEnum.ADMINISTRADOR]: 'GET',

@@ -84,7 +84,12 @@ export class PersonalSaludController extends BaseController {
     const usuarioAuditoria = this.getUser(req)
     const resultado = await this.personalSaludService.crearPersonalSalud(
       dto,
-      usuarioAuditoria
+      usuarioAuditoria,
+      {
+        rol: req.user?.rol,
+        roles: req.user?.roles,
+        esSupervisor: req.user?.esSupervisor,
+      }
     )
     return this.successCreate(resultado)
   }
@@ -133,6 +138,30 @@ export class PersonalSaludController extends BaseController {
       id,
       usuarioAuditoria
     )
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({
+    summary:
+      'Restablece la contraseña del profesional de salud y la envía por correo',
+  })
+  @Patch(':id/restauracion-contrasena')
+  async restablecerContrasena(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
+  ) {
+    const usuarioAuditoria = this.getUser(req)
+    const resultado =
+      await this.personalSaludService.restablecerContrasenaPersonalSalud(
+        id,
+        usuarioAuditoria,
+        {
+          rol: req.user?.rol,
+          roles: req.user?.roles,
+          esSupervisor: req.user?.esSupervisor,
+        }
+      )
+
     return this.successUpdate(resultado)
   }
 }
