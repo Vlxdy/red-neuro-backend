@@ -122,10 +122,30 @@ export class CitasMedicasRepository {
       })
     }
 
+    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
+    const incluirRestringidasProgramadasPorSolicitante =
+      Boolean(filtros.idPersonal) &&
+      Boolean(idUsuarioSolicitante) &&
+      filtros.idPersonal === idUsuarioSolicitante
+
     if (filtros.idPersonal) {
-      query.andWhere('cita.idPersonal = :idPersonal', {
-        idPersonal: filtros.idPersonal,
-      })
+      if (
+        incluirRestringidasProgramadasPorSolicitante &&
+        (!filtros.estado || estadosRestringidos.includes(filtros.estado))
+      ) {
+        query.andWhere(
+          '(cita.idPersonal = :idPersonal OR (cita.estado IN (:...estadosRestringidos) AND cita.idUsuarioProgramo = :idUsuarioSolicitante))',
+          {
+            idPersonal: filtros.idPersonal,
+            estadosRestringidos,
+            idUsuarioSolicitante,
+          }
+        )
+      } else {
+        query.andWhere('cita.idPersonal = :idPersonal', {
+          idPersonal: filtros.idPersonal,
+        })
+      }
     }
 
     if (filtros.idLugar) {
@@ -133,8 +153,6 @@ export class CitasMedicasRepository {
         idLugar: filtros.idLugar,
       })
     }
-
-    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
 
     if (filtros.estado) {
       query.andWhere('cita.estado = :estado', {
@@ -145,9 +163,19 @@ export class CitasMedicasRepository {
         idUsuarioSolicitante &&
         estadosRestringidos.includes(filtros.estado)
       ) {
-        query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
-          idUsuarioSolicitante,
-        })
+        if (incluirRestringidasProgramadasPorSolicitante) {
+          query.andWhere(
+            '(cita.idPersonal = :idPersonal OR cita.idUsuarioProgramo = :idUsuarioSolicitante)',
+            {
+              idPersonal: filtros.idPersonal,
+              idUsuarioSolicitante,
+            }
+          )
+        } else {
+          query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
+            idUsuarioSolicitante,
+          })
+        }
       }
     } else {
       query
@@ -698,6 +726,12 @@ export class CitasMedicasRepository {
     filtros: FiltrosCitaDto,
     idUsuarioSolicitante?: string
   ) {
+    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
+    const incluirRestringidasProgramadasPorSolicitante =
+      Boolean(filtros.idPersonal) &&
+      Boolean(idUsuarioSolicitante) &&
+      filtros.idPersonal === idUsuarioSolicitante
+
     const query = this.citaRepository()
       .createQueryBuilder('cita')
       .select('DATE(cita.fechaInicio)', 'fecha')
@@ -710,9 +744,23 @@ export class CitasMedicasRepository {
       })
 
     if (filtros.idPersonal) {
-      query.andWhere('cita.idPersonal = :idPersonal', {
-        idPersonal: filtros.idPersonal,
-      })
+      if (
+        incluirRestringidasProgramadasPorSolicitante &&
+        (!filtros.estado || estadosRestringidos.includes(filtros.estado))
+      ) {
+        query.andWhere(
+          '(cita.idPersonal = :idPersonal OR (cita.estado IN (:...estadosRestringidos) AND cita.idUsuarioProgramo = :idUsuarioSolicitante))',
+          {
+            idPersonal: filtros.idPersonal,
+            estadosRestringidos,
+            idUsuarioSolicitante,
+          }
+        )
+      } else {
+        query.andWhere('cita.idPersonal = :idPersonal', {
+          idPersonal: filtros.idPersonal,
+        })
+      }
     }
 
     if (filtros.idLugar) {
@@ -720,8 +768,6 @@ export class CitasMedicasRepository {
         idLugar: filtros.idLugar,
       })
     }
-
-    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
 
     if (filtros.estado) {
       query.andWhere('cita.estado = :estado', {
@@ -732,9 +778,19 @@ export class CitasMedicasRepository {
         idUsuarioSolicitante &&
         estadosRestringidos.includes(filtros.estado)
       ) {
-        query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
-          idUsuarioSolicitante,
-        })
+        if (incluirRestringidasProgramadasPorSolicitante) {
+          query.andWhere(
+            '(cita.idPersonal = :idPersonal OR cita.idUsuarioProgramo = :idUsuarioSolicitante)',
+            {
+              idPersonal: filtros.idPersonal,
+              idUsuarioSolicitante,
+            }
+          )
+        } else {
+          query.andWhere('cita.idUsuarioProgramo = :idUsuarioSolicitante', {
+            idUsuarioSolicitante,
+          })
+        }
       }
     } else {
       query
