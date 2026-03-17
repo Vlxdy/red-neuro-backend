@@ -1076,7 +1076,7 @@ export class CitasMedicasService extends BaseService {
         transaccion
       )
 
-      return await this.obtenerCita(cita.id, transaccion)
+      return formatearCita(cita)
     })
   }
 
@@ -1125,7 +1125,7 @@ export class CitasMedicasService extends BaseService {
         },
         transaccion
       )
-      return await this.obtenerCita(cita.id, transaccion)
+      return formatearCita(cita)
     })
   }
 
@@ -1185,8 +1185,8 @@ export class CitasMedicasService extends BaseService {
       { estado: CitasEstado.INACTIVO },
       usuarioAuditoria,
       idEjecutor,
-      [CitasEstado.BORRADOR],
-      'Eliminación lógica de borrador'
+      [CitasEstado.BORRADOR, CitasEstado.RECHAZADA],
+      'Eliminación lógica de cita'
     )
   }
 
@@ -1239,7 +1239,7 @@ export class CitasMedicasService extends BaseService {
         transaccion
       )
 
-      return await this.obtenerCita(cita.id, transaccion)
+      return formatearCita(cita)
     })
   }
 
