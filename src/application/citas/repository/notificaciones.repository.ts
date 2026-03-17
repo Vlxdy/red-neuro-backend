@@ -26,16 +26,12 @@ export class NotificacionesRepository {
 
   async listar(
     filtros: FiltroNotificacionDto,
-    idUsuarioRol: string,
-    idRol: string
+    idUsuarioRol: string
   ): Promise<[Notificacion[], number]> {
     const qb = this.notificacionRepo().createQueryBuilder('n')
 
     qb.where('n.estado = :estado', { estado: 'ACTIVO' })
-
-    if (idRol === RolEnumId.PERSONAL_SALUD) {
-      qb.andWhere('n.idPersonal = :idUsuarioRol', { idUsuarioRol })
-    }
+    qb.andWhere('n.idPersonal = :idUsuarioRol', { idUsuarioRol })
 
     if (filtros.noLeidas) {
       qb.andWhere('n.visto = false')
@@ -54,27 +50,21 @@ export class NotificacionesRepository {
 
   async obtenerPorId(
     id: string,
-    idRol: string,
     idUsuarioRol: string
   ): Promise<Notificacion | null> {
-    const where =
-      idRol === RolEnumId.PERSONAL_SALUD
-        ? { id, idPersonal: idUsuarioRol }
-        : { id }
-
-    return await this.notificacionRepo().findOne({ where })
+    return await this.notificacionRepo().findOne({
+      where: { id, idPersonal: idUsuarioRol, estado: 'ACTIVO' as never },
+    })
   }
 
-  async obtenerPendientes(
-    idRol: string,
-    idUsuarioRol: string
-  ): Promise<Notificacion[]> {
-    const where =
-      idRol === RolEnumId.PERSONAL_SALUD
-        ? { idPersonal: idUsuarioRol, visto: false }
-        : { visto: false }
-
-    return await this.notificacionRepo().find({ where })
+  async obtenerPendientes(idUsuarioRol: string): Promise<Notificacion[]> {
+    return await this.notificacionRepo().find({
+      where: {
+        idPersonal: idUsuarioRol,
+        visto: false,
+        estado: 'ACTIVO' as never,
+      },
+    })
   }
 
   async guardarNotificaciones(notificaciones: Notificacion[]) {
