@@ -968,6 +968,12 @@ export class HistorialCitaResponseDto {
   citaId!: string
 
   @ApiProperty({
+    description: 'Identificador compartido de la cadena de reprogramaciones',
+    required: false,
+  })
+  historialCitaId?: string
+
+  @ApiProperty({
     description:
       'Identificador del usuario que ejecutó la acción (usuario-rol)',
   })
