@@ -5,7 +5,15 @@ import { TipoLugar } from '@/application/lugar/constants'
 
 const separator = '------------------------------------------------------'
 const DEFAULT_PASSWORD = '1234'
-const PERSONAL_SALUD_COUNT = 10
+const ROLES_PERSONAL_SALUD = [
+  'JEFE',
+  'COORDINADOR',
+  'PERSONAL',
+  'PROFESIONAL_INVITADO',
+] as const
+const PERSONAL_POR_ROL = 3
+const PERSONAL_SALUD_COUNT = ROLES_PERSONAL_SALUD.length * PERSONAL_POR_ROL
+const CITAS_POR_PERSONAL = 20
 
 type CategoriaCreada = { id: string; nombre: string }
 type ServicioCreado = {
@@ -13,7 +21,13 @@ type ServicioCreado = {
   nombre: string
   tipo: 'CONSULTA' | 'ESTUDIO'
 }
-type PersonalCreado = { id: string; nombreCompleto: string; usuario: string }
+type RolPersonalSalud = (typeof ROLES_PERSONAL_SALUD)[number]
+type PersonalCreado = {
+  id: string
+  nombreCompleto: string
+  usuario: string
+  rol: RolPersonalSalud
+}
 type PacienteCreado = { id: string; nombreCompleto: string }
 type LugarCreado = { id: string; nombre: string }
 
@@ -282,12 +296,19 @@ export async function step2_registerHealthcareStaff(
 ): Promise<void> {
   const basePersonalSalud = personasFake.slice(0, PERSONAL_SALUD_COUNT)
   console.log(
-    `   🔄 Registrando ${basePersonalSalud.length} personales de salud (primeras personas del fake)...`
+    `   🔄 Registrando ${basePersonalSalud.length} personales de salud (${PERSONAL_POR_ROL} por rol)...`
   )
 
   let creados = 0
+  const creadosPorRol = new Map<RolPersonalSalud, number>(
+    ROLES_PERSONAL_SALUD.map((rol) => [rol, 0])
+  )
+
   for (let i = 0; i < basePersonalSalud.length; i++) {
     const persona = basePersonalSalud[i]
+    const rol =
+      ROLES_PERSONAL_SALUD[Math.floor(i / PERSONAL_POR_ROL)] ??
+      ROLES_PERSONAL_SALUD[ROLES_PERSONAL_SALUD.length - 1]
     const payload = {
       usuario: `${persona.usuario}`,
       contrasena: DEFAULT_PASSWORD,
@@ -297,7 +318,7 @@ export async function step2_registerHealthcareStaff(
         ...persona.persona,
       },
       ocupacion: especialidades[i % especialidades.length],
-      esSupervisor: i === 0,
+      rol,
     }
 
     try {
@@ -309,18 +330,27 @@ export async function step2_registerHealthcareStaff(
           nombreCompleto:
             `${creado.nombres} ${creado.primerApellido ?? ''}`.trim(),
           usuario: payload.usuario,
+          rol,
         })
         creados++
+        creadosPorRol.set(rol, (creadosPorRol.get(rol) ?? 0) + 1)
       }
     } catch (error: unknown) {
       console.warn(
-        `   ⚠️ Personal no registrado (${payload.usuario}): ${getErrorMessage(error)}`
+        `   ⚠️ Personal no registrado (${payload.usuario}, rol ${rol}): ${getErrorMessage(error)}`
       )
     }
   }
 
+  const resumenRoles = Array.from(creadosPorRol.entries())
+    .map(([rol, cantidad]) => `${rol}: ${cantidad}`)
+    .join(', ')
+
   console.log(`   ✅ Personal de salud registrado: ${creados}`)
-  summary.push(`✅ Paso 2: Personal de salud - ${creados} registrados`)
+  console.log(`   📌 Distribución por rol: ${resumenRoles}`)
+  summary.push(
+    `✅ Paso 2: Personal de salud - ${creados} registrados (${resumenRoles})`
+  )
 }
 
 export async function step3_registerCategories(
@@ -487,23 +517,30 @@ export async function step7_registerAppointments(
     return false
   }
 
-  const totalCitas = Math.max(pacientesGlobal.length * 2, 120)
-  console.log(`   🔄 Registrando ${totalCitas} citas realistas...`)
+  const totalCitas = personalSaludGlobal.length * CITAS_POR_PERSONAL
+  console.log(
+    `   🔄 Registrando ${totalCitas} citas realistas (${CITAS_POR_PERSONAL} por cada personal de salud)...`
+  )
 
   let creadas = 0
+  const citasPorPersonal = new Map<string, number>()
+
   for (let i = 0; i < totalCitas; i++) {
+    const personalIndex = Math.floor(i / CITAS_POR_PERSONAL)
+    const citaIndexPersonal = i % CITAS_POR_PERSONAL
     const paciente = pacientesGlobal[i % pacientesGlobal.length]
-    const personal = personalSaludGlobal[i % personalSaludGlobal.length]
-    const servicio = serviciosGlobal[i % serviciosGlobal.length]
-    const lugar = lugaresGlobal[i % lugaresGlobal.length]
+    const personal = personalSaludGlobal[personalIndex]
+    const servicio =
+      serviciosGlobal[(i + personalIndex) % serviciosGlobal.length]
+    const lugar = lugaresGlobal[(i + citaIndexPersonal) % lugaresGlobal.length]
 
     const payload = {
-      accion: i % 6 === 0 ? 'GUARDAR' : 'ENVIAR',
+      accion: citaIndexPersonal % 6 === 0 ? 'GUARDAR' : 'ENVIAR',
       detalle: `Atención programada: ${servicio.nombre} para ${paciente.nombreCompleto}`,
       fechaInicio: dayjs()
         .add(2 + (i % 35), 'day')
-        .hour(8 + (i % 9))
-        .minute(i % 2 === 0 ? 0 : 30)
+        .hour(8 + (citaIndexPersonal % 9))
+        .minute(citaIndexPersonal % 2 === 0 ? 0 : 30)
         .second(0)
         .millisecond(0)
         .toISOString(),
@@ -517,13 +554,27 @@ export async function step7_registerAppointments(
     try {
       await apiAdmin.post('/citas', payload)
       creadas++
+      citasPorPersonal.set(
+        personal.usuario,
+        (citasPorPersonal.get(personal.usuario) ?? 0) + 1
+      )
     } catch (error: unknown) {
       console.warn(
-        `   ⚠️ Cita no registrada (paciente ${paciente.id}, lugar ${lugar.nombre}): ${getErrorMessage(error)}`
+        `   ⚠️ Cita no registrada (personal ${personal.usuario}, paciente ${paciente.id}, lugar ${lugar.nombre}): ${getErrorMessage(error)}`
       )
     }
   }
 
+  const resumenCitas = personalSaludGlobal
+    .map(
+      (personal) =>
+        `${personal.usuario}/${personal.rol}: ${citasPorPersonal.get(personal.usuario) ?? 0}`
+    )
+    .join(', ')
+
   console.log(`   ✅ Citas registradas: ${creadas}`)
-  summary.push(`✅ Paso 7: Citas - ${creadas} registradas`)
+  console.log(`   📌 Citas por personal: ${resumenCitas}`)
+  summary.push(
+    `✅ Paso 7: Citas - ${creadas} registradas (${CITAS_POR_PERSONAL} por personal)`
+  )
 }

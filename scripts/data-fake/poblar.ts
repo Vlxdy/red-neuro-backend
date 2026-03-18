@@ -25,7 +25,7 @@ async function main() {
     },
     {
       number: 2,
-      name: 'REGISTRO DE PERSONAL DE SALUD (PRIMERAS 10 PERSONAS)',
+      name: 'REGISTRO DE PERSONAL DE SALUD (3 POR CADA ROL OPERATIVO)',
       action: step2_registerHealthcareStaff,
     },
     {
