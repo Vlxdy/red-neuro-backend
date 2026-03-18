@@ -64,7 +64,7 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: MisResumenCitasDto
   ): Promise<BaseResponseDto<MisResumenResponseDto>> {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 
@@ -87,7 +87,7 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: MisSolicitadasQueryDto
   ): Promise<BaseResponseDto<MisSolicitadasResponseDto>> {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 
@@ -110,7 +110,7 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: MisTimelineQueryDto
   ): Promise<BaseResponseDto<MisTimelineResponseDto>> {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 
@@ -131,7 +131,7 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const resultado = await this.citasService.listarCitas(
       filtros,
       idUsuarioSolicitante
@@ -148,7 +148,7 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: FiltrosCitaPaginadoDto
   ) {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const resultado = await this.citasService.listarCitasPaginadas(
       filtros,
       idUsuarioSolicitante
@@ -166,7 +166,7 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CantidadCitasPorDiaResponseDto[]>> {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const resultado = await this.citasService.obtenerCantidadCitasPorDia(
       filtros,
       idUsuarioSolicitante
@@ -184,7 +184,7 @@ export class CitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
-    const idPersonal = this.getUsuarioRol(req)
+    const idPersonal = this.getUser(req)
     const resultado = await this.citasService.listarMisCitas(
       filtros,
       idPersonal,
@@ -210,7 +210,7 @@ export class CitasController extends BaseController {
     @Param() { id }: ParamIdDto,
     @Req() req: Request
   ): Promise<BaseResponseDto<CitaResponseDto>> {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const resultado = await this.citasService.obtenerCita(
       id,
       undefined,
@@ -227,7 +227,7 @@ export class CitasController extends BaseController {
     @Body() dto: CrearCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.crearCita(
       dto,
       usuarioAuditoria,
@@ -247,7 +247,7 @@ export class CitasController extends BaseController {
     @Body() dto: EditarBorradorCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.editarBorradorCita(
       id,
       dto,
@@ -269,7 +269,7 @@ export class CitasController extends BaseController {
     @Body() dto: EnviarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.enviarCita(
       id,
       dto,
@@ -289,7 +289,7 @@ export class CitasController extends BaseController {
     @Body() dto: ConfirmarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.confirmarCita(
       id,
       dto,
@@ -309,7 +309,7 @@ export class CitasController extends BaseController {
     @Body() dto: RechazarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.rechazarCita(
       id,
       dto,
@@ -328,7 +328,7 @@ export class CitasController extends BaseController {
     @Req() req: Request
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.completarCita(
       id,
       usuarioAuditoria,
@@ -347,7 +347,7 @@ export class CitasController extends BaseController {
     @Body() dto: MarcarNoAsistioCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.marcarNoAsistioCita(
       id,
       dto,
@@ -368,7 +368,7 @@ export class CitasController extends BaseController {
     @Req() req: Request
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.eliminarBorrador(
       id,
       usuarioAuditoria,
@@ -387,7 +387,7 @@ export class CitasController extends BaseController {
     @Body() dto: ReprogramarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.reprogramarCita(
       id,
       dto,
@@ -407,7 +407,7 @@ export class CitasController extends BaseController {
     @Body() dto: CancelarCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
-    const idEjecutor = this.getUsuarioRol(req)
+    const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.cancelarCita(
       id,
       dto,

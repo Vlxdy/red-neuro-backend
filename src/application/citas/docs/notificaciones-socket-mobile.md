@@ -5,7 +5,7 @@ Guía práctica para integrar notificaciones en tiempo real en la app móvil usa
 ## 1. Requisitos
 
 - Usuario autenticado.
-- `idUsuarioRol` disponible en sesión.
+- `idUsuario` disponible en sesión.
 - Librería Socket.IO client en la app.
 
 ## 2. Conexión recomendada
@@ -15,7 +15,7 @@ Guía práctica para integrar notificaciones en tiempo real en la app móvil usa
 3. Al evento `connect`, emitir:
 
 ```json
-{ "event": "notificaciones:subscribe", "payload": { "idUsuarioRol": "<id>" } }
+{ "event": "notificaciones:subscribe", "payload": { "idUsuario": "<id>" } }
 ```
 
 4. Al reconectar (`reconnect`), volver a suscribirse.
@@ -25,6 +25,7 @@ Guía práctica para integrar notificaciones en tiempo real en la app móvil usa
 ### `notificaciones:nueva`
 
 Acción en app:
+
 - Insertar la notificación al inicio de la bandeja local.
 - Incrementar contador de no leídas.
 - Mostrar badge/toast si la pantalla está activa.
@@ -32,12 +33,14 @@ Acción en app:
 ### `notificaciones:vista`
 
 Acción en app:
+
 - Buscar notificación por `id` y marcar `visto=true`.
 - Recalcular contador de no leídas.
 
 ### `notificaciones:todas-vistas`
 
 Acción en app:
+
 - Marcar todas las notificaciones locales como vistas.
 - Reiniciar contador de no leídas.
 
@@ -60,7 +63,7 @@ import { io, Socket } from 'socket.io-client'
 
 let socket: Socket | null = null
 
-export const connectRealtime = (idUsuarioRol: string) => {
+export const connectRealtime = (idUsuario: string) => {
   if (socket?.connected) return socket
 
   socket = io('https://api.mi-dominio.com/realtime', {
@@ -70,7 +73,7 @@ export const connectRealtime = (idUsuarioRol: string) => {
   })
 
   const subscribe = () => {
-    socket?.emit('notificaciones:subscribe', { idUsuarioRol })
+    socket?.emit('notificaciones:subscribe', { idUsuario })
   }
 
   socket.on('connect', subscribe)

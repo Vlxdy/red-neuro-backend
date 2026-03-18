@@ -5,7 +5,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { Rol } from './rol.entity'
@@ -14,8 +13,6 @@ import dotenv from 'dotenv'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UtilService } from '@/common/lib/util.service'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
-import { Notificacion } from '@/application/citas/entities/notificacion.entity'
-import { Cita } from '@/application/citas/entities/cita.entity'
 
 dotenv.config()
 
@@ -69,15 +66,6 @@ export class UsuarioRol extends AuditoriaEntity {
   @ManyToOne(() => Usuario, (usuario) => usuario.usuarioRol)
   @JoinColumn({ name: 'id_usuario', referencedColumnName: 'id' })
   usuario: Usuario
-
-  @OneToMany(() => Notificacion, (notificacion) => notificacion.personal)
-  notificacionPersonals: Notificacion[]
-
-  @OneToMany(() => Cita, (cita) => cita.personal)
-  citasPersonal: Cita[]
-
-  @Column({ name: 'ocupacion', type: 'varchar', length: 120, nullable: true })
-  ocupacion?: string
 
   constructor(data?: Partial<UsuarioRol>) {
     super(data)

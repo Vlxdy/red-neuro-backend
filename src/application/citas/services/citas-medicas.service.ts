@@ -123,7 +123,7 @@ export class CitasMedicasService extends BaseService {
 
   private async obtenerNombreAccionador(idEjecutor: string): Promise<string> {
     return (
-      (await this.notificacionesRepository.obtenerNombreCompletoUsuarioRol(
+      (await this.notificacionesRepository.obtenerNombreCompletoUsuario(
         idEjecutor
       )) || 'Personal de salud'
     )
@@ -250,14 +250,14 @@ export class CitasMedicasService extends BaseService {
     scope: string | undefined,
     idRol: string,
     esSupervisor: boolean,
-    idUsuarioRol: string,
+    idUsuario: string,
     idPersonal?: string
   ) {
     const esSupervisorPersonalSalud =
       String(idRol) === RolEnumId.PERSONAL_SALUD && esSupervisor === true
 
     if (!esSupervisorPersonalSalud || !scope || scope === 'mine') {
-      return { idPersonal: idUsuarioRol, scopeAplicado: CitasScope.MINE }
+      return { idPersonal: idUsuario, scopeAplicado: CitasScope.MINE }
     }
 
     if (scope === 'personal') {
@@ -274,7 +274,7 @@ export class CitasMedicasService extends BaseService {
       return { idPersonal: undefined, scopeAplicado: CitasScope.ALL }
     }
 
-    return { idPersonal: idUsuarioRol, scopeAplicado: CitasScope.MINE }
+    return { idPersonal: idUsuario, scopeAplicado: CitasScope.MINE }
   }
 
   private obtenerDesdePorDefecto(desde?: string): string {
@@ -327,7 +327,7 @@ export class CitasMedicasService extends BaseService {
 
   async obtenerHomeBandeja(
     filtros: HomeBandejaQueryDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     idRol: string,
     esSupervisor: boolean
   ): Promise<HomeBandejaResponseDto> {
@@ -335,7 +335,7 @@ export class CitasMedicasService extends BaseService {
       filtros.scope,
       idRol,
       esSupervisor,
-      idUsuarioRol,
+      idUsuario,
       filtros.idPersonal
     )
 
@@ -447,7 +447,7 @@ export class CitasMedicasService extends BaseService {
 
   async listarHomePendientesAprobacion(
     filtros: HomeListadoQueryDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     idRol: string,
     esSupervisor: boolean
   ): Promise<[CitaResponseDto[], number]> {
@@ -455,7 +455,7 @@ export class CitasMedicasService extends BaseService {
       filtros.scope,
       idRol,
       esSupervisor,
-      idUsuarioRol,
+      idUsuario,
       filtros.idPersonal
     )
 
@@ -478,7 +478,7 @@ export class CitasMedicasService extends BaseService {
 
   async listarHomeRechazadasSolicitadas(
     filtros: HomeListadoQueryDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     idRol: string,
     esSupervisor: boolean
   ): Promise<[CitaResponseDto[], number]> {
@@ -486,7 +486,7 @@ export class CitasMedicasService extends BaseService {
       filtros.scope,
       idRol,
       esSupervisor,
-      idUsuarioRol,
+      idUsuario,
       filtros.idPersonal
     )
     const limite = filtros.limite
@@ -504,7 +504,7 @@ export class CitasMedicasService extends BaseService {
 
   async listarHomeBorradores(
     filtros: HomeListadoQueryDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     idRol: string,
     esSupervisor: boolean
   ): Promise<[CitaResponseDto[], number]> {
@@ -512,7 +512,7 @@ export class CitasMedicasService extends BaseService {
       filtros.scope,
       idRol,
       esSupervisor,
-      idUsuarioRol,
+      idUsuario,
       filtros.idPersonal
     )
     const limite = filtros.limite
@@ -529,7 +529,7 @@ export class CitasMedicasService extends BaseService {
 
   async listarHomeProgramadasAsignadas(
     filtros: HomeProgramadasListadoQueryDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     idRol: string,
     esSupervisor: boolean
   ): Promise<[HomeGrupoDiaResponseDto[], number]> {
@@ -537,7 +537,7 @@ export class CitasMedicasService extends BaseService {
       filtros.scope,
       idRol,
       esSupervisor,
-      idUsuarioRol,
+      idUsuario,
       filtros.idPersonal
     )
     const limite = filtros.limite
@@ -568,7 +568,7 @@ export class CitasMedicasService extends BaseService {
 
   async obtenerMisResumen(
     filtros: MisResumenCitasDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     idRol: string,
     esSupervisor: boolean
   ): Promise<MisResumenResponseDto> {
@@ -576,7 +576,7 @@ export class CitasMedicasService extends BaseService {
       filtros.scope,
       idRol,
       esSupervisor,
-      idUsuarioRol,
+      idUsuario,
       filtros.idPersonal
     )
 
@@ -601,7 +601,7 @@ export class CitasMedicasService extends BaseService {
 
   async listarMisSolicitadas(
     filtros: MisSolicitadasQueryDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     idRol: string,
     esSupervisor: boolean
   ): Promise<MisSolicitadasResponseDto> {
@@ -609,7 +609,7 @@ export class CitasMedicasService extends BaseService {
       filtros.scope,
       idRol,
       esSupervisor,
-      idUsuarioRol,
+      idUsuario,
       filtros.idPersonal
     )
     const desde = this.obtenerDesdePorDefecto(filtros.desde)
@@ -647,7 +647,7 @@ export class CitasMedicasService extends BaseService {
 
   async listarMisTimeline(
     filtros: MisTimelineQueryDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     idRol: string,
     esSupervisor: boolean
   ): Promise<MisTimelineResponseDto> {
@@ -655,7 +655,7 @@ export class CitasMedicasService extends BaseService {
       filtros.scope,
       idRol,
       esSupervisor,
-      idUsuarioRol,
+      idUsuario,
       filtros.idPersonal
     )
 

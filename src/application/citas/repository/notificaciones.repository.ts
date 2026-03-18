@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { DataSource } from 'typeorm'
 import { Notificacion, NotificacionTipo } from '../entities/notificacion.entity'
 import { Cita } from '../entities/cita.entity'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { CitasEstado } from '../constants'
 import { FiltroNotificacionDto } from '../dto/notificacion.dto'
 import { RolEnumId } from '@/core/authorization/rol.enum'
@@ -20,18 +20,18 @@ export class NotificacionesRepository {
     return this.dataSource.getRepository(Cita)
   }
 
-  private usuarioRolRepo() {
-    return this.dataSource.getRepository(UsuarioRol)
+  private usuarioRepo() {
+    return this.dataSource.getRepository(Usuario)
   }
 
   async listar(
     filtros: FiltroNotificacionDto,
-    idUsuarioRol: string
+    idUsuario: string
   ): Promise<[Notificacion[], number]> {
     const qb = this.notificacionRepo().createQueryBuilder('n')
 
     qb.where('n.estado = :estado', { estado: 'ACTIVO' })
-    qb.andWhere('n.idPersonal = :idUsuarioRol', { idUsuarioRol })
+    qb.andWhere('n.idPersonal = :idUsuario', { idUsuario })
 
     if (filtros.noLeidas) {
       qb.andWhere('n.visto = false')
@@ -50,17 +50,17 @@ export class NotificacionesRepository {
 
   async obtenerPorId(
     id: string,
-    idUsuarioRol: string
+    idUsuario: string
   ): Promise<Notificacion | null> {
     return await this.notificacionRepo().findOne({
-      where: { id, idPersonal: idUsuarioRol, estado: 'ACTIVO' as never },
+      where: { id, idPersonal: idUsuario, estado: 'ACTIVO' as never },
     })
   }
 
-  async obtenerPendientes(idUsuarioRol: string): Promise<Notificacion[]> {
+  async obtenerPendientes(idUsuario: string): Promise<Notificacion[]> {
     return await this.notificacionRepo().find({
       where: {
-        idPersonal: idUsuarioRol,
+        idPersonal: idUsuario,
         visto: false,
         estado: 'ACTIVO' as never,
       },
@@ -76,7 +76,7 @@ export class NotificacionesRepository {
   }
 
   async contarProgramadasAsignadas(
-    idUsuarioRol: string,
+    idUsuario: string,
     fecha: string
   ): Promise<number> {
     const inicio = dayjs(fecha).startOf('day').toDate()
@@ -84,7 +84,7 @@ export class NotificacionesRepository {
 
     return await this.citaRepo()
       .createQueryBuilder('c')
-      .where('c.idPersonal = :idUsuarioRol', { idUsuarioRol })
+      .where('c.idPersonal = :idUsuario', { idUsuario })
       .andWhere('c.estado = :estado', { estado: CitasEstado.PROGRAMADA })
       .andWhere('c.fecha_inicio between :inicio and :fin', { inicio, fin })
       .getCount()
@@ -129,18 +129,17 @@ export class NotificacionesRepository {
       .getRawMany<{ idPersonal: string; cantidad: string }>()
   }
 
-  async obtenerNombreCompletoUsuarioRol(
-    idUsuarioRol: string
+  async obtenerNombreCompletoUsuario(
+    idUsuario: string
   ): Promise<string | null> {
-    const registro = await this.usuarioRolRepo()
-      .createQueryBuilder('ur')
-      .leftJoin('ur.usuario', 'u')
+    const registro = await this.usuarioRepo()
+      .createQueryBuilder('u')
       .leftJoin('u.persona', 'p')
       .select('p.nombres', 'nombres')
       .addSelect('p.primerApellido', 'primerApellido')
       .addSelect('p.segundoApellido', 'segundoApellido')
-      .where('ur.id = :idUsuarioRol', { idUsuarioRol })
-      .andWhere('ur.estado = :estado', { estado: 'ACTIVO' })
+      .where('u.id = :idUsuario', { idUsuario })
+      .andWhere('u.estado = :estado', { estado: 'ACTIVO' })
       .getRawOne<{
         nombres?: string | null
         primerApellido?: string | null
@@ -164,9 +163,19 @@ export class NotificacionesRepository {
   }
 
   async obtenerAdministradoresActivos() {
-    return await this.usuarioRolRepo().find({
-      where: { idRol: RolEnumId.ADMINISTRADOR, estado: 'ACTIVO' as never },
-    })
+    return await this.usuarioRepo()
+      .createQueryBuilder('u')
+      .innerJoin(
+        'u.usuarioRol',
+        'ur',
+        'ur.idRol = :idRol AND ur.estado = :estadoRol',
+        {
+          idRol: RolEnumId.ADMINISTRADOR,
+          estadoRol: 'ACTIVO',
+        }
+      )
+      .where('u.estado = :estado', { estado: 'ACTIVO' })
+      .getMany()
   }
 
   crearNotificacionResumenPersonal(idPersonal: string, cantidad: number) {

@@ -20,8 +20,8 @@ export class DispositivoPush extends AuditoriaEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })
   id: string
 
-  @Column({ type: 'bigint', name: 'id_usuario_rol' })
-  idUsuarioRol: string
+  @Column({ type: 'bigint', name: 'id_usuario' })
+  idUsuario: string
 
   @Column({ type: 'varchar', length: 20, name: 'plataforma' })
   plataforma: string

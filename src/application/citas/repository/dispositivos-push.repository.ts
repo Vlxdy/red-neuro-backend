@@ -16,9 +16,9 @@ export class DispositivosPushRepository {
 
   async buscarPorTokenYUsuario(
     token: string,
-    idUsuarioRol: string
+    idUsuario: string
   ): Promise<DispositivoPush | null> {
-    return await this.repo().findOne({ where: { token, idUsuarioRol } })
+    return await this.repo().findOne({ where: { token, idUsuario } })
   }
 
   crear(data: Partial<DispositivoPush>) {
@@ -30,13 +30,13 @@ export class DispositivosPushRepository {
   }
 
   async listarTokensActivosPorUsuarios(
-    idUsuariosRol: string[]
+    idUsuarios: string[]
   ): Promise<string[]> {
-    if (!idUsuariosRol.length) return []
+    if (!idUsuarios.length) return []
 
     const dispositivos = await this.repo().find({
       where: {
-        idUsuarioRol: In(idUsuariosRol),
+        idUsuario: In(idUsuarios),
         estado: 'ACTIVO' as never,
       },
     })

@@ -21,7 +21,7 @@ import { DispositivosPushService } from './services/dispositivos-push.service'
 import { PushConfigService } from './services/push-config.service'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
 import { Lugar } from '@/application/lugar/entities/lugar.entity'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { ExternalServicesModule } from '@/core/external-services/external.module'
 
 @Module({
@@ -34,7 +34,7 @@ import { ExternalServicesModule } from '@/core/external-services/external.module
       DispositivoPush,
       Servicio,
       Lugar,
-      UsuarioRol,
+      Usuario,
     ]),
   ],
   providers: [

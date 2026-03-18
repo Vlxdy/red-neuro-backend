@@ -6,7 +6,7 @@ import {
   ServicioCitaDto,
 } from '../dto/cita.dto'
 import { Cita } from '../entities/cita.entity'
-import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
+import { formatearUsuarioComoPersonal } from '@/application/personal/utils/formateo-personal.utils'
 import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
 import { formatearConsultorio } from '@/application/consultorio/utils/formateo.consultorio'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
@@ -42,7 +42,9 @@ const formatearCitaNueva = (
     consultorioId: cita.idConsultorio ?? undefined,
     lugarId: cita.idLugar ?? undefined,
     servicioId: cita.idServicio ?? undefined,
-    personal: cita.personal ? formatearPersonal(cita.personal) : undefined,
+    personal: cita.personal
+      ? formatearUsuarioComoPersonal(cita.personal)
+      : undefined,
     paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
     servicio: cita.servicio ? formatearServicio(cita.servicio) : undefined,
     consultorio: cita.consultorio
@@ -82,13 +84,15 @@ export function formatearCita(cita: Cita): CitaResponseDto {
     historialCitaId: cita.idHistorialCita ?? undefined,
     usuarioProgramoId: cita.idUsuarioProgramo ?? undefined,
     usuarioProgramo: cita.usuarioProgramo
-      ? formatearPersonal(cita.usuarioProgramo)
+      ? formatearUsuarioComoPersonal(cita.usuarioProgramo)
       : undefined,
     usuarioEnvioId: cita.idUsuarioEnvio ?? undefined,
     usuarioEnvio: cita.usuarioEnvio
-      ? formatearPersonal(cita.usuarioEnvio)
+      ? formatearUsuarioComoPersonal(cita.usuarioEnvio)
       : undefined,
-    personal: cita.personal ? formatearPersonal(cita.personal) : undefined,
+    personal: cita.personal
+      ? formatearUsuarioComoPersonal(cita.personal)
+      : undefined,
     paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
     servicio: cita.servicio ? formatearServicio(cita.servicio) : undefined,
     consultorio: cita.consultorio

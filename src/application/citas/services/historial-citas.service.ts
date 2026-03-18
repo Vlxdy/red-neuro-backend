@@ -7,8 +7,8 @@ import {
 import { HistorialCitasRepository } from '../repository/historial-citas.repository'
 import { CitasMedicasService } from './citas-medicas.service'
 import { formatearHistorialCitas } from '../utils/formatear-historial'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
-import { formatearPersonal } from '@/application/personal/utils/formateo-personal.utils'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
+import { formatearUsuarioComoPersonal } from '@/application/personal/utils/formateo-personal.utils'
 import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
 import { TipoActualizacion } from '../entities/notificacion.entity'
 import { HistorialCita } from '../entities/cita-historial.entity'
@@ -34,21 +34,27 @@ export class HistorialCitasService extends BaseService {
     const ejecutoresIds = Array.from(
       new Set(historial.map((item) => item.idEjecutor))
     )
-    const ejecutores: UsuarioRol[] =
-      await this.historialRepository.obtenerUsuariosRolPorIds(ejecutoresIds)
+    const ejecutores: Usuario[] =
+      await this.historialRepository.obtenerUsuariosPorIds(ejecutoresIds)
     const ejecutoresMap = new Map(
-      ejecutores.map((ejecutor) => [ejecutor.id, formatearPersonal(ejecutor)])
+      ejecutores.map((ejecutor) => [
+        ejecutor.id,
+        formatearUsuarioComoPersonal(ejecutor),
+      ])
     )
     const { idPersonals, pacienteIds, servicioIds } =
       this.obtenerIdsRelacionados(historial)
     const personals =
-      await this.historialRepository.obtenerUsuariosRolPorIds(idPersonals)
+      await this.historialRepository.obtenerUsuariosPorIds(idPersonals)
     const pacientes =
       await this.historialRepository.obtenerPacientesPorIds(pacienteIds)
     const servicios =
       await this.historialRepository.obtenerServiciosPorIds(servicioIds)
     const personalsMap = new Map(
-      personals.map((personal) => [personal.id, formatearPersonal(personal)])
+      personals.map((personal) => [
+        personal.id,
+        formatearUsuarioComoPersonal(personal),
+      ])
     )
     const pacientesMap = new Map(
       pacientes.map((paciente) => [paciente.id, formatearPaciente(paciente)])

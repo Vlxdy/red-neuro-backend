@@ -9,7 +9,7 @@ Este documento describe una implementación simple usando **un solo canal genér
 - Segmentación por eventos:
   - `citas:*`
   - `notificaciones:*`
-- Entrega dirigida por room: `usuario-rol:{idUsuarioRol}`.
+- Entrega dirigida por room: `usuario:{idUsuario}`.
 
 ## 2) Eventos
 
@@ -18,7 +18,7 @@ Este documento describe una implementación simple usando **un solo canal genér
 - `notificaciones:subscribe`
   - payload:
   ```json
-  { "idUsuarioRol": "1234" }
+  { "idUsuario": "1234" }
   ```
 
 ### Servidor -> Cliente
@@ -31,7 +31,7 @@ Este documento describe una implementación simple usando **un solo canal genér
 
 1. Cliente conecta a `'/realtime'`.
 2. Cliente envía `notificaciones:subscribe`.
-3. Servidor registra al socket en room `usuario-rol:{id}`.
+3. Servidor registra al socket en room `usuario:{id}`.
 4. Servicios de negocio emiten eventos solo a esa room.
 
 ## 4) Checklist rápido
@@ -51,7 +51,7 @@ const socket = io('https://api.mi-dominio.com/realtime', {
 })
 
 socket.on('connect', () => {
-  socket.emit('notificaciones:subscribe', { idUsuarioRol: '1234' })
+  socket.emit('notificaciones:subscribe', { idUsuario: '1234' })
 })
 
 socket.on('notificaciones:nueva', (n) => console.log('nueva', n))

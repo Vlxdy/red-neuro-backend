@@ -11,7 +11,7 @@ import {
 } from 'typeorm'
 import 'bootstrap/env'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Paciente } from '@/application/paciente/entities/paciente.entity'
 
 import { HistorialCita } from './cita-historial.entity'
@@ -115,11 +115,11 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
   })
   idPersonal: string
 
-  @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.citasPersonal, {
+  @ManyToOne(() => Usuario, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
-  personal: UsuarioRol
+  personal: Usuario
 
   @Column({
     name: 'id_paciente',
@@ -194,25 +194,25 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
     name: 'id_usuario_programo',
     type: 'bigint',
     nullable: true,
-    comment: 'UsuarioRol que programó inicialmente la cita',
+    comment: 'Usuario que programó inicialmente la cita',
   })
   idUsuarioProgramo?: string | null
 
-  @ManyToOne(() => UsuarioRol, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Usuario, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_usuario_programo', referencedColumnName: 'id' })
-  usuarioProgramo?: UsuarioRol | null
+  usuarioProgramo?: Usuario | null
 
   @Column({
     name: 'id_usuario_envio',
     type: 'bigint',
     nullable: true,
-    comment: 'UsuarioRol que envió la cita al flujo operativo',
+    comment: 'Usuario que envió la cita al flujo operativo',
   })
   idUsuarioEnvio?: string | null
 
-  @ManyToOne(() => UsuarioRol, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Usuario, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_usuario_envio', referencedColumnName: 'id' })
-  usuarioEnvio?: UsuarioRol | null
+  usuarioEnvio?: Usuario | null
 
   @Column({
     name: 'tipo_cita',

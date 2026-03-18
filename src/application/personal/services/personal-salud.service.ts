@@ -134,8 +134,8 @@ export class PersonalSaludService extends BaseService {
     }
 
     if (ocupacion !== undefined) {
-      await this.personalSaludRepository.actualizarOcupacion(
-        personalCreado.id,
+      await this.personalSaludRepository.actualizarOcupacionUsuario(
+        personalCreado.idUsuario,
         ocupacion,
         usuarioAuditoria
       )
@@ -143,7 +143,7 @@ export class PersonalSaludService extends BaseService {
 
     const personalActual =
       await this.personalSaludRepository.obtenerPersonalSaludPorId({
-        id: personalCreado.id,
+        id: personalCreado.idUsuario,
       })
 
     if (!personalActual) {
@@ -179,8 +179,8 @@ export class PersonalSaludService extends BaseService {
     }
 
     if (ocupacion !== undefined) {
-      await this.personalSaludRepository.actualizarOcupacion(
-        personal.id,
+      await this.personalSaludRepository.actualizarOcupacionUsuario(
+        personal.idUsuario,
         ocupacion ?? null,
         usuarioAuditoria
       )
@@ -188,7 +188,7 @@ export class PersonalSaludService extends BaseService {
 
     const personalActualizado =
       await this.personalSaludRepository.obtenerPersonalSaludPorId({
-        id: personal.id,
+        id: personal.idUsuario,
       })
 
     if (!personalActualizado) {
@@ -205,7 +205,7 @@ export class PersonalSaludService extends BaseService {
     const personal = await this.buscarPersonalSaludPorId(id, false)
 
     await this.personalSaludRepository.cambiarEstadoPersonalSalud(
-      personal.id,
+      personal.idUsuario,
       Status.ACTIVE,
       usuarioAuditoria
     )
@@ -222,7 +222,7 @@ export class PersonalSaludService extends BaseService {
     const personal = await this.buscarPersonalSaludPorId(id)
 
     await this.personalSaludRepository.cambiarEstadoPersonalSalud(
-      personal.id,
+      personal.idUsuario,
       Status.INACTIVE,
       usuarioAuditoria
     )
