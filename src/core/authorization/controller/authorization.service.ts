@@ -5,7 +5,6 @@ import { FiltrosPoliticasDto } from '../dto/filtros-politicas.dto'
 import { ModuloService } from '../service/modulo.service'
 import { PoliticaDto } from '../dto/politica.dto'
 import { CasbinService } from '@/core/config/casbin/casbin.service'
-import { RolEnum } from '../rol.enum'
 
 type politicasResultType = [Array<PoliticaDto>, number]
 
@@ -107,18 +106,10 @@ export class AuthorizationService extends BaseService {
     return await this.casbin.getFilteredPolicy(3, 'frontend')
   }
 
-  async obtenerPermisosPorRol(rol: string, esSupervisor = false) {
+  async obtenerPermisosPorRol(rol: string) {
     const politicas = await this.casbin.getFilteredPolicy(3, 'frontend')
     const modulos = await this.moduloService.listarTodo()
-    const rolesPermitidos = new Set<string>([rol])
-
-    if (rol === RolEnum.PERSONAL_SALUD && esSupervisor) {
-      rolesPermitidos.add('PERSONAL_SALUD_ADMIN')
-    }
-
-    const politicasRol = politicas.filter((politica) =>
-      rolesPermitidos.has(politica[0])
-    )
+    const politicasRol = politicas.filter((politica) => politica[0] === rol)
     return modulos
       .map((modulo) => ({
         ...modulo,

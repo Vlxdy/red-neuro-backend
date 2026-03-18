@@ -1,69 +1,272 @@
-# Cambios por simplificación de roles: APIs y ajustes en frontend/móvil
+# Cambios por redefinición de roles: guía para frontend web y aplicación móvil
 
-## Contexto
-Se reemplaza el modelo de roles **SUPERVISOR** y **PERSONAL_MEDICO** por un único rol **PERSONAL_SALUD**, con una bandera `esSupervisor` que habilita las acciones administrativas antes reservadas al supervisor.
+## 1. Resumen ejecutivo
 
-## APIs modificadas o con nuevos campos
+Se elimina el esquema anterior basado en:
 
-> Nota: `esSupervisor` ahora se guarda en la columna `es_supervisor` de
-> `usuarios_roles` (ya no se usa el JSON de configuración para este dato).
+- rol `PERSONAL_SALUD`
+- bandera `esSupervisor`
+- sujeto virtual `PERSONAL_SALUD_ADMIN`
 
-### Autenticación y perfil
-- **Respuesta de autenticación** (`AuthResponseDto`) ahora incluye `esSupervisor`.
-- **Payload JWT** incorpora `esSupervisor` para el rol activo.
-- **Refresh token** retorna `esSupervisor` en la data del usuario.
+Y se reemplaza por roles explícitos:
 
-**Impacto:** el frontend/móvil debe leer `esSupervisor` para habilitar acciones de supervisor sin cambiar de rol.
+- `ADMINISTRADOR`
+- `JEFE`
+- `COORDINADOR`
+- `PERSONAL`
+- `PROFESIONAL_INVITADO`
 
-### Gestión de usuarios
-- **Crear usuario** (`POST /usuarios`) admite `esSupervisor?: boolean` cuando el rol asignado es `PERSONAL_SALUD`.
-- **Actualizar usuario** (`PATCH /usuarios/:id`) admite `esSupervisor?: boolean` para activar/desactivar permisos administrativos del personal de salud.
+## 2. Impacto principal para la app móvil
 
-**Validación:** si `esSupervisor` se envía pero el usuario no tiene rol `PERSONAL_SALUD`, el backend responde con error de validación.
+La app móvil ya **no debe** depender de `esSupervisor` para habilitar vistas o acciones.
 
-### Listado de personal de salud
-- **Personal médico** (`GET /personal-medico`) ahora retorna `esSupervisor` en cada registro.
+### Antes
 
-**Nota:** el endpoint mantiene el nombre por compatibilidad, pero la data corresponde a **personal de salud**.
+- La app interpretaba permisos con algo como:
+  - `rol === 'PERSONAL_SALUD'`
+  - `esSupervisor === true`
 
-## Autorización y permisos
+### Ahora
 
-### Casbin
-- Se introduce el sujeto **`PERSONAL_SALUD_ADMIN`** para las políticas administrativas.
-- El backend valida `PERSONAL_SALUD` + `esSupervisor = true` para habilitar dichas políticas.
+La app debe resolver capacidades por rol explícito:
 
-### Endpoints con permisos administrativos condicionados
-Los siguientes endpoints ahora requieren `PERSONAL_SALUD` con `esSupervisor = true` (además de ADMINISTRADOR):
-- `POST /citas`
-- `GET /citas`
-- `PATCH /citas/:id`
-- `PATCH /citas/:id/cancelar`
+- `ADMINISTRADOR`: administración global del sistema.
+- `JEFE`: operación global, incluyendo gestión de personal.
+- `COORDINADOR`: operación de citas/pacientes y consulta de personal.
+- `PERSONAL`: trabajo sobre sus asignaciones propias.
+- `PROFESIONAL_INVITADO`: trabajo sobre sus propias citas y únicamente pacientes que le fueron asignados.
 
-## Cambios necesarios en Frontend
+## 3. Cambios de contrato que mobile debe asumir
 
-### Roles y permisos
-- Remover referencias a `SUPERVISOR` y `PERSONAL_MEDICO`.
-- Usar solo `ADMINISTRADOR` y `PERSONAL_SALUD`.
-- Para habilitar funciones de supervisor, validar:
-  - `rol === 'PERSONAL_SALUD'` **y** `esSupervisor === true`.
+### 3.1 Autenticación y refresh
 
-### UI/UX
-- Mostrar el estado administrativo del personal de salud (por ejemplo, etiqueta “Admin” o toggle).
-- Reutilizar las pantallas de supervisor, pero condicionarlas a `esSupervisor`.
+Las respuestas autenticadas mantienen el rol activo, pero dejan de exponer `esSupervisor`.
 
-### Navegación
-- Las rutas protegidas de supervisor deben validarse con la nueva bandera.
+#### Qué debe leer mobile de la sesión
 
-## Cambios necesarios en App Móvil
+- `id`
+- `idRol`
+- `idUsuarioRol`
+- `rol`
+- `roles`
 
-### Roles y permisos
-- Consumir `esSupervisor` desde la autenticación y refresco de sesión.
-- Actualizar lógica de permisos para habilitar funciones administrativas solo con la bandera activa.
+#### Qué deja de existir
 
-### UI/UX
-- Si el usuario es `PERSONAL_SALUD` sin bandera, ocultar acciones administrativas.
-- Si `esSupervisor === true`, habilitar funciones adicionales (p. ej. gestión completa de citas).
+- `esSupervisor`
 
-## Migración y compatibilidad
-- Migrar usuarios con rol `SUPERVISOR` a `PERSONAL_SALUD` y marcar `esSupervisor = true`.
-- Ajustar permisos en frontend/móvil para no depender de `SUPERVISOR`.
+### 3.2 Gestión de usuarios
+
+Los endpoints de usuarios ya no aceptan ni devuelven `esSupervisor`.
+
+Esto afecta especialmente payloads de:
+
+- creación de usuario
+- actualización de usuario/roles
+- refresco de sesión
+- almacenamiento local de perfil/autenticación
+
+### 3.3 Creación de personal
+
+Cuando se crea personal desde el flujo de personal ahora debe enviarse explícitamente el
+campo `rol`.
+
+#### Reglas nuevas
+
+- `ADMINISTRADOR` puede crear: `ADMINISTRADOR`, `JEFE`, `COORDINADOR`, `PERSONAL`, `PROFESIONAL_INVITADO`
+- `JEFE` puede crear: `COORDINADOR`, `PERSONAL`, `PROFESIONAL_INVITADO`
+- `JEFE` **no puede** crear: `JEFE`, `ADMINISTRADOR`
+
+#### Impacto para frontend/mobile
+
+- la pantalla de creación debe incluir selector de rol
+- el selector debe filtrar opciones según el rol autenticado
+- si el usuario autenticado es `JEFE`, no deben mostrarse `JEFE` ni `ADMINISTRADOR`
+- el selector debe contemplar la opción `PROFESIONAL_INVITADO` cuando el backend permita crear ese perfil
+
+## 4. Nueva lectura funcional de permisos en mobile
+
+## 4.1 Rol `ADMINISTRADOR`
+
+Puede acceder a configuración, usuarios, roles, catálogos y también intervenir sobre operación completa.
+
+## 4.2 Rol `JEFE`
+
+Puede operar de forma global:
+
+- citas
+- pacientes
+- personal
+- lugares operativos
+
+## 4.3 Rol `COORDINADOR`
+
+Puede operar:
+
+- citas
+- pacientes
+- consulta de personal
+
+Pero no debe ver funciones de:
+
+- configuración
+- usuarios
+- roles
+- administración estructural de personal
+
+## 4.4 Rol `PERSONAL`
+
+Debe quedar restringido a:
+
+- sus citas
+- sus pacientes
+- sus notificaciones
+- su perfil
+
+## 4.5 Rol `PROFESIONAL_INVITADO`
+
+Debe quedar restringido a:
+
+- sus citas
+- pacientes asignados específicamente al profesional invitado
+- sus notificaciones
+- su perfil
+
+Notas operativas para frontend/mobile:
+
+- puede ver el módulo/bandeja de pacientes, pero el backend solo devolverá pacientes relacionados en `pacientes_profesionales_invitados`
+- si intenta abrir un paciente no asignado, el backend responderá como no encontrado
+- no debe tener accesos de gestión de personal, configuración ni catálogos administrativos
+
+## 5. Reglas de `scope` que mobile debe usar
+
+El backend sigue usando alcance de consulta en citas mediante `scope`, pero ahora la habilitación depende del rol explícito.
+
+Los valores vigentes son:
+
+- `mine`
+- `personal`
+- `all`
+
+### Comportamiento esperado por rol
+
+#### `PERSONAL`
+
+- usar `scope=mine`
+- no mostrar selector de alcance global
+- no enviar `scope=all`
+
+#### `PROFESIONAL_INVITADO`
+
+- usar `scope=mine`
+- no mostrar selector de alcance global
+- no enviar `scope=all`
+- al consultar pacientes, asumir que la lista ya viene filtrada por asignación
+
+#### `COORDINADOR`
+
+- puede usar `scope=mine`
+- puede usar `scope=personal`
+- puede usar `scope=all` según la vista operativa permitida
+
+#### `JEFE`
+
+- puede usar `scope=mine`
+- puede usar `scope=personal`
+- puede usar `scope=all`
+
+#### `ADMINISTRADOR`
+
+- puede usar todos los scopes
+
+## 6. Cambios concretos que debe hacer mobile
+
+### 6.1 Modelo de sesión
+
+Actualizar el modelo local y eliminar:
+
+- `esSupervisor`
+
+Agregar/usar correctamente:
+
+- `rol`
+- `idRol`
+- `roles`
+
+### 6.2 Guards / navegación
+
+Reemplazar cualquier lógica del tipo:
+
+```ts
+if (user.rol === 'PERSONAL_SALUD' && user.esSupervisor) {
+  // mostrar acciones administrativas
+}
+```
+
+Por lógica explícita de roles:
+
+```ts
+const puedeAdministrarPersonal =
+  user.rol === 'ADMINISTRADOR' || user.rol === 'JEFE'
+
+const puedeCoordinarOperacion =
+  user.rol === 'ADMINISTRADOR' ||
+  user.rol === 'JEFE' ||
+  user.rol === 'COORDINADOR'
+```
+
+### 6.3 UI
+
+Ocultar o mostrar acciones según rol:
+
+- gestión de usuarios: solo `ADMINISTRADOR`
+- gestión de personal: `ADMINISTRADOR` y `JEFE`
+- bandejas globales: `ADMINISTRADOR`, `JEFE`, `COORDINADOR`
+- bandeja propia: todos
+- gestión/listado de pacientes asignados: `PERSONAL` y `PROFESIONAL_INVITADO` con alcance propio; `PROFESIONAL_INVITADO` no debe mostrar acciones globales
+
+## 7. Cambios concretos que debe hacer frontend web
+
+Frontend web debe aplicar exactamente la misma regla que mobile:
+
+- eliminar dependencia de `esSupervisor`
+- usar roles explícitos
+- ajustar menús por rol
+- ajustar acciones por rol
+
+## 8. Checklist de migración para móvil
+
+- [ ] Eliminar `esSupervisor` del modelo de sesión.
+- [ ] Eliminar `esSupervisor` del almacenamiento local/caché.
+- [ ] Reemplazar validaciones `PERSONAL_SALUD + esSupervisor` por roles explícitos.
+- [ ] Actualizar guards de navegación.
+- [ ] Actualizar visibilidad de botones y acciones por rol.
+- [ ] Validar consumo de endpoints de citas con `scope` según rol.
+- [ ] Verificar que `PERSONAL` no intente usar vistas globales.
+- [ ] Verificar que `PROFESIONAL_INVITADO` solo vea pacientes asignados.
+- [ ] Verificar que `COORDINADOR` no intente administrar personal.
+- [ ] Verificar que `PROFESIONAL_INVITADO` no vea menús de configuración/personal.
+- [ ] Verificar que `JEFE` sí pueda operar vistas globales y personal.
+- [ ] Agregar selector de rol en creación de personal.
+- [ ] Restringir opciones del selector según el rol autenticado.
+- [ ] Verificar compatibilidad de login y refresh sin `esSupervisor`.
+
+## 9. Riesgos de compatibilidad si mobile no migra
+
+Si la app móvil no aplica estos cambios puede ocurrir:
+
+- ocultamiento incorrecto de acciones por seguir esperando `esSupervisor`
+- error al deserializar sesión si el cliente espera ese campo
+- menús mal habilitados
+- uso incorrecto de `scope`
+- navegación a vistas no permitidas para el nuevo rol real
+
+## 10. Recomendación de despliegue
+
+Desplegar backend y app móvil/web de forma coordinada.
+
+Orden recomendado:
+
+1. publicar backend con roles nuevos
+2. publicar web/mobile con nueva lectura de roles
+3. verificar login, refresh, home de citas, pantallas de personal y listado/detalle de pacientes asignados para `PROFESIONAL_INVITADO`
+4. retirar cualquier lógica legacy basada en `PERSONAL_SALUD` y `esSupervisor`

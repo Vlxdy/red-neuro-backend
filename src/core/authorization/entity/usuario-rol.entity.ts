@@ -35,15 +35,6 @@ export class UsuarioRol extends AuditoriaEntity {
   configuracion?: Record<string, unknown>
 
   @Column({
-    name: 'es_supervisor',
-    type: 'boolean',
-    default: false,
-    comment:
-      'Indica si el personal de salud tiene habilitadas funciones de supervisión',
-  })
-  esSupervisor: boolean
-
-  @Column({
     name: 'id_rol',
     type: 'bigint',
     nullable: false,

@@ -9,6 +9,13 @@ import { Status } from '@/common/constants'
 
 @Injectable()
 export class PersonalSaludRepository {
+  private readonly rolesOperativos = [
+    RolEnum.JEFE,
+    RolEnum.COORDINADOR,
+    RolEnum.PERSONAL,
+    RolEnum.PROFESIONAL_INVITADO,
+  ]
+
   constructor(private readonly dataSource: DataSource) {}
 
   private usuarioRolRepository(manager?: EntityManager) {
@@ -32,7 +39,7 @@ export class PersonalSaludRepository {
       .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :rolEstado', {
         rolEstado: RolEstado.ACTIVE,
       })
-      .where('rol.rol IN(:...roles)', { roles: [RolEnum.PERSONAL_SALUD] })
+      .where('rol.rol IN(:...roles)', { roles: this.rolesOperativos })
       .distinct(true)
       .take(limite)
       .skip(saltar)
@@ -80,7 +87,7 @@ export class PersonalSaludRepository {
         rolEstado: RolEstado.ACTIVE,
       })
       .where('usuario.id = :id', { id })
-      .andWhere('rol.rol = :rol', { rol: RolEnum.PERSONAL_SALUD })
+      .andWhere('rol.rol IN(:...roles)', { roles: this.rolesOperativos })
 
     if (estadoActivo)
       query.andWhere('usuarioRol.estado = :estado', { estado: Status.ACTIVE })
@@ -100,7 +107,25 @@ export class PersonalSaludRepository {
       })
       .where('usuarioRol.idUsuario = :idUsuario', { idUsuario })
       .andWhere('usuarioRol.estado = :estado', { estado: Status.ACTIVE })
-      .andWhere('rol.rol = :rol', { rol: RolEnum.PERSONAL_SALUD })
+      .andWhere('rol.rol IN(:...roles)', { roles: this.rolesOperativos })
+      .getOne()
+  }
+
+  async obtenerPersonalPorUsuarioIdYRoles(
+    idUsuario: string,
+    roles: RolEnum[],
+    manager?: EntityManager
+  ) {
+    return await this.usuarioRolRepository(manager)
+      .createQueryBuilder('usuarioRol')
+      .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
+      .leftJoinAndSelect('usuario.persona', 'persona')
+      .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :rolEstado', {
+        rolEstado: RolEstado.ACTIVE,
+      })
+      .where('usuarioRol.idUsuario = :idUsuario', { idUsuario })
+      .andWhere('usuarioRol.estado = :estado', { estado: Status.ACTIVE })
+      .andWhere('rol.rol IN(:...roles)', { roles })
       .getOne()
   }
 

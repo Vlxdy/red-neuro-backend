@@ -151,7 +151,6 @@ export class AuthenticationService extends BaseService {
       idRol: rol.idRol,
       rol: rol.rol,
       idUsuarioRol: rol.idUsuarioRol,
-      esSupervisor: rol.esSupervisor,
     }
     // crear refresh_token
     const refreshToken = await this.refreshTokensService.create(user.id)
@@ -162,7 +161,6 @@ export class AuthenticationService extends BaseService {
       idUsuarioRol: rol.idUsuarioRol,
       idRol: rol.idRol,
       rol: rol.rol,
-      esSupervisor: rol.esSupervisor,
     }
     return {
       refresh_token: { id: refreshToken.id },
@@ -335,7 +333,6 @@ export class AuthenticationService extends BaseService {
       idRol: rol.idRol,
       rol: rol.rol,
       idUsuarioRol: rol.idUsuarioRol,
-      esSupervisor: rol.esSupervisor,
     }
     // crear refresh_token
     const refreshToken = await this.refreshTokensService.create(user.id)

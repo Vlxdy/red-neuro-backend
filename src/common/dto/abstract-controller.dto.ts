@@ -82,4 +82,13 @@ export abstract class AbstractController {
       'Su cuenta no tiene permisos o roles configurados'
     )
   }
+
+  getRolNombre(req: Request): string {
+    if (req?.user?.rol) {
+      return String(req.user.rol)
+    }
+    throw new BadRequestException(
+      'Su cuenta no tiene permisos o roles configurados'
+    )
+  }
 }

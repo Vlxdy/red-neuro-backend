@@ -46,10 +46,16 @@ export class PacienteController extends BaseController {
   @ApiBaseResponseListRows(PacienteResponseDto)
   @Get()
   async listar(
+    @Req() req: Request,
     @Query() paginacionQuery: PaginacionQueryDto
   ): Promise<BaseResponseListRowsDto<PacienteResponseDto>> {
-    const resultado =
-      await this.pacienteService.listarPacientes(paginacionQuery)
+    const resultado = await this.pacienteService.listarPacientes(
+      paginacionQuery,
+      {
+        id: this.getUser(req),
+        rol: this.getRolNombre(req),
+      }
+    )
     return this.successListRows(resultado)
   }
 
@@ -57,9 +63,17 @@ export class PacienteController extends BaseController {
   @ApiBaseResponse(PacienteResponseDto)
   @Get(':id')
   async obtenerPorId(
-    @Param() { id }: ParamIdDto
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
   ): Promise<BaseResponseDto<PacienteResponseDto>> {
-    const resultado = await this.pacienteService.obtenerPacientePorId(id)
+    const resultado = await this.pacienteService.obtenerPacientePorId(
+      id,
+      undefined,
+      {
+        id: this.getUser(req),
+        rol: this.getRolNombre(req),
+      }
+    )
     return this.success(formatearPaciente(resultado))
   }
 
