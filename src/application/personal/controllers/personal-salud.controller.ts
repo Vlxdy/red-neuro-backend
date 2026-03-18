@@ -57,7 +57,6 @@ export class PersonalSaludController extends BaseController {
       {
         rol: req.user.rol,
         roles: req.user.roles,
-        esSupervisor: req.user.esSupervisor,
       }
     )
     return this.successListRows(resultado)
@@ -88,7 +87,6 @@ export class PersonalSaludController extends BaseController {
       {
         rol: req.user?.rol,
         roles: req.user?.roles,
-        esSupervisor: req.user?.esSupervisor,
       }
     )
     return this.successCreate(resultado)
@@ -158,7 +156,6 @@ export class PersonalSaludController extends BaseController {
         {
           rol: req.user?.rol,
           roles: req.user?.roles,
-          esSupervisor: req.user?.esSupervisor,
         }
       )
 

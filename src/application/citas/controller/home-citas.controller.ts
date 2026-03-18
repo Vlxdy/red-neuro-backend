@@ -38,14 +38,12 @@ export class HomeCitasController extends BaseController {
     @Query() filtros: HomeBandejaQueryDto
   ): Promise<BaseResponseDto<HomeBandejaResponseDto>> {
     const idUsuarioSolicitante = this.getUser(req)
-    const idRol = this.getRol(req)
-    const esSupervisor = req.user?.esSupervisor === true
+    const rol = this.getRolNombre(req)
 
     const resultado = await this.citasService.obtenerHomeBandeja(
       filtros,
       idUsuarioSolicitante,
-      idRol,
-      esSupervisor
+      rol
     )
 
     return this.success(resultado)
@@ -61,14 +59,12 @@ export class HomeCitasController extends BaseController {
     @Query() filtros: HomeListadoQueryDto
   ) {
     const idUsuarioSolicitante = this.getUser(req)
-    const idRol = this.getRol(req)
-    const esSupervisor = req.user?.esSupervisor === true
+    const rol = this.getRolNombre(req)
 
     const resultado = await this.citasService.listarHomePendientesAprobacion(
       filtros,
       idUsuarioSolicitante,
-      idRol,
-      esSupervisor
+      rol
     )
 
     return this.successListRows(resultado)
@@ -82,14 +78,12 @@ export class HomeCitasController extends BaseController {
     @Query() filtros: HomeListadoQueryDto
   ) {
     const idUsuarioSolicitante = this.getUser(req)
-    const idRol = this.getRol(req)
-    const esSupervisor = req.user?.esSupervisor === true
+    const rol = this.getRolNombre(req)
 
     const resultado = await this.citasService.listarHomeRechazadasSolicitadas(
       filtros,
       idUsuarioSolicitante,
-      idRol,
-      esSupervisor
+      rol
     )
 
     return this.successListRows(resultado)
@@ -103,14 +97,12 @@ export class HomeCitasController extends BaseController {
     @Query() filtros: HomeListadoQueryDto
   ) {
     const idUsuarioSolicitante = this.getUser(req)
-    const idRol = this.getRol(req)
-    const esSupervisor = req.user?.esSupervisor === true
+    const rol = this.getRolNombre(req)
 
     const resultado = await this.citasService.listarHomeBorradores(
       filtros,
       idUsuarioSolicitante,
-      idRol,
-      esSupervisor
+      rol
     )
 
     return this.successListRows(resultado)
@@ -126,14 +118,12 @@ export class HomeCitasController extends BaseController {
     @Query() filtros: HomeProgramadasListadoQueryDto
   ) {
     const idUsuarioSolicitante = this.getUser(req)
-    const idRol = this.getRol(req)
-    const esSupervisor = req.user?.esSupervisor === true
+    const rol = this.getRolNombre(req)
 
     const resultado = await this.citasService.listarHomeProgramadasAsignadas(
       filtros,
       idUsuarioSolicitante,
-      idRol,
-      esSupervisor
+      rol
     )
 
     return this.successListRows(resultado)

@@ -13,14 +13,6 @@ export class PersonalResponseDto {
   })
   estado!: string
   @ApiProperty({
-    description:
-      'Indica si el personal de salud tiene habilitadas funciones de supervisión',
-    example: false,
-    required: false,
-  })
-  esSupervisor?: boolean
-
-  @ApiProperty({
     description: 'Número de documento de identidad',
     example: '4192299',
     required: false,

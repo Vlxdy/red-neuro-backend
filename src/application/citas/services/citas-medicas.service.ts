@@ -44,7 +44,7 @@ import { formatearCita, formatearCitas } from '../utils/formatear-citas'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
-import { RolEnumId } from '@/core/authorization/rol.enum'
+import { RolEnum } from '@/core/authorization/rol.enum'
 import { NotificacionesRepository } from '../repository/notificaciones.repository'
 import { DispositivosPushRepository } from '../repository/dispositivos-push.repository'
 import { FirebasePushService } from '@/core/external-services/firebase/firebase-push.service'
@@ -247,30 +247,31 @@ export class CitasMedicasService extends BaseService {
   }
 
   private resolverScope(
-    scope: string | undefined,
-    idRol: string,
-    esSupervisor: boolean,
+    scope: CitasScope | undefined,
+    rol: string,
     idUsuario: string,
     idPersonal?: string
   ) {
-    const esSupervisorPersonalSalud =
-      String(idRol) === RolEnumId.PERSONAL_SALUD && esSupervisor === true
+    const puedeVerTodo = [RolEnum.ADMINISTRADOR, RolEnum.JEFE].includes(
+      rol as RolEnum
+    )
+    const puedeVerPersonal = puedeVerTodo || rol === RolEnum.COORDINADOR
 
-    if (!esSupervisorPersonalSalud || !scope || scope === 'mine') {
+    if (!puedeVerPersonal || !scope || scope === CitasScope.MINE) {
       return { idPersonal: idUsuario, scopeAplicado: CitasScope.MINE }
     }
 
-    if (scope === 'personal') {
+    if (scope === CitasScope.PERSONAL) {
       if (!idPersonal) {
         throw new BadRequestException(
-          'idPersonal es requerido cuando scope=personal'
+          `idPersonal es requerido cuando scope=${CitasScope.PERSONAL}`
         )
       }
 
       return { idPersonal, scopeAplicado: CitasScope.PERSONAL }
     }
 
-    if (scope === 'all') {
+    if (scope === CitasScope.ALL) {
       return { idPersonal: undefined, scopeAplicado: CitasScope.ALL }
     }
 
@@ -328,13 +329,11 @@ export class CitasMedicasService extends BaseService {
   async obtenerHomeBandeja(
     filtros: HomeBandejaQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<HomeBandejaResponseDto> {
     const { idPersonal, scopeAplicado } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -448,13 +447,11 @@ export class CitasMedicasService extends BaseService {
   async listarHomePendientesAprobacion(
     filtros: HomeListadoQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<[CitaResponseDto[], number]> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -479,13 +476,11 @@ export class CitasMedicasService extends BaseService {
   async listarHomeRechazadasSolicitadas(
     filtros: HomeListadoQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<[CitaResponseDto[], number]> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -505,13 +500,11 @@ export class CitasMedicasService extends BaseService {
   async listarHomeBorradores(
     filtros: HomeListadoQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<[CitaResponseDto[], number]> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -530,13 +523,11 @@ export class CitasMedicasService extends BaseService {
   async listarHomeProgramadasAsignadas(
     filtros: HomeProgramadasListadoQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<[HomeGrupoDiaResponseDto[], number]> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -569,13 +560,11 @@ export class CitasMedicasService extends BaseService {
   async obtenerMisResumen(
     filtros: MisResumenCitasDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<MisResumenResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -602,13 +591,11 @@ export class CitasMedicasService extends BaseService {
   async listarMisSolicitadas(
     filtros: MisSolicitadasQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<MisSolicitadasResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -648,13 +635,11 @@ export class CitasMedicasService extends BaseService {
   async listarMisTimeline(
     filtros: MisTimelineQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<MisTimelineResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )

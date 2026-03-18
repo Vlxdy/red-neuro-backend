@@ -97,14 +97,12 @@ export class RefreshTokensService extends BaseService {
       idRol: rol.idRol,
       rol: rol.rol,
       idUsuarioRol: rol.idUsuarioRol,
-      esSupervisor: rol.esSupervisor,
     }
     const data = {
       access_token: this.jwtService.sign(payload),
       ...usuario,
       idRol: rol.idRol,
       rol: rol.rol,
-      esSupervisor: rol.esSupervisor,
     }
 
     const rft = parseInt(

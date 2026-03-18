@@ -3,10 +3,8 @@ import { Type } from 'class-transformer'
 import {
   CorreoLista,
   IsArray,
-  IsBoolean,
   IsEmail,
   IsNotEmpty,
-  IsOptional,
   ValidateIf,
   ValidateNested,
 } from '@/common/validation'
@@ -30,13 +28,4 @@ export class ActualizarUsuarioRolDto {
   @IsNotEmpty()
   @IsArray()
   roles?: Array<string>
-
-  @IsOptional()
-  @IsBoolean()
-  @ApiProperty({
-    example: false,
-    required: false,
-    description: 'Habilita permisos de supervisión para el rol PERSONAL_SALUD.',
-  })
-  esSupervisor?: boolean
 }

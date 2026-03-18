@@ -14,26 +14,53 @@ import {
   formatearPacientes,
 } from '../utils/formateo-paciente'
 import { PacienteEstado } from '../constants'
+import { RolEnum } from '@/core/authorization/rol.enum'
+import { PacienteProfesionalInvitadoRepository } from '../repository/paciente-profesional-invitado.repository'
 
 @Injectable()
 export class PacienteService extends BaseService {
   constructor(
     @Inject(PacienteRepository)
-    private readonly pacienteRepository: PacienteRepository
+    private readonly pacienteRepository: PacienteRepository,
+    @Inject(PacienteProfesionalInvitadoRepository)
+    private readonly pacienteProfesionalInvitadoRepository: PacienteProfesionalInvitadoRepository
   ) {
     super()
   }
 
   async listarPacientes(
-    paginacionQuery: PaginacionQueryDto
+    paginacionQuery: PaginacionQueryDto,
+    usuarioSesion?: { id: string; rol?: string }
   ): Promise<[PacienteResponseDto[], number]> {
     const [pacientes, total] =
-      await this.pacienteRepository.listarPacientesPaginado(paginacionQuery)
+      usuarioSesion?.rol === RolEnum.PROFESIONAL_INVITADO
+        ? await this.pacienteProfesionalInvitadoRepository.listarPacientesAsignadosPaginado(
+            paginacionQuery,
+            usuarioSesion.id
+          )
+        : await this.pacienteRepository.listarPacientesPaginado(paginacionQuery)
 
     return [formatearPacientes(pacientes), total]
   }
 
-  async obtenerPacientePorId(id: string, transaccion?: EntityManager) {
+  async obtenerPacientePorId(
+    id: string,
+    transaccion?: EntityManager,
+    usuarioSesion?: { id: string; rol?: string }
+  ) {
+    if (usuarioSesion?.rol === RolEnum.PROFESIONAL_INVITADO) {
+      const tieneAsignacion =
+        await this.pacienteProfesionalInvitadoRepository.tienePacienteAsignado(
+          id,
+          usuarioSesion.id,
+          transaccion
+        )
+
+      if (!tieneAsignacion) {
+        throw new NotFoundException(Messages.PACIENTE_NOT_FOUND)
+      }
+    }
+
     const paciente = await this.pacienteRepository.obtenerPacientePorId(
       id,
       transaccion

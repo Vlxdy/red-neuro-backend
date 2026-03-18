@@ -8,7 +8,6 @@ export function formatearPersonal(usuarioRol: UsuarioRol): PersonalResponseDto {
   return {
     id: usuario.id,
     estado: usuarioRol.estado,
-    esSupervisor: usuarioRol.esSupervisor,
     nroDocumento: usuario.persona.nroDocumento,
     nombres: usuario.persona.nombres,
     primerApellido: usuario.persona.primerApellido,
