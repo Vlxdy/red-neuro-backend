@@ -32,6 +32,15 @@ export class HistorialCita extends AuditoriaEntity {
   })
   idCita: string
 
+  @Column({
+    name: 'id_historial_cita',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+    comment: 'Identificador compartido de la cadena de reprogramaciones',
+  })
+  idHistorialCita?: string | null
+
   @ManyToOne(() => Cita, (cita) => cita.historial, {
     onDelete: 'CASCADE',
   })

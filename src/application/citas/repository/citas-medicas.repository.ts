@@ -850,7 +850,10 @@ export class CitasMedicasRepository {
     },
     usuarioAuditoria: string,
     idEjecutor: string,
-    transaccion: EntityManager
+    transaccion: EntityManager,
+    options?: {
+      crearHistorialInicial?: boolean
+    }
   ) {
     const cita = this.citaRepository(transaccion).create({
       detalle: data.detalle,
@@ -872,15 +875,17 @@ export class CitasMedicasRepository {
 
     const guardada = await this.citaRepository(transaccion).save(cita)
 
-    await this.historialRepository.crearHistorial(
-      {
-        idCita: guardada.id,
-        idEjecutor,
-        comentario: 'Creación de cita',
-        usuarioCreacion: usuarioAuditoria,
-      },
-      transaccion
-    )
+    if (options?.crearHistorialInicial !== false) {
+      await this.historialRepository.crearHistorial(
+        {
+          idCita: guardada.id,
+          idEjecutor,
+          comentario: 'Creación de cita',
+          usuarioCreacion: usuarioAuditoria,
+        },
+        transaccion
+      )
+    }
 
     return guardada.id
   }
