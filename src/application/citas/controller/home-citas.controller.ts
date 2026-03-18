@@ -37,7 +37,7 @@ export class HomeCitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: HomeBandejaQueryDto
   ): Promise<BaseResponseDto<HomeBandejaResponseDto>> {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 
@@ -60,7 +60,7 @@ export class HomeCitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: HomeListadoQueryDto
   ) {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 
@@ -81,7 +81,7 @@ export class HomeCitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: HomeListadoQueryDto
   ) {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 
@@ -102,7 +102,7 @@ export class HomeCitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: HomeListadoQueryDto
   ) {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 
@@ -125,7 +125,7 @@ export class HomeCitasController extends BaseController {
     @Req() req: Request,
     @Query() filtros: HomeProgramadasListadoQueryDto
   ) {
-    const idUsuarioSolicitante = this.getUsuarioRol(req)
+    const idUsuarioSolicitante = this.getUser(req)
     const idRol = this.getRol(req)
     const esSupervisor = req.user?.esSupervisor === true
 

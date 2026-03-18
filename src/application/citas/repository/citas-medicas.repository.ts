@@ -79,8 +79,7 @@ export class CitasMedicasRepository {
     const query = this.citaRepository(manager)
       .createQueryBuilder('cita')
       .leftJoinAndSelect('cita.personal', 'personal')
-      .leftJoinAndSelect('personal.usuario', 'usuarioPersonal')
-      .leftJoinAndSelect('usuarioPersonal.persona', 'personaPersonal')
+      .leftJoinAndSelect('personal.persona', 'personaPersonal')
       .leftJoinAndSelect('cita.paciente', 'paciente')
       .leftJoinAndSelect('cita.consultorio', 'consultorio')
       .leftJoinAndSelect('cita.lugar', 'lugar')
@@ -88,11 +87,7 @@ export class CitasMedicasRepository {
       .leftJoinAndSelect('cita.citaNueva', 'citaNueva')
       .leftJoinAndSelect('citaNueva.personal', 'citaNuevaPersonal')
       .leftJoinAndSelect(
-        'citaNuevaPersonal.usuario',
-        'citaNuevaUsuarioPersonal'
-      )
-      .leftJoinAndSelect(
-        'citaNuevaUsuarioPersonal.persona',
+        'citaNuevaPersonal.persona',
         'citaNuevaPersonaPersonal'
       )
       .leftJoinAndSelect('citaNueva.paciente', 'citaNuevaPaciente')
@@ -100,14 +95,9 @@ export class CitasMedicasRepository {
       .leftJoinAndSelect('citaNueva.lugar', 'citaNuevaLugar')
       .leftJoinAndSelect('citaNueva.servicio', 'citaNuevaServicio')
       .leftJoinAndSelect('cita.usuarioProgramo', 'usuarioProgramo')
-      .leftJoinAndSelect('usuarioProgramo.usuario', 'usuarioProgramoUsuario')
-      .leftJoinAndSelect(
-        'usuarioProgramoUsuario.persona',
-        'usuarioProgramoPersona'
-      )
+      .leftJoinAndSelect('usuarioProgramo.persona', 'usuarioProgramoPersona')
       .leftJoinAndSelect('cita.usuarioEnvio', 'usuarioEnvio')
-      .leftJoinAndSelect('usuarioEnvio.usuario', 'usuarioEnvioUsuario')
-      .leftJoinAndSelect('usuarioEnvioUsuario.persona', 'usuarioEnvioPersona')
+      .leftJoinAndSelect('usuarioEnvio.persona', 'usuarioEnvioPersona')
       .distinct(true)
 
     if (filtros.fechaInicio) {

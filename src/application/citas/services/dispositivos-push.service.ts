@@ -14,7 +14,7 @@ export class DispositivosPushService {
 
   async registrar(
     dto: RegistrarDispositivoPushDto,
-    idUsuarioRol: string,
+    idUsuario: string,
     usuarioAuditoria: string
   ): Promise<DispositivoPush> {
     let dispositivo = await this.dispositivosPushRepository.buscarPorToken(
@@ -24,12 +24,12 @@ export class DispositivosPushService {
     if (!dispositivo) {
       dispositivo = this.dispositivosPushRepository.crear({
         ...dto,
-        idUsuarioRol,
+        idUsuario,
         estado: DispositivoPushEstado.ACTIVE,
         usuarioCreacion: usuarioAuditoria,
       })
     } else {
-      dispositivo.idUsuarioRol = idUsuarioRol
+      dispositivo.idUsuario = idUsuario
       dispositivo.plataforma = dto.plataforma
       dispositivo.versionApp = dto.versionApp
       dispositivo.estado = DispositivoPushEstado.ACTIVE
@@ -42,13 +42,13 @@ export class DispositivosPushService {
 
   async eliminar(
     token: string,
-    idUsuarioRol: string,
+    idUsuario: string,
     usuarioAuditoria: string
   ): Promise<boolean> {
     const dispositivo =
       await this.dispositivosPushRepository.buscarPorTokenYUsuario(
         token,
-        idUsuarioRol
+        idUsuario
       )
 
     if (!dispositivo) {

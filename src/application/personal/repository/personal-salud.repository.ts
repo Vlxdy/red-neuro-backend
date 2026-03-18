@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { DataSource, EntityManager } from 'typeorm'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { RolEstado } from '@/core/authorization/constant'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { Status } from '@/common/constants'
@@ -12,6 +13,10 @@ export class PersonalSaludRepository {
 
   private usuarioRolRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(UsuarioRol)
+  }
+
+  private usuarioRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Usuario)
   }
 
   async listarPersonalSaludPaginado(
@@ -52,7 +57,7 @@ export class PersonalSaludRepository {
         query.addOrderBy('persona.nombres', sentido)
         break
       default:
-        query.addOrderBy('usuarioRol.id', 'ASC')
+        query.addOrderBy('usuario.id', 'ASC')
     }
 
     return await query.getManyAndCount()
@@ -74,7 +79,7 @@ export class PersonalSaludRepository {
       .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :rolEstado', {
         rolEstado: RolEstado.ACTIVE,
       })
-      .where('usuarioRol.id = :id', { id })
+      .where('usuario.id = :id', { id })
       .andWhere('rol.rol = :rol', { rol: RolEnum.PERSONAL_SALUD })
 
     if (estadoActivo)
@@ -99,27 +104,30 @@ export class PersonalSaludRepository {
       .getOne()
   }
 
-  async actualizarOcupacion(
-    idUsuarioRol: string,
+  async actualizarOcupacionUsuario(
+    idUsuario: string,
     ocupacion: string | null,
     usuarioAuditoria: string,
     manager?: EntityManager
   ) {
-    return await this.usuarioRolRepository(manager).update(idUsuarioRol, {
-      ocupacion: ocupacion || undefined,
+    return await this.usuarioRepository(manager).update(idUsuario, {
+      ocupacion: ocupacion ?? null,
       usuarioModificacion: usuarioAuditoria,
     })
   }
 
   async cambiarEstadoPersonalSalud(
-    idUsuarioRol: string,
+    idUsuario: string,
     estado: Status,
     usuarioAuditoria: string,
     manager?: EntityManager
   ) {
-    return await this.usuarioRolRepository(manager).update(idUsuarioRol, {
-      estado,
-      usuarioModificacion: usuarioAuditoria,
-    })
+    return await this.usuarioRolRepository(manager).update(
+      { idUsuario },
+      {
+        estado,
+        usuarioModificacion: usuarioAuditoria,
+      }
+    )
   }
 }

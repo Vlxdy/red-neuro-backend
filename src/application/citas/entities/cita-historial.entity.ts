@@ -13,6 +13,7 @@ import { Cita } from './cita.entity'
 import { CitasHistorialEstado } from '../constants'
 import { TipoActualizacion } from './notificacion.entity'
 import 'bootstrap/env'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 
 @Check(UtilService.buildStatusCheck(CitasHistorialEstado))
 @Entity({ name: 'historial_citas', schema: process.env.DB_SCHEMA })
@@ -51,9 +52,13 @@ export class HistorialCita extends AuditoriaEntity {
     name: 'id_ejecutor',
     type: 'bigint',
     nullable: false,
-    comment: 'Identificador del usuario ejecutor (usuario-rol)',
+    comment: 'Identificador del usuario ejecutor',
   })
   idEjecutor: string
+
+  @ManyToOne(() => Usuario, (usuario) => usuario.historialesEjecutados)
+  @JoinColumn({ name: 'id_ejecutor', referencedColumnName: 'id' })
+  ejecutor: Usuario
 
   @Column({
     name: 'comentario',

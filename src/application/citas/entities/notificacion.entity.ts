@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { UtilService } from '../../../common/lib/util.service'
-import { UsuarioRol } from 'src/core/authorization/entity/usuario-rol.entity'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { Cita } from './cita.entity'
 
 export const NotificacionEstado = {
@@ -87,19 +87,6 @@ export class Notificacion extends AuditoriaEntity {
   @JoinColumn({ name: 'id_cita', referencedColumnName: 'id' })
   cita: Cita
 
-  // @Column({
-  //   name: 'id_paciente',
-  //   type: 'bigint',
-  //   nullable: true,
-  //   comment: 'Identificador del paciente asociado a la notificación',
-  // })
-  // idPaciente: string
-  // @ManyToOne(() => UsuarioRol, (usuarioRol) => usuarioRol.notificacion, {
-  //   nullable: true,
-  // })
-  // @JoinColumn({ name: 'id_paciente', referencedColumnName: 'id' })
-  // paciente: UsuarioRol
-
   @Column({
     type: 'bigint',
     name: 'id_medico',
@@ -107,15 +94,11 @@ export class Notificacion extends AuditoriaEntity {
     comment: 'Identificador del personal asociado a la notificación',
   })
   idPersonal: string
-  @ManyToOne(
-    () => UsuarioRol,
-    (usuarioRol) => usuarioRol.notificacionPersonals,
-    {
-      nullable: true,
-    }
-  )
+  @ManyToOne(() => Usuario, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'id_medico', referencedColumnName: 'id' })
-  personal: UsuarioRol
+  personal: Usuario
   @BeforeInsert()
   insertarEstado() {
     this.estado = this.estado || NotificacionEstado.ACTIVE

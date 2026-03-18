@@ -36,7 +36,7 @@ export class DispositivosPushController extends BaseController {
   ) {
     await this.dispositivosPushService.registrar(
       dto,
-      this.getUsuarioRol(req),
+      this.getUser(req),
       this.getUser(req)
     )
     return this.successCreate(true)
@@ -48,7 +48,7 @@ export class DispositivosPushController extends BaseController {
   async eliminar(@Param('token') token: string, @Req() req: Request) {
     const ok = await this.dispositivosPushService.eliminar(
       token,
-      this.getUsuarioRol(req),
+      this.getUser(req),
       this.getUser(req)
     )
     return this.successDelete(ok)

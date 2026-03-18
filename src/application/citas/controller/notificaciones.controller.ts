@@ -41,10 +41,10 @@ export class NotificacionesController extends BaseController {
   @ApiBaseResponseListRows(NotificacionResponseDto)
   @Get()
   async listar(@Req() req: Request, @Query() filtros: FiltroNotificacionDto) {
-    const idUsuarioRol = this.getUsuarioRol(req)
+    const idUsuario = this.getUser(req)
     const resultado = await this.notificacionesService.listar(
       filtros,
-      idUsuarioRol
+      idUsuario
     )
     return this.successListRows(resultado)
   }
@@ -56,7 +56,7 @@ export class NotificacionesController extends BaseController {
     const ok = await this.notificacionesService.marcarVisto(
       id,
       this.getUser(req),
-      this.getUsuarioRol(req)
+      this.getUser(req)
     )
     return this.successUpdate(ok)
   }
@@ -67,7 +67,7 @@ export class NotificacionesController extends BaseController {
   async marcarTodas(@Req() req: Request) {
     const actualizadas = await this.notificacionesService.marcarTodasVistas(
       this.getUser(req),
-      this.getUsuarioRol(req)
+      this.getUser(req)
     )
     return this.successUpdate(actualizadas)
   }

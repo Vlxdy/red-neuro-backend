@@ -3,7 +3,7 @@ import { DataSource, EntityManager, SelectQueryBuilder } from 'typeorm'
 import { HistorialCita } from '../entities/cita-historial.entity'
 import { Cita } from '../entities/cita.entity'
 import { FiltrosHistorialCitaPaginadoDto } from '../dto/cita.dto'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import dayjs from 'dayjs'
 import { Paciente } from '@/application/paciente/entities/paciente.entity'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
@@ -20,8 +20,8 @@ export class HistorialCitasRepository {
     return (manager ?? this.dataSource).getRepository(Cita)
   }
 
-  private usuarioRolRepository(manager?: EntityManager) {
-    return (manager ?? this.dataSource).getRepository(UsuarioRol)
+  private usuarioRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(Usuario)
   }
 
   private pacienteRepository(manager?: EntityManager) {
@@ -127,16 +127,15 @@ export class HistorialCitasRepository {
       .getManyAndCount()
   }
 
-  async obtenerUsuariosRolPorIds(ids: string[]): Promise<UsuarioRol[]> {
+  async obtenerUsuariosPorIds(ids: string[]): Promise<Usuario[]> {
     if (!ids.length) {
       return []
     }
 
-    return await this.usuarioRolRepository()
-      .createQueryBuilder('usuarioRol')
-      .leftJoinAndSelect('usuarioRol.usuario', 'usuario')
+    return await this.usuarioRepository()
+      .createQueryBuilder('usuario')
       .leftJoinAndSelect('usuario.persona', 'persona')
-      .where('usuarioRol.id IN (:...ids)', { ids })
+      .where('usuario.id IN (:...ids)', { ids })
       .getMany()
   }
 

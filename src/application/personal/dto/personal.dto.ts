@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class PersonalResponseDto {
   @ApiProperty({
-    description: 'Identificador único del personal de salud',
+    description: 'Identificador del usuario asociado al personal de salud',
     example: 'a8f4c1d2-32a1-4c2b-bff1-87fa92c1a223',
   })
   id!: string

@@ -551,7 +551,7 @@ export class FiltrosHistorialCitaPaginadoDto extends PaginacionQueryDto {
   fechaFin?: string
 
   @ApiPropertyOptional({
-    description: 'Identificador del usuario ejecutor (usuario-rol)',
+    description: 'Identificador del usuario ejecutor',
     example: '42',
   })
   @IsOptional()
@@ -870,7 +870,7 @@ export class CitaResponseDto {
   historialCitaId?: string
 
   @ApiPropertyOptional({
-    description: 'UsuarioRol que programó inicialmente la cita',
+    description: 'Usuario que programó inicialmente la cita',
     example: '88',
   })
   usuarioProgramoId?: string
@@ -881,7 +881,7 @@ export class CitaResponseDto {
   usuarioProgramo?: PersonalResponseDto
 
   @ApiPropertyOptional({
-    description: 'UsuarioRol que envió la cita al flujo operativo',
+    description: 'Usuario que envió la cita al flujo operativo',
     example: '91',
   })
   usuarioEnvioId?: string
@@ -974,8 +974,7 @@ export class HistorialCitaResponseDto {
   historialCitaId?: string
 
   @ApiProperty({
-    description:
-      'Identificador del usuario que ejecutó la acción (usuario-rol)',
+    description: 'Identificador del usuario que ejecutó la acción',
   })
   idEjecutor!: string
 

@@ -15,6 +15,9 @@ import dotenv from 'dotenv'
 import { UsuarioEstado } from '../constant'
 import { AuditoriaEntity } from '@/common/entity/auditoria.entity'
 import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
+import { Cita } from '@/application/citas/entities/cita.entity'
+import { Notificacion } from '@/application/citas/entities/notificacion.entity'
+import { HistorialCita } from '@/application/citas/entities/cita-historial.entity'
 
 dotenv.config()
 @Check(UtilService.buildStatusCheck(UsuarioEstado))
@@ -114,6 +117,15 @@ export class Usuario extends AuditoriaEntity {
   urlFoto?: string | null
 
   @Column({
+    name: 'ocupacion',
+    type: 'varchar',
+    length: 120,
+    nullable: true,
+    comment: 'Ocupación o especialidad asociada al usuario',
+  })
+  ocupacion?: string | null
+
+  @Column({
     name: 'id_persona',
     type: 'bigint',
     nullable: false,
@@ -123,6 +135,21 @@ export class Usuario extends AuditoriaEntity {
 
   @OneToMany(() => UsuarioRol, (usuarioRol) => usuarioRol.usuario)
   usuarioRol: UsuarioRol[]
+
+  @OneToMany(() => Cita, (cita) => cita.personal)
+  citasAsignadas: Cita[]
+
+  @OneToMany(() => Cita, (cita) => cita.usuarioProgramo)
+  citasProgramadas: Cita[]
+
+  @OneToMany(() => Cita, (cita) => cita.usuarioEnvio)
+  citasEnviadas: Cita[]
+
+  @OneToMany(() => Notificacion, (notificacion) => notificacion.personal)
+  notificacionesPersonal: Notificacion[]
+
+  @OneToMany(() => HistorialCita, (historial) => historial.ejecutor)
+  historialesEjecutados: HistorialCita[]
 
   @ManyToOne(() => Persona, (persona) => persona.usuarios, {
     nullable: false,

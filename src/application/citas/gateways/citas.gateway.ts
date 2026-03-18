@@ -30,7 +30,7 @@ import {
 import { forwardRef, Inject } from '@nestjs/common'
 
 interface SuscripcionNotificacionesPayload {
-  idUsuarioRol: string
+  idUsuario: string
 }
 
 @WebSocketGateway({
@@ -65,11 +65,11 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: SuscripcionNotificacionesPayload
   ) {
-    if (!payload?.idUsuarioRol) {
+    if (!payload?.idUsuario) {
       return { ok: false }
     }
 
-    const room = this.getNotificacionesRoom(payload.idUsuarioRol)
+    const room = this.getNotificacionesRoom(payload.idUsuario)
     void client.join(room)
 
     this.logger.debug(
@@ -80,23 +80,23 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   emitNuevaNotificacion(
-    idUsuarioRol: string,
+    idUsuario: string,
     notificacion: NotificacionResponseDto
   ) {
     this.server
-      .to(this.getNotificacionesRoom(idUsuarioRol))
+      .to(this.getNotificacionesRoom(idUsuario))
       .emit(NotificacionesSocketOutboundEvent.NUEVA, notificacion)
   }
 
-  emitNotificacionVista(idUsuarioRol: string, idNotificacion: string) {
+  emitNotificacionVista(idUsuario: string, idNotificacion: string) {
     this.server
-      .to(this.getNotificacionesRoom(idUsuarioRol))
+      .to(this.getNotificacionesRoom(idUsuario))
       .emit(NotificacionesSocketOutboundEvent.VISTA, { id: idNotificacion })
   }
 
-  emitNotificacionesTodasVistas(idUsuarioRol: string, total: number) {
+  emitNotificacionesTodasVistas(idUsuario: string, total: number) {
     this.server
-      .to(this.getNotificacionesRoom(idUsuarioRol))
+      .to(this.getNotificacionesRoom(idUsuario))
       .emit(NotificacionesSocketOutboundEvent.TODAS_VISTAS, { total })
   }
 
@@ -242,7 +242,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return cita
   }
 
-  private getNotificacionesRoom(idUsuarioRol: string) {
-    return `usuario-rol:${idUsuarioRol}`
+  private getNotificacionesRoom(idUsuario: string) {
+    return `usuario:${idUsuario}`
   }
 }

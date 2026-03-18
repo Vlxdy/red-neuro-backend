@@ -36,11 +36,11 @@ export class NotificacionesService {
 
   async listar(
     filtros: FiltroNotificacionDto,
-    idUsuarioRol: string
+    idUsuario: string
   ): Promise<[NotificacionResponseDto[], number]> {
     const [filas, total] = await this.notificacionesRepository.listar(
       filtros,
-      idUsuarioRol
+      idUsuario
     )
 
     return [filas.map((n) => this.mapearNotificacion(n)), total]
@@ -58,30 +58,26 @@ export class NotificacionesService {
     }
   }
 
-  async marcarVisto(
-    id: string,
-    usuarioAuditoria: string,
-    idUsuarioRol: string
-  ) {
+  async marcarVisto(id: string, usuarioAuditoria: string, idUsuario: string) {
     const notificacion = await this.notificacionesRepository.obtenerPorId(
       id,
-      idUsuarioRol
+      idUsuario
     )
     if (!notificacion) return false
 
     notificacion.visto = true
     notificacion.usuarioModificacion = usuarioAuditoria
     await this.notificacionesRepository.guardarNotificacion(notificacion)
-    this.citasGateway.emitNotificacionVista(idUsuarioRol, id)
+    this.citasGateway.emitNotificacionVista(idUsuario, id)
     return true
   }
 
   async marcarTodasVistas(
     usuarioAuditoria: string,
-    idUsuarioRol: string
+    idUsuario: string
   ): Promise<number> {
     const pendientes =
-      await this.notificacionesRepository.obtenerPendientes(idUsuarioRol)
+      await this.notificacionesRepository.obtenerPendientes(idUsuario)
     if (!pendientes.length) return 0
 
     pendientes.forEach((n) => {
@@ -91,20 +87,20 @@ export class NotificacionesService {
 
     await this.notificacionesRepository.guardarNotificaciones(pendientes)
     this.citasGateway.emitNotificacionesTodasVistas(
-      idUsuarioRol,
+      idUsuario,
       pendientes.length
     )
     return pendientes.length
   }
 
   private async enviarPushResumenDiario(
-    destinatarios: Array<{ idUsuarioRol: string; title: string; body: string }>
+    destinatarios: Array<{ idUsuario: string; title: string; body: string }>
   ): Promise<void> {
     if (!destinatarios.length) return
 
     const tokens =
       await this.dispositivosPushRepository.listarTokensActivosPorUsuarios(
-        destinatarios.map((d) => d.idUsuarioRol)
+        destinatarios.map((d) => d.idUsuario)
       )
 
     if (!tokens.length) return
@@ -162,12 +158,12 @@ export class NotificacionesService {
 
     await this.enviarPushResumenDiario([
       ...personals.map((p) => ({
-        idUsuarioRol: p.idPersonal,
+        idUsuario: p.idPersonal,
         title: 'Resumen diario de citas',
         body: `Tienes ${Number(p.cantidad)} citas programadas para hoy.`,
       })),
       ...admins.map((a) => ({
-        idUsuarioRol: a.id,
+        idUsuario: a.id,
         title: 'Resumen diario de citas',
         body: `Con personal ${citasConPersonal}, sin personal ${citasSinPersonal}.`,
       })),
