@@ -34,7 +34,6 @@ import { UsuarioRolRepository } from '@/core/authorization/repository/usuario-ro
 import { MensajeriaService } from '@/core/external-services/mensajeria/mensajeria.service'
 import { UsuarioEstado } from '@/core/usuario/constant'
 import { UsuarioRolEstado } from '@/core/authorization/constant'
-import { RolEnumId } from '@/core/authorization/rol.enum'
 import { ActualizarPerfilDto } from '@/core/usuario/dto/ActualizarPerfilDto'
 import { FileValidationService } from '@/common/lib/file-validation.service'
 import path from 'path'
@@ -108,7 +107,7 @@ export class UsuarioService extends BaseService {
 
     // Constrastación SEGIP
     const roles = await this.normalizarRoles(usuarioDto.roles)
-    const { contrasena, esSupervisor } = usuarioDto
+    const { contrasena } = usuarioDto
 
     // const contrasena = TextService.generateShortRandomText()
     const datosCorreo = {
@@ -139,14 +138,6 @@ export class UsuarioService extends BaseService {
       await this.usuarioRolRepositorio.crear(
         usuario.id,
         roles,
-        usuarioAuditoria,
-        transaction
-      )
-
-      await this.actualizarConfiguracionPersonalSalud(
-        usuario.id,
-        roles,
-        esSupervisor,
         usuarioAuditoria,
         transaction
       )
@@ -720,14 +711,10 @@ export class UsuarioService extends BaseService {
       await this.usuarioRepositorio.buscarUsuarioRolPorId(idUsuario)
 
     if (!(usuario && (await TextService.compare(hash, usuario.contrasena)))) {
-      throw new PreconditionFailedException(Messages.INVALID_CREDENTIALS)
+      throw new PreconditionFailedException(Messages.INVALID_CURRENT_PASSWORD)
     }
-    // validar que la contraseña nueva cumpla nivel de seguridad
-    const contrasena = TextService.decodeBase64(contrasenaNueva)
 
-    if (!TextService.validateLevelPassword(contrasena)) {
-      throw new PreconditionFailedException(Messages.INVALID_PASSWORD_SCORE)
-    }
+    const contrasena = TextService.decodeBase64(contrasenaNueva)
 
     // guardar en bd
     await this.usuarioRepositorio.actualizar(
@@ -874,14 +861,9 @@ export class UsuarioService extends BaseService {
     usuarioAuditoria: string
   ) {
     this.verificarPermisos(id, usuarioAuditoria)
-    const { persona, correoElectronico, roles, esSupervisor } = usuarioDto
+    const { persona, correoElectronico, roles } = usuarioDto
 
-    if (
-      !persona &&
-      !correoElectronico &&
-      (!roles || roles.length === 0) &&
-      typeof esSupervisor !== 'boolean'
-    ) {
+    if (!persona && !correoElectronico && (!roles || roles.length === 0)) {
       throw new PreconditionFailedException(Messages.UPDATE_DATA_REQUIRED)
     }
     // 1. verificar que exista el usuario
@@ -965,51 +947,12 @@ export class UsuarioService extends BaseService {
         )
       }
 
-      await this.actualizarConfiguracionPersonalSalud(
-        id,
-        rolesNormalizados && rolesNormalizados.length > 0
-          ? rolesNormalizados
-          : (
-              await this.usuarioRolRepositorio.obtenerRolesPorUsuario(
-                id,
-                transaction
-              )
-            ).map((usuarioRol) => usuarioRol.rol.id),
-        esSupervisor,
-        usuarioAuditoria,
-        transaction
-      )
-
       return { id: usuario.id }
     }
 
     const usuarioResult = await this.usuarioRepositorio.runTransaction(op)
 
     return { id: usuarioResult.id }
-  }
-
-  private async actualizarConfiguracionPersonalSalud(
-    idUsuario: string,
-    roles: Array<string>,
-    esSupervisor: boolean | undefined,
-    usuarioAuditoria: string,
-    transaction: EntityManager
-  ) {
-    if (typeof esSupervisor !== 'boolean') {
-      return
-    }
-
-    if (!roles.includes(RolEnumId.PERSONAL_SALUD)) {
-      throw new BadRequestException(Messages.INVALID_SUPERVISOR_FLAG)
-    }
-
-    await this.usuarioRolRepositorio.actualizarEsSupervisorPorUsuarioRol(
-      idUsuario,
-      RolEnumId.PERSONAL_SALUD,
-      esSupervisor,
-      usuarioAuditoria,
-      transaction
-    )
   }
 
   private async normalizarRoles(roles: Array<string>) {
@@ -1134,11 +1077,8 @@ export class UsuarioService extends BaseService {
         .filter((value) => value.estado === UsuarioRolEstado.ACTIVE)
         .map(async (usuarioRol) => {
           const { id, rol, nombre, descripcion } = usuarioRol.rol
-          const esSupervisor = usuarioRol.esSupervisor
-          const modulos = await this.authorizationService.obtenerPermisosPorRol(
-            rol,
-            esSupervisor
-          )
+          const modulos =
+            await this.authorizationService.obtenerPermisosPorRol(rol)
 
           return {
             idRol: id,
@@ -1147,7 +1087,6 @@ export class UsuarioService extends BaseService {
             nombre,
             descripcion,
             modulos,
-            esSupervisor,
           }
         })
     )
@@ -1406,7 +1345,6 @@ export class UsuarioService extends BaseService {
       idUsuarioRol: string
       nombre?: string | null
       descripcion?: string | null
-      esSupervisor?: boolean
     }>,
     idRol: string | null | undefined
   ) {

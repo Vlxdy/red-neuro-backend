@@ -9,7 +9,6 @@ export class usuarioRol1611516017924 implements MigrationInterface {
         id: '1',
         rol: '1', //(RolEnum.ADMINISTRADOR),
         usuario: '1', //('ADMINISTRADOR'),
-        esSupervisor: false,
       },
     ]
     const usuariosRoles = items.map((item) => {
@@ -19,7 +18,6 @@ export class usuarioRol1611516017924 implements MigrationInterface {
         estado: 'ACTIVO',
         transaccion: 'SEEDS',
         usuarioCreacion: USUARIO_SISTEMA,
-        esSupervisor: item.esSupervisor || false,
       })
     })
     await queryRunner.manager.save(usuariosRoles)

@@ -15,10 +15,31 @@ export class rol1611498173795 implements MigrationInterface {
       },
       {
         // id: '2',
-        rol: RolEnum.PERSONAL_SALUD,
-        nombre: 'Personal de Salud',
+        rol: RolEnum.JEFE,
+        nombre: 'Jefe',
         descripcion:
-          'Profesional de la salud con acceso a las funcionalidades clínicas.',
+          'Responsable de la supervisión operativa integral del sistema.',
+      },
+      {
+        // id: '3',
+        rol: RolEnum.COORDINADOR,
+        nombre: 'Coordinador',
+        descripcion:
+          'Responsable de coordinar la operación de citas, pacientes y consulta de personal.',
+      },
+      {
+        // id: '4',
+        rol: RolEnum.PERSONAL,
+        nombre: 'Personal',
+        descripcion:
+          'Usuario operativo con acceso a sus citas y pacientes asignados.',
+      },
+      {
+        // id: '5',
+        rol: RolEnum.PROFESIONAL_INVITADO,
+        nombre: 'Profesional invitado',
+        descripcion:
+          'Profesional externo con acceso exclusivo a sus citas y pacientes asignados.',
       },
     ]
     const roles = items.map((item) => {

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { RolEnum } from '@/core/authorization/rol.enum'
 
 export class PersonalResponseDto {
   @ApiProperty({
@@ -12,13 +13,15 @@ export class PersonalResponseDto {
     example: 'ACTIVO',
   })
   estado!: string
+
   @ApiProperty({
-    description:
-      'Indica si el personal de salud tiene habilitadas funciones de supervisión',
-    example: false,
+    description: 'Roles operativos asignados al personal de salud',
+    example: [RolEnum.PERSONAL, RolEnum.COORDINADOR],
+    enum: RolEnum,
+    isArray: true,
     required: false,
   })
-  esSupervisor?: boolean
+  roles?: RolEnum[]
 
   @ApiProperty({
     description: 'Número de documento de identidad',

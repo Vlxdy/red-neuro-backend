@@ -2745,16 +2745,6 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfirmarCitaDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "",
@@ -3778,7 +3768,7 @@
             "name": "idEjecutor",
             "required": false,
             "in": "query",
-            "description": "Identificador del usuario ejecutor (usuario-rol)",
+            "description": "Identificador del usuario ejecutor",
             "schema": {
               "example": "42",
               "type": "string"
@@ -5214,7 +5204,7 @@
             "name": "incluirInactivos",
             "required": false,
             "in": "query",
-            "description": "Si es true, incluye personal de salud activo e inactivo. Requiere permisos administrativos.",
+            "description": "Si es true, incluye personal de salud activo e inactivo. Para otros roles este filtro se ignora y se procesa como false.",
             "schema": {
               "default": false,
               "type": "boolean"
@@ -6648,11 +6638,6 @@
             "items": {
               "$ref": "#/components/schemas/ModuloPermisoDto"
             }
-          },
-          "esSupervisor": {
-            "type": "boolean",
-            "description": "Indica si el rol de personal de salud cuenta con permisos de supervisión",
-            "example": false
           }
         },
         "required": [
@@ -6714,11 +6699,6 @@
           "rol": {
             "type": "string",
             "example": "ADMINISTRADOR"
-          },
-          "esSupervisor": {
-            "type": "boolean",
-            "description": "Indica si el rol activo de personal de salud cuenta con permisos de supervisión",
-            "example": false
           }
         },
         "required": [
@@ -6832,11 +6812,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "esSupervisor": {
-            "type": "boolean",
-            "example": false,
-            "description": "Habilita permisos de supervisión para el rol PERSONAL_SALUD."
           }
         },
         "required": [
@@ -7029,11 +7004,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "esSupervisor": {
-            "type": "boolean",
-            "example": false,
-            "description": "Habilita permisos de supervisión para el rol PERSONAL_SALUD."
           }
         },
         "required": [
@@ -7085,7 +7055,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Identificador único del personal de salud",
+            "description": "Identificador del usuario asociado al personal de salud",
             "example": "a8f4c1d2-32a1-4c2b-bff1-87fa92c1a223"
           },
           "estado": {
@@ -7093,10 +7063,24 @@
             "description": "Estado del personal de salud en su rol",
             "example": "ACTIVO"
           },
-          "esSupervisor": {
-            "type": "boolean",
-            "description": "Indica si el personal de salud tiene habilitadas funciones de supervisión",
-            "example": false
+          "roles": {
+            "type": "array",
+            "description": "Roles operativos asignados al personal de salud",
+            "example": [
+              "PERSONAL",
+              "COORDINADOR"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "ADMINISTRADOR",
+                "JEFE",
+                "COORDINADOR",
+                "PERSONAL",
+                "PROFESIONAL_INVITADO",
+                "*"
+              ]
+            }
           },
           "nroDocumento": {
             "type": "string",
@@ -7496,7 +7480,7 @@
           },
           "usuarioProgramoId": {
             "type": "string",
-            "description": "UsuarioRol que programó inicialmente la cita",
+            "description": "Usuario que programó inicialmente la cita",
             "example": "88"
           },
           "usuarioProgramo": {
@@ -7509,7 +7493,7 @@
           },
           "usuarioEnvioId": {
             "type": "string",
-            "description": "UsuarioRol que envió la cita al flujo operativo",
+            "description": "Usuario que envió la cita al flujo operativo",
             "example": "91"
           },
           "usuarioEnvio": {
@@ -7837,21 +7821,6 @@
           }
         }
       },
-      "ConfirmarCitaDto": {
-        "type": "object",
-        "properties": {
-          "fechaInicio": {
-            "type": "string",
-            "description": "Nueva fecha/hora de inicio opcional para confirmar la cita solicitada",
-            "example": "2024-06-20T12:00:00Z"
-          },
-          "detalle": {
-            "type": "string",
-            "description": "Detalle opcional a ajustar antes de confirmar la cita solicitada",
-            "example": "Ajuste final coordinado en la confirmación"
-          }
-        }
-      },
       "RechazarCitaDto": {
         "type": "object",
         "properties": {
@@ -8121,7 +8090,7 @@
           },
           "idEjecutor": {
             "type": "string",
-            "description": "Identificador del usuario que ejecutó la acción (usuario-rol)"
+            "description": "Identificador del usuario que ejecutó la acción"
           },
           "comentario": {
             "type": "string",
@@ -8556,22 +8525,30 @@
               }
             ]
           },
-          "esSupervisor": {
-            "type": "boolean",
-            "example": false,
-            "description": "Habilita permisos de supervisión para el rol PERSONAL_SALUD."
-          },
           "ocupacion": {
             "type": "string",
             "description": "Ocupación del profesional de salud",
             "example": "Cardiología"
+          },
+          "rol": {
+            "type": "string",
+            "description": "Rol principal a asignar al usuario creado. Jefe puede crear COORDINADOR, PERSONAL o PROFESIONAL_INVITADO; Administrador puede crear cualquier rol.",
+            "enum": [
+              "ADMINISTRADOR",
+              "JEFE",
+              "COORDINADOR",
+              "PERSONAL",
+              "PROFESIONAL_INVITADO"
+            ],
+            "example": "PERSONAL"
           }
         },
         "required": [
           "contrasena",
           "repetirContrasena",
           "correoElectronico",
-          "persona"
+          "persona",
+          "rol"
         ]
       },
       "ActualizarPersonalSaludDto": {
@@ -8589,15 +8566,22 @@
               }
             ]
           },
-          "esSupervisor": {
-            "type": "boolean",
-            "example": false,
-            "description": "Habilita permisos de supervisión para el rol PERSONAL_SALUD."
-          },
           "ocupacion": {
             "type": "string",
             "description": "Ocupación del profesional de salud",
             "example": "Cardiología"
+          },
+          "rol": {
+            "type": "string",
+            "description": "Rol principal a asignar al usuario creado. Jefe puede crear COORDINADOR, PERSONAL o PROFESIONAL_INVITADO; Administrador puede crear cualquier rol.",
+            "enum": [
+              "ADMINISTRADOR",
+              "JEFE",
+              "COORDINADOR",
+              "PERSONAL",
+              "PROFESIONAL_INVITADO"
+            ],
+            "example": "PERSONAL"
           }
         }
       },

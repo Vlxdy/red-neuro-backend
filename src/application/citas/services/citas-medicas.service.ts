@@ -12,7 +12,6 @@ import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
-  ConfirmarCitaDto,
   CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
   CrearCitaDto,
@@ -44,7 +43,7 @@ import { formatearCita, formatearCitas } from '../utils/formatear-citas'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
-import { RolEnumId } from '@/core/authorization/rol.enum'
+import { RolEnum } from '@/core/authorization/rol.enum'
 import { NotificacionesRepository } from '../repository/notificaciones.repository'
 import { DispositivosPushRepository } from '../repository/dispositivos-push.repository'
 import { FirebasePushService } from '@/core/external-services/firebase/firebase-push.service'
@@ -246,31 +245,50 @@ export class CitasMedicasService extends BaseService {
     }
   }
 
+  private aplicarRestriccionPorRolEnFiltros<T extends { idPersonal?: string }>(
+    filtros: T,
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
+  ): T {
+    if (
+      rolSolicitante !== RolEnum.PROFESIONAL_INVITADO ||
+      !idUsuarioSolicitante
+    ) {
+      return filtros
+    }
+
+    return {
+      ...filtros,
+      idPersonal: idUsuarioSolicitante,
+    }
+  }
+
   private resolverScope(
-    scope: string | undefined,
-    idRol: string,
-    esSupervisor: boolean,
+    scope: CitasScope | undefined,
+    rol: string,
     idUsuario: string,
     idPersonal?: string
   ) {
-    const esSupervisorPersonalSalud =
-      String(idRol) === RolEnumId.PERSONAL_SALUD && esSupervisor === true
+    const puedeVerTodo = [RolEnum.ADMINISTRADOR, RolEnum.JEFE].includes(
+      rol as RolEnum
+    )
+    const puedeVerPersonal = puedeVerTodo || rol === RolEnum.COORDINADOR
 
-    if (!esSupervisorPersonalSalud || !scope || scope === 'mine') {
+    if (!puedeVerPersonal || !scope || scope === CitasScope.MINE) {
       return { idPersonal: idUsuario, scopeAplicado: CitasScope.MINE }
     }
 
-    if (scope === 'personal') {
+    if (scope === CitasScope.PERSONAL) {
       if (!idPersonal) {
         throw new BadRequestException(
-          'idPersonal es requerido cuando scope=personal'
+          `idPersonal es requerido cuando scope=${CitasScope.PERSONAL}`
         )
       }
 
       return { idPersonal, scopeAplicado: CitasScope.PERSONAL }
     }
 
-    if (scope === 'all') {
+    if (scope === CitasScope.ALL) {
       return { idPersonal: undefined, scopeAplicado: CitasScope.ALL }
     }
 
@@ -328,13 +346,11 @@ export class CitasMedicasService extends BaseService {
   async obtenerHomeBandeja(
     filtros: HomeBandejaQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<HomeBandejaResponseDto> {
     const { idPersonal, scopeAplicado } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -448,13 +464,11 @@ export class CitasMedicasService extends BaseService {
   async listarHomePendientesAprobacion(
     filtros: HomeListadoQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<[CitaResponseDto[], number]> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -479,13 +493,11 @@ export class CitasMedicasService extends BaseService {
   async listarHomeRechazadasSolicitadas(
     filtros: HomeListadoQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<[CitaResponseDto[], number]> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -505,13 +517,11 @@ export class CitasMedicasService extends BaseService {
   async listarHomeBorradores(
     filtros: HomeListadoQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<[CitaResponseDto[], number]> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -530,13 +540,11 @@ export class CitasMedicasService extends BaseService {
   async listarHomeProgramadasAsignadas(
     filtros: HomeProgramadasListadoQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<[HomeGrupoDiaResponseDto[], number]> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -569,13 +577,11 @@ export class CitasMedicasService extends BaseService {
   async obtenerMisResumen(
     filtros: MisResumenCitasDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<MisResumenResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -602,13 +608,11 @@ export class CitasMedicasService extends BaseService {
   async listarMisSolicitadas(
     filtros: MisSolicitadasQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<MisSolicitadasResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -648,13 +652,11 @@ export class CitasMedicasService extends BaseService {
   async listarMisTimeline(
     filtros: MisTimelineQueryDto,
     idUsuario: string,
-    idRol: string,
-    esSupervisor: boolean
+    rol: string
   ): Promise<MisTimelineResponseDto> {
     const { idPersonal } = this.resolverScope(
       filtros.scope,
-      idRol,
-      esSupervisor,
+      rol,
       idUsuario,
       filtros.idPersonal
     )
@@ -706,22 +708,36 @@ export class CitasMedicasService extends BaseService {
   // ===== Citas =====
   async listarCitas(
     filtros: FiltrosCitaDto,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<CitaResponseDto[]> {
-    const citas = await this.citasRepository.listarCitas(
+    const filtrosAplicados = this.aplicarRestriccionPorRolEnFiltros(
       filtros,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
+    )
+    const citas = await this.citasRepository.listarCitas(
+      filtrosAplicados,
+      idUsuarioSolicitante,
+      rolSolicitante
     )
     return formatearCitas(citas)
   }
 
   async listarCitasPaginadas(
     filtros: FiltrosCitaPaginadoDto,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<[CitaResponseDto[], number]> {
-    const [citas, total] = await this.citasRepository.listarCitasPaginadas(
+    const filtrosAplicados = this.aplicarRestriccionPorRolEnFiltros(
       filtros,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
+    )
+    const [citas, total] = await this.citasRepository.listarCitasPaginadas(
+      filtrosAplicados,
+      idUsuarioSolicitante,
+      rolSolicitante
     )
 
     return [formatearCitas(citas), total]
@@ -729,7 +745,8 @@ export class CitasMedicasService extends BaseService {
 
   async obtenerCantidadCitasPorDia(
     filtros: FiltrosCitaDto,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<CantidadCitasPorDiaResponseDto[]> {
     const fechaInicio = dayjs(filtros.fechaInicio)
     const fechaFin = dayjs(filtros.fechaFin)
@@ -743,13 +760,19 @@ export class CitasMedicasService extends BaseService {
     const fechaInicioRango = fechaInicio.startOf('day').format('YYYY-MM-DD')
     const fechaFinRango = fechaFin.endOf('day').format('YYYY-MM-DD')
 
+    const filtrosAplicados = this.aplicarRestriccionPorRolEnFiltros(
+      {
+        ...filtros,
+        fechaInicio: fechaInicioRango,
+        fechaFin: fechaFinRango,
+      },
+      idUsuarioSolicitante,
+      rolSolicitante
+    )
+
     const datosAgrupados =
       await this.citasRepository.obtenerCantidadCitasPorDia(
-        {
-          ...filtros,
-          fechaInicio: fechaInicioRango,
-          fechaFin: fechaFinRango,
-        },
+        filtrosAplicados,
         idUsuarioSolicitante
       )
 
@@ -779,11 +802,13 @@ export class CitasMedicasService extends BaseService {
   async listarMisCitas(
     filtros: FiltrosCitaDto,
     idPersonal: string,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<CitaResponseDto[]> {
     return await this.listarCitas(
       { ...filtros, idPersonal },
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
     )
   }
 
@@ -826,12 +851,14 @@ export class CitasMedicasService extends BaseService {
   async obtenerCita(
     id: string,
     transaccion?: EntityManager,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<CitaResponseDto> {
     const cita = await this.citasRepository.obtenerCitaConRelaciones(
       id,
       transaccion,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
     )
     if (!cita) {
       throw new NotFoundException('La cita solicitada no existe')
@@ -842,12 +869,14 @@ export class CitasMedicasService extends BaseService {
   async obtenerCitaId(
     id: string,
     transaccion?: EntityManager,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<Cita> {
     const cita = await this.citasRepository.obtenerCitaConRelaciones(
       id,
       transaccion,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
     )
     if (!cita) {
       throw new NotFoundException('La cita solicitada no existe')
@@ -1092,31 +1121,12 @@ export class CitasMedicasService extends BaseService {
 
   async confirmarCita(
     id: string,
-    dto: ConfirmarCitaDto,
     usuarioAuditoria = '0',
     idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     return await this.citasRepository.runTransaction(async (transaccion) => {
       const cita = await this.obtenerCitaId(id, transaccion)
       this.validarEstado(cita, [CitasEstado.SOLICITADA])
-
-      if (dto.fechaInicio) {
-        const fechaInicio = dayjs(dto.fechaInicio).toDate()
-        const servicio = await this.resolverServicio(
-          cita.idServicio as string,
-          cita.tipoCita,
-          transaccion
-        )
-        cita.fechaInicio = fechaInicio
-        cita.fechaFin = this.calcularFechaFin(
-          fechaInicio,
-          servicio.duracionMinutos
-        )
-      }
-
-      if (dto.detalle !== undefined) {
-        cita.detalle = dto.detalle
-      }
 
       const estadoAnterior = cita.estado as CitasEstado
       cita.estado = CitasEstado.PROGRAMADA

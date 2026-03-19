@@ -57,7 +57,6 @@ export class PersonalSaludController extends BaseController {
       {
         rol: req.user.rol,
         roles: req.user.roles,
-        esSupervisor: req.user.esSupervisor,
       }
     )
     return this.successListRows(resultado)
@@ -67,10 +66,16 @@ export class PersonalSaludController extends BaseController {
   @ApiBaseResponse(PersonalResponseDto)
   @Get(':id')
   async obtenerPorId(
-    @Param() { id }: ParamIdDto
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
   ): Promise<BaseResponseDto<PersonalResponseDto>> {
-    const resultado =
-      await this.personalSaludService.obtenerPersonalSaludPorId(id)
+    const resultado = await this.personalSaludService.obtenerPersonalSaludPorId(
+      id,
+      {
+        rol: req.user?.rol,
+        roles: req.user?.roles,
+      }
+    )
     return this.success(resultado)
   }
 
@@ -88,7 +93,6 @@ export class PersonalSaludController extends BaseController {
       {
         rol: req.user?.rol,
         roles: req.user?.roles,
-        esSupervisor: req.user?.esSupervisor,
       }
     )
     return this.successCreate(resultado)
@@ -106,7 +110,11 @@ export class PersonalSaludController extends BaseController {
     const resultado = await this.personalSaludService.actualizarPersonalSalud(
       id,
       dto,
-      usuarioAuditoria
+      usuarioAuditoria,
+      {
+        rol: req.user?.rol,
+        roles: req.user?.roles,
+      }
     )
     return this.successUpdate(resultado)
   }
@@ -121,7 +129,11 @@ export class PersonalSaludController extends BaseController {
     const usuarioAuditoria = this.getUser(req)
     const resultado = await this.personalSaludService.activarPersonalSalud(
       id,
-      usuarioAuditoria
+      usuarioAuditoria,
+      {
+        rol: req.user?.rol,
+        roles: req.user?.roles,
+      }
     )
     return this.successUpdate(resultado)
   }
@@ -136,7 +148,11 @@ export class PersonalSaludController extends BaseController {
     const usuarioAuditoria = this.getUser(req)
     const resultado = await this.personalSaludService.inactivarPersonalSalud(
       id,
-      usuarioAuditoria
+      usuarioAuditoria,
+      {
+        rol: req.user?.rol,
+        roles: req.user?.roles,
+      }
     )
     return this.successUpdate(resultado)
   }
@@ -158,7 +174,6 @@ export class PersonalSaludController extends BaseController {
         {
           rol: req.user?.rol,
           roles: req.user?.roles,
-          esSupervisor: req.user?.esSupervisor,
         }
       )
 

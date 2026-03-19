@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsString } from '@/common/validation'
+import { IsBase64, IsNotEmpty, IsString, MaxLength } from '@/common/validation'
+import { Transform } from 'class-transformer'
 import { PersonaDto } from '@/core/usuario/dto/persona.dto'
 
 export class CambioRolDto {
@@ -19,14 +20,22 @@ export class TokenDto {
 export class AuthDto {
   @ApiProperty({
     example: 'ADMINISTRADOR',
-    description: 'Usuario',
+    description: 'Nombre de usuario registrado en el sistema.',
   })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(50)
+  @Transform(({ value }) => value?.trim())
   usuario: string
 
   @ApiProperty({
     example: 'MTIz',
-    description: 'Contraseña',
+    description: 'Contraseña codificada en Base64.',
   })
+  @IsString()
+  @IsNotEmpty()
+  @IsBase64()
+  @MaxLength(2048)
   contrasena: string
 }
 
@@ -95,14 +104,6 @@ export class RolAutenticadoDto {
     description: 'Listado de módulos y permisos habilitados para el rol',
   })
   modulos: ModuloPermisoDto[]
-
-  @ApiProperty({
-    description:
-      'Indica si el rol de personal de salud cuenta con permisos de supervisión',
-    example: false,
-    required: false,
-  })
-  esSupervisor?: boolean
 }
 
 export class UsuarioAutenticadoDto {
@@ -143,14 +144,6 @@ export class AuthResponseDto extends UsuarioAutenticadoDto {
 
   @ApiProperty({ example: 'ADMINISTRADOR' })
   rol: string
-
-  @ApiProperty({
-    description:
-      'Indica si el rol activo de personal de salud cuenta con permisos de supervisión',
-    example: false,
-    required: false,
-  })
-  esSupervisor?: boolean
 }
 
 export class AccessTokenDto {

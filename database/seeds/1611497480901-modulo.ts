@@ -117,7 +117,7 @@ export class modulo1611497480901 implements MigrationInterface {
           {
             nombre: 'citas',
             url: '/admin/citas',
-            label: 'Citas',
+            label: 'Agenda',
             propiedades: {
               icono: 'event',
               descripcion:

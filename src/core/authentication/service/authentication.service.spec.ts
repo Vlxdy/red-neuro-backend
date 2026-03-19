@@ -8,6 +8,7 @@ import { TextService } from '@/common/lib/text.service'
 import { plainToClass } from 'class-transformer'
 import { ConfigService } from '@nestjs/config'
 import { UnauthorizedException } from '@nestjs/common'
+import { Messages } from '@/common/constants/response-messages'
 import { Persona } from '@/core/usuario/entity/persona.entity'
 import { PersonaService } from '@/core/usuario/service/persona.service'
 import { PersonaRepository } from '@/core/usuario/repository/persona.repository'
@@ -201,6 +202,13 @@ describe('AuthenticationService', () => {
       expect(usuarioService.actualizarDatosBloqueo).toBeCalled()
       expect(usuarioService.actualizarContadorBloqueos).toBeCalled()
     }
+  })
+
+  it('[validarUsuario] Debería lanzar una excepcion con mensaje claro si la contraseña no está codificada en base64.', async () => {
+    await expect(service.validarUsuario('user', '***')).rejects.toMatchObject({
+      status: 401,
+      message: Messages.INVALID_USER_CREDENTIALS,
+    })
   })
 
   it('[validarUsuarioOidc] Debería retornar null cuando no existe el usuario.', async () => {
