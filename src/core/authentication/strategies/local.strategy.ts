@@ -1,3 +1,4 @@
+import { Messages } from '@/common/constants/response-messages'
 import { LoggerService } from '@/core/logger'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
@@ -21,7 +22,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       password
     )
     if (!usuario) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException(Messages.INVALID_USER_CREDENTIALS)
     }
     return { id: usuario.id, roles: usuario.roles }
   }
