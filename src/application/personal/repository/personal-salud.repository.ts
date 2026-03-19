@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { Brackets, DataSource, EntityManager } from 'typeorm'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
-import { UsuarioRol } from '@/core/authorization/entity/usuario-rol.entity'
 import { RolEstado, UsuarioRolEstado } from '@/core/authorization/constant'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { Status } from '@/common/constants'
@@ -29,9 +28,9 @@ export class PersonalSaludRepository {
       .leftJoinAndSelect(
         'usuario.usuarioRol',
         'usuarioRol',
-        'usuarioRol.estado IN(:...estadosUsuarioRol)',
+        'usuarioRol.estado = :estadoUsuarioRol',
         {
-          estadosUsuarioRol: [Status.ACTIVE, Status.INACTIVE],
+          estadoUsuarioRol: UsuarioRolEstado.ACTIVE,
         }
       )
       .leftJoinAndSelect('usuarioRol.rol', 'rol', 'rol.estado = :rolEstado', {
@@ -50,9 +49,9 @@ export class PersonalSaludRepository {
     const query = this.crearQueryPersonal().take(limite).skip(saltar)
 
     if (!incluirInactivos) {
-      query.andWhere('usuarioRol.estado = :estado', { estado: Status.ACTIVE })
+      query.andWhere('usuario.estado = :estado', { estado: Status.ACTIVE })
     } else {
-      query.andWhere('usuarioRol.estado IN(:...estados)', {
+      query.andWhere('usuario.estado IN(:...estados)', {
         estados: [Status.ACTIVE, Status.INACTIVE],
       })
     }
@@ -102,9 +101,9 @@ export class PersonalSaludRepository {
     )
 
     if (estadoActivo) {
-      query.andWhere('usuarioRol.estado = :estado', { estado: Status.ACTIVE })
+      query.andWhere('usuario.estado = :estado', { estado: Status.ACTIVE })
     } else {
-      query.andWhere('usuarioRol.estado IN(:...estados)', {
+      query.andWhere('usuario.estado IN(:...estados)', {
         estados: [Status.ACTIVE, Status.INACTIVE],
       })
     }
@@ -118,7 +117,7 @@ export class PersonalSaludRepository {
   ) {
     return await this.crearQueryPersonal(manager)
       .andWhere('usuario.id = :idUsuario', { idUsuario })
-      .andWhere('usuarioRol.estado = :estado', { estado: Status.ACTIVE })
+      .andWhere('usuario.estado = :estado', { estado: Status.ACTIVE })
       .getOne()
   }
 
@@ -129,8 +128,8 @@ export class PersonalSaludRepository {
   ) {
     return await this.crearQueryPersonal(manager)
       .andWhere('usuario.id = :idUsuario', { idUsuario })
-      .andWhere('usuarioRol.estado = :estado', {
-        estado: UsuarioRolEstado.ACTIVE,
+      .andWhere('usuario.estado = :estado', {
+        estado: Status.ACTIVE,
       })
       .andWhere('rol.rol IN(:...rolesFiltro)', { rolesFiltro: roles })
       .getOne()
@@ -154,15 +153,9 @@ export class PersonalSaludRepository {
     usuarioAuditoria: string,
     manager?: EntityManager
   ) {
-    return await (manager ?? this.dataSource)
-      .getRepository(UsuarioRol)
-      .createQueryBuilder()
-      .update()
-      .set({
-        estado,
-        usuarioModificacion: usuarioAuditoria,
-      })
-      .where('id_usuario = :idUsuario', { idUsuario })
-      .execute()
+    return await this.usuarioRepository(manager).update(idUsuario, {
+      estado,
+      usuarioModificacion: usuarioAuditoria,
+    })
   }
 }
