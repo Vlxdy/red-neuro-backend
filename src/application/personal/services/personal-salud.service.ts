@@ -9,9 +9,8 @@ import {
 import { UsuarioService } from '@/core/usuario/service/usuario.service'
 import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
 import {
-  formatearPersonal,
-  formatearPersonales,
   formatearUsuarioComoPersonal,
+  formatearPersonales,
 } from '../utils/formateo-personal.utils'
 import { PersonalResponseDto } from '../dto/personal.dto'
 import { ListarPersonalSaludQueryDto } from '../dto/listar-personal-salud-query.dto'
@@ -144,7 +143,7 @@ export class PersonalSaludService extends BaseService {
 
   async obtenerPersonalSaludPorId(id: string): Promise<PersonalResponseDto> {
     const personal = await this.buscarPersonalSaludPorId(id)
-    return formatearPersonal(personal)
+    return formatearUsuarioComoPersonal(personal)
   }
 
   async crearPersonalSalud(
@@ -177,7 +176,7 @@ export class PersonalSaludService extends BaseService {
 
     if (ocupacion !== undefined) {
       await this.personalSaludRepository.actualizarOcupacionUsuario(
-        personalCreado.idUsuario,
+        personalCreado.id,
         ocupacion,
         usuarioAuditoria
       )
@@ -185,7 +184,7 @@ export class PersonalSaludService extends BaseService {
 
     const personalActual =
       await this.personalSaludRepository.obtenerPersonalPorUsuarioIdYRoles(
-        personalCreado.idUsuario,
+        personalCreado.id,
         [rol]
       )
 
@@ -193,11 +192,7 @@ export class PersonalSaludService extends BaseService {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
     }
 
-    if (rol === RolEnum.ADMINISTRADOR) {
-      return formatearUsuarioComoPersonal(personalActual.usuario)
-    }
-
-    return formatearPersonal(personalActual)
+    return formatearUsuarioComoPersonal(personalActual)
   }
 
   async actualizarPersonalSalud(
@@ -213,7 +208,7 @@ export class PersonalSaludService extends BaseService {
 
     if (requiereActualizarDatos) {
       await this.usuarioService.actualizarDatos(
-        personal.idUsuario,
+        personal.id,
         {
           persona,
           correoElectronico,
@@ -224,7 +219,7 @@ export class PersonalSaludService extends BaseService {
 
     if (ocupacion !== undefined) {
       await this.personalSaludRepository.actualizarOcupacionUsuario(
-        personal.idUsuario,
+        personal.id,
         ocupacion ?? null,
         usuarioAuditoria
       )
@@ -232,14 +227,14 @@ export class PersonalSaludService extends BaseService {
 
     const personalActualizado =
       await this.personalSaludRepository.obtenerPersonalSaludPorId({
-        id: personal.idUsuario,
+        id: personal.id,
       })
 
     if (!personalActualizado) {
       throw new NotFoundException(Messages.PERSONAL_SALUD_NOT_FOUND)
     }
 
-    return formatearPersonal(personalActualizado)
+    return formatearUsuarioComoPersonal(personalActualizado)
   }
 
   async activarPersonalSalud(
@@ -249,14 +244,16 @@ export class PersonalSaludService extends BaseService {
     const personal = await this.buscarPersonalSaludPorId(id, false)
 
     await this.personalSaludRepository.cambiarEstadoPersonalSalud(
-      personal.idUsuario,
+      personal.id,
       Status.ACTIVE,
       usuarioAuditoria
     )
 
-    personal.estado = Status.ACTIVE
+    personal.usuarioRol?.forEach((usuarioRol) => {
+      usuarioRol.estado = Status.ACTIVE
+    })
 
-    return formatearPersonal(personal)
+    return formatearUsuarioComoPersonal(personal)
   }
 
   async inactivarPersonalSalud(
@@ -266,14 +263,16 @@ export class PersonalSaludService extends BaseService {
     const personal = await this.buscarPersonalSaludPorId(id)
 
     await this.personalSaludRepository.cambiarEstadoPersonalSalud(
-      personal.idUsuario,
+      personal.id,
       Status.INACTIVE,
       usuarioAuditoria
     )
 
-    personal.estado = Status.INACTIVE
+    personal.usuarioRol?.forEach((usuarioRol) => {
+      usuarioRol.estado = Status.INACTIVE
+    })
 
-    return formatearPersonal(personal)
+    return formatearUsuarioComoPersonal(personal)
   }
 
   async restablecerContrasenaPersonalSalud(
@@ -285,7 +284,7 @@ export class PersonalSaludService extends BaseService {
 
     const personal = await this.buscarPersonalSaludPorId(id)
     return this.usuarioService.restaurarContrasena(
-      personal.idUsuario,
+      personal.id,
       usuarioAuditoria
     )
   }
