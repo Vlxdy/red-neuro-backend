@@ -40,16 +40,11 @@ export class PersonalSaludService extends BaseService {
     paginacionQuery: ListarPersonalSaludQueryDto,
     usuarioSesion: UsuarioSesionPersonal
   ): Promise<[PersonalResponseDto[], number]> {
-    const incluirInactivos = paginacionQuery.incluirInactivos ?? false
+    this.validarPermisosListadoPersonal(usuarioSesion)
 
-    if (
-      incluirInactivos &&
-      !this.tienePermisosAdministradorPersonal(usuarioSesion)
-    ) {
-      throw new ForbiddenException(
-        'No cuenta con permisos para listar personal de salud inactivo.'
-      )
-    }
+    const incluirInactivos =
+      (paginacionQuery.incluirInactivos ?? false) &&
+      this.tienePermisosAdministradorPersonal(usuarioSesion)
 
     const [personal, total] =
       await this.personalSaludRepository.listarPersonalSaludPaginado(
@@ -60,15 +55,31 @@ export class PersonalSaludService extends BaseService {
     return [formatearPersonales(personal), total]
   }
 
+  private tieneAlgunRol(
+    usuarioSesion: UsuarioSesionPersonal,
+    roles: RolEnum[]
+  ): boolean {
+    return roles.some(
+      (rol) =>
+        usuarioSesion.rol === rol || usuarioSesion.roles?.includes(rol) === true
+    )
+  }
+
   private tienePermisosAdministradorPersonal(
     usuarioSesion: UsuarioSesionPersonal
   ): boolean {
-    return (
-      usuarioSesion.rol === RolEnum.ADMINISTRADOR ||
-      usuarioSesion.rol === RolEnum.JEFE ||
-      usuarioSesion.roles?.includes(RolEnum.ADMINISTRADOR) === true ||
-      usuarioSesion.roles?.includes(RolEnum.JEFE) === true
-    )
+    return this.tieneAlgunRol(usuarioSesion, [
+      RolEnum.ADMINISTRADOR,
+      RolEnum.JEFE,
+    ])
+  }
+
+  private validarPermisosListadoPersonal(usuarioSesion: UsuarioSesionPersonal) {
+    if (this.tieneAlgunRol(usuarioSesion, [RolEnum.PROFESIONAL_INVITADO])) {
+      throw new ForbiddenException(
+        'No cuenta con permisos para listar personal de salud.'
+      )
+    }
   }
 
   private validarPermisosAdministradorPersonal(
@@ -141,7 +152,12 @@ export class PersonalSaludService extends BaseService {
     return personal
   }
 
-  async obtenerPersonalSaludPorId(id: string): Promise<PersonalResponseDto> {
+  async obtenerPersonalSaludPorId(
+    id: string,
+    usuarioSesion: UsuarioSesionPersonal
+  ): Promise<PersonalResponseDto> {
+    this.validarPermisosListadoPersonal(usuarioSesion)
+
     const personal = await this.buscarPersonalSaludPorId(id)
     return formatearUsuarioComoPersonal(personal)
   }
@@ -198,8 +214,11 @@ export class PersonalSaludService extends BaseService {
   async actualizarPersonalSalud(
     id: string,
     dto: ActualizarPersonalSaludDto,
-    usuarioAuditoria: string
+    usuarioAuditoria: string,
+    usuarioSesion: UsuarioSesionPersonal
   ): Promise<PersonalResponseDto> {
+    this.validarPermisosAdministradorPersonal(usuarioSesion)
+
     const personal = await this.buscarPersonalSaludPorId(id)
     const { ocupacion, persona, correoElectronico } = dto
 
@@ -239,8 +258,11 @@ export class PersonalSaludService extends BaseService {
 
   async activarPersonalSalud(
     id: string,
-    usuarioAuditoria: string
+    usuarioAuditoria: string,
+    usuarioSesion: UsuarioSesionPersonal
   ): Promise<PersonalResponseDto> {
+    this.validarPermisosAdministradorPersonal(usuarioSesion)
+
     const personal = await this.buscarPersonalSaludPorId(id, false)
 
     await this.personalSaludRepository.cambiarEstadoPersonalSalud(
@@ -258,8 +280,11 @@ export class PersonalSaludService extends BaseService {
 
   async inactivarPersonalSalud(
     id: string,
-    usuarioAuditoria: string
+    usuarioAuditoria: string,
+    usuarioSesion: UsuarioSesionPersonal
   ): Promise<PersonalResponseDto> {
+    this.validarPermisosAdministradorPersonal(usuarioSesion)
+
     const personal = await this.buscarPersonalSaludPorId(id)
 
     await this.personalSaludRepository.cambiarEstadoPersonalSalud(

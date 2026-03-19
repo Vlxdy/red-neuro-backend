@@ -6,7 +6,7 @@ import { IsBoolean, IsOptional } from '@/common/validation'
 export class ListarPersonalSaludQueryDto extends PaginacionQueryDto {
   @ApiPropertyOptional({
     description:
-      'Si es true, incluye personal de salud activo e inactivo. Requiere permisos administrativos.',
+      'Si es true, incluye personal de salud activo e inactivo. Para otros roles este filtro se ignora y se procesa como false.',
     default: false,
   })
   @Transform(({ value }) => {
