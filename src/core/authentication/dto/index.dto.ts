@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsString } from '@/common/validation'
+import { IsBase64, IsNotEmpty, IsString, MaxLength } from '@/common/validation'
+import { Transform } from 'class-transformer'
 import { PersonaDto } from '@/core/usuario/dto/persona.dto'
 
 export class CambioRolDto {
@@ -19,14 +20,22 @@ export class TokenDto {
 export class AuthDto {
   @ApiProperty({
     example: 'ADMINISTRADOR',
-    description: 'Usuario',
+    description: 'Nombre de usuario registrado en el sistema.',
   })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(50)
+  @Transform(({ value }) => value?.trim())
   usuario: string
 
   @ApiProperty({
     example: 'MTIz',
-    description: 'Contraseña',
+    description: 'Contraseña codificada en Base64.',
   })
+  @IsString()
+  @IsNotEmpty()
+  @IsBase64()
+  @MaxLength(2048)
   contrasena: string
 }
 

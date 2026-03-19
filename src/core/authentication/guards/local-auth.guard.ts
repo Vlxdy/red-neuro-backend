@@ -24,7 +24,8 @@ export class LocalAuthGuard extends AuthGuard('local') {
       if (!isPermitted) throw new UnauthorizedException()
     } catch (err) {
       throw new BaseException(err, {
-        accion: 'Verifique que las credenciales de acceso sean las correctas',
+        accion:
+          'Verifique que el usuario exista, que la contraseña sea correcta y que la cuenta esté habilitada para iniciar sesión',
         metadata: {
           msg: `${action} ${resource} -> false - LOGIN BÁSICO (Error con usuario y contraseña)`,
         },

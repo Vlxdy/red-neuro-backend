@@ -121,9 +121,14 @@ export class AuthenticationService extends BaseService {
       throw new UnauthorizedException(Messages.USER_BLOCKED)
     }
 
-    const pass = TextService.decodeBase64(contrasena)
+    let pass = ''
+    try {
+      pass = TextService.decodeBase64(contrasena)
+    } catch {
+      throw new UnauthorizedException(Messages.INVALID_USER_CREDENTIALS)
+    }
 
-    if (!(await TextService.compare(pass, respuesta.contrasena))) {
+    if (!pass || !(await TextService.compare(pass, respuesta.contrasena))) {
       await this.generarIntentoBloqueo(respuesta)
       throw new UnauthorizedException(Messages.INVALID_USER_CREDENTIALS)
     }
