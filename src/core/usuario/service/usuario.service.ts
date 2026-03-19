@@ -711,14 +711,10 @@ export class UsuarioService extends BaseService {
       await this.usuarioRepositorio.buscarUsuarioRolPorId(idUsuario)
 
     if (!(usuario && (await TextService.compare(hash, usuario.contrasena)))) {
-      throw new PreconditionFailedException(Messages.INVALID_CREDENTIALS)
+      throw new PreconditionFailedException(Messages.INVALID_CURRENT_PASSWORD)
     }
-    // validar que la contraseña nueva cumpla nivel de seguridad
-    const contrasena = TextService.decodeBase64(contrasenaNueva)
 
-    if (!TextService.validateLevelPassword(contrasena)) {
-      throw new PreconditionFailedException(Messages.INVALID_PASSWORD_SCORE)
-    }
+    const contrasena = TextService.decodeBase64(contrasenaNueva)
 
     // guardar en bd
     await this.usuarioRepositorio.actualizar(
