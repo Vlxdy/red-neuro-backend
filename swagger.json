@@ -5204,7 +5204,7 @@
             "name": "incluirInactivos",
             "required": false,
             "in": "query",
-            "description": "Si es true, incluye personal de salud activo e inactivo. Requiere permisos administrativos.",
+            "description": "Si es true, incluye personal de salud activo e inactivo. Para otros roles este filtro se ignora y se procesa como false.",
             "schema": {
               "default": false,
               "type": "boolean"
@@ -7062,6 +7062,25 @@
             "type": "string",
             "description": "Estado del personal de salud en su rol",
             "example": "ACTIVO"
+          },
+          "roles": {
+            "type": "array",
+            "description": "Roles operativos asignados al personal de salud",
+            "example": [
+              "PERSONAL",
+              "COORDINADOR"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "ADMINISTRADOR",
+                "JEFE",
+                "COORDINADOR",
+                "PERSONAL",
+                "PROFESIONAL_INVITADO",
+                "*"
+              ]
+            }
           },
           "nroDocumento": {
             "type": "string",
