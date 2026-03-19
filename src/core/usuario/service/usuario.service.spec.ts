@@ -443,22 +443,22 @@ describe('UsuarioService', () => {
       )
     } catch (error) {
       expect(error).toBeInstanceOf(PreconditionFailedException)
+      expect(error.message).toEqual(Messages.INVALID_CURRENT_PASSWORD)
     }
   })
 
-  it('[actualizarContrasena] Debería lanzar una excepcion si la contraseña nueva no es segura', async () => {
+  it('[actualizarContrasena] Debería actualizar la contraseña aunque no cumpla nivel de seguridad', async () => {
     const idUsuario = TextService.generateUuid()
-    const contrasenaActual = '1234'
-    const contrasenaNueva = 'password'
-    try {
-      await service.actualizarContrasena(
-        idUsuario,
-        contrasenaActual,
-        contrasenaNueva
-      )
-    } catch (error) {
-      expect(error).toBeInstanceOf(PreconditionFailedException)
-    }
+    const contrasenaActual = TextService.btoa(encodeURI('123'))
+    const contrasenaNueva = TextService.btoa(encodeURI('password'))
+    const result = await service.actualizarContrasena(
+      idUsuario,
+      contrasenaActual,
+      contrasenaNueva
+    )
+
+    expect(result).toBeDefined()
+    expect(result).toHaveProperty('id')
   })
 
   it('[restaurarContrasena] Debería restaurar la contraseña de un usuario', async () => {

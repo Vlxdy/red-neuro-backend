@@ -28,6 +28,7 @@ export enum Messages {
   NO_PERMISSION_USER = 'El usuario no tiene roles asignados.',
   INVALID_USER = 'El usuario no existe o no tiene un estado válido.',
   INVALID_CREDENTIALS = 'Credenciales incorrectas.',
+  INVALID_CURRENT_PASSWORD = 'La contraseña actual es incorrecta.',
   INACTIVE_USER = 'El usuario está inactivo.',
   PENDING_USER = 'El usuario está pendiente de activación. Revisa tu correo electrónico.',
   INACTIVE_PERSON = 'El registro de persona está inactivo.',
