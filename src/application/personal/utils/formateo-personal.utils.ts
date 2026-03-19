@@ -2,11 +2,13 @@ import { PersonalResponseDto } from '../dto/personal.dto'
 import dayjs from 'dayjs'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { RolEnum } from '@/core/authorization/rol.enum'
+import { UsuarioRolEstado } from '@/core/authorization/constant'
 
 function obtenerRolesDesdeUsuario(usuario: Usuario): RolEnum[] | undefined {
   const roles = Array.from(
     new Set(
       (usuario.usuarioRol ?? [])
+        .filter((usuarioRol) => usuarioRol.estado === UsuarioRolEstado.ACTIVE)
         .map((usuarioRol) => usuarioRol.rol?.rol)
         .filter((rol): rol is RolEnum => Boolean(rol))
     )
@@ -20,7 +22,7 @@ export function formatearUsuarioComoPersonal(
 ): PersonalResponseDto {
   return {
     id: usuario.id,
-    estado: usuario.usuarioRol?.[0]?.estado ?? usuario.estado,
+    estado: usuario.estado,
     roles: obtenerRolesDesdeUsuario(usuario),
     nroDocumento: usuario.persona.nroDocumento,
     nombres: usuario.persona.nombres,
