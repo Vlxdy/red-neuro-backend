@@ -12,7 +12,6 @@ import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
-  ConfirmarCitaDto,
   CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
   CrearCitaDto,
@@ -243,6 +242,24 @@ export class CitasMedicasService extends BaseService {
         body: mensaje,
         data: eventoPush.data,
       })
+    }
+  }
+
+  private aplicarRestriccionPorRolEnFiltros<T extends { idPersonal?: string }>(
+    filtros: T,
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
+  ): T {
+    if (
+      rolSolicitante !== RolEnum.PROFESIONAL_INVITADO ||
+      !idUsuarioSolicitante
+    ) {
+      return filtros
+    }
+
+    return {
+      ...filtros,
+      idPersonal: idUsuarioSolicitante,
     }
   }
 
@@ -691,22 +708,36 @@ export class CitasMedicasService extends BaseService {
   // ===== Citas =====
   async listarCitas(
     filtros: FiltrosCitaDto,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<CitaResponseDto[]> {
-    const citas = await this.citasRepository.listarCitas(
+    const filtrosAplicados = this.aplicarRestriccionPorRolEnFiltros(
       filtros,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
+    )
+    const citas = await this.citasRepository.listarCitas(
+      filtrosAplicados,
+      idUsuarioSolicitante,
+      rolSolicitante
     )
     return formatearCitas(citas)
   }
 
   async listarCitasPaginadas(
     filtros: FiltrosCitaPaginadoDto,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<[CitaResponseDto[], number]> {
-    const [citas, total] = await this.citasRepository.listarCitasPaginadas(
+    const filtrosAplicados = this.aplicarRestriccionPorRolEnFiltros(
       filtros,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
+    )
+    const [citas, total] = await this.citasRepository.listarCitasPaginadas(
+      filtrosAplicados,
+      idUsuarioSolicitante,
+      rolSolicitante
     )
 
     return [formatearCitas(citas), total]
@@ -714,7 +745,8 @@ export class CitasMedicasService extends BaseService {
 
   async obtenerCantidadCitasPorDia(
     filtros: FiltrosCitaDto,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<CantidadCitasPorDiaResponseDto[]> {
     const fechaInicio = dayjs(filtros.fechaInicio)
     const fechaFin = dayjs(filtros.fechaFin)
@@ -728,13 +760,19 @@ export class CitasMedicasService extends BaseService {
     const fechaInicioRango = fechaInicio.startOf('day').format('YYYY-MM-DD')
     const fechaFinRango = fechaFin.endOf('day').format('YYYY-MM-DD')
 
+    const filtrosAplicados = this.aplicarRestriccionPorRolEnFiltros(
+      {
+        ...filtros,
+        fechaInicio: fechaInicioRango,
+        fechaFin: fechaFinRango,
+      },
+      idUsuarioSolicitante,
+      rolSolicitante
+    )
+
     const datosAgrupados =
       await this.citasRepository.obtenerCantidadCitasPorDia(
-        {
-          ...filtros,
-          fechaInicio: fechaInicioRango,
-          fechaFin: fechaFinRango,
-        },
+        filtrosAplicados,
         idUsuarioSolicitante
       )
 
@@ -764,11 +802,13 @@ export class CitasMedicasService extends BaseService {
   async listarMisCitas(
     filtros: FiltrosCitaDto,
     idPersonal: string,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<CitaResponseDto[]> {
     return await this.listarCitas(
       { ...filtros, idPersonal },
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
     )
   }
 
@@ -811,12 +851,14 @@ export class CitasMedicasService extends BaseService {
   async obtenerCita(
     id: string,
     transaccion?: EntityManager,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<CitaResponseDto> {
     const cita = await this.citasRepository.obtenerCitaConRelaciones(
       id,
       transaccion,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
     )
     if (!cita) {
       throw new NotFoundException('La cita solicitada no existe')
@@ -827,12 +869,14 @@ export class CitasMedicasService extends BaseService {
   async obtenerCitaId(
     id: string,
     transaccion?: EntityManager,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ): Promise<Cita> {
     const cita = await this.citasRepository.obtenerCitaConRelaciones(
       id,
       transaccion,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rolSolicitante
     )
     if (!cita) {
       throw new NotFoundException('La cita solicitada no existe')
@@ -1077,31 +1121,12 @@ export class CitasMedicasService extends BaseService {
 
   async confirmarCita(
     id: string,
-    dto: ConfirmarCitaDto,
     usuarioAuditoria = '0',
     idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     return await this.citasRepository.runTransaction(async (transaccion) => {
       const cita = await this.obtenerCitaId(id, transaccion)
       this.validarEstado(cita, [CitasEstado.SOLICITADA])
-
-      if (dto.fechaInicio) {
-        const fechaInicio = dayjs(dto.fechaInicio).toDate()
-        const servicio = await this.resolverServicio(
-          cita.idServicio as string,
-          cita.tipoCita,
-          transaccion
-        )
-        cita.fechaInicio = fechaInicio
-        cita.fechaFin = this.calcularFechaFin(
-          fechaInicio,
-          servicio.duracionMinutos
-        )
-      }
-
-      if (dto.detalle !== undefined) {
-        cita.detalle = dto.detalle
-      }
 
       const estadoAnterior = cita.estado as CitasEstado
       cita.estado = CitasEstado.PROGRAMADA

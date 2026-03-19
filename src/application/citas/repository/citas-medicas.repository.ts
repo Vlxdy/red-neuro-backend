@@ -9,6 +9,7 @@ import {
 } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import { CitasEstado, TipoCita } from '../constants'
+import { RolEnum } from '@/core/authorization/rol.enum'
 import {
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
@@ -27,6 +28,21 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 
 @Injectable()
 export class CitasMedicasRepository {
+  private esRolRestringidoASusPropiasCitas(rol?: string) {
+    return rol === RolEnum.PROFESIONAL_INVITADO
+  }
+
+  private aplicarRestriccionPorRol(
+    query: SelectQueryBuilder<Cita>,
+    rol?: string,
+    idUsuarioSolicitante?: string
+  ) {
+    if (this.esRolRestringidoASusPropiasCitas(rol) && idUsuarioSolicitante) {
+      query.andWhere('cita.idPersonal = :idUsuarioSolicitante', {
+        idUsuarioSolicitante,
+      })
+    }
+  }
   constructor(
     private readonly dataSource: DataSource,
     private readonly historialRepository: HistorialCitasRepository
@@ -74,7 +90,8 @@ export class CitasMedicasRepository {
   buildCitasQuery(
     filtros: Partial<FiltrosCitaDto | FiltrosCitaPaginadoDto> = {},
     idUsuarioSolicitante?: string,
-    manager?: EntityManager
+    manager?: EntityManager,
+    rolSolicitante?: string
   ): SelectQueryBuilder<Cita> {
     const query = this.citaRepository(manager)
       .createQueryBuilder('cita')
@@ -190,19 +207,36 @@ export class CitasMedicasRepository {
       }
     }
 
+    this.aplicarRestriccionPorRol(query, rolSolicitante, idUsuarioSolicitante)
+
     return query
   }
 
-  async listarCitas(filtros: FiltrosCitaDto, idUsuarioSolicitante?: string) {
-    return await this.buildCitasQuery(filtros, idUsuarioSolicitante).getMany()
+  async listarCitas(
+    filtros: FiltrosCitaDto,
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
+  ) {
+    return await this.buildCitasQuery(
+      filtros,
+      idUsuarioSolicitante,
+      undefined,
+      rolSolicitante
+    ).getMany()
   }
 
   async listarCitasPaginadas(
     filtros: FiltrosCitaPaginadoDto,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ) {
     const { limite, saltar } = filtros
-    return await this.buildCitasQuery(filtros, idUsuarioSolicitante)
+    return await this.buildCitasQuery(
+      filtros,
+      idUsuarioSolicitante,
+      undefined,
+      rolSolicitante
+    )
       .take(limite)
       .skip(saltar)
       .getManyAndCount()
@@ -814,9 +848,15 @@ export class CitasMedicasRepository {
   async obtenerCitaConRelaciones(
     id: string,
     manager?: EntityManager,
-    idUsuarioSolicitante?: string
+    idUsuarioSolicitante?: string,
+    rolSolicitante?: string
   ) {
-    return await this.buildCitasQuery({}, idUsuarioSolicitante, manager)
+    return await this.buildCitasQuery(
+      {},
+      idUsuarioSolicitante,
+      manager,
+      rolSolicitante
+    )
       .andWhere('cita.id = :id', { id })
       .getOne()
   }
