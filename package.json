@@ -41,7 +41,7 @@
     "prepare": "husky",
     "check-node-version": "node ./node_modules/.bin/check-node-version",
     "prebuild": "npm run check-node-version && rimraf dist && npm run lint",
-    "presetup": "npm run check-node-version",
+    "presetup": "npm run check-node-version && node scripts/guard-no-production.js",
     "prestart": "npm run check-node-version",
     "prestart:dev": "npm run check-node-version",
     "pretest": "npm run check-node-version",
