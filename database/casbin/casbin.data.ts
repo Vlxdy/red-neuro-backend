@@ -255,7 +255,7 @@ const backendRoutes: CasbinValue = {
   },
   '/api/servicios': {
     [RolEnum.ADMINISTRADOR]: 'GET|POST',
-    [RolEnum.JEFE]: 'GET',
+    [RolEnum.JEFE]: 'GET|POST',
     [RolEnum.COORDINADOR]: 'GET',
     [RolEnum.PERSONAL]: 'GET',
     [RolEnum.PROFESIONAL_INVITADO]: 'GET',
@@ -269,30 +269,32 @@ const backendRoutes: CasbinValue = {
   },
   '/api/servicios/:id': {
     [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
-    [RolEnum.JEFE]: 'GET',
+    [RolEnum.JEFE]: 'GET|PATCH',
     [RolEnum.COORDINADOR]: 'GET',
     [RolEnum.PERSONAL]: 'GET',
     [RolEnum.PROFESIONAL_INVITADO]: 'GET',
   },
   '/api/servicios/:id/cambiar-estado': {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
+    [RolEnum.JEFE]: 'PATCH',
   },
   '/api/categorias': {
     [RolEnum.ADMINISTRADOR]: 'GET|POST',
-    [RolEnum.JEFE]: 'GET',
+    [RolEnum.JEFE]: 'GET|POST',
     [RolEnum.COORDINADOR]: 'GET',
     [RolEnum.PERSONAL]: 'GET',
     [RolEnum.PROFESIONAL_INVITADO]: 'GET',
   },
   '/api/categorias/:id': {
     [RolEnum.ADMINISTRADOR]: 'GET|PATCH',
-    [RolEnum.JEFE]: 'GET',
+    [RolEnum.JEFE]: 'GET|PATCH',
     [RolEnum.COORDINADOR]: 'GET',
     [RolEnum.PERSONAL]: 'GET',
     [RolEnum.PROFESIONAL_INVITADO]: 'GET',
   },
   '/api/categorias/:id/cambiar-estado': {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
+    [RolEnum.JEFE]: 'PATCH',
   },
   '/api/pacientes': {
     [RolEnum.ADMINISTRADOR]: 'GET|POST',
