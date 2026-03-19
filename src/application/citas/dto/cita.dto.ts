@@ -689,27 +689,6 @@ export class EnviarCitaDto {
   idPersonal?: string
 }
 
-export class ConfirmarCitaDto {
-  @ApiPropertyOptional({
-    description:
-      'Nueva fecha/hora de inicio opcional para confirmar la cita solicitada',
-    example: '2024-06-20T12:00:00Z',
-  })
-  @IsOptional()
-  @IsDateString()
-  fechaInicio?: string
-
-  @ApiPropertyOptional({
-    description:
-      'Detalle opcional a ajustar antes de confirmar la cita solicitada',
-    example: 'Ajuste final coordinado en la confirmación',
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  detalle?: string
-}
-
 export class RechazarCitaDto {
   @ApiPropertyOptional({
     description: 'Motivo opcional de rechazo de la cita solicitada',

@@ -27,7 +27,6 @@ import {
   CancelarCitaDto,
   CantidadCitasPorDiaResponseDto,
   CitaResponseDto,
-  ConfirmarCitaDto,
   CrearCitaDto,
   EditarBorradorCitaDto,
   EnviarCitaDto,
@@ -126,9 +125,11 @@ export class CitasController extends BaseController {
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
     const idUsuarioSolicitante = this.getUser(req)
+    const rol = this.getRolNombre(req)
     const resultado = await this.citasService.listarCitas(
       filtros,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rol
     )
     return this.successList(resultado)
   }
@@ -143,9 +144,11 @@ export class CitasController extends BaseController {
     @Query() filtros: FiltrosCitaPaginadoDto
   ) {
     const idUsuarioSolicitante = this.getUser(req)
+    const rol = this.getRolNombre(req)
     const resultado = await this.citasService.listarCitasPaginadas(
       filtros,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rol
     )
     return this.successListRows(resultado)
   }
@@ -161,9 +164,11 @@ export class CitasController extends BaseController {
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CantidadCitasPorDiaResponseDto[]>> {
     const idUsuarioSolicitante = this.getUser(req)
+    const rol = this.getRolNombre(req)
     const resultado = await this.citasService.obtenerCantidadCitasPorDia(
       filtros,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rol
     )
     return this.successList(resultado)
   }
@@ -179,10 +184,12 @@ export class CitasController extends BaseController {
     @Query() filtros: FiltrosCitaDto
   ): Promise<BaseResponseDto<CitaResponseDto[]>> {
     const idPersonal = this.getUser(req)
+    const rol = this.getRolNombre(req)
     const resultado = await this.citasService.listarMisCitas(
       filtros,
       idPersonal,
-      idPersonal
+      idPersonal,
+      rol
     )
     return this.successList(resultado)
   }
@@ -205,10 +212,12 @@ export class CitasController extends BaseController {
     @Req() req: Request
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const idUsuarioSolicitante = this.getUser(req)
+    const rol = this.getRolNombre(req)
     const resultado = await this.citasService.obtenerCita(
       id,
       undefined,
-      idUsuarioSolicitante
+      idUsuarioSolicitante,
+      rol
     )
     return this.success(resultado)
   }
@@ -279,14 +288,12 @@ export class CitasController extends BaseController {
   @Post(':id/confirmar')
   async confirmar(
     @Param() { id }: ParamIdDto,
-    @Req() req: Request,
-    @Body() dto: ConfirmarCitaDto
+    @Req() req: Request
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const idEjecutor = this.getUser(req)
     const resultado = await this.citasService.confirmarCita(
       id,
-      dto,
       usuarioAuditoria,
       idEjecutor
     )
