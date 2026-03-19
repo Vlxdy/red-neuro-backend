@@ -220,10 +220,12 @@ export class PersonalSaludService extends BaseService {
     this.validarPermisosAdministradorPersonal(usuarioSesion)
 
     const personal = await this.buscarPersonalSaludPorId(id)
-    const { ocupacion, persona, correoElectronico } = dto
+    const { ocupacion, persona, correoElectronico, rol } = dto
 
     const requiereActualizarDatos =
-      persona !== undefined || correoElectronico !== undefined
+      persona !== undefined ||
+      correoElectronico !== undefined ||
+      rol !== undefined
 
     if (requiereActualizarDatos) {
       await this.usuarioService.actualizarDatos(
@@ -231,6 +233,10 @@ export class PersonalSaludService extends BaseService {
         {
           persona,
           correoElectronico,
+          roles:
+            rol !== undefined
+              ? [this.validarRolCreacion(rol, usuarioSesion)]
+              : undefined,
         },
         usuarioAuditoria
       )
@@ -271,9 +277,7 @@ export class PersonalSaludService extends BaseService {
       usuarioAuditoria
     )
 
-    personal.usuarioRol?.forEach((usuarioRol) => {
-      usuarioRol.estado = Status.ACTIVE
-    })
+    personal.estado = Status.ACTIVE
 
     return formatearUsuarioComoPersonal(personal)
   }
@@ -293,9 +297,7 @@ export class PersonalSaludService extends BaseService {
       usuarioAuditoria
     )
 
-    personal.usuarioRol?.forEach((usuarioRol) => {
-      usuarioRol.estado = Status.INACTIVE
-    })
+    personal.estado = Status.INACTIVE
 
     return formatearUsuarioComoPersonal(personal)
   }
