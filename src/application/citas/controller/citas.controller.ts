@@ -231,11 +231,13 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const idEjecutor = this.getUser(req)
+    const rolEjecutor = this.getRolNombre(req)
     const resultado = await this.citasService.crearCita(
       dto,
       usuarioAuditoria,
       undefined,
-      idEjecutor
+      idEjecutor,
+      rolEjecutor
     )
     this.citasGateway.emitCitaCreada(resultado)
     return this.successCreate(resultado)
@@ -273,11 +275,13 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const idEjecutor = this.getUser(req)
+    const rolEjecutor = this.getRolNombre(req)
     const resultado = await this.citasService.enviarCita(
       id,
       dto,
       usuarioAuditoria,
-      idEjecutor
+      idEjecutor,
+      rolEjecutor
     )
     this.citasGateway.emitCitaEstadoActualizado(resultado)
     return this.successUpdate(resultado)
