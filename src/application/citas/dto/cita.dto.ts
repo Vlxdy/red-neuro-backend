@@ -589,8 +589,8 @@ export class CrearCitaDto {
     example: '42',
   })
   @IsString()
-  @IsOptional()
-  idPersonal?: string
+  @IsNotEmpty()
+  idPersonal!: string
 
   @ApiProperty({
     description: 'Identificador del paciente asignado',
@@ -613,11 +613,10 @@ export class CrearCitaDto {
   @ApiProperty({
     description: 'Identificador de la institución asociada',
     example: '2',
-    required: false,
   })
-  @IsOptional()
   @IsString()
-  idLugar?: string
+  @IsNotEmpty()
+  idLugar!: string
 
   @ApiProperty({
     enum: TipoCita,
