@@ -162,6 +162,23 @@ export class NotificacionesRepository {
     return nombreCompleto || null
   }
 
+  async obtenerUsuariosActivosPorRoles(idsRol: RolEnumId[]) {
+    return await this.usuarioRepo()
+      .createQueryBuilder('u')
+      .innerJoin(
+        'u.usuarioRol',
+        'ur',
+        'ur.idRol IN (:...idsRol) AND ur.estado = :estadoRol',
+        {
+          idsRol,
+          estadoRol: 'ACTIVO',
+        }
+      )
+      .where('u.estado = :estado', { estado: 'ACTIVO' })
+      .distinct(true)
+      .getMany()
+  }
+
   async obtenerAdministradoresActivos() {
     return await this.usuarioRepo()
       .createQueryBuilder('u')
