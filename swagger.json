@@ -7749,6 +7749,7 @@
           "detalle",
           "fechaInicio",
           "idPersonal",
+          "idLugar",
           "tipoCita",
           "idServicio"
         ]
