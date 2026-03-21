@@ -34,6 +34,7 @@ import {
   HomeListadoQueryDto,
   HomePreviewBloqueResponseDto,
   CitasScope,
+  ProgramarControlCitaDto,
   RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
@@ -168,6 +169,30 @@ export class CitasMedicasService extends BaseService {
     return `${accionador} te asignó una cita de ${servicio} para ${fechaHora}.`
   }
 
+  private construirMensajeControlProgramadoGeneral(
+    cita: Cita,
+    accionador: string
+  ): string {
+    const servicio = cita.servicio?.nombre?.trim() || 'servicio no especificado'
+    const fechaHora = cita.fechaInicio
+      ? dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')
+      : 'hora por confirmar'
+
+    return `${accionador} programó un control de ${servicio} para ${fechaHora}.`
+  }
+
+  private construirMensajeControlProgramadoAsignado(
+    cita: Cita,
+    accionador: string
+  ): string {
+    const servicio = cita.servicio?.nombre?.trim() || 'servicio no especificado'
+    const fechaHora = cita.fechaInicio
+      ? dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')
+      : 'hora por confirmar'
+
+    return `${accionador} te programó un control de ${servicio} para ${fechaHora}.`
+  }
+
   private async crearYEmitirNotificacionProgramada(
     params: {
       cita: Cita
@@ -273,6 +298,137 @@ export class CitasMedicasService extends BaseService {
       )
 
       await this.crearYEmitirNotificacionProgramada(
+        {
+          cita,
+          idDestinatario: cita.idPersonal,
+          mensaje: mensajeAsignado,
+          usuarioAuditoria,
+        },
+        transaccion
+      )
+
+      const tokensAsignado =
+        await this.dispositivosPushRepository.listarTokensActivosPorUsuarios([
+          cita.idPersonal,
+        ])
+
+      if (tokensAsignado.length) {
+        await this.firebasePushService.sendToMany({
+          tokens: tokensAsignado,
+          title: eventoPush.title,
+          body: mensajeAsignado,
+          data: eventoPush.data,
+        })
+      }
+    }
+  }
+
+  private async crearYEmitirNotificacionControlProgramado(
+    params: {
+      cita: Cita
+      idDestinatario: string
+      mensaje: string
+      usuarioAuditoria: string
+    },
+    transaccion?: EntityManager
+  ) {
+    const notificacion =
+      await this.citasRepository.crearNotificacionControlProgramado(
+        {
+          idCita: params.cita.id,
+          idPersonal: params.idDestinatario,
+          usuarioCreacion: params.usuarioAuditoria,
+          mensaje: params.mensaje,
+        },
+        transaccion
+      )
+
+    this.citasGateway.emitNuevaNotificacion(params.idDestinatario, {
+      id: notificacion.id,
+      tipo: notificacion.tipo,
+      mensaje: notificacion.mensaje,
+      visto: Boolean(notificacion.visto),
+      idCita: notificacion.idCita,
+      idPersonal: notificacion.idPersonal,
+      fechaCreacion: notificacion.fechaCreacion,
+    })
+  }
+
+  private async notificarControlProgramado(
+    cita: Cita,
+    usuarioAuditoria: string,
+    idEjecutor: string,
+    transaccion?: EntityManager
+  ): Promise<void> {
+    if (cita.estado !== CitasEstado.PROGRAMADA) {
+      return
+    }
+
+    const accionador = await this.obtenerNombreAccionador(idEjecutor)
+    const eventoPush = construirEventoPushCita({
+      evento: EventoPushCita.CITA_CONTROL_PROGRAMADO,
+      citaId: cita.id,
+    })
+
+    const destinatariosRol =
+      await this.notificacionesRepository.obtenerUsuariosActivosPorRoles([
+        RolEnumId.JEFE,
+        RolEnumId.COORDINADOR,
+      ])
+
+    const idsGenerales = Array.from(
+      new Set(
+        destinatariosRol
+          .map((usuario) => usuario.id)
+          .filter(
+            (idUsuario) =>
+              idUsuario !== idEjecutor && idUsuario !== cita.idPersonal
+          )
+      )
+    )
+
+    const mensajeGeneral = this.construirMensajeControlProgramadoGeneral(
+      cita,
+      accionador
+    )
+
+    await Promise.all(
+      idsGenerales.map((idDestinatario) =>
+        this.crearYEmitirNotificacionControlProgramado(
+          {
+            cita,
+            idDestinatario,
+            mensaje: mensajeGeneral,
+            usuarioAuditoria,
+          },
+          transaccion
+        )
+      )
+    )
+
+    if (idsGenerales.length) {
+      const tokensGenerales =
+        await this.dispositivosPushRepository.listarTokensActivosPorUsuarios(
+          idsGenerales
+        )
+
+      if (tokensGenerales.length) {
+        await this.firebasePushService.sendToMany({
+          tokens: tokensGenerales,
+          title: eventoPush.title,
+          body: mensajeGeneral,
+          data: eventoPush.data,
+        })
+      }
+    }
+
+    if (cita.idPersonal && cita.idPersonal !== idEjecutor) {
+      const mensajeAsignado = this.construirMensajeControlProgramadoAsignado(
+        cita,
+        accionador
+      )
+
+      await this.crearYEmitirNotificacionControlProgramado(
         {
           cita,
           idDestinatario: cita.idPersonal,
@@ -1359,7 +1515,7 @@ export class CitasMedicasService extends BaseService {
     )
   }
 
-  async completarCita(
+  async darAltaCita(
     id: string,
     usuarioAuditoria = '0',
     idEjecutor = '0'
@@ -1369,8 +1525,122 @@ export class CitasMedicasService extends BaseService {
       { estado: CitasEstado.COMPLETADA },
       usuarioAuditoria,
       idEjecutor,
-      [CitasEstado.PROGRAMADA]
+      [CitasEstado.PROGRAMADA],
+      'Cita dada de alta'
     )
+  }
+
+  async programarControlCita(
+    id: string,
+    dto: ProgramarControlCitaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0'
+  ): Promise<CitaResponseDto> {
+    return await this.citasRepository.runTransaction(async (transaccion) => {
+      const citaOriginal = await this.obtenerCitaId(id, transaccion)
+      this.validarEstado(citaOriginal, [CitasEstado.PROGRAMADA])
+
+      const fechaInicio = dayjs(dto.fechaInicio).toDate()
+      const tipoCita = dto.tipoCita
+      const idServicio = dto.idServicio
+
+      if (!idServicio) {
+        throw new BadRequestException('El servicio es obligatorio para la cita')
+      }
+
+      const servicio = await this.resolverServicio(
+        idServicio,
+        tipoCita,
+        transaccion
+      )
+      const fechaFin = this.calcularFechaFin(
+        fechaInicio,
+        servicio.duracionMinutos
+      )
+
+      const historialCitaAnterior = citaOriginal.idHistorialCita ?? undefined
+      const citaNuevaAnterior = citaOriginal.idCitaNueva ?? undefined
+      const historialCitaId = citaOriginal.idHistorialCita ?? randomUUID()
+      const estadoAnterior = citaOriginal.estado as CitasEstado
+      citaOriginal.idHistorialCita = historialCitaId
+      citaOriginal.estado = CitasEstado.COMPLETADA
+      citaOriginal.usuarioModificacion = usuarioAuditoria
+
+      const nuevaCitaId = await this.citasRepository.crearCita(
+        {
+          detalle: dto.detalle ?? citaOriginal.detalle,
+          fechaInicio,
+          fechaFin,
+          estado: CitasEstado.PROGRAMADA,
+          idPersonal: dto.idPersonal ?? citaOriginal.idPersonal,
+          idPaciente: citaOriginal.idPaciente ?? null,
+          idConsultorio:
+            dto.idConsultorio !== undefined
+              ? dto.idConsultorio
+              : (citaOriginal.idConsultorio ?? null),
+          idLugar: dto.idLugar ?? citaOriginal.idLugar ?? null,
+          idServicio: servicio.id,
+          tipoCita,
+          idHistorialCita: historialCitaId,
+          idUsuarioProgramo: citaOriginal.idUsuarioProgramo ?? idEjecutor,
+          idUsuarioEnvio: idEjecutor,
+        },
+        usuarioAuditoria,
+        idEjecutor,
+        transaccion,
+        {
+          crearHistorialInicial: false,
+        }
+      )
+
+      citaOriginal.idCitaNueva = nuevaCitaId
+      await this.citasRepository.guardarCita(citaOriginal, transaccion)
+
+      const comentario = `Se programó control para ${dayjs(fechaInicio).format(
+        'DD/MM/YYYY HH:mm'
+      )}. Nueva cita ${nuevaCitaId}.`
+
+      await this.citasRepository.crearHistorialAccion(
+        {
+          idCita: citaOriginal.id,
+          idEjecutor,
+          comentario,
+          detalleCambios: [
+            ...this.crearDetalleCambiosEstado(
+              estadoAnterior,
+              CitasEstado.COMPLETADA
+            ),
+            {
+              field: 'accion',
+              before: undefined,
+              after: 'PROGRAMAR_CONTROL',
+            },
+            {
+              field: 'idCitaNueva',
+              before: citaNuevaAnterior,
+              after: nuevaCitaId,
+            },
+            {
+              field: 'idHistorialCita',
+              before: historialCitaAnterior,
+              after: historialCitaId,
+            },
+          ],
+          usuarioCreacion: usuarioAuditoria,
+        },
+        transaccion
+      )
+
+      const nuevaCita = await this.obtenerCitaId(nuevaCitaId, transaccion)
+      await this.notificarControlProgramado(
+        nuevaCita,
+        usuarioAuditoria,
+        idEjecutor,
+        transaccion
+      )
+
+      return formatearCita(nuevaCita)
+    })
   }
 
   async marcarNoAsistioCita(

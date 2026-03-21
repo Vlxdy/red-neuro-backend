@@ -39,6 +39,7 @@ import {
   MisSolicitadasResponseDto,
   MisTimelineQueryDto,
   MisTimelineResponseDto,
+  ProgramarControlCitaDto,
   RechazarCitaDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
@@ -325,21 +326,44 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Completa una cita programada' })
+  @ApiOperation({ summary: 'Da de alta una cita programada' })
   @ApiBaseResponse(CitaResponseDto)
-  @Post(':id/completar')
-  async completar(
+  @Post(':id/dar-alta')
+  async darAlta(
     @Param() { id }: ParamIdDto,
     @Req() req: Request
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const idEjecutor = this.getUser(req)
-    const resultado = await this.citasService.completarCita(
+    const resultado = await this.citasService.darAltaCita(
       id,
       usuarioAuditoria,
       idEjecutor
     )
     this.citasGateway.emitCitaEstadoActualizado(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({
+    summary:
+      'Programa una cita de control y completa la cita actual manteniendo el historial',
+  })
+  @ApiBaseResponse(CitaResponseDto)
+  @Post(':id/programar-control')
+  async programarControl(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: ProgramarControlCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUser(req)
+    const resultado = await this.citasService.programarControlCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor
+    )
+    this.citasGateway.emitCitaReprogramada(resultado)
     return this.successUpdate(resultado)
   }
 
