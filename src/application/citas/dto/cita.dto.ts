@@ -1,4 +1,9 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger'
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger'
 import {
   IsDateString,
   IsEnum,
@@ -667,6 +672,11 @@ export class ReprogramarCitaDto {
   @IsNotEmpty()
   idServicio!: string
 }
+
+export class ProgramarControlCitaDto extends OmitType(CrearCitaDto, [
+  'accion',
+  'idPaciente',
+] as const) {}
 
 export class EditarBorradorCitaDto extends PartialType(CrearCitaDto) {
   @ApiPropertyOptional({
