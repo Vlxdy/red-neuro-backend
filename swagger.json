@@ -2837,9 +2837,9 @@
         ]
       }
     },
-    "/citas/{id}/completar": {
+    "/citas/{id}/dar-alta": {
       "post": {
-        "operationId": "CitasController_completar",
+        "operationId": "CitasController_darAlta",
         "parameters": [
           {
             "name": "id",
@@ -2879,7 +2879,65 @@
             "bearer": []
           }
         ],
-        "summary": "Completa una cita programada",
+        "summary": "Da de alta una cita programada",
+        "tags": [
+          "Gestión de Citas"
+        ]
+      }
+    },
+    "/citas/{id}/programar-control": {
+      "post": {
+        "operationId": "CitasController_programarControl",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProgramarControlCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/CitaResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Programa una cita de control y completa la cita actual manteniendo el historial",
         "tags": [
           "Gestión de Citas"
         ]
@@ -7831,6 +7889,58 @@
             "example": "No disponibilidad en ese horario"
           }
         }
+      },
+      "ProgramarControlCitaDto": {
+        "type": "object",
+        "properties": {
+          "detalle": {
+            "type": "string",
+            "description": "Detalle o motivo de la cita",
+            "example": "Control nutricional mensual"
+          },
+          "fechaInicio": {
+            "type": "string",
+            "description": "Fecha de inicio (ISO)",
+            "example": "2024-06-15T10:00:00Z"
+          },
+          "idPersonal": {
+            "type": "string",
+            "description": "Identificador del personal responsable",
+            "example": "42"
+          },
+          "idConsultorio": {
+            "type": "string",
+            "description": "Identificador del consultorio asignado",
+            "example": "8"
+          },
+          "idLugar": {
+            "type": "string",
+            "description": "Identificador de la institución asociada",
+            "example": "2"
+          },
+          "tipoCita": {
+            "type": "string",
+            "enum": [
+              "CONSULTA",
+              "ESTUDIO"
+            ],
+            "description": "Tipo de cita: CONSULTA o ESTUDIO",
+            "example": "CONSULTA"
+          },
+          "idServicio": {
+            "type": "string",
+            "description": "Identificador del servicio a realizar",
+            "example": "5"
+          }
+        },
+        "required": [
+          "detalle",
+          "fechaInicio",
+          "idPersonal",
+          "idLugar",
+          "tipoCita",
+          "idServicio"
+        ]
       },
       "MarcarNoAsistioCitaDto": {
         "type": "object",

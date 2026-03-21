@@ -221,7 +221,14 @@ const backendRoutes: CasbinValue = {
     [RolEnum.PERSONAL]: 'POST',
     [RolEnum.PROFESIONAL_INVITADO]: 'POST',
   },
-  '/api/citas/:id/completar': {
+  '/api/citas/:id/dar-alta': {
+    [RolEnum.ADMINISTRADOR]: 'POST',
+    [RolEnum.JEFE]: 'POST',
+    [RolEnum.COORDINADOR]: 'POST',
+    [RolEnum.PERSONAL]: 'POST',
+    [RolEnum.PROFESIONAL_INVITADO]: 'POST',
+  },
+  '/api/citas/:id/programar-control': {
     [RolEnum.ADMINISTRADOR]: 'POST',
     [RolEnum.JEFE]: 'POST',
     [RolEnum.COORDINADOR]: 'POST',
