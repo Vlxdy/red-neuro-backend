@@ -1332,6 +1332,25 @@ export class CitasMedicasRepository {
     return await this.notificacionRepository(manager).save(notificacion)
   }
 
+  async crearNotificacionControlProgramado(
+    data: {
+      idCita: string
+      idPersonal: string
+      usuarioCreacion: string
+      mensaje: string
+    },
+    manager?: EntityManager
+  ) {
+    const notificacion = this.notificacionRepository(manager).create({
+      tipo: NotificacionTipo.CITA_CONTROL_PROGRAMADO,
+      mensaje: data.mensaje,
+      idCita: data.idCita,
+      idPersonal: data.idPersonal,
+      usuarioCreacion: data.usuarioCreacion,
+    })
+    return await this.notificacionRepository(manager).save(notificacion)
+  }
+
   async runTransaction<T>(op: (entityManager: EntityManager) => Promise<T>) {
     return await this.dataSource.manager.transaction<T>(op)
   }

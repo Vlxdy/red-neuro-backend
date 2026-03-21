@@ -25,21 +25,39 @@ POST /citas
 
 ### 1.2 Confirmación
 
-- El médico asignado puede confirmar la cita (cambiar estado a **PROGRAMADA**).
+- El médico asignado puede confirmar la cita y cambiarla a **PROGRAMADA**.
 
 **Endpoint:**
 
 ```
-PATCH /citas/:id/estado
+POST /citas/:id/confirmar
 ```
 
-**Payload:**
+### 1.3 Cierre de atención
 
-```json
-{ "estado": "PROGRAMADA" }
+Cuando una cita está en **PROGRAMADA**, ahora existen dos acciones posibles:
+
+#### Dar alta
+
+```
+POST /citas/:id/dar-alta
 ```
 
-### 1.3 Reprogramación
+- Cambia la cita actual a **COMPLETADA**.
+- Se usa cuando no se agenda seguimiento.
+
+#### Programar control
+
+```
+POST /citas/:id/programar-control
+```
+
+- Cambia la cita actual a **COMPLETADA**.
+- Crea una nueva cita en **PROGRAMADA**.
+- La nueva cita comparte `idHistorialCita` con la anterior.
+- El paciente no puede modificarse en este flujo.
+
+### 1.4 Reprogramación
 
 - Permite ajustar fecha/hora. Si la cita estaba **RECHAZADA**, vuelve a **SOLICITADA**.
 
@@ -49,14 +67,14 @@ PATCH /citas/:id/estado
 PATCH /citas/:id/reprogramar
 ```
 
-### 1.4 Cancelación
+### 1.5 Cancelación
 
 - Cambia el estado a **CANCELADA** y registra historial.
 
 **Endpoint:**
 
 ```
-PATCH /citas/:id/cancelar
+POST /citas/:id/cancelar
 ```
 
 ## 2. Estados y visualización en UI

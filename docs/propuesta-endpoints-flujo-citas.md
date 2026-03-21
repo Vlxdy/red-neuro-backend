@@ -58,11 +58,13 @@ Motivo: mezcla edición de borrador y cambios operativos.
 ## 4.1 Edición y ciclo de borrador
 
 ### `PATCH /citas/:id/editar-borrador`
+
 - Solo si estado = `BORRADOR`.
 - Solo creador o admin.
 - Edita campos de borrador.
 
 ### `POST /citas/:id/enviar`
+
 - Desde `BORRADOR` o `RECHAZADA`.
 - Transiciones:
   - con `idMedico` -> `SOLICITADA`
@@ -71,6 +73,7 @@ Motivo: mezcla edición de borrador y cambios operativos.
 - Si pasa a `SOLICITADA`, envía notificación al médico asignado.
 
 ### `DELETE /citas/:id`
+
 - Solo si estado = `BORRADOR`.
 - No borra físicamente.
 - Hace eliminación lógica: `estado = INACTIVO`.
@@ -80,16 +83,19 @@ Motivo: mezcla edición de borrador y cambios operativos.
 ## 4.2 Gestión de cita solicitada (por médico asignado/admin)
 
 ### `PATCH /citas/:id/ajustar-solicitada`
+
 - Solo si estado = `SOLICITADA`.
 - Solo médico asignado o admin.
 - Solo permite cambiar `fechaInicio` (hora) y `detalle`.
 
 ### `POST /citas/:id/confirmar`
+
 - Solo si estado = `SOLICITADA`.
 - Solo médico asignado o admin.
 - Transición: `SOLICITADA -> PROGRAMADA`.
 
 ### `POST /citas/:id/rechazar`
+
 - Solo si estado = `SOLICITADA`.
 - Solo médico asignado o admin.
 - Transición: `SOLICITADA -> RECHAZADA`.
@@ -100,14 +106,28 @@ Motivo: mezcla edición de borrador y cambios operativos.
 ## 4.3 Gestión de cita programada
 
 ### `POST /citas/:id/cancelar`
+
 - Solo si estado = `PROGRAMADA`.
 - Transición: `PROGRAMADA -> CANCELADA`.
 
-### `POST /citas/:id/completar`
+### `POST /citas/:id/dar-alta`
+
 - Solo si estado = `PROGRAMADA`.
 - Transición: `PROGRAMADA -> COMPLETADA`.
+- Se usa cuando la atención terminó y no se agenda una nueva cita de control.
+
+### `POST /citas/:id/programar-control`
+
+- Solo si estado = `PROGRAMADA`.
+- Operación transaccional:
+  1. original -> `COMPLETADA`
+  2. crear nueva cita en `PROGRAMADA`
+  3. original.`idCitaNueva` = nueva.id
+  4. ambas comparten `idHistorialCita`
+  5. la nueva cita conserva el mismo paciente de la original
 
 ### `POST /citas/:id/reprogramar`
+
 - Solo si estado = `PROGRAMADA`, `CANCELADA` o `NO_ASISTIO`.
 - Reprogramación por clonación transaccional:
   1. original -> `REPROGRAMADA`
@@ -120,9 +140,11 @@ Motivo: mezcla edición de borrador y cambios operativos.
 ## 4.4 Trazabilidad y consultas especializadas
 
 ### `GET /citas/:id/cadena-reprogramacion`
+
 - Retorna toda la cadena por `idHistorialCita`.
 
 ### `GET /citas/:id/historial`
+
 - Debe incluir eventos de:
   - programación,
   - envío,
@@ -151,6 +173,7 @@ Motivo: mezcla edición de borrador y cambios operativos.
 ## 5.2 Response DTO
 
 Agregar en respuestas de cita:
+
 - `idCitaNueva`
 - `idHistorialCita`
 - `idUsuarioProgramo`
@@ -167,7 +190,8 @@ Agregar en respuestas de cita:
 - `SOLICITADA` -> `RECHAZADA` (`POST /:id/rechazar`)
 - `RECHAZADA` -> `SOLICITADA|PROGRAMADA` (`POST /:id/enviar`)
 - `PROGRAMADA` -> `CANCELADA` (`POST /:id/cancelar`)
-- `PROGRAMADA` -> `COMPLETADA` (`POST /:id/completar`)
+- `PROGRAMADA` -> `COMPLETADA` (`POST /:id/dar-alta`)
+- `PROGRAMADA` -> `COMPLETADA` + nueva `PROGRAMADA` (`POST /:id/programar-control`)
 - `PROGRAMADA|CANCELADA|NO_ASISTIO` -> `REPROGRAMADA` + nueva cita (`POST /:id/reprogramar`)
 
 ---
