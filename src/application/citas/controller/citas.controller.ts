@@ -363,6 +363,14 @@ export class CitasController extends BaseController {
       usuarioAuditoria,
       idEjecutor
     )
+    const citaPrincipalActualizada = await this.citasService.obtenerCita(
+      id,
+      undefined,
+      undefined,
+      undefined,
+      true
+    )
+    this.citasGateway.emitCitaEstadoActualizado(citaPrincipalActualizada)
     this.citasGateway.emitCitaReprogramada(resultado)
     return this.successUpdate(resultado)
   }
@@ -423,6 +431,14 @@ export class CitasController extends BaseController {
       usuarioAuditoria,
       idEjecutor
     )
+    const citaPrincipalActualizada = await this.citasService.obtenerCita(
+      id,
+      undefined,
+      undefined,
+      undefined,
+      true
+    )
+    this.citasGateway.emitCitaEstadoActualizado(citaPrincipalActualizada)
     this.citasGateway.emitCitaReprogramada(resultado)
     return this.successUpdate(resultado)
   }
