@@ -1178,13 +1178,15 @@ export class CitasMedicasService extends BaseService {
     id: string,
     transaccion?: EntityManager,
     idUsuarioSolicitante?: string,
-    rolSolicitante?: string
+    rolSolicitante?: string,
+    incluirEstadosOcultos = false
   ): Promise<CitaResponseDto> {
     const cita = await this.citasRepository.obtenerCitaConRelaciones(
       id,
       transaccion,
       idUsuarioSolicitante,
-      rolSolicitante
+      rolSolicitante,
+      incluirEstadosOcultos
     )
     if (!cita) {
       throw new NotFoundException('La cita solicitada no existe')
@@ -1196,13 +1198,15 @@ export class CitasMedicasService extends BaseService {
     id: string,
     transaccion?: EntityManager,
     idUsuarioSolicitante?: string,
-    rolSolicitante?: string
+    rolSolicitante?: string,
+    incluirEstadosOcultos = false
   ): Promise<Cita> {
     const cita = await this.citasRepository.obtenerCitaConRelaciones(
       id,
       transaccion,
       idUsuarioSolicitante,
-      rolSolicitante
+      rolSolicitante,
+      incluirEstadosOcultos
     )
     if (!cita) {
       throw new NotFoundException('La cita solicitada no existe')
