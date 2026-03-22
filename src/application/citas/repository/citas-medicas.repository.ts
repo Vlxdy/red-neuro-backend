@@ -91,7 +91,8 @@ export class CitasMedicasRepository {
     filtros: Partial<FiltrosCitaDto | FiltrosCitaPaginadoDto> = {},
     idUsuarioSolicitante?: string,
     manager?: EntityManager,
-    rolSolicitante?: string
+    rolSolicitante?: string,
+    incluirEstadosOcultos = false
   ): SelectQueryBuilder<Cita> {
     const query = this.citaRepository(manager)
       .createQueryBuilder('cita')
@@ -184,7 +185,7 @@ export class CitasMedicasRepository {
           })
         }
       }
-    } else {
+    } else if (!incluirEstadosOcultos) {
       query
         .andWhere('cita.estado != :estadoInactivo', {
           estadoInactivo: CitasEstado.INACTIVO,
@@ -849,13 +850,15 @@ export class CitasMedicasRepository {
     id: string,
     manager?: EntityManager,
     idUsuarioSolicitante?: string,
-    rolSolicitante?: string
+    rolSolicitante?: string,
+    incluirEstadosOcultos = false
   ) {
     return await this.buildCitasQuery(
       {},
       idUsuarioSolicitante,
       manager,
-      rolSolicitante
+      rolSolicitante,
+      incluirEstadosOcultos
     )
       .andWhere('cita.id = :id', { id })
       .getOne()
