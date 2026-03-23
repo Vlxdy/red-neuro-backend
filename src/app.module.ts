@@ -11,6 +11,7 @@ import packageJson from '../package.json'
 import { AppInterceptor } from '@/common/interceptors'
 import { SwaggerDocsModule } from './swagger/docs/swagger.docs.module'
 import { SystemConnectionModule } from './socket-example/system-connection.module'
+import { MobileVersionService } from './mobile-version/mobile-version.service'
 
 const isEnvEnabled = (value: string | undefined, defaultValue: boolean) => {
   if (typeof value === 'undefined' || value.trim().length === 0) {
@@ -63,6 +64,7 @@ const logToLokiEnabled = isEnvEnabled(process.env.LOG_LOKI_ENABLED, false)
   ],
   controllers: [AppController],
   providers: [
+    MobileVersionService,
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,

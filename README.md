@@ -59,6 +59,7 @@ src/
 - [Arquitectura](/docs/arquitectura.md)
 - [Documentación de APIs](/docs/openapi.yaml)
 - [Documentación de Permisos](/docs/permisos.md)
+- [Implementación mobile: control de actualización](/docs/implementacion-mobile-version-check.md)
 
 ## 🧪 Pruebas
 
