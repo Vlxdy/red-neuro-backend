@@ -4,7 +4,41 @@
     "/estado": {
       "get": {
         "operationId": "AppController_verificarEstado",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "platform",
+            "required": false,
+            "in": "query",
+            "description": "Plataforma de la aplicación móvil",
+            "schema": {
+              "enum": [
+                "android",
+                "ios"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": false,
+            "in": "query",
+            "description": "Versión semántica de la app móvil (major.minor.patch)",
+            "schema": {
+              "example": "1.8.0",
+              "type": "string"
+            }
+          },
+          {
+            "name": "build",
+            "required": false,
+            "in": "query",
+            "description": "Número de build de la app móvil",
+            "schema": {
+              "example": "104",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -6277,6 +6311,82 @@
           "datos"
         ]
       },
+      "EstadoMobileDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "android",
+              "ios"
+            ],
+            "example": "android"
+          },
+          "currentVersion": {
+            "type": "object",
+            "nullable": true,
+            "example": "1.8.0"
+          },
+          "currentBuild": {
+            "type": "object",
+            "nullable": true,
+            "example": "104"
+          },
+          "minVersion": {
+            "type": "object",
+            "nullable": true,
+            "example": "1.8.0"
+          },
+          "stableVersion": {
+            "type": "object",
+            "nullable": true,
+            "example": "1.9.3"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "required",
+              "recommended",
+              "ok"
+            ],
+            "example": "recommended"
+          },
+          "forceUpdate": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "shouldUpdate": {
+            "type": "boolean",
+            "nullable": true,
+            "example": true
+          },
+          "storeUrl": {
+            "type": "object",
+            "nullable": true,
+            "example": "https://play.google.com/store/apps/details?id=bo.redneuro.app"
+          },
+          "title": {
+            "type": "object",
+            "nullable": true,
+            "example": "Nueva versión disponible"
+          },
+          "message": {
+            "type": "object",
+            "nullable": true,
+            "example": "Te recomendamos actualizar a la versión más estable."
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
       "EstadoDto": {
         "type": "object",
         "properties": {
@@ -6318,6 +6428,14 @@
           "hora": {
             "type": "number",
             "example": 1711826427027
+          },
+          "mobile": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EstadoMobileDto"
+              }
+            ]
           }
         },
         "required": [

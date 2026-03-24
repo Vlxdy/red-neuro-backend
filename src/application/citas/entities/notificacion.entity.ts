@@ -42,7 +42,7 @@ export interface TipoActualizacion {
 }
 
 @Check(UtilService.buildStatusCheck(NotificacionEstado))
-@Entity({ name: 'notificaciones', schema: process.env.DB_SCHEMA_HISTORICOS })
+@Entity({ name: 'notificaciones', schema: process.env.DB_SCHEMA_HISTORIAL })
 export class Notificacion extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',

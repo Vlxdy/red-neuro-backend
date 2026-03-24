@@ -16,7 +16,7 @@ import 'bootstrap/env'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 
 @Check(UtilService.buildStatusCheck(CitasHistorialEstado))
-@Entity({ name: 'historial_citas', schema: process.env.DB_SCHEMA })
+@Entity({ name: 'historial_citas', schema: process.env.DB_SCHEMA_HISTORIAL })
 export class HistorialCita extends AuditoriaEntity {
   @PrimaryGeneratedColumn({
     type: 'bigint',

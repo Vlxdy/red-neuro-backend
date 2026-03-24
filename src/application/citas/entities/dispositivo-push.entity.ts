@@ -14,7 +14,7 @@ export const DispositivoPushEstado = {
   INACTIVE: Status.INACTIVE,
 }
 
-@Entity({ name: 'dispositivos_push', schema: process.env.DB_SCHEMA_HISTORICOS })
+@Entity({ name: 'dispositivos_push', schema: process.env.DB_SCHEMA_HISTORIAL })
 @Check(UtilService.buildStatusCheck(DispositivoPushEstado))
 export class DispositivoPush extends AuditoriaEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })

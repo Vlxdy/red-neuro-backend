@@ -1138,11 +1138,7 @@ export class CitasMedicasService extends BaseService {
     )
   }
 
-  @Cron(
-    process.env.CITAS_AUTO_NO_ASISTIO_CRON ||
-      process.env.CITAS_REVISION_DIARIA_CRON ||
-      '0 1 * * *'
-  )
+  @Cron(process.env.CITAS_AUTO_NO_ASISTIO_CRON || '0 1 * * *')
   async actualizarCitasVencidas(): Promise<void> {
     const enabled =
       (process.env.CITAS_AUTO_NO_ASISTIO_ENABLED || 'true').toLowerCase() ===
