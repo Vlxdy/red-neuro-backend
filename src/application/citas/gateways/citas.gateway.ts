@@ -56,7 +56,7 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.warn(
+    this.logger.info(
       `Cliente desconectado de ${CITAS_SOCKET_NAMESPACE}: ${client.id}`
     )
   }
