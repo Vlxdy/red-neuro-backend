@@ -28,6 +28,7 @@ import {
   NotificacionesSocketOutboundEvent,
 } from '../constants'
 import { forwardRef, Inject } from '@nestjs/common'
+import { verify } from 'jsonwebtoken'
 
 interface SuscripcionNotificacionesPayload {
   idUsuario: string
@@ -65,11 +66,23 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: SuscripcionNotificacionesPayload
   ) {
-    if (!payload?.idUsuario) {
+    const idUsuarioAutenticado = this.obtenerIdUsuarioDesdeToken(client)
+    const idUsuarioSolicitado = payload?.idUsuario?.trim()
+    const idUsuarioObjetivo = idUsuarioAutenticado ?? idUsuarioSolicitado
+
+    if (!idUsuarioObjetivo) {
       return { ok: false }
     }
 
-    const room = this.getNotificacionesRoom(payload.idUsuario)
+    if (idUsuarioAutenticado && idUsuarioAutenticado !== idUsuarioSolicitado) {
+      this.logger.warn(
+        `Intento de suscripción inválido desde ${client.id}: token=${idUsuarioAutenticado} payload=${idUsuarioSolicitado}`
+      )
+      return { ok: false }
+    }
+
+    this.limpiarRoomsNotificaciones(client)
+    const room = this.getNotificacionesRoom(idUsuarioObjetivo)
     void client.join(room)
 
     this.logger.debug(
@@ -244,5 +257,47 @@ export class CitasGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private getNotificacionesRoom(idUsuario: string) {
     return `usuario:${idUsuario}`
+  }
+
+  private limpiarRoomsNotificaciones(client: Socket) {
+    client.rooms.forEach((room) => {
+      if (room.startsWith('usuario:')) {
+        void client.leave(room)
+      }
+    })
+  }
+
+  private obtenerIdUsuarioDesdeToken(client: Socket): string | null {
+    const token = this.extraerToken(client)
+    const secret = process.env.JWT_SECRET
+
+    if (!token || !secret) {
+      return null
+    }
+
+    try {
+      const payload = verify(token, secret) as PayloadType
+      return payload?.id || null
+    } catch {
+      return null
+    }
+  }
+
+  private extraerToken(client: Socket): string | null {
+    const authToken = client.handshake.auth?.token
+    if (typeof authToken === 'string' && authToken.trim()) {
+      return authToken.startsWith('Bearer ')
+        ? authToken.slice(7).trim()
+        : authToken.trim()
+    }
+
+    const authorization = client.handshake.headers.authorization
+    if (typeof authorization === 'string' && authorization.trim()) {
+      return authorization.startsWith('Bearer ')
+        ? authorization.slice(7).trim()
+        : authorization.trim()
+    }
+
+    return null
   }
 }
