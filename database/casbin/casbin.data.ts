@@ -200,6 +200,10 @@ const backendRoutes: CasbinValue = {
     [RolEnum.PERSONAL]: 'PATCH',
     [RolEnum.PROFESIONAL_INVITADO]: 'PATCH',
   },
+  '/api/citas/:id/editar-programada': {
+    [RolEnum.JEFE]: 'PATCH',
+    [RolEnum.COORDINADOR]: 'PATCH',
+  },
   '/api/citas/:id/enviar': {
     [RolEnum.ADMINISTRADOR]: 'POST',
     [RolEnum.JEFE]: 'POST',
