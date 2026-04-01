@@ -130,7 +130,7 @@ export class CitasMedicasRepository {
       })
     }
 
-    const estadosRestringidos = [CitasEstado.BORRADOR, CitasEstado.RECHAZADA]
+    const estadosRestringidos = [CitasEstado.RECHAZADA]
     const incluirRestringidasProgramadasPorSolicitante =
       Boolean(filtros.idPersonal) &&
       Boolean(idUsuarioSolicitante) &&
@@ -206,6 +206,20 @@ export class CitasMedicasRepository {
           }
         )
       }
+    }
+
+    if (idUsuarioSolicitante) {
+      query.andWhere(
+        '(cita.estado != :estadoBorrador OR cita.idUsuarioProgramo = :idUsuarioSolicitanteBorrador)',
+        {
+          estadoBorrador: CitasEstado.BORRADOR,
+          idUsuarioSolicitanteBorrador: idUsuarioSolicitante,
+        }
+      )
+    } else if (!incluirEstadosOcultos) {
+      query.andWhere('cita.estado != :estadoBorrador', {
+        estadoBorrador: CitasEstado.BORRADOR,
+      })
     }
 
     this.aplicarRestriccionPorRol(query, rolSolicitante, idUsuarioSolicitante)

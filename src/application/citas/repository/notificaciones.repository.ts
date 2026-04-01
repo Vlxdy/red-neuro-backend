@@ -7,6 +7,7 @@ import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { CitasEstado } from '../constants'
 import { FiltroNotificacionDto } from '../dto/notificacion.dto'
 import { RolEnumId } from '@/core/authorization/rol.enum'
+import { UsuarioRolEstado } from '@/core/authorization/constant'
 
 @Injectable()
 export class NotificacionesRepository {
@@ -193,6 +194,23 @@ export class NotificacionesRepository {
       )
       .where('u.estado = :estado', { estado: 'ACTIVO' })
       .getMany()
+  }
+
+  async obtenerRolesActivosUsuario(idUsuario: string): Promise<string[]> {
+    const rows = await this.usuarioRepo()
+      .createQueryBuilder('u')
+      .innerJoin('u.usuarioRol', 'ur', 'ur.estado = :estadoRol', {
+        estadoRol: UsuarioRolEstado.ACTIVE,
+      })
+      .innerJoin('ur.rol', 'rol', 'rol.estado = :estadoRol', {
+        estadoRol: UsuarioRolEstado.ACTIVE,
+      })
+      .where('u.id = :idUsuario', { idUsuario })
+      .andWhere('u.estado = :estadoUsuario', { estadoUsuario: 'ACTIVO' })
+      .select('rol.rol', 'rol')
+      .getRawMany<{ rol: string }>()
+
+    return rows.map((row) => row.rol).filter((rol): rol is string => !!rol)
   }
 
   crearNotificacionResumenPersonal(idPersonal: string, cantidad: number) {

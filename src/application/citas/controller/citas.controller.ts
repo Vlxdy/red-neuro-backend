@@ -29,6 +29,7 @@ import {
   CitaResponseDto,
   CrearCitaDto,
   EditarBorradorCitaDto,
+  EditarProgramadaCitaDto,
   EnviarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
@@ -254,11 +255,35 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const idEjecutor = this.getUser(req)
+    const rolEjecutor = this.getRolNombre(req)
     const resultado = await this.citasService.editarBorradorCita(
       id,
       dto,
       usuarioAuditoria,
-      idEjecutor
+      idEjecutor,
+      rolEjecutor
+    )
+    this.citasGateway.emitCitaActualizada(resultado)
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Edita una cita en estado programada' })
+  @ApiBaseResponse(CitaResponseDto)
+  @Patch(':id/editar-programada')
+  async editarProgramada(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: EditarProgramadaCitaDto
+  ): Promise<BaseResponseDto<CitaResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUser(req)
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.editarProgramadaCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor,
+      rolEjecutor
     )
     this.citasGateway.emitCitaActualizada(resultado)
     return this.successUpdate(resultado)
@@ -276,13 +301,11 @@ export class CitasController extends BaseController {
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const idEjecutor = this.getUser(req)
-    const rolEjecutor = this.getRolNombre(req)
     const resultado = await this.citasService.enviarCita(
       id,
       dto,
       usuarioAuditoria,
-      idEjecutor,
-      rolEjecutor
+      idEjecutor
     )
     this.citasGateway.emitCitaEstadoActualizado(resultado)
     return this.successUpdate(resultado)
@@ -415,7 +438,10 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Reprograma la fecha y hora de la cita' })
+  @ApiOperation({
+    summary:
+      'Reprograma citas en estado NO_ASISTIO o CANCELADA, creando una nueva con los datos enviados (excepto paciente)',
+  })
   @ApiBaseResponse(CitaResponseDto)
   @Patch(':id/reprogramar')
   async reprogramar(
