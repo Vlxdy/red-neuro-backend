@@ -2707,6 +2707,64 @@
         ]
       }
     },
+    "/citas/{id}/editar-programada": {
+      "patch": {
+        "operationId": "CitasController_editarProgramada",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "12",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarProgramadaCitaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "datos": {
+                          "$ref": "#/components/schemas/CitaResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Edita una cita en estado programada",
+        "tags": [
+          "Gestión de Citas"
+        ]
+      }
+    },
     "/citas/{id}/enviar": {
       "post": {
         "operationId": "CitasController_enviar",
@@ -3087,7 +3145,7 @@
             "bearer": []
           }
         ],
-        "summary": "Reprograma la fecha y hora de la cita",
+        "summary": "Reprograma citas en estado NO_ASISTIO o CANCELADA, creando una nueva con los datos enviados (excepto paciente)",
         "tags": [
           "Gestión de Citas"
         ]
@@ -7988,6 +8046,50 @@
           }
         }
       },
+      "EditarProgramadaCitaDto": {
+        "type": "object",
+        "properties": {
+          "detalle": {
+            "type": "string",
+            "description": "Detalle o motivo de la cita",
+            "example": "Control nutricional mensual"
+          },
+          "fechaInicio": {
+            "type": "string",
+            "description": "Fecha de inicio (ISO)",
+            "example": "2024-06-15T10:00:00Z"
+          },
+          "idPersonal": {
+            "type": "string",
+            "description": "Identificador del personal responsable",
+            "example": "42"
+          },
+          "idConsultorio": {
+            "type": "string",
+            "description": "Identificador del consultorio asignado",
+            "example": "8"
+          },
+          "idLugar": {
+            "type": "string",
+            "description": "Identificador de la institución asociada",
+            "example": "2"
+          },
+          "tipoCita": {
+            "type": "string",
+            "enum": [
+              "CONSULTA",
+              "ESTUDIO"
+            ],
+            "description": "Tipo de cita: CONSULTA o ESTUDIO",
+            "example": "CONSULTA"
+          },
+          "idServicio": {
+            "type": "string",
+            "description": "Identificador del servicio a realizar",
+            "example": "5"
+          }
+        }
+      },
       "EnviarCitaDto": {
         "type": "object",
         "properties": {
@@ -8072,10 +8174,30 @@
       "ReprogramarCitaDto": {
         "type": "object",
         "properties": {
+          "detalle": {
+            "type": "string",
+            "description": "Detalle o motivo de la cita",
+            "example": "Control nutricional mensual"
+          },
           "fechaInicio": {
             "type": "string",
-            "description": "Nueva fecha de inicio",
-            "example": "2024-06-20T12:00:00Z"
+            "description": "Fecha de inicio (ISO)",
+            "example": "2024-06-15T10:00:00Z"
+          },
+          "idPersonal": {
+            "type": "string",
+            "description": "Identificador del personal responsable",
+            "example": "42"
+          },
+          "idConsultorio": {
+            "type": "string",
+            "description": "Identificador del consultorio asignado",
+            "example": "8"
+          },
+          "idLugar": {
+            "type": "string",
+            "description": "Identificador de la institución asociada",
+            "example": "2"
           },
           "tipoCita": {
             "type": "string",
@@ -8093,7 +8215,10 @@
           }
         },
         "required": [
+          "detalle",
           "fechaInicio",
+          "idPersonal",
+          "idLugar",
           "tipoCita",
           "idServicio"
         ]
