@@ -648,30 +648,10 @@ export class ActualizarEstadoCitaDto {
   estado!: CitasEstado
 }
 
-export class ReprogramarCitaDto {
-  @ApiProperty({
-    description: 'Nueva fecha de inicio',
-    example: '2024-06-20T12:00:00Z',
-  })
-  @IsDateString()
-  fechaInicio!: string
-
-  @ApiProperty({
-    enum: TipoCita,
-    description: 'Tipo de cita: CONSULTA o ESTUDIO',
-    example: TipoCita.CONSULTA,
-  })
-  @IsEnum(TipoCita)
-  tipoCita!: TipoCita
-
-  @ApiProperty({
-    description: 'Identificador del servicio a realizar',
-    example: '5',
-  })
-  @IsString()
-  @IsNotEmpty()
-  idServicio!: string
-}
+export class ReprogramarCitaDto extends OmitType(CrearCitaDto, [
+  'accion',
+  'idPaciente',
+] as const) {}
 
 export class ProgramarControlCitaDto extends OmitType(CrearCitaDto, [
   'accion',
@@ -687,6 +667,11 @@ export class EditarBorradorCitaDto extends PartialType(CrearCitaDto) {
   @IsEnum(AccionCita)
   accion?: AccionCita
 }
+
+export class EditarProgramadaCitaDto extends OmitType(
+  PartialType(CrearCitaDto),
+  ['accion', 'idPaciente'] as const
+) {}
 
 export class EnviarCitaDto {
   @ApiPropertyOptional({

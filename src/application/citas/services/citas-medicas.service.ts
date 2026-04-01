@@ -1,6 +1,7 @@
 import { BaseService } from '@/common/base'
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   Inject,
@@ -16,6 +17,7 @@ import {
   CitaResponseDto,
   CrearCitaDto,
   EditarBorradorCitaDto,
+  EditarProgramadaCitaDto,
   EnviarCitaDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
@@ -110,19 +112,21 @@ export class CitasMedicasService extends BaseService {
     return [{ field: 'estado', before, after }]
   }
 
-  private resolverEstadoConAsignacion(
-    idPersonal: string | null | undefined,
-    rolEjecutor?: string
-  ): CitasEstado {
-    if (rolEjecutor === RolEnum.PERSONAL) {
-      return CitasEstado.SOLICITADA
-    }
-
-    if (idPersonal && rolEjecutor !== RolEnum.PROFESIONAL_INVITADO) {
+  private async resolverEstadoConAsignacion(
+    idPersonal: string | null | undefined
+  ): Promise<CitasEstado> {
+    if (!idPersonal) {
       return CitasEstado.PROGRAMADA
     }
 
-    return CitasEstado.SOLICITADA
+    const roles =
+      await this.notificacionesRepository.obtenerRolesActivosUsuario(idPersonal)
+
+    if (roles.includes(RolEnum.PROFESIONAL_INVITADO)) {
+      return CitasEstado.SOLICITADA
+    }
+
+    return CitasEstado.PROGRAMADA
   }
 
   private validarCamposObligatoriosParaOperar(
@@ -135,6 +139,73 @@ export class CitasMedicasService extends BaseService {
     if (!cita.idPersonal) {
       throw new BadRequestException('El personal asignado es obligatorio')
     }
+  }
+
+  private validarPermisoEdicionProgramada(
+    rolEjecutor?: string,
+    idEjecutor?: string
+  ) {
+    if (idEjecutor === '0') return
+    if (![RolEnum.JEFE, RolEnum.COORDINADOR].includes(rolEjecutor as RolEnum)) {
+      throw new ForbiddenException(
+        'Solo jefes y coordinadores pueden modificar citas programadas'
+      )
+    }
+  }
+
+  private validarPermisoEdicionBorrador(cita: Cita, idEjecutor: string) {
+    if (idEjecutor === '0') return
+    if (cita.idUsuarioProgramo !== idEjecutor) {
+      throw new ForbiddenException(
+        'Solo el creador puede ver y editar citas en borrador'
+      )
+    }
+  }
+
+  private construirMensajeActualizacionCita(cita: Cita, accionador: string) {
+    const servicio = cita.servicio?.nombre?.trim() || 'servicio no especificado'
+    const fechaHora = cita.fechaInicio
+      ? dayjs(cita.fechaInicio).format('DD/MM/YYYY HH:mm')
+      : 'hora por confirmar'
+    return `${accionador} modificó la cita de ${servicio} para ${fechaHora}.`
+  }
+
+  private async notificarCitaActualizada(
+    citaAnterior: Cita,
+    citaActualizada: Cita,
+    usuarioAuditoria: string,
+    idEjecutor: string,
+    transaccion?: EntityManager
+  ): Promise<void> {
+    const accionador = await this.obtenerNombreAccionador(idEjecutor)
+    const mensaje = this.construirMensajeActualizacionCita(
+      citaActualizada,
+      accionador
+    )
+
+    const destinatarios = new Set<string>()
+    for (const id of [
+      citaAnterior.idPersonal,
+      citaActualizada.idPersonal,
+      citaActualizada.idUsuarioProgramo,
+      citaActualizada.idUsuarioEnvio,
+    ]) {
+      if (id && id !== idEjecutor) destinatarios.add(id)
+    }
+
+    await Promise.all(
+      Array.from(destinatarios).map((idDestinatario) =>
+        this.crearYEmitirNotificacionProgramada(
+          {
+            cita: citaActualizada,
+            idDestinatario,
+            mensaje,
+            usuarioAuditoria,
+          },
+          transaccion
+        )
+      )
+    )
   }
 
   private async obtenerNombreAccionador(idEjecutor: string): Promise<string> {
@@ -1260,7 +1331,7 @@ export class CitasMedicasService extends BaseService {
     const estadoInicial =
       dto.accion === 'GUARDAR'
         ? CitasEstado.BORRADOR
-        : this.resolverEstadoConAsignacion(dto.idPersonal, rolEjecutor)
+        : await this.resolverEstadoConAsignacion(dto.idPersonal)
 
     const citaId = await this.citasRepository.crearCita(
       {
@@ -1308,7 +1379,8 @@ export class CitasMedicasService extends BaseService {
     dto: ActualizarCitaDto,
     usuarioAuditoria = '0',
     transaccion?: EntityManager,
-    idEjecutor = '0'
+    idEjecutor = '0',
+    rolEjecutor?: string
   ): Promise<CitaResponseDto> {
     if (!transaccion) {
       const op = async (nuevaTransaccion: EntityManager) => {
@@ -1317,13 +1389,76 @@ export class CitasMedicasService extends BaseService {
           dto,
           usuarioAuditoria,
           nuevaTransaccion,
-          idEjecutor
+          idEjecutor,
+          rolEjecutor
         )
       }
       return await this.citasRepository.runTransaction(op)
     }
 
     const cita = await this.obtenerCitaId(id, transaccion)
+    const estadoActual = cita.estado as CitasEstado
+    if (estadoActual === CitasEstado.BORRADOR) {
+      this.validarPermisoEdicionBorrador(cita, idEjecutor)
+    } else if (estadoActual === CitasEstado.PROGRAMADA) {
+      this.validarPermisoEdicionProgramada(rolEjecutor, idEjecutor)
+      if (dto.idPaciente !== undefined) {
+        throw new BadRequestException(
+          'En estado PROGRAMADA no se permite modificar paciente'
+        )
+      }
+
+      const requiereReprogramacion =
+        dto.idServicio !== undefined ||
+        dto.tipoCita !== undefined ||
+        (dto.fechaInicio !== undefined &&
+          !dayjs(dto.fechaInicio).isSame(dayjs(cita.fechaInicio), 'day'))
+
+      if (requiereReprogramacion) {
+        const idPersonalReprogramacion = dto.idPersonal ?? cita.idPersonal
+        const idLugarReprogramacion = dto.idLugar ?? cita.idLugar
+        const idServicioReprogramacion = dto.idServicio ?? cita.idServicio
+        const tipoCitaReprogramacion = dto.tipoCita ?? cita.tipoCita
+        const fechaInicioReprogramacion = dto.fechaInicio
+          ? dayjs(dto.fechaInicio).toISOString()
+          : dayjs(cita.fechaInicio).toISOString()
+
+        if (!idPersonalReprogramacion || !idLugarReprogramacion) {
+          throw new BadRequestException(
+            'Para reprogramar desde PROGRAMADA se requiere personal y lugar'
+          )
+        }
+
+        if (!idServicioReprogramacion || !tipoCitaReprogramacion) {
+          throw new BadRequestException(
+            'Para reprogramar desde PROGRAMADA se requiere servicio y tipo de cita'
+          )
+        }
+
+        return await this.ejecutarReprogramacion(
+          id,
+          {
+            detalle: dto.detalle ?? cita.detalle ?? undefined,
+            fechaInicio: fechaInicioReprogramacion,
+            idPersonal: idPersonalReprogramacion,
+            idConsultorio:
+              dto.idConsultorio !== undefined
+                ? dto.idConsultorio
+                : (cita.idConsultorio ?? undefined),
+            idLugar: idLugarReprogramacion,
+            tipoCita: tipoCitaReprogramacion,
+            idServicio: idServicioReprogramacion,
+          },
+          usuarioAuditoria,
+          idEjecutor,
+          [CitasEstado.PROGRAMADA]
+        )
+      }
+    } else {
+      throw new BadRequestException(
+        `La cita en estado ${cita.estado} no permite edición`
+      )
+    }
 
     const updateData: Partial<Cita> = {}
 
@@ -1333,7 +1468,11 @@ export class CitasMedicasService extends BaseService {
 
     if (dto.idPersonal !== undefined) {
       updateData.idPersonal = dto.idPersonal
-      updateData.estado = CitasEstado.SOLICITADA
+      if (estadoActual === CitasEstado.PROGRAMADA) {
+        updateData.estado = await this.resolverEstadoConAsignacion(
+          dto.idPersonal
+        )
+      }
     }
 
     if (dto.idPaciente !== undefined) {
@@ -1394,23 +1533,58 @@ export class CitasMedicasService extends BaseService {
       throw new NotFoundException('La cita solicitada no existe')
     }
 
-    return await this.obtenerCita(id, transaccion)
+    const citaActualizada = await this.obtenerCitaId(id, transaccion)
+
+    if (estadoActual === CitasEstado.PROGRAMADA) {
+      await this.notificarCitaActualizada(
+        cita,
+        citaActualizada,
+        usuarioAuditoria,
+        idEjecutor,
+        transaccion
+      )
+    }
+
+    return formatearCita(citaActualizada)
   }
 
   async editarBorradorCita(
     id: string,
     dto: EditarBorradorCitaDto,
     usuarioAuditoria = '0',
-    idEjecutor = '0'
+    idEjecutor = '0',
+    rolEjecutor?: string
   ): Promise<CitaResponseDto> {
     const cita = await this.obtenerCitaId(id)
     this.validarEstado(cita, [CitasEstado.BORRADOR])
+    this.validarPermisoEdicionBorrador(cita, idEjecutor)
     return await this.actualizarCita(
       id,
       dto,
       usuarioAuditoria,
       undefined,
-      idEjecutor
+      idEjecutor,
+      rolEjecutor
+    )
+  }
+
+  async editarProgramadaCita(
+    id: string,
+    dto: EditarProgramadaCitaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0',
+    rolEjecutor?: string
+  ): Promise<CitaResponseDto> {
+    const cita = await this.obtenerCitaId(id)
+    this.validarEstado(cita, [CitasEstado.PROGRAMADA])
+    this.validarPermisoEdicionProgramada(rolEjecutor, idEjecutor)
+    return await this.actualizarCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      undefined,
+      idEjecutor,
+      rolEjecutor
     )
   }
 
@@ -1418,8 +1592,7 @@ export class CitasMedicasService extends BaseService {
     id: string,
     dto: EnviarCitaDto,
     usuarioAuditoria = '0',
-    idEjecutor = '0',
-    rolEjecutor?: string
+    idEjecutor = '0'
   ): Promise<CitaResponseDto> {
     return await this.citasRepository.runTransaction(async (transaccion) => {
       const cita = await this.obtenerCitaId(id, transaccion)
@@ -1428,10 +1601,7 @@ export class CitasMedicasService extends BaseService {
       const estadoAnterior = cita.estado as CitasEstado
       cita.idPersonal = dto.idPersonal ?? cita.idPersonal
       this.validarCamposObligatoriosParaOperar(cita)
-      cita.estado = this.resolverEstadoConAsignacion(
-        cita.idPersonal,
-        rolEjecutor
-      )
+      cita.estado = await this.resolverEstadoConAsignacion(cita.idPersonal)
       cita.idUsuarioEnvio = idEjecutor
       cita.usuarioModificacion = usuarioAuditoria
       await this.citasRepository.guardarCita(cita, transaccion)
@@ -1749,13 +1919,25 @@ export class CitasMedicasService extends BaseService {
     usuarioAuditoria = '0',
     idEjecutor = '0'
   ): Promise<CitaResponseDto> {
+    return await this.ejecutarReprogramacion(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor,
+      [CitasEstado.CANCELADA, CitasEstado.NO_ASISTIO]
+    )
+  }
+
+  private async ejecutarReprogramacion(
+    id: string,
+    dto: ReprogramarCitaDto,
+    usuarioAuditoria: string,
+    idEjecutor: string,
+    estadosPermitidos: CitasEstado[]
+  ): Promise<CitaResponseDto> {
     return await this.citasRepository.runTransaction(async (transaccion) => {
       const citaOriginal = await this.obtenerCitaId(id, transaccion)
-      this.validarEstado(citaOriginal, [
-        CitasEstado.PROGRAMADA,
-        CitasEstado.CANCELADA,
-        CitasEstado.NO_ASISTIO,
-      ])
+      this.validarEstado(citaOriginal, estadosPermitidos)
 
       const fechaInicio = dayjs(dto.fechaInicio).toDate()
       const tipoCita = dto.tipoCita
@@ -1784,17 +1966,14 @@ export class CitasMedicasService extends BaseService {
 
       const nuevaCitaId = await this.citasRepository.crearCita(
         {
-          detalle: citaOriginal.detalle,
+          detalle: dto.detalle ?? citaOriginal.detalle,
           fechaInicio,
           fechaFin,
-          estado: this.resolverEstadoConAsignacion(
-            citaOriginal.idPersonal,
-            idEjecutor
-          ),
-          idPersonal: citaOriginal.idPersonal,
+          estado: await this.resolverEstadoConAsignacion(dto.idPersonal),
+          idPersonal: dto.idPersonal,
           idPaciente: citaOriginal.idPaciente ?? null,
-          idConsultorio: citaOriginal.idConsultorio ?? null,
-          idLugar: citaOriginal.idLugar ?? null,
+          idConsultorio: dto.idConsultorio ?? null,
+          idLugar: dto.idLugar ?? null,
           idServicio: servicio.id,
           tipoCita,
           idHistorialCita: historialCitaId,
