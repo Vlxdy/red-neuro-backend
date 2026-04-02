@@ -49,6 +49,7 @@ import { ExternalServicesModule } from '@/core/external-services/external.module
     PushConfigService,
     CitasGateway,
   ],
+  exports: [CitasMedicasRepository],
   controllers: [
     CitasController,
     HomeCitasController,

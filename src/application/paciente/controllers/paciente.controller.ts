@@ -29,9 +29,11 @@ import { PacienteService } from '../services/paciente.service'
 import {
   ActualizarPacienteDto,
   CrearPacienteDto,
+  FiltrosCitasPacientePaginadoDto,
   PacienteResponseDto,
 } from '../dto/paciente.dto'
 import { formatearPaciente } from '../utils/formateo-paciente'
+import { CitaResponseDto } from '@/application/citas/dto/cita.dto'
 
 @Controller('pacientes')
 @ApiTags('Pacientes')
@@ -75,6 +77,27 @@ export class PacienteController extends BaseController {
       }
     )
     return this.success(formatearPaciente(resultado))
+  }
+
+  @ApiOperation({
+    summary: 'Lista las citas de un paciente (más reciente a más antiguo)',
+  })
+  @ApiBaseResponseListRows(CitaResponseDto)
+  @Get(':id/citas')
+  async listarCitasPaciente(
+    @Param() { id }: ParamIdDto,
+    @Query() filtros: FiltrosCitasPacientePaginadoDto,
+    @Req() req: Request
+  ): Promise<BaseResponseListRowsDto<CitaResponseDto>> {
+    const resultado = await this.pacienteService.listarCitasPaciente(
+      id,
+      filtros,
+      {
+        id: this.getUser(req),
+        rol: this.getRolNombre(req),
+      }
+    )
+    return this.successListRows(resultado)
   }
 
   @ApiOperation({ summary: 'Crea un nuevo paciente' })
