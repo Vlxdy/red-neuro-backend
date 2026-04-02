@@ -272,9 +272,12 @@ export class CitasMedicasRepository {
       undefined,
       true
     )
-      .addSelect('COALESCE(cita.fechaInicio, cita.fechaCreacion)', 'ordenFecha')
+      .addSelect(
+        'COALESCE(cita.fechaInicio, cita.fechaCreacion)',
+        'orden_fecha'
+      )
       .andWhere('cita.idPaciente = :idPaciente', { idPaciente })
-      .orderBy('ordenFecha', 'DESC')
+      .orderBy('orden_fecha', 'DESC')
       .addOrderBy('cita.id', 'DESC')
 
     if (idPersonalAsignado) {
