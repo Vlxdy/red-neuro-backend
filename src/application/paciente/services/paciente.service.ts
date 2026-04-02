@@ -7,6 +7,7 @@ import { PacienteRepository } from '../repository/paciente.repository'
 import {
   ActualizarPacienteDto,
   CrearPacienteDto,
+  FiltrosCitasPacientePaginadoDto,
   PacienteResponseDto,
 } from '../dto/paciente.dto'
 import {
@@ -16,6 +17,9 @@ import {
 import { PacienteEstado } from '../constants'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import { PacienteProfesionalInvitadoRepository } from '../repository/paciente-profesional-invitado.repository'
+import { CitaResponseDto } from '@/application/citas/dto/cita.dto'
+import { formatearCitas } from '@/application/citas/utils/formatear-citas'
+import { CitasMedicasRepository } from '@/application/citas/repository/citas-medicas.repository'
 
 @Injectable()
 export class PacienteService extends BaseService {
@@ -23,7 +27,9 @@ export class PacienteService extends BaseService {
     @Inject(PacienteRepository)
     private readonly pacienteRepository: PacienteRepository,
     @Inject(PacienteProfesionalInvitadoRepository)
-    private readonly pacienteProfesionalInvitadoRepository: PacienteProfesionalInvitadoRepository
+    private readonly pacienteProfesionalInvitadoRepository: PacienteProfesionalInvitadoRepository,
+    @Inject(CitasMedicasRepository)
+    private readonly citasMedicasRepository: CitasMedicasRepository
   ) {
     super()
   }
@@ -177,5 +183,23 @@ export class PacienteService extends BaseService {
       )
 
     return formatearPaciente(pacienteActualizado)
+  }
+
+  async listarCitasPaciente(
+    idPaciente: string,
+    filtros: FiltrosCitasPacientePaginadoDto,
+    usuarioSesion?: { id: string; rol?: string }
+  ): Promise<[CitaResponseDto[], number]> {
+    await this.obtenerPacientePorId(idPaciente, undefined, usuarioSesion)
+    const esProfesionalInvitado =
+      usuarioSesion?.rol === RolEnum.PROFESIONAL_INVITADO
+
+    const [citas, total] =
+      await this.citasMedicasRepository.listarCitasPacientePaginado(
+        idPaciente,
+        filtros,
+        esProfesionalInvitado ? usuarioSesion?.id : undefined
+      )
+    return [formatearCitas(citas), total]
   }
 }

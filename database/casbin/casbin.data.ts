@@ -320,6 +320,13 @@ const backendRoutes: CasbinValue = {
     [RolEnum.COORDINADOR]: 'GET|PATCH',
     [RolEnum.PERSONAL]: 'GET|PATCH',
   },
+  '/api/pacientes/:id/citas': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.JEFE]: 'GET',
+    [RolEnum.COORDINADOR]: 'GET',
+    [RolEnum.PERSONAL]: 'GET',
+    [RolEnum.PROFESIONAL_INVITADO]: 'GET',
+  },
   '/api/pacientes/:id/cambiar-estado': {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
     [RolEnum.JEFE]: 'PATCH',

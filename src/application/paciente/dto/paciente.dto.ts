@@ -1,4 +1,5 @@
 import {
+  IsEnum,
   IsDateString,
   IsNotEmpty,
   IsOptional,
@@ -6,6 +7,8 @@ import {
   MaxLength,
 } from '@/common/validation'
 import { ApiProperty, PartialType } from '@nestjs/swagger'
+import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
+import { CitasEstado, TipoCita } from '@/application/citas/constants'
 
 export class CrearPacienteDto {
   @ApiProperty({
@@ -165,4 +168,60 @@ export class PacienteResponseDto {
     example: 'ACTIVO',
   })
   estado!: string
+}
+
+export class FiltrosCitasPacientePaginadoDto extends PaginacionQueryDto {
+  @ApiProperty({
+    description: 'Fecha/hora mínima de inicio de la cita (ISO)',
+    example: '2026-01-01T00:00:00Z',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaInicioDesde?: string
+
+  @ApiProperty({
+    description: 'Fecha/hora máxima de inicio de la cita (ISO)',
+    example: '2026-12-31T23:59:59Z',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaInicioHasta?: string
+
+  @ApiProperty({
+    description: 'Filtra por estado de la cita',
+    enum: CitasEstado,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(CitasEstado)
+  estado?: CitasEstado
+
+  @ApiProperty({
+    description: 'Filtra por tipo de cita',
+    enum: TipoCita,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(TipoCita)
+  tipoCita?: TipoCita
+
+  @ApiProperty({
+    description: 'Filtra por personal de salud asignado',
+    example: '42',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  idPersonal?: string
+
+  @ApiProperty({
+    description: 'Filtra por lugar de atención',
+    example: '3',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  idLugar?: string
 }

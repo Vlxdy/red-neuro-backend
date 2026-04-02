@@ -14,3 +14,4 @@ COORDINADOR, /api/autorizacion/roles, GET
 *, /api/autorizacion/permisos, GET
 *, /api/usuarios/cuenta/perfil, GET|PATCH
 *, /api/usuarios/cuenta/contrasena, PATCH
+*, /api/pacientes/:id/citas, GET

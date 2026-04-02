@@ -6,9 +6,13 @@ import { PacienteService } from './services/paciente.service'
 import { PacienteController } from './controllers/paciente.controller'
 import { PacienteProfesionalInvitado } from './entities/paciente-profesional-invitado.entity'
 import { PacienteProfesionalInvitadoRepository } from './repository/paciente-profesional-invitado.repository'
+import { CitasModule } from '../citas/citas.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Paciente, PacienteProfesionalInvitado])],
+  imports: [
+    TypeOrmModule.forFeature([Paciente, PacienteProfesionalInvitado]),
+    CitasModule,
+  ],
   providers: [
     PacienteRepository,
     PacienteProfesionalInvitadoRepository,
