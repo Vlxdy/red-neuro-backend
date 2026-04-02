@@ -25,6 +25,7 @@ import {
 } from '../entities/notificacion.entity'
 import { HistorialCitasRepository } from './historial-citas.repository'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { FiltrosCitasPacientePaginadoDto } from '@/application/paciente/dto/paciente.dto'
 
 @Injectable()
 export class CitasMedicasRepository {
@@ -255,6 +256,64 @@ export class CitasMedicasRepository {
       .take(limite)
       .skip(saltar)
       .getManyAndCount()
+  }
+
+  async listarCitasPacientePaginado(
+    idPaciente: string,
+    filtros: FiltrosCitasPacientePaginadoDto,
+    idPersonalAsignado?: string
+  ) {
+    const { limite, saltar } = filtros
+
+    const query = this.buildCitasQuery(
+      {},
+      undefined,
+      undefined,
+      undefined,
+      true
+    )
+      .addSelect('COALESCE(cita.fechaInicio, cita.fechaCreacion)', 'ordenFecha')
+      .andWhere('cita.idPaciente = :idPaciente', { idPaciente })
+      .orderBy('ordenFecha', 'DESC')
+      .addOrderBy('cita.id', 'DESC')
+
+    if (idPersonalAsignado) {
+      query.andWhere('cita.idPersonal = :idPersonalAsignado', {
+        idPersonalAsignado,
+      })
+    } else if (filtros.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: filtros.idPersonal,
+      })
+    }
+
+    if (filtros.fechaInicioDesde) {
+      query.andWhere('cita.fechaInicio >= :fechaInicioDesde', {
+        fechaInicioDesde: filtros.fechaInicioDesde,
+      })
+    }
+
+    if (filtros.fechaInicioHasta) {
+      query.andWhere('cita.fechaInicio <= :fechaInicioHasta', {
+        fechaInicioHasta: filtros.fechaInicioHasta,
+      })
+    }
+
+    if (filtros.estado) {
+      query.andWhere('cita.estado = :estado', { estado: filtros.estado })
+    }
+
+    if (filtros.tipoCita) {
+      query.andWhere('cita.tipoCita = :tipoCita', {
+        tipoCita: filtros.tipoCita,
+      })
+    }
+
+    if (filtros.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: filtros.idLugar })
+    }
+
+    return await query.take(limite).skip(saltar).getManyAndCount()
   }
 
   private aplicarFiltroCursor(
