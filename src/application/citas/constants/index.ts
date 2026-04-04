@@ -27,6 +27,36 @@ export enum TipoCita {
   ESTUDIO = 'ESTUDIO',
 }
 
+export enum CitaPagoEstado {
+  REGISTRADO = Status.ACTIVE,
+  ANULADO = Status.INACTIVE,
+}
+
+export enum CitaPagoSituacion {
+  PENDIENTE = 'PENDIENTE',
+  PAGADO = 'PAGADO',
+  ANULADO = 'ANULADO',
+}
+
+export enum CitaPagoMetodo {
+  EFECTIVO = 'EFECTIVO',
+  QR = 'QR',
+  TRANSFERENCIA = 'TRANSFERENCIA',
+  TARJETA = 'TARJETA',
+  OTRO = 'OTRO',
+}
+
+export enum CitaPagoTipo {
+  PAGO = 'PAGO',
+  AJUSTE = 'AJUSTE',
+  DEVOLUCION = 'DEVOLUCION',
+}
+
+export enum CajaSesionEstado {
+  ABIERTA = 'ABIERTA',
+  CERRADA = 'CERRADA',
+}
+
 export const SOCKET_NAMESPACE = '/realtime'
 export const CITAS_SOCKET_NAMESPACE = SOCKET_NAMESPACE
 

@@ -6,6 +6,9 @@ import { HomeCitasController } from './controller/home-citas.controller'
 import { HistorialCitasController } from './controller/historial-citas.controller'
 import { NotificacionesController } from './controller/notificaciones.controller'
 import { DispositivosPushController } from './controller/dispositivos-push.controller'
+import { PagosCitasController } from './controller/pagos-citas.controller'
+import { ReportesCitasController } from './controller/reportes-citas.controller'
+import { CajaCitasController } from './controller/caja-citas.controller'
 import { CitasGateway } from './gateways/citas.gateway'
 import { Cita } from './entities/cita.entity'
 import { HistorialCita } from './entities/cita-historial.entity'
@@ -23,6 +26,8 @@ import { Servicio } from '@/application/servicio/entities/servicio.entity'
 import { Lugar } from '@/application/lugar/entities/lugar.entity'
 import { Usuario } from '@/core/usuario/entity/usuario.entity'
 import { ExternalServicesModule } from '@/core/external-services/external.module'
+import { CitaPago } from './entities/cita-pago.entity'
+import { CajaSesion } from './entities/caja-sesion.entity'
 
 @Module({
   imports: [
@@ -35,6 +40,8 @@ import { ExternalServicesModule } from '@/core/external-services/external.module
       Servicio,
       Lugar,
       Usuario,
+      CitaPago,
+      CajaSesion,
     ]),
   ],
   providers: [
@@ -56,6 +63,9 @@ import { ExternalServicesModule } from '@/core/external-services/external.module
     HistorialCitasController,
     NotificacionesController,
     DispositivosPushController,
+    PagosCitasController,
+    ReportesCitasController,
+    CajaCitasController,
   ],
 })
 export class CitasModule {}

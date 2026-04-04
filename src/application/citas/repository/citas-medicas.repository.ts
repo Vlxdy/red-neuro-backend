@@ -8,13 +8,15 @@ import {
   SelectQueryBuilder,
 } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
-import { CitasEstado, TipoCita } from '../constants'
+import { TipoCita } from '../constants'
 import { RolEnum } from '@/core/authorization/rol.enum'
 import {
   ActualizarEstadoCitaDto,
   CancelarCitaDto,
+  CrearCitaPagoDto,
   FiltrosCitaDto,
   FiltrosCitaPaginadoDto,
+  ReportePagosQueryDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
@@ -26,6 +28,15 @@ import {
 import { HistorialCitasRepository } from './historial-citas.repository'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { FiltrosCitasPacientePaginadoDto } from '@/application/paciente/dto/paciente.dto'
+import { CitaPago } from '../entities/cita-pago.entity'
+import { CajaSesion } from '../entities/caja-sesion.entity'
+import {
+  CajaSesionEstado,
+  CitaPagoEstado,
+  CitaPagoSituacion,
+  CitaPagoTipo,
+  CitasEstado,
+} from '../constants'
 
 @Injectable()
 export class CitasMedicasRepository {
@@ -55,6 +66,14 @@ export class CitasMedicasRepository {
 
   private notificacionRepository(manager?: EntityManager) {
     return (manager ?? this.dataSource).getRepository(Notificacion)
+  }
+
+  private pagoRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(CitaPago)
+  }
+
+  private cajaRepository(manager?: EntityManager) {
+    return (manager ?? this.dataSource).getRepository(CajaSesion)
   }
 
   private construirMensajeCitaSolicitada(data: {
@@ -1052,6 +1071,330 @@ export class CitasMedicasRepository {
     )
 
     return true
+  }
+
+  async crearPagoCita(
+    data: {
+      idCita: string
+      monto: number
+      fechaPago?: Date
+      metodoPago?: CrearCitaPagoDto['metodoPago']
+      tipoMovimiento: CrearCitaPagoDto['tipoMovimiento']
+      observacion?: string
+      idCajaSesion?: string
+      estadoPago: CitaPagoSituacion
+      idUsuarioRegistro: string
+    },
+    usuarioAuditoria: string,
+    manager?: EntityManager
+  ): Promise<CitaPago> {
+    const pago = this.pagoRepository(manager).create({
+      idCita: data.idCita,
+      idCajaSesion: data.idCajaSesion ?? null,
+      monto: data.monto,
+      fechaPago: data.fechaPago ?? null,
+      metodoPago: data.metodoPago ?? null,
+      estadoPago: data.estadoPago,
+      tipoMovimiento: data.tipoMovimiento,
+      observacion: data.observacion,
+      idUsuarioRegistro: data.idUsuarioRegistro,
+      usuarioCreacion: usuarioAuditoria,
+      estado: CitaPagoEstado.REGISTRADO,
+    })
+    return await this.pagoRepository(manager).save(pago)
+  }
+
+  async obtenerCajaAbierta(
+    manager?: EntityManager
+  ): Promise<CajaSesion | null> {
+    return await this.cajaRepository(manager).findOne({
+      where: { estado: CajaSesionEstado.ABIERTA },
+      order: { id: 'DESC' },
+    })
+  }
+
+  async crearCajaSesion(
+    data: {
+      fechaApertura: Date
+      montoApertura?: number
+      idUsuarioApertura: string
+    },
+    usuarioAuditoria: string
+  ): Promise<CajaSesion> {
+    const caja = this.cajaRepository().create({
+      fechaApertura: data.fechaApertura,
+      montoApertura: data.montoApertura ?? null,
+      idUsuarioApertura: data.idUsuarioApertura,
+      estado: CajaSesionEstado.ABIERTA,
+      usuarioCreacion: usuarioAuditoria,
+    })
+    return await this.cajaRepository().save(caja)
+  }
+
+  async guardarCajaSesion(caja: CajaSesion): Promise<CajaSesion> {
+    return await this.cajaRepository().save(caja)
+  }
+
+  async obtenerMontoCaja(idCaja: string): Promise<number> {
+    const raw = await this.pagoRepository()
+      .createQueryBuilder('pago')
+      .select(
+        `COALESCE(SUM(
+          CASE WHEN pago.tipoMovimiento = :tipoDevolucion THEN (-1 * pago.monto)
+          ELSE pago.monto
+          END
+        ),0)`,
+        'monto'
+      )
+      .where('pago.idCajaSesion = :idCaja', { idCaja })
+      .andWhere('pago.estado = :estado', { estado: CitaPagoEstado.REGISTRADO })
+      .setParameter('tipoDevolucion', CitaPagoTipo.DEVOLUCION)
+      .getRawOne()
+    return Number(raw?.monto ?? 0)
+  }
+
+  async buscarPagoActivoPorCita(idCita: string, manager?: EntityManager) {
+    return await this.pagoRepository(manager).findOne({
+      where: {
+        idCita,
+        estado: CitaPagoEstado.REGISTRADO,
+      },
+      order: { id: 'DESC' },
+    })
+  }
+
+  async listarPagosPorCita(idCita: string): Promise<CitaPago[]> {
+    return await this.pagoRepository()
+      .createQueryBuilder('pago')
+      .where('pago.idCita = :idCita', { idCita })
+      .orderBy('pago.fechaPago', 'ASC')
+      .addOrderBy('pago.id', 'ASC')
+      .getMany()
+  }
+
+  async buscarPagoPorId(id: string): Promise<CitaPago | null> {
+    return await this.pagoRepository().findOne({
+      where: { id },
+    })
+  }
+
+  async guardarPagoCita(pago: CitaPago): Promise<CitaPago> {
+    return await this.pagoRepository().save(pago)
+  }
+
+  async contarPagosPendientes(params: {
+    idPersonal?: string
+    idLugar?: string
+  }) {
+    const query = this.pagoRepository()
+      .createQueryBuilder('pago')
+      .innerJoin('pago.cita', 'cita')
+      .where('pago.estado = :estado', { estado: CitaPagoEstado.REGISTRADO })
+      .andWhere('pago.estadoPago = :estadoPago', {
+        estadoPago: CitaPagoSituacion.PENDIENTE,
+      })
+      .andWhere('cita.estado = :estadoCita', {
+        estadoCita: CitasEstado.COMPLETADA,
+      })
+
+    if (params.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: params.idPersonal,
+      })
+    }
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getCount()
+  }
+
+  async listarPagosPendientesPorCita(params: {
+    idPersonal?: string
+    idLugar?: string
+    limite?: number
+    saltar?: number
+  }) {
+    const query = this.buildCitasQuery({
+      estado: CitasEstado.COMPLETADA,
+      idPersonal: params.idPersonal,
+      idLugar: params.idLugar,
+    })
+      .innerJoin('cita.pagos', 'pagoPendiente')
+      .andWhere('pagoPendiente.estado = :estadoPagoRegistro', {
+        estadoPagoRegistro: CitaPagoEstado.REGISTRADO,
+      })
+      .andWhere('pagoPendiente.estadoPago = :estadoPendiente', {
+        estadoPendiente: CitaPagoSituacion.PENDIENTE,
+      })
+      .orderBy('cita.fechaInicio', 'ASC')
+      .addOrderBy('cita.id', 'ASC')
+
+    if (params.limite !== undefined) {
+      query.take(params.limite)
+    }
+
+    if (params.saltar !== undefined) {
+      query.skip(params.saltar)
+    }
+
+    return await query.getManyAndCount()
+  }
+
+  async listarPagosPendientes(params: {
+    idLugar?: string
+  }): Promise<CitaPago[]> {
+    const query = this.pagoRepository()
+      .createQueryBuilder('pago')
+      .leftJoinAndSelect('pago.cita', 'cita')
+      .leftJoinAndSelect('cita.personal', 'personal')
+      .leftJoinAndSelect('personal.persona', 'personaPersonal')
+      .leftJoinAndSelect('cita.paciente', 'paciente')
+      .leftJoinAndSelect('cita.servicio', 'servicio')
+      .where('pago.estado = :estado', { estado: CitaPagoEstado.REGISTRADO })
+      .andWhere('pago.estadoPago = :estadoPago', {
+        estadoPago: CitaPagoSituacion.PENDIENTE,
+      })
+      .orderBy('pago.fechaCreacion', 'ASC')
+      .addOrderBy('pago.id', 'ASC')
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+
+    return await query.getMany()
+  }
+
+  async obtenerReportePagos(filtros: ReportePagosQueryDto) {
+    const baseQuery = this.pagoRepository()
+      .createQueryBuilder('pago')
+      .innerJoin('pago.cita', 'cita')
+      .leftJoin('cita.personal', 'personal')
+      .leftJoin('personal.persona', 'personaPersonal')
+      .leftJoin('cita.servicio', 'servicio')
+      .where('pago.estado = :estadoPago', {
+        estadoPago: CitaPagoEstado.REGISTRADO,
+      })
+      .andWhere('pago.estadoPago = :estadoPagoOperativo', {
+        estadoPagoOperativo: CitaPagoSituacion.PAGADO,
+      })
+      .andWhere('pago.fechaPago BETWEEN :fechaDesde AND :fechaHasta', {
+        fechaDesde: filtros.fechaDesde,
+        fechaHasta: filtros.fechaHasta,
+      })
+
+    if (filtros.idPersonal) {
+      baseQuery.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: filtros.idPersonal,
+      })
+    }
+    if (filtros.idServicio) {
+      baseQuery.andWhere('cita.idServicio = :idServicio', {
+        idServicio: filtros.idServicio,
+      })
+    }
+    if (filtros.tipoCita) {
+      baseQuery.andWhere('cita.tipoCita = :tipoCita', {
+        tipoCita: filtros.tipoCita,
+      })
+    }
+
+    const resumen = await baseQuery
+      .clone()
+      .select('COUNT(pago.id)', 'totalMovimientos')
+      .addSelect(
+        `COALESCE(SUM(
+          CASE 
+            WHEN pago.tipoMovimiento = :tipoDevolucion THEN (-1 * pago.monto)
+            ELSE pago.monto
+          END
+        ),0)`,
+        'totalRecaudado'
+      )
+      .setParameter('tipoDevolucion', CitaPagoTipo.DEVOLUCION)
+      .getRawOne()
+
+    const porPersonal = await baseQuery
+      .clone()
+      .select(
+        "TRIM(CONCAT(COALESCE(personaPersonal.nombres, ''), ' ', COALESCE(personaPersonal.primerApellido, ''), ' ', COALESCE(personaPersonal.segundoApellido, '')))",
+        'etiqueta'
+      )
+      .addSelect('COUNT(pago.id)', 'totalMovimientos')
+      .addSelect(
+        `COALESCE(SUM(
+          CASE 
+            WHEN pago.tipoMovimiento = :tipoDevolucion THEN (-1 * pago.monto)
+            ELSE pago.monto
+          END
+        ),0)`,
+        'totalRecaudado'
+      )
+      .setParameter('tipoDevolucion', CitaPagoTipo.DEVOLUCION)
+      .groupBy('personaPersonal.nombres')
+      .addGroupBy('personaPersonal.primerApellido')
+      .addGroupBy('personaPersonal.segundoApellido')
+      .orderBy('totalRecaudado', 'DESC')
+      .getRawMany()
+
+    const porServicio = await baseQuery
+      .clone()
+      .select("COALESCE(servicio.nombre, 'Sin servicio')", 'etiqueta')
+      .addSelect('COUNT(pago.id)', 'totalMovimientos')
+      .addSelect(
+        `COALESCE(SUM(
+          CASE 
+            WHEN pago.tipoMovimiento = :tipoDevolucion THEN (-1 * pago.monto)
+            ELSE pago.monto
+          END
+        ),0)`,
+        'totalRecaudado'
+      )
+      .setParameter('tipoDevolucion', CitaPagoTipo.DEVOLUCION)
+      .groupBy('servicio.nombre')
+      .orderBy('totalRecaudado', 'DESC')
+      .getRawMany()
+
+    const porTipoServicio = await baseQuery
+      .clone()
+      .select("COALESCE(cita.tipoCita, 'CONSULTA')", 'etiqueta')
+      .addSelect('COUNT(pago.id)', 'totalMovimientos')
+      .addSelect(
+        `COALESCE(SUM(
+          CASE 
+            WHEN pago.tipoMovimiento = :tipoDevolucion THEN (-1 * pago.monto)
+            ELSE pago.monto
+          END
+        ),0)`,
+        'totalRecaudado'
+      )
+      .setParameter('tipoDevolucion', CitaPagoTipo.DEVOLUCION)
+      .groupBy('cita.tipoCita')
+      .orderBy('totalRecaudado', 'DESC')
+      .getRawMany()
+
+    return {
+      resumen: {
+        totalMovimientos: Number(resumen?.totalMovimientos ?? 0),
+        totalRecaudado: Number(resumen?.totalRecaudado ?? 0),
+      },
+      porPersonal: porPersonal.map((item) => ({
+        etiqueta: item.etiqueta?.trim() || 'Sin asignar',
+        totalMovimientos: Number(item.totalMovimientos ?? 0),
+        totalRecaudado: Number(item.totalRecaudado ?? 0),
+      })),
+      porServicio: porServicio.map((item) => ({
+        etiqueta: item.etiqueta || 'Sin servicio',
+        totalMovimientos: Number(item.totalMovimientos ?? 0),
+        totalRecaudado: Number(item.totalRecaudado ?? 0),
+      })),
+      porTipoServicio: porTipoServicio.map((item) => ({
+        etiqueta: item.etiqueta,
+        totalMovimientos: Number(item.totalMovimientos ?? 0),
+        totalRecaudado: Number(item.totalRecaudado ?? 0),
+      })),
+    }
   }
 
   async actualizarEstadoCita(
