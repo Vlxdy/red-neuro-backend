@@ -125,6 +125,29 @@ export class modulo1611497480901 implements MigrationInterface {
               orden: 2,
             },
           },
+
+          {
+            nombre: 'pagos',
+            url: '/admin/pagos',
+            label: 'Pagos',
+            propiedades: {
+              icono: 'payments',
+              descripcion:
+                'Bandeja de pagos pendientes y regularización de cobros de citas',
+              orden: 3,
+            },
+          },
+          {
+            nombre: 'cajas',
+            url: '/admin/cajas',
+            label: 'Cajas',
+            propiedades: {
+              icono: 'point_of_sale',
+              descripcion:
+                'Gestión de apertura, seguimiento y cierre de caja de atención',
+              orden: 4,
+            },
+          },
         ],
       },
       {

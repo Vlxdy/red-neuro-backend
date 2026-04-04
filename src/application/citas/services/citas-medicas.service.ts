@@ -12,9 +12,16 @@ import { Cron } from '@nestjs/schedule'
 import {
   ActualizarCitaDto,
   ActualizarEstadoCitaDto,
+  AnularCitaPagoDto,
+  AperturaCajaDto,
+  CajaSesionResponseDto,
   CancelarCitaDto,
   CantidadCitasPorDiaResponseDto,
+  CitaPagoResponseDto,
   CitaResponseDto,
+  CierreCajaDto,
+  CompletarAtencionConPagoDto,
+  CrearCitaPagoDto,
   CrearCitaDto,
   EditarBorradorCitaDto,
   EditarProgramadaCitaDto,
@@ -38,6 +45,8 @@ import {
   CitasScope,
   ProgramarControlCitaDto,
   RechazarCitaDto,
+  ReportePagosQueryDto,
+  ReportePagosResponseDto,
   ReprogramarCitaDto,
 } from '../dto/cita.dto'
 
@@ -45,7 +54,14 @@ import { CitasMedicasRepository } from '../repository/citas-medicas.repository'
 import { formatearCita, formatearCitas } from '../utils/formatear-citas'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
-import { CitasEstado, TipoCita } from '../constants'
+import {
+  CitaPagoEstado,
+  CitaPagoTipo,
+  CajaSesionEstado,
+  CitaPagoSituacion,
+  CitasEstado,
+  TipoCita,
+} from '../constants'
 import { RolEnum, RolEnumId } from '@/core/authorization/rol.enum'
 import { NotificacionesRepository } from '../repository/notificaciones.repository'
 import { DispositivosPushRepository } from '../repository/dispositivos-push.repository'
@@ -56,6 +72,8 @@ import {
   EventoPushCita,
 } from '../utils/notificacion-cita-messages'
 import { CitasGateway } from '../gateways/citas.gateway'
+import { CitaPago } from '../entities/cita-pago.entity'
+import { CajaSesion } from '../entities/caja-sesion.entity'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
@@ -101,6 +119,32 @@ export class CitasMedicasService extends BaseService {
     if (!estadosPermitidos.includes(cita.estado as CitasEstado)) {
       throw new BadRequestException(
         `La cita en estado ${cita.estado} no permite esta operación`
+      )
+    }
+  }
+
+  private validarPermisoPagos(rolEjecutor?: string) {
+    if (
+      ![RolEnum.ADMINISTRADOR, RolEnum.JEFE, RolEnum.COORDINADOR].includes(
+        rolEjecutor as RolEnum
+      )
+    ) {
+      throw new ForbiddenException(
+        'Solo ADMINISTRADOR, JEFE y COORDINADOR pueden operar pagos'
+      )
+    }
+  }
+
+  private puedeVerPendientesPago(rolEjecutor?: string) {
+    return [RolEnum.ADMINISTRADOR, RolEnum.JEFE, RolEnum.COORDINADOR].includes(
+      rolEjecutor as RolEnum
+    )
+  }
+
+  private validarPermisoCaja(rolEjecutor?: string) {
+    if (rolEjecutor !== RolEnum.JEFE) {
+      throw new ForbiddenException(
+        'Solo el rol JEFE puede operar apertura/cierre de caja'
       )
     }
   }
@@ -756,17 +800,20 @@ export class CitasMedicasService extends BaseService {
       ? dayjs(filtros.fechaBase).startOf('day')
       : dayjs().startOf('day')
     const limite = filtros.limitPreview ?? 10
+    const incluirPagosPendientes = this.puedeVerPendientesPago(rol)
 
     const [
       countPendientes,
       countRechazadas,
       countBorradores,
       countProgramadas,
+      countPagosPendientes,
       pendientes,
       rechazadas,
       borradores,
       programadasHoy,
       programadasResto,
+      pagosPendientes,
     ] = await Promise.all([
       this.citasRepository.contarPendientesAprobacion({
         idPersonal,
@@ -786,6 +833,12 @@ export class CitasMedicasService extends BaseService {
         idLugar: filtros.idLugar,
         fechaBase: fechaBase.toISOString(),
       }),
+      incluirPagosPendientes
+        ? this.citasRepository.contarPagosPendientes({
+            idPersonal,
+            idLugar: filtros.idLugar,
+          })
+        : Promise.resolve(0),
       this.citasRepository.listarPendientesAprobacion({
         idPersonal,
         idLugar: filtros.idLugar,
@@ -813,6 +866,15 @@ export class CitasMedicasService extends BaseService {
         fechaBase: fechaBase.toISOString(),
         limite,
       }),
+      incluirPagosPendientes
+        ? this.citasRepository
+            .listarPagosPendientesPorCita({
+              idPersonal,
+              idLugar: filtros.idLugar,
+              limite,
+            })
+            .then(([items]) => items)
+        : Promise.resolve([]),
     ])
 
     const programadasPreview =
@@ -829,6 +891,7 @@ export class CitasMedicasService extends BaseService {
         rechazadasSolicitadasPorMi: countRechazadas,
         borradores: countBorradores,
         programadasAsignadas: countProgramadas,
+        pagosPendientes: countPagosPendientes,
       },
       preview: {
         pendientesAprobacionAsignadas: this.construirBloquePreview(
@@ -853,6 +916,11 @@ export class CitasMedicasService extends BaseService {
           reglaAplicada: 'top10_o_todas_las_de_hoy_si_hoy_gt_10',
           hasMore: countProgramadas > programadasPreview.length,
         },
+        pagosPendientes: this.construirBloquePreview(
+          pagosPendientes,
+          limite,
+          countPagosPendientes
+        ),
       },
       updatedAt: dayjs().toISOString(),
     }
@@ -969,6 +1037,33 @@ export class CitasMedicasService extends BaseService {
     const grupos = Array.from(gruposMap).map(([dia, items]) => ({ dia, items }))
 
     return [grupos, total]
+  }
+
+  async listarHomePagosPendientes(
+    filtros: HomeListadoQueryDto,
+    idUsuario: string,
+    rol: string
+  ): Promise<[CitaResponseDto[], number]> {
+    if (!this.puedeVerPendientesPago(rol)) {
+      return [[], 0]
+    }
+
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      rol,
+      idUsuario,
+      filtros.idPersonal
+    )
+
+    const [citas, total] =
+      await this.citasRepository.listarPagosPendientesPorCita({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        limite: filtros.limite,
+        saltar: filtros.saltar,
+      })
+
+    return [formatearCitas(citas), total]
   }
 
   async obtenerMisResumen(
@@ -1239,6 +1334,239 @@ export class CitasMedicasService extends BaseService {
     }
 
     return actualizadas
+  }
+
+  async obtenerCajaActual(
+    rolEjecutor?: string
+  ): Promise<CajaSesionResponseDto | null> {
+    this.validarPermisoCaja(rolEjecutor)
+    const caja = await this.citasRepository.obtenerCajaAbierta()
+    if (!caja) {
+      return null
+    }
+    const montoRecaudado = await this.citasRepository.obtenerMontoCaja(caja.id)
+    return this.formatearCaja(caja, montoRecaudado)
+  }
+
+  async abrirCaja(
+    dto: AperturaCajaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0',
+    rolEjecutor?: string
+  ): Promise<CajaSesionResponseDto> {
+    this.validarPermisoCaja(rolEjecutor)
+    const existente = await this.citasRepository.obtenerCajaAbierta()
+    if (existente) {
+      throw new BadRequestException(
+        'Ya existe una caja abierta. Debe cerrarla antes de abrir una nueva'
+      )
+    }
+    const caja = await this.citasRepository.crearCajaSesion(
+      {
+        fechaApertura: new Date(),
+        montoApertura: dto.montoApertura,
+        idUsuarioApertura: idEjecutor,
+      },
+      usuarioAuditoria
+    )
+    return this.formatearCaja(caja, 0)
+  }
+
+  async cerrarCaja(
+    dto: CierreCajaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0',
+    rolEjecutor?: string
+  ): Promise<CajaSesionResponseDto> {
+    this.validarPermisoCaja(rolEjecutor)
+    const caja = await this.citasRepository.obtenerCajaAbierta()
+    if (!caja) {
+      throw new BadRequestException('No existe una caja abierta para cerrar')
+    }
+    caja.estado = CajaSesionEstado.CERRADA
+    caja.fechaCierre = new Date()
+    caja.idUsuarioCierre = idEjecutor
+    caja.montoCierreDeclarado = dto.montoCierreDeclarado ?? null
+    caja.usuarioModificacion = usuarioAuditoria
+    const guardada = await this.citasRepository.guardarCajaSesion(caja)
+    const montoRecaudado = await this.citasRepository.obtenerMontoCaja(caja.id)
+    return this.formatearCaja(guardada, montoRecaudado)
+  }
+
+  async registrarPagoCita(
+    idCita: string,
+    dto: CrearCitaPagoDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0',
+    rolEjecutor?: string
+  ): Promise<CitaPagoResponseDto> {
+    this.validarPermisoPagos(rolEjecutor)
+    const cita = await this.obtenerCitaId(idCita)
+    if ([CitasEstado.CANCELADA, CitasEstado.INACTIVO].includes(cita.estado)) {
+      throw new BadRequestException(
+        'No se puede registrar pagos en citas canceladas o inactivas'
+      )
+    }
+
+    const pagoActivo =
+      await this.citasRepository.buscarPagoActivoPorCita(idCita)
+
+    if (pagoActivo) {
+      if (pagoActivo.estadoPago === CitaPagoSituacion.PAGADO) {
+        throw new BadRequestException(
+          'La cita ya cuenta con un pago registrado y no puede duplicarse'
+        )
+      }
+
+      if (pagoActivo.estadoPago === CitaPagoSituacion.ANULADO) {
+        throw new BadRequestException(
+          'El pago pendiente está anulado y no puede regularizarse'
+        )
+      }
+
+      const cajaAbierta = await this.citasRepository.obtenerCajaAbierta()
+      if (!cajaAbierta) {
+        throw new BadRequestException(
+          'No existe caja abierta. Debe abrir caja antes de regularizar pagos'
+        )
+      }
+
+      pagoActivo.idCajaSesion = cajaAbierta.id
+      pagoActivo.fechaPago = dto.fechaPago
+        ? dayjs(dto.fechaPago).toDate()
+        : new Date()
+      pagoActivo.metodoPago = dto.metodoPago
+      pagoActivo.tipoMovimiento = dto.tipoMovimiento ?? CitaPagoTipo.PAGO
+      pagoActivo.observacion = dto.observacion ?? pagoActivo.observacion
+      pagoActivo.estadoPago = CitaPagoSituacion.PAGADO
+      pagoActivo.usuarioModificacion = usuarioAuditoria
+
+      const regularizado =
+        await this.citasRepository.guardarPagoCita(pagoActivo)
+      return this.formatearPago(regularizado)
+    }
+
+    const cajaAbierta = await this.citasRepository.obtenerCajaAbierta()
+    if (!cajaAbierta) {
+      throw new BadRequestException(
+        'No existe caja abierta. Debe abrir caja antes de registrar pagos'
+      )
+    }
+
+    const pago = await this.citasRepository.crearPagoCita(
+      {
+        idCita,
+        idCajaSesion: cajaAbierta.id,
+        monto: dto.monto,
+        fechaPago: dto.fechaPago ? dayjs(dto.fechaPago).toDate() : new Date(),
+        metodoPago: dto.metodoPago,
+        tipoMovimiento: dto.tipoMovimiento ?? CitaPagoTipo.PAGO,
+        observacion: dto.observacion,
+        estadoPago: CitaPagoSituacion.PAGADO,
+        idUsuarioRegistro: idEjecutor,
+      },
+      usuarioAuditoria
+    )
+
+    return this.formatearPago(pago)
+  }
+
+  async listarPagosCita(
+    idCita: string,
+    rolEjecutor?: string
+  ): Promise<CitaPagoResponseDto[]> {
+    this.validarPermisoPagos(rolEjecutor)
+    await this.obtenerCitaId(idCita)
+    const pagos = await this.citasRepository.listarPagosPorCita(idCita)
+    return pagos.map((pago) => this.formatearPago(pago))
+  }
+
+  async anularPagoCita(
+    idPago: string,
+    dto: AnularCitaPagoDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0',
+    rolEjecutor?: string
+  ): Promise<CitaPagoResponseDto> {
+    this.validarPermisoPagos(rolEjecutor)
+    const pago = await this.citasRepository.buscarPagoPorId(idPago)
+    if (!pago) {
+      throw new NotFoundException('El pago solicitado no existe')
+    }
+    if (pago.estado === CitaPagoEstado.ANULADO) {
+      throw new BadRequestException('El pago ya se encuentra anulado')
+    }
+    pago.estado = CitaPagoEstado.ANULADO
+    pago.estadoPago = CitaPagoSituacion.ANULADO
+    pago.idUsuarioAnulacion = idEjecutor
+    pago.observacion = dto.motivo
+    pago.usuarioModificacion = usuarioAuditoria
+
+    const pagoAnulado = await this.citasRepository.guardarPagoCita(pago)
+    return this.formatearPago(pagoAnulado)
+  }
+
+  async listarPagosPendientes(
+    rolEjecutor?: string,
+    idLugar?: string
+  ): Promise<CitaPagoResponseDto[]> {
+    this.validarPermisoPagos(rolEjecutor)
+    const pagos = await this.citasRepository.listarPagosPendientes({ idLugar })
+    return pagos.map((pago) => this.formatearPago(pago))
+  }
+
+  async obtenerReportePagos(
+    filtros: ReportePagosQueryDto,
+    rolEjecutor?: string
+  ): Promise<ReportePagosResponseDto> {
+    this.validarPermisoPagos(rolEjecutor)
+    if (dayjs(filtros.fechaDesde).isAfter(dayjs(filtros.fechaHasta))) {
+      throw new BadRequestException(
+        'La fechaDesde no puede ser mayor que fechaHasta'
+      )
+    }
+    return await this.citasRepository.obtenerReportePagos(filtros)
+  }
+
+  private formatearPago(pago: CitaPago): CitaPagoResponseDto {
+    return {
+      id: pago.id,
+      idCita: pago.idCita,
+      monto: Number(pago.monto),
+      fechaPago: pago.fechaPago
+        ? dayjs(pago.fechaPago).toISOString()
+        : undefined,
+      metodoPago: pago.metodoPago ?? undefined,
+      tipoMovimiento: pago.tipoMovimiento,
+      estado: pago.estado,
+      estadoPago: pago.estadoPago,
+      observacion: pago.observacion ?? undefined,
+      idUsuarioRegistro: pago.idUsuarioRegistro,
+    }
+  }
+
+  private formatearCaja(
+    caja: CajaSesion,
+    montoRecaudado: number
+  ): CajaSesionResponseDto {
+    return {
+      id: caja.id,
+      estado: caja.estado,
+      fechaApertura: dayjs(caja.fechaApertura).toISOString(),
+      fechaCierre: caja.fechaCierre
+        ? dayjs(caja.fechaCierre).toISOString()
+        : undefined,
+      montoApertura:
+        caja.montoApertura !== null && caja.montoApertura !== undefined
+          ? Number(caja.montoApertura)
+          : undefined,
+      montoCierreDeclarado:
+        caja.montoCierreDeclarado !== null &&
+        caja.montoCierreDeclarado !== undefined
+          ? Number(caja.montoCierreDeclarado)
+          : undefined,
+      montoRecaudado,
+    }
   }
 
   async obtenerCita(
@@ -1685,19 +2013,108 @@ export class CitasMedicasService extends BaseService {
     )
   }
 
-  async darAltaCita(
+  async completarAtencionConPago(
     id: string,
+    dto: CompletarAtencionConPagoDto,
     usuarioAuditoria = '0',
-    idEjecutor = '0'
+    idEjecutor = '0',
+    rolEjecutor?: string
   ): Promise<CitaResponseDto> {
-    return await this.actualizarEstadoCita(
-      id,
-      { estado: CitasEstado.COMPLETADA },
-      usuarioAuditoria,
-      idEjecutor,
-      [CitasEstado.PROGRAMADA],
-      'Cita dada de alta'
-    )
+    return await this.citasRepository.runTransaction(async (transaccion) => {
+      const cita = await this.obtenerCitaId(id, transaccion)
+      this.validarEstado(cita, [CitasEstado.PROGRAMADA])
+
+      const pagoActivo = await this.citasRepository.buscarPagoActivoPorCita(
+        id,
+        transaccion
+      )
+      if (pagoActivo) {
+        throw new BadRequestException(
+          'La cita ya cuenta con un pago registrado y no puede duplicarse'
+        )
+      }
+
+      const estadoAnterior = cita.estado as CitasEstado
+      cita.estado = CitasEstado.COMPLETADA
+      cita.usuarioModificacion = usuarioAuditoria
+      await this.citasRepository.guardarCita(cita, transaccion)
+
+      const forzarPendiente = rolEjecutor === RolEnum.PROFESIONAL_INVITADO
+      const registrarPago = dto.registrarPago ?? true
+
+      if (!forzarPendiente && registrarPago) {
+        if (!dto.metodoPago) {
+          throw new BadRequestException(
+            'Debe enviar metodoPago cuando registra pago inmediato'
+          )
+        }
+
+        const cajaAbierta =
+          await this.citasRepository.obtenerCajaAbierta(transaccion)
+        if (!cajaAbierta) {
+          throw new BadRequestException(
+            'No existe caja abierta. Debe abrir caja antes de completar atención'
+          )
+        }
+
+        await this.citasRepository.crearPagoCita(
+          {
+            idCita: cita.id,
+            idCajaSesion: cajaAbierta.id,
+            monto: dto.monto,
+            fechaPago: new Date(),
+            metodoPago: dto.metodoPago,
+            tipoMovimiento: CitaPagoTipo.PAGO,
+            observacion: dto.observacion,
+            estadoPago: CitaPagoSituacion.PAGADO,
+            idUsuarioRegistro: idEjecutor,
+          },
+          usuarioAuditoria,
+          transaccion
+        )
+      } else {
+        await this.citasRepository.crearPagoCita(
+          {
+            idCita: cita.id,
+            monto: dto.monto,
+            tipoMovimiento: CitaPagoTipo.PAGO,
+            observacion: dto.observacion,
+            estadoPago: CitaPagoSituacion.PENDIENTE,
+            idUsuarioRegistro: idEjecutor,
+          },
+          usuarioAuditoria,
+          transaccion
+        )
+      }
+
+      await this.citasRepository.crearHistorialAccion(
+        {
+          idCita: cita.id,
+          idEjecutor,
+          comentario: 'Atención completada con registro de pago/pendiente',
+          detalleCambios: [
+            ...this.crearDetalleCambiosEstado(
+              estadoAnterior,
+              CitasEstado.COMPLETADA
+            ),
+            {
+              field: 'pago.monto',
+              before: undefined,
+              after: String(dto.monto),
+            },
+            {
+              field: 'pago.metodoPago',
+              before: undefined,
+              after: dto.metodoPago,
+            },
+          ],
+          usuarioCreacion: usuarioAuditoria,
+        },
+        transaccion
+      )
+
+      return formatearCita(cita)
+    })
   }
 
   async programarControlCita(
@@ -1708,7 +2125,12 @@ export class CitasMedicasService extends BaseService {
   ): Promise<CitaResponseDto> {
     return await this.citasRepository.runTransaction(async (transaccion) => {
       const citaOriginal = await this.obtenerCitaId(id, transaccion)
-      this.validarEstado(citaOriginal, [CitasEstado.PROGRAMADA])
+      this.validarEstado(citaOriginal, [CitasEstado.COMPLETADA])
+      if (citaOriginal.idCitaNueva) {
+        throw new BadRequestException(
+          'La cita ya tiene un control programado y no puede duplicarse'
+        )
+      }
 
       const fechaInicio = dayjs(dto.fechaInicio).toDate()
       const tipoCita = dto.tipoCita

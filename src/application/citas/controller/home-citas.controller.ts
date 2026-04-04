@@ -108,6 +108,25 @@ export class HomeCitasController extends BaseController {
     return this.successListRows(resultado)
   }
 
+  @ApiOperation({ summary: 'Lista incremental de citas con pago pendiente' })
+  @ApiBaseResponseListRows(CitaResponseDto)
+  @Get('pagos-pendientes')
+  async homePagosPendientes(
+    @Req() req: Request,
+    @Query() filtros: HomeListadoQueryDto
+  ) {
+    const idUsuarioSolicitante = this.getUser(req)
+    const rol = this.getRolNombre(req)
+
+    const resultado = await this.citasService.listarHomePagosPendientes(
+      filtros,
+      idUsuarioSolicitante,
+      rol
+    )
+
+    return this.successListRows(resultado)
+  }
+
   @ApiOperation({
     summary: 'Lista incremental de programadas asignadas agrupadas por día',
   })

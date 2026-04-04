@@ -38,6 +38,16 @@ const frontendRoutes: CasbinValue = {
     [RolEnum.PERSONAL]: 'read',
     [RolEnum.PROFESIONAL_INVITADO]: 'read',
   },
+
+  '/admin/pagos': {
+    [RolEnum.ADMINISTRADOR]: 'read',
+    [RolEnum.JEFE]: 'read',
+    [RolEnum.COORDINADOR]: 'read',
+  },
+  '/admin/cajas': {
+    [RolEnum.ADMINISTRADOR]: 'read',
+    [RolEnum.JEFE]: 'read|create|update',
+  },
   '/admin/pacientes': {
     [RolEnum.ADMINISTRADOR]: 'read',
     [RolEnum.JEFE]: 'read',
@@ -158,6 +168,11 @@ const backendRoutes: CasbinValue = {
     [RolEnum.PERSONAL]: 'GET',
     [RolEnum.PROFESIONAL_INVITADO]: 'GET',
   },
+  '/api/citas/home/pagos-pendientes': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.JEFE]: 'GET',
+    [RolEnum.COORDINADOR]: 'GET',
+  },
   '/api/citas/:id': {
     [RolEnum.ADMINISTRADOR]: 'GET|DELETE',
     [RolEnum.JEFE]: 'GET|DELETE',
@@ -178,6 +193,35 @@ const backendRoutes: CasbinValue = {
     [RolEnum.COORDINADOR]: 'GET',
     [RolEnum.PERSONAL]: 'GET',
     [RolEnum.PROFESIONAL_INVITADO]: 'GET',
+  },
+  '/api/citas/:id/pagos': {
+    [RolEnum.ADMINISTRADOR]: 'GET|POST',
+    [RolEnum.JEFE]: 'GET|POST',
+    [RolEnum.COORDINADOR]: 'GET|POST',
+  },
+  '/api/pagos/pendientes': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.JEFE]: 'GET',
+    [RolEnum.COORDINADOR]: 'GET',
+  },
+  '/api/pagos/:id/anular': {
+    [RolEnum.ADMINISTRADOR]: 'POST',
+    [RolEnum.JEFE]: 'POST',
+    [RolEnum.COORDINADOR]: 'POST',
+  },
+  '/api/reportes/pagos': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.JEFE]: 'GET',
+    [RolEnum.COORDINADOR]: 'GET',
+  },
+  '/api/caja/actual': {
+    [RolEnum.JEFE]: 'GET',
+  },
+  '/api/caja/apertura': {
+    [RolEnum.JEFE]: 'POST',
+  },
+  '/api/caja/cierre': {
+    [RolEnum.JEFE]: 'POST',
   },
   '/api/citas/:id/reprogramar': {
     [RolEnum.ADMINISTRADOR]: 'PATCH',
@@ -225,7 +269,7 @@ const backendRoutes: CasbinValue = {
     [RolEnum.PERSONAL]: 'POST',
     [RolEnum.PROFESIONAL_INVITADO]: 'POST',
   },
-  '/api/citas/:id/dar-alta': {
+  '/api/citas/:id/completar-atencion': {
     [RolEnum.ADMINISTRADOR]: 'POST',
     [RolEnum.JEFE]: 'POST',
     [RolEnum.COORDINADOR]: 'POST',

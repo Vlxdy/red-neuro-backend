@@ -7,8 +7,10 @@ import {
 import {
   IsDateString,
   IsEnum,
+  IsBoolean,
   IsIn,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -16,7 +18,13 @@ import {
   Min,
   IsInt,
 } from 'class-validator'
-import { CitasEstado, TipoCita } from '../constants'
+import {
+  CitaPagoMetodo,
+  CitaPagoSituacion,
+  CitaPagoTipo,
+  CitasEstado,
+  TipoCita,
+} from '../constants'
 import { PaginacionQueryDto } from '@/common/dto/paginacion-query.dto'
 import { PersonalResponseDto } from '@/application/personal/dto/personal.dto'
 import { PacienteResponseDto } from '@/application/paciente/dto/paciente.dto'
@@ -408,6 +416,9 @@ export class HomeContadoresResponseDto {
 
   @ApiProperty({ example: 34 })
   programadasAsignadas!: number
+
+  @ApiProperty({ example: 3 })
+  pagosPendientes!: number
 }
 
 export class HomePreviewBloqueResponseDto {
@@ -441,6 +452,9 @@ export class HomePreviewResponseDto {
 
   @ApiProperty({ type: () => HomePreviewProgramadasResponseDto })
   programadasAsignadas!: HomePreviewProgramadasResponseDto
+
+  @ApiProperty({ type: () => HomePreviewBloqueResponseDto })
+  pagosPendientes!: HomePreviewBloqueResponseDto
 }
 
 export class HomeBandejaResponseDto {
@@ -712,6 +726,266 @@ export class MarcarNoAsistioCitaDto {
   @IsOptional()
   @IsString()
   comentario?: string
+}
+
+export class CompletarAtencionConPagoDto {
+  @ApiProperty({
+    description: 'Monto del pago o deuda pendiente al completar la atención',
+    example: 120.5,
+    minimum: 0,
+  })
+  @Type(() => Number)
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 },
+    { message: 'El monto debe ser numérico y con hasta 2 decimales' }
+  )
+  @Min(0)
+  monto!: number
+
+  @ApiPropertyOptional({
+    enum: CitaPagoMetodo,
+    description:
+      'Método de pago usado cuando se registra pago inmediato. Opcional para pendientes',
+    example: CitaPagoMetodo.QR,
+  })
+  @IsOptional()
+  @IsEnum(CitaPagoMetodo)
+  metodoPago?: CitaPagoMetodo
+
+  @ApiPropertyOptional({
+    description:
+      'Si es true intenta registrar pago inmediato; si es false crea pago pendiente',
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  registrarPago?: boolean = true
+
+  @ApiPropertyOptional({
+    description: 'Observación opcional del pago',
+    example: 'Pendiente por regularizar por coordinación',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  observacion?: string
+}
+
+export class CrearCitaPagoDto {
+  @ApiProperty({
+    description: 'Monto del pago a registrar',
+    example: 100.5,
+    minimum: 0,
+  })
+  @Type(() => Number)
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 },
+    { message: 'El monto debe ser numérico y con hasta 2 decimales' }
+  )
+  @Min(0)
+  monto!: number
+
+  @ApiPropertyOptional({
+    description: 'Fecha del pago en formato ISO. Si no se envía, usa ahora.',
+    example: '2026-04-02T18:00:00Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaPago?: string
+
+  @ApiProperty({
+    enum: CitaPagoMetodo,
+    description: 'Método de pago utilizado',
+    example: CitaPagoMetodo.EFECTIVO,
+  })
+  @IsEnum(CitaPagoMetodo)
+  metodoPago!: CitaPagoMetodo
+
+  @ApiPropertyOptional({
+    enum: CitaPagoTipo,
+    description: 'Tipo de movimiento financiero',
+    example: CitaPagoTipo.PAGO,
+    default: CitaPagoTipo.PAGO,
+  })
+  @IsOptional()
+  @IsEnum(CitaPagoTipo)
+  tipoMovimiento?: CitaPagoTipo
+
+  @ApiPropertyOptional({
+    description: 'Observación opcional del pago',
+    example: 'Primer pago de tratamiento',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  observacion?: string
+}
+
+export class AnularCitaPagoDto {
+  @ApiProperty({
+    description: 'Motivo de anulación del pago',
+    example: 'Pago registrado por error',
+  })
+  @IsString()
+  @MaxLength(255)
+  motivo!: string
+}
+
+export class ReportePagosQueryDto {
+  @ApiProperty({
+    description: 'Fecha de inicio del reporte',
+    example: '2026-04-01T00:00:00Z',
+  })
+  @IsDateString()
+  fechaDesde!: string
+
+  @ApiProperty({
+    description: 'Fecha de fin del reporte',
+    example: '2026-04-30T23:59:59Z',
+  })
+  @IsDateString()
+  fechaHasta!: string
+
+  @ApiPropertyOptional({ description: 'Filtro por personal', example: '42' })
+  @IsOptional()
+  @IsString()
+  idPersonal?: string
+
+  @ApiPropertyOptional({ description: 'Filtro por servicio', example: '5' })
+  @IsOptional()
+  @IsString()
+  idServicio?: string
+
+  @ApiPropertyOptional({
+    enum: TipoCita,
+    description: 'Filtro por tipo de servicio/cita',
+  })
+  @IsOptional()
+  @IsEnum(TipoCita)
+  tipoCita?: TipoCita
+}
+
+export class CitaPagoResponseDto {
+  @ApiProperty({ example: '1' })
+  id!: string
+
+  @ApiProperty({ example: '10' })
+  idCita!: string
+
+  @ApiProperty({ example: 100.5 })
+  monto!: number
+
+  @ApiPropertyOptional({ example: '2026-04-02T18:00:00Z' })
+  fechaPago?: string
+
+  @ApiPropertyOptional({ enum: CitaPagoMetodo })
+  metodoPago?: CitaPagoMetodo
+
+  @ApiProperty({ enum: CitaPagoTipo })
+  tipoMovimiento!: CitaPagoTipo
+
+  @ApiProperty({ example: 'ACTIVO' })
+  estado!: string
+
+  @ApiProperty({
+    enum: CitaPagoSituacion,
+    example: CitaPagoSituacion.PENDIENTE,
+  })
+  estadoPago!: CitaPagoSituacion
+
+  @ApiPropertyOptional({ example: 'Primer pago' })
+  observacion?: string
+
+  @ApiProperty({ example: '8' })
+  idUsuarioRegistro!: string
+}
+
+export class ReportePagosResumenDto {
+  @ApiProperty({ example: 12 })
+  totalMovimientos!: number
+
+  @ApiProperty({ example: 1050.4 })
+  totalRecaudado!: number
+}
+
+export class ReportePagosAgrupadoDto {
+  @ApiProperty({ example: 'Control nutricional' })
+  etiqueta!: string
+
+  @ApiProperty({ example: 6 })
+  totalMovimientos!: number
+
+  @ApiProperty({ example: 430.5 })
+  totalRecaudado!: number
+}
+
+export class ReportePagosResponseDto {
+  @ApiProperty({ type: () => ReportePagosResumenDto })
+  resumen!: ReportePagosResumenDto
+
+  @ApiProperty({ type: () => [ReportePagosAgrupadoDto] })
+  porPersonal!: ReportePagosAgrupadoDto[]
+
+  @ApiProperty({ type: () => [ReportePagosAgrupadoDto] })
+  porServicio!: ReportePagosAgrupadoDto[]
+
+  @ApiProperty({ type: () => [ReportePagosAgrupadoDto] })
+  porTipoServicio!: ReportePagosAgrupadoDto[]
+}
+
+export class AperturaCajaDto {
+  @ApiPropertyOptional({
+    description: 'Monto inicial de caja (opcional)',
+    example: 0,
+    minimum: 0,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 },
+    { message: 'El monto de apertura debe ser numérico válido' }
+  )
+  @Min(0)
+  montoApertura?: number
+}
+
+export class CierreCajaDto {
+  @ApiPropertyOptional({
+    description: 'Monto declarado al cierre de caja (opcional)',
+    example: 540.5,
+    minimum: 0,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 },
+    { message: 'El monto de cierre debe ser numérico válido' }
+  )
+  @Min(0)
+  montoCierreDeclarado?: number
+}
+
+export class CajaSesionResponseDto {
+  @ApiProperty({ example: '10' })
+  id!: string
+
+  @ApiProperty({ example: 'ABIERTA' })
+  estado!: string
+
+  @ApiProperty({ example: '2026-04-02T08:00:00Z' })
+  fechaApertura!: string
+
+  @ApiPropertyOptional({ example: '2026-04-02T18:00:00Z' })
+  fechaCierre?: string
+
+  @ApiPropertyOptional({ example: 50 })
+  montoApertura?: number
+
+  @ApiPropertyOptional({ example: 640.5 })
+  montoCierreDeclarado?: number
+
+  @ApiProperty({ example: 620.5 })
+  montoRecaudado!: number
 }
 
 export class MensajeCitaDto extends CrearCitaDto {}

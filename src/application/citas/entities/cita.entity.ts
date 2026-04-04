@@ -21,6 +21,7 @@ import { Notificacion } from './notificacion.entity'
 import { Consultorio } from '@/application/consultorio/entities/consultorio.entity'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
 import { Lugar } from '@/application/lugar/entities/lugar.entity'
+import { CitaPago } from './cita-pago.entity'
 
 @Check(UtilService.buildStatusCheck(CitasEstado))
 @Check(UtilService.buildCheck('tipo_cita', TipoCita))
@@ -168,6 +169,9 @@ export class Cita extends AuditoriaEntity<CitasEstado> {
 
   @OneToMany(() => Notificacion, (notificacion) => notificacion.cita)
   notificacion: Notificacion[]
+
+  @OneToMany(() => CitaPago, (pago) => pago.cita)
+  pagos: CitaPago[]
 
   @Column({
     name: 'id_cita_nueva',

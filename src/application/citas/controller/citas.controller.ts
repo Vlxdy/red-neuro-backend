@@ -26,8 +26,11 @@ import { CitasGateway } from '../gateways/citas.gateway'
 import {
   CancelarCitaDto,
   CantidadCitasPorDiaResponseDto,
+  CitaPagoResponseDto,
   CitaResponseDto,
+  CompletarAtencionConPagoDto,
   CrearCitaDto,
+  CrearCitaPagoDto,
   EditarBorradorCitaDto,
   EditarProgramadaCitaDto,
   EnviarCitaDto,
@@ -172,6 +175,39 @@ export class CitasController extends BaseController {
       idUsuarioSolicitante,
       rol
     )
+    return this.successList(resultado)
+  }
+
+  @ApiOperation({ summary: 'Registra un pago asociado a una cita' })
+  @ApiBaseResponse(CitaPagoResponseDto)
+  @Post(':id/pagos')
+  async registrarPago(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: CrearCitaPagoDto
+  ): Promise<BaseResponseDto<CitaPagoResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUser(req)
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.registrarPagoCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor,
+      rolEjecutor
+    )
+    return this.successCreate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Lista los pagos registrados de una cita' })
+  @ApiBaseResponseArray(CitaPagoResponseDto)
+  @Get(':id/pagos')
+  async listarPagosPorCita(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
+  ): Promise<BaseResponseDto<CitaPagoResponseDto[]>> {
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.listarPagosCita(id, rolEjecutor)
     return this.successList(resultado)
   }
 
@@ -349,19 +385,23 @@ export class CitasController extends BaseController {
     return this.successUpdate(resultado)
   }
 
-  @ApiOperation({ summary: 'Da de alta una cita programada' })
+  @ApiOperation({ summary: 'Completa una atención y registra su pago atómico' })
   @ApiBaseResponse(CitaResponseDto)
-  @Post(':id/dar-alta')
-  async darAlta(
+  @Post(':id/completar-atencion')
+  async completarAtencion(
     @Param() { id }: ParamIdDto,
-    @Req() req: Request
+    @Req() req: Request,
+    @Body() dto: CompletarAtencionConPagoDto
   ): Promise<BaseResponseDto<CitaResponseDto>> {
     const usuarioAuditoria = this.getUser(req)
     const idEjecutor = this.getUser(req)
-    const resultado = await this.citasService.darAltaCita(
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.completarAtencionConPago(
       id,
+      dto,
       usuarioAuditoria,
-      idEjecutor
+      idEjecutor,
+      rolEjecutor
     )
     this.citasGateway.emitCitaEstadoActualizado(resultado)
     return this.successUpdate(resultado)
