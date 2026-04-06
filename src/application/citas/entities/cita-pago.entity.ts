@@ -8,6 +8,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
@@ -134,6 +135,23 @@ export class CitaPago extends AuditoriaEntity<CitaPagoEstado> {
   @ManyToOne(() => CajaSesion, (caja) => caja.pagos, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'id_caja_sesion', referencedColumnName: 'id' })
   cajaSesion?: CajaSesion | null
+
+  @Column({
+    name: 'id_pago_origen',
+    type: 'bigint',
+    nullable: true,
+    comment: 'Pago origen cuando este registro es una corrección',
+  })
+  idPagoOrigen?: string | null
+
+  @ManyToOne(() => CitaPago, (pago) => pago.pagosReemplazo, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_pago_origen', referencedColumnName: 'id' })
+  pagoOrigen?: CitaPago | null
+
+  @OneToMany(() => CitaPago, (pago) => pago.pagoOrigen)
+  pagosReemplazo?: CitaPago[]
 
   @BeforeInsert()
   insertarEstado() {

@@ -15,11 +15,15 @@ import {
   AnularCitaPagoDto,
   AperturaCajaDto,
   CajaSesionResponseDto,
+  CajaListadoResponseDto,
+  CajaMovimientosQueryDto,
+  CajaMovimientosResponseDto,
   CancelarCitaDto,
   CantidadCitasPorDiaResponseDto,
   CitaPagoResponseDto,
   CitaResponseDto,
   CierreCajaDto,
+  CorregirCitaPagoDto,
   CompletarAtencionConPagoDto,
   CrearCitaPagoDto,
   CrearCitaDto,
@@ -42,6 +46,7 @@ import {
   HomeGrupoDiaResponseDto,
   HomeListadoQueryDto,
   HomePreviewBloqueResponseDto,
+  ListarCajasQueryDto,
   CitasScope,
   ProgramarControlCitaDto,
   RechazarCitaDto,
@@ -141,7 +146,27 @@ export class CitasMedicasService extends BaseService {
     )
   }
 
+  private validarPermisoPendientesPrivados(rolEjecutor?: string) {
+    if (
+      ![RolEnum.ADMINISTRADOR, RolEnum.JEFE].includes(rolEjecutor as RolEnum)
+    ) {
+      throw new ForbiddenException(
+        'Solo ADMINISTRADOR y JEFE pueden ver la bandeja privada de pagos pendientes'
+      )
+    }
+  }
+
   private validarPermisoCaja(rolEjecutor?: string) {
+    if (
+      ![RolEnum.ADMINISTRADOR, RolEnum.JEFE].includes(rolEjecutor as RolEnum)
+    ) {
+      throw new ForbiddenException(
+        'Solo ADMINISTRADOR y JEFE pueden acceder a la bandeja de caja'
+      )
+    }
+  }
+
+  private validarPermisoOperarCaja(rolEjecutor?: string) {
     if (rolEjecutor !== RolEnum.JEFE) {
       throw new ForbiddenException(
         'Solo el rol JEFE puede operar apertura/cierre de caja'
@@ -1336,6 +1361,35 @@ export class CitasMedicasService extends BaseService {
     return actualizadas
   }
 
+  @Cron(process.env.CAJA_ROTACION_MENSUAL_CRON || '0 0 1 * *')
+  async rotacionMensualCaja(): Promise<void> {
+    const enabled =
+      (process.env.CAJA_ROTACION_MENSUAL_ENABLED || 'true').toLowerCase() ===
+      'true'
+    if (!enabled) return
+    const cajaAbierta = await this.citasRepository.obtenerCajaAbierta()
+    if (!cajaAbierta) {
+      await this.citasRepository.crearCajaSesion(
+        {
+          fechaApertura: new Date(),
+          idUsuarioApertura: '0',
+        },
+        '0'
+      )
+      return
+    }
+    cajaAbierta.estado = CajaSesionEstado.REVISION
+    cajaAbierta.usuarioModificacion = '0'
+    await this.citasRepository.guardarCajaSesion(cajaAbierta)
+    await this.citasRepository.crearCajaSesion(
+      {
+        fechaApertura: new Date(),
+        idUsuarioApertura: '0',
+      },
+      '0'
+    )
+  }
+
   async obtenerCajaActual(
     rolEjecutor?: string
   ): Promise<CajaSesionResponseDto | null> {
@@ -1348,13 +1402,67 @@ export class CitasMedicasService extends BaseService {
     return this.formatearCaja(caja, montoRecaudado)
   }
 
+  async listarCajas(
+    filtros: ListarCajasQueryDto,
+    rolEjecutor?: string
+  ): Promise<CajaListadoResponseDto> {
+    this.validarPermisoCaja(rolEjecutor)
+    const [rows, total] = await this.citasRepository.listarCajas(filtros)
+    const formateadas = await Promise.all(
+      rows.map(async (caja) => {
+        const montoRecaudado = await this.citasRepository.obtenerMontoCaja(
+          caja.id
+        )
+        const pagosPendientes =
+          await this.citasRepository.contarPagosPendientesEnCaja(caja.id)
+        return this.formatearCaja(caja, montoRecaudado, pagosPendientes)
+      })
+    )
+    return {
+      rows: formateadas,
+      total,
+      defaultCajaId: rows[0]?.id,
+    }
+  }
+
+  async obtenerCajaPorId(
+    idCaja: string,
+    rolEjecutor?: string
+  ): Promise<CajaSesionResponseDto> {
+    this.validarPermisoCaja(rolEjecutor)
+    const caja = await this.citasRepository.obtenerCajaPorId(idCaja)
+    if (!caja) throw new NotFoundException('La caja solicitada no existe')
+    const montoRecaudado = await this.citasRepository.obtenerMontoCaja(caja.id)
+    const pagosPendientes =
+      await this.citasRepository.contarPagosPendientesEnCaja(caja.id)
+    return this.formatearCaja(caja, montoRecaudado, pagosPendientes)
+  }
+
+  async listarMovimientosCaja(
+    idCaja: string,
+    filtros: CajaMovimientosQueryDto,
+    rolEjecutor?: string
+  ): Promise<CajaMovimientosResponseDto> {
+    this.validarPermisoCaja(rolEjecutor)
+    const caja = await this.citasRepository.obtenerCajaPorId(idCaja)
+    if (!caja) throw new NotFoundException('La caja solicitada no existe')
+    const [rows, total] = await this.citasRepository.listarMovimientosCaja(
+      idCaja,
+      filtros
+    )
+    return {
+      rows: rows.map((p) => this.formatearPago(p)),
+      total,
+    }
+  }
+
   async abrirCaja(
     dto: AperturaCajaDto,
     usuarioAuditoria = '0',
     idEjecutor = '0',
     rolEjecutor?: string
   ): Promise<CajaSesionResponseDto> {
-    this.validarPermisoCaja(rolEjecutor)
+    this.validarPermisoOperarCaja(rolEjecutor)
     const existente = await this.citasRepository.obtenerCajaAbierta()
     if (existente) {
       throw new BadRequestException(
@@ -1378,10 +1486,51 @@ export class CitasMedicasService extends BaseService {
     idEjecutor = '0',
     rolEjecutor?: string
   ): Promise<CajaSesionResponseDto> {
-    this.validarPermisoCaja(rolEjecutor)
+    this.validarPermisoOperarCaja(rolEjecutor)
     const caja = await this.citasRepository.obtenerCajaAbierta()
     if (!caja) {
       throw new BadRequestException('No existe una caja abierta para cerrar')
+    }
+    const pendientes = await this.citasRepository.contarPagosPendientesEnCaja(
+      caja.id
+    )
+    if (pendientes > 0) {
+      throw new BadRequestException(
+        'No se puede cerrar la caja porque tiene pagos pendientes'
+      )
+    }
+    caja.estado = CajaSesionEstado.CERRADA
+    caja.fechaCierre = new Date()
+    caja.idUsuarioCierre = idEjecutor
+    caja.montoCierreDeclarado = dto.montoCierreDeclarado ?? null
+    caja.usuarioModificacion = usuarioAuditoria
+    const guardada = await this.citasRepository.guardarCajaSesion(caja)
+    const montoRecaudado = await this.citasRepository.obtenerMontoCaja(caja.id)
+    return this.formatearCaja(guardada, montoRecaudado)
+  }
+
+  async cerrarCajaPorId(
+    idCaja: string,
+    dto: CierreCajaDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0',
+    rolEjecutor?: string
+  ): Promise<CajaSesionResponseDto> {
+    this.validarPermisoOperarCaja(rolEjecutor)
+    const caja = await this.citasRepository.obtenerCajaPorId(idCaja)
+    if (!caja) {
+      throw new NotFoundException('La caja solicitada no existe')
+    }
+    if (caja.estado === CajaSesionEstado.CERRADA) {
+      throw new BadRequestException('La caja ya se encuentra cerrada')
+    }
+    const pendientes = await this.citasRepository.contarPagosPendientesEnCaja(
+      caja.id
+    )
+    if (pendientes > 0) {
+      throw new BadRequestException(
+        'No se puede cerrar la caja porque tiene pagos pendientes'
+      )
     }
     caja.estado = CajaSesionEstado.CERRADA
     caja.fechaCierre = new Date()
@@ -1506,11 +1655,63 @@ export class CitasMedicasService extends BaseService {
     return this.formatearPago(pagoAnulado)
   }
 
+  async corregirPagoCita(
+    idPago: string,
+    dto: CorregirCitaPagoDto,
+    usuarioAuditoria = '0',
+    idEjecutor = '0',
+    rolEjecutor?: string
+  ): Promise<CitaPagoResponseDto> {
+    this.validarPermisoPendientesPrivados(rolEjecutor)
+    return await this.citasRepository.runTransaction(async (transaccion) => {
+      const pago = await this.citasRepository.buscarPagoPorId(idPago)
+      if (!pago) throw new NotFoundException('El pago solicitado no existe')
+      if (!pago.idCajaSesion) {
+        throw new BadRequestException(
+          'No se puede corregir un pago que no está asociado a una caja'
+        )
+      }
+      const caja = await this.citasRepository.obtenerCajaPorId(
+        pago.idCajaSesion
+      )
+      if (!caja)
+        throw new NotFoundException('La caja asociada al pago no existe')
+      if (caja.estado !== CajaSesionEstado.ABIERTA) {
+        throw new BadRequestException(
+          'Solo se puede corregir pagos cuando la caja está ABIERTA'
+        )
+      }
+      pago.estadoPago = CitaPagoSituacion.REEMPLAZADO
+      pago.usuarioModificacion = usuarioAuditoria
+      pago.observacion = dto.motivo
+      await this.citasRepository.guardarPagoCita(pago)
+
+      const corregido = await this.citasRepository.crearPagoCita(
+        {
+          idCita: pago.idCita,
+          idCajaSesion: pago.idCajaSesion,
+          monto: dto.monto,
+          fechaPago: dto.fechaPago ? dayjs(dto.fechaPago).toDate() : new Date(),
+          metodoPago: dto.metodoPago,
+          tipoMovimiento: dto.tipoMovimiento ?? pago.tipoMovimiento,
+          observacion: dto.observacion ?? dto.motivo,
+          estadoPago: CitaPagoSituacion.PAGADO,
+          idUsuarioRegistro: idEjecutor,
+        },
+        usuarioAuditoria,
+        transaccion
+      )
+      corregido.idPagoOrigen = pago.id
+      const guardado = await this.citasRepository.guardarPagoCita(corregido)
+      return this.formatearPago(guardado)
+    })
+  }
+
   async listarPagosPendientes(
     rolEjecutor?: string,
     idLugar?: string
   ): Promise<CitaPagoResponseDto[]> {
-    this.validarPermisoPagos(rolEjecutor)
+    this.validarPermisoPendientesPrivados(rolEjecutor)
     const pagos = await this.citasRepository.listarPagosPendientes({ idLugar })
     return pagos.map((pago) => this.formatearPago(pago))
   }
@@ -1542,12 +1743,14 @@ export class CitasMedicasService extends BaseService {
       estadoPago: pago.estadoPago,
       observacion: pago.observacion ?? undefined,
       idUsuarioRegistro: pago.idUsuarioRegistro,
+      idPagoOrigen: pago.idPagoOrigen ?? undefined,
     }
   }
 
   private formatearCaja(
     caja: CajaSesion,
-    montoRecaudado: number
+    montoRecaudado: number,
+    pagosPendientes?: number
   ): CajaSesionResponseDto {
     return {
       id: caja.id,
@@ -1566,6 +1769,7 @@ export class CitasMedicasService extends BaseService {
           ? Number(caja.montoCierreDeclarado)
           : undefined,
       montoRecaudado,
+      pagosPendientes,
     }
   }
 
@@ -2041,19 +2245,18 @@ export class CitasMedicasService extends BaseService {
 
       const forzarPendiente = rolEjecutor === RolEnum.PROFESIONAL_INVITADO
       const registrarPago = dto.registrarPago ?? true
+      const cajaAbierta =
+        await this.citasRepository.obtenerCajaAbierta(transaccion)
+      if (!cajaAbierta) {
+        throw new BadRequestException(
+          'No existe caja abierta. Debe abrir caja antes de completar atención'
+        )
+      }
 
       if (!forzarPendiente && registrarPago) {
         if (!dto.metodoPago) {
           throw new BadRequestException(
             'Debe enviar metodoPago cuando registra pago inmediato'
-          )
-        }
-
-        const cajaAbierta =
-          await this.citasRepository.obtenerCajaAbierta(transaccion)
-        if (!cajaAbierta) {
-          throw new BadRequestException(
-            'No existe caja abierta. Debe abrir caja antes de completar atención'
           )
         }
 
@@ -2076,6 +2279,7 @@ export class CitasMedicasService extends BaseService {
         await this.citasRepository.crearPagoCita(
           {
             idCita: cita.id,
+            idCajaSesion: cajaAbierta.id,
             monto: dto.monto,
             tipoMovimiento: CitaPagoTipo.PAGO,
             observacion: dto.observacion,

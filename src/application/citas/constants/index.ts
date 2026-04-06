@@ -36,6 +36,7 @@ export enum CitaPagoSituacion {
   PENDIENTE = 'PENDIENTE',
   PAGADO = 'PAGADO',
   ANULADO = 'ANULADO',
+  REEMPLAZADO = 'REEMPLAZADO',
 }
 
 export enum CitaPagoMetodo {
@@ -54,6 +55,7 @@ export enum CitaPagoTipo {
 
 export enum CajaSesionEstado {
   ABIERTA = 'ABIERTA',
+  REVISION = 'REVISION',
   CERRADA = 'CERRADA',
 }
 

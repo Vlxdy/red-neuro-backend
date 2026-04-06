@@ -22,6 +22,7 @@ import {
   CitaPagoMetodo,
   CitaPagoSituacion,
   CitaPagoTipo,
+  CajaSesionEstado,
   CitasEstado,
   TipoCita,
 } from '../constants'
@@ -898,6 +899,68 @@ export class CitaPagoResponseDto {
 
   @ApiProperty({ example: '8' })
   idUsuarioRegistro!: string
+
+  @ApiPropertyOptional({ example: '123' })
+  idPagoOrigen?: string
+}
+
+export class CorregirCitaPagoDto {
+  @ApiProperty({
+    description: 'Monto corregido del pago',
+    example: 100.5,
+    minimum: 0,
+  })
+  @Type(() => Number)
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 },
+    { message: 'El monto debe ser numérico y con hasta 2 decimales' }
+  )
+  @Min(0)
+  monto!: number
+
+  @ApiProperty({
+    enum: CitaPagoMetodo,
+    description: 'Método de pago corregido',
+    example: CitaPagoMetodo.QR,
+  })
+  @IsEnum(CitaPagoMetodo)
+  metodoPago!: CitaPagoMetodo
+
+  @ApiPropertyOptional({
+    description:
+      'Fecha del pago corregido en formato ISO. Si no se envía, usa ahora.',
+    example: '2026-04-02T18:00:00Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  fechaPago?: string
+
+  @ApiPropertyOptional({
+    enum: CitaPagoTipo,
+    description: 'Tipo de movimiento corregido',
+    example: CitaPagoTipo.PAGO,
+    default: CitaPagoTipo.PAGO,
+  })
+  @IsOptional()
+  @IsEnum(CitaPagoTipo)
+  tipoMovimiento?: CitaPagoTipo
+
+  @ApiProperty({
+    description: 'Motivo de corrección del pago',
+    example: 'Corrección de método de pago',
+  })
+  @IsString()
+  @MaxLength(255)
+  motivo!: string
+
+  @ApiPropertyOptional({
+    description: 'Observación del nuevo pago corregido',
+    example: 'Se corrige por carga errónea',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  observacion?: string
 }
 
 export class ReportePagosResumenDto {
@@ -986,6 +1049,75 @@ export class CajaSesionResponseDto {
 
   @ApiProperty({ example: 620.5 })
   montoRecaudado!: number
+
+  @ApiPropertyOptional({ example: 0 })
+  pagosPendientes?: number
+}
+
+export class ListarCajasQueryDto extends PaginacionQueryDto {
+  @ApiPropertyOptional({
+    enum: CajaSesionEstado,
+    description: 'Estado de la caja',
+    example: CajaSesionEstado.ABIERTA,
+  })
+  @IsOptional()
+  @IsEnum(CajaSesionEstado)
+  estado?: CajaSesionEstado
+
+  @ApiPropertyOptional({ description: 'Gestión (año)', example: 2026 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  gestion?: number
+
+  @ApiPropertyOptional({ description: 'Mes (1-12)', example: 4 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  mes?: number
+}
+
+export class CajaListadoResponseDto {
+  @ApiProperty({ type: () => [CajaSesionResponseDto] })
+  rows!: CajaSesionResponseDto[]
+
+  @ApiProperty({ example: 12 })
+  total!: number
+
+  @ApiPropertyOptional({ example: '10' })
+  defaultCajaId?: string
+}
+
+export class CajaMovimientosQueryDto extends PaginacionQueryDto {
+  @ApiPropertyOptional({ enum: CitaPagoSituacion })
+  @IsOptional()
+  @IsEnum(CitaPagoSituacion)
+  estadoPago?: CitaPagoSituacion
+
+  @ApiPropertyOptional({ enum: CitaPagoMetodo })
+  @IsOptional()
+  @IsEnum(CitaPagoMetodo)
+  metodoPago?: CitaPagoMetodo
+
+  @ApiPropertyOptional({ example: '2026-04-01T00:00:00Z' })
+  @IsOptional()
+  @IsDateString()
+  fechaDesde?: string
+
+  @ApiPropertyOptional({ example: '2026-04-30T23:59:59Z' })
+  @IsOptional()
+  @IsDateString()
+  fechaHasta?: string
+}
+
+export class CajaMovimientosResponseDto {
+  @ApiProperty({ type: () => [CitaPagoResponseDto] })
+  rows!: CitaPagoResponseDto[]
+
+  @ApiProperty({ example: 123 })
+  total!: number
 }
 
 export class MensajeCitaDto extends CrearCitaDto {}

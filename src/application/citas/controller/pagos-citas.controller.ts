@@ -22,6 +22,7 @@ import { CitasMedicasService } from '../services/citas-medicas.service'
 import {
   AnularCitaPagoDto,
   CitaPagoResponseDto,
+  CorregirCitaPagoDto,
   HomeListadoQueryDto,
 } from '../dto/cita.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
@@ -64,6 +65,30 @@ export class PagosCitasController extends BaseController {
     const idEjecutor = this.getUser(req)
     const rolEjecutor = this.getRolNombre(req)
     const resultado = await this.citasService.anularPagoCita(
+      id,
+      dto,
+      usuarioAuditoria,
+      idEjecutor,
+      rolEjecutor
+    )
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({
+    summary:
+      'Corrige un pago creando un nuevo registro y marcando el anterior como reemplazado',
+  })
+  @ApiBaseResponse(CitaPagoResponseDto)
+  @Post(':id/corregir')
+  async corregirPago(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: CorregirCitaPagoDto
+  ): Promise<BaseResponseDto<CitaPagoResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUser(req)
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.corregirPagoCita(
       id,
       dto,
       usuarioAuditoria,

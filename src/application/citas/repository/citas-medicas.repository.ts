@@ -18,6 +18,8 @@ import {
   FiltrosCitaPaginadoDto,
   ReportePagosQueryDto,
   ReprogramarCitaDto,
+  CajaMovimientosQueryDto,
+  ListarCajasQueryDto,
 } from '../dto/cita.dto'
 import { Servicio } from '@/application/servicio/entities/servicio.entity'
 import {
@@ -1135,6 +1137,34 @@ export class CitasMedicasRepository {
     return await this.cajaRepository().save(caja)
   }
 
+  async listarCajas(filtros: ListarCajasQueryDto) {
+    const query = this.cajaRepository()
+      .createQueryBuilder('caja')
+      .orderBy('caja.fechaApertura', 'DESC')
+      .addOrderBy('caja.id', 'DESC')
+
+    if (filtros.estado) {
+      query.andWhere('caja.estado = :estado', { estado: filtros.estado })
+    }
+    if (filtros.gestion) {
+      query.andWhere('EXTRACT(YEAR FROM caja.fechaApertura) = :gestion', {
+        gestion: filtros.gestion,
+      })
+    }
+    if (filtros.mes) {
+      query.andWhere('EXTRACT(MONTH FROM caja.fechaApertura) = :mes', {
+        mes: filtros.mes,
+      })
+    }
+    if (filtros.limite !== undefined) query.take(filtros.limite)
+    if (filtros.saltar !== undefined) query.skip(filtros.saltar)
+    return await query.getManyAndCount()
+  }
+
+  async obtenerCajaPorId(idCaja: string): Promise<CajaSesion | null> {
+    return await this.cajaRepository().findOne({ where: { id: idCaja } })
+  }
+
   async obtenerMontoCaja(idCaja: string): Promise<number> {
     const raw = await this.pagoRepository()
       .createQueryBuilder('pago')
@@ -1180,6 +1210,55 @@ export class CitasMedicasRepository {
 
   async guardarPagoCita(pago: CitaPago): Promise<CitaPago> {
     return await this.pagoRepository().save(pago)
+  }
+
+  async contarPagosPendientesEnCaja(idCaja: string): Promise<number> {
+    return await this.pagoRepository()
+      .createQueryBuilder('pago')
+      .where('pago.idCajaSesion = :idCaja', { idCaja })
+      .andWhere('pago.estado = :estado', { estado: CitaPagoEstado.REGISTRADO })
+      .andWhere('pago.estadoPago = :estadoPago', {
+        estadoPago: CitaPagoSituacion.PENDIENTE,
+      })
+      .getCount()
+  }
+
+  async listarMovimientosCaja(
+    idCaja: string,
+    filtros: CajaMovimientosQueryDto
+  ): Promise<[CitaPago[], number]> {
+    const query = this.pagoRepository()
+      .createQueryBuilder('pago')
+      .leftJoinAndSelect('pago.cita', 'cita')
+      .where('pago.idCajaSesion = :idCaja', { idCaja })
+      .andWhere('pago.estado = :estado', { estado: CitaPagoEstado.REGISTRADO })
+      .orderBy('pago.fechaCreacion', 'DESC')
+      .addOrderBy('pago.id', 'DESC')
+
+    if (filtros.estadoPago) {
+      query.andWhere('pago.estadoPago = :estadoPago', {
+        estadoPago: filtros.estadoPago,
+      })
+    }
+    if (filtros.metodoPago) {
+      query.andWhere('pago.metodoPago = :metodoPago', {
+        metodoPago: filtros.metodoPago,
+      })
+    }
+    if (filtros.fechaDesde) {
+      query.andWhere('pago.fechaPago >= :fechaDesde', {
+        fechaDesde: filtros.fechaDesde,
+      })
+    }
+    if (filtros.fechaHasta) {
+      query.andWhere('pago.fechaPago <= :fechaHasta', {
+        fechaHasta: filtros.fechaHasta,
+      })
+    }
+    if (filtros.limite !== undefined) query.take(filtros.limite)
+    if (filtros.saltar !== undefined) query.skip(filtros.saltar)
+
+    return await query.getManyAndCount()
   }
 
   async contarPagosPendientes(params: {
