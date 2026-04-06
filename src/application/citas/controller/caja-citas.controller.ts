@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request } from 'express'
 import { BaseController } from '@/common/base'
@@ -8,10 +17,15 @@ import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import {
   AperturaCajaDto,
+  CajaListadoResponseDto,
+  CajaMovimientosQueryDto,
+  CajaMovimientosResponseDto,
   CajaSesionResponseDto,
   CierreCajaDto,
+  ListarCajasQueryDto,
 } from '../dto/cita.dto'
 import { CitasMedicasService } from '../services/citas-medicas.service'
+import { ParamIdDto } from '@/common/dto/params-id.dto'
 
 @Controller('caja')
 @ApiTags('Caja de Citas')
@@ -30,6 +44,47 @@ export class CajaCitasController extends BaseController {
   ): Promise<BaseResponseDto<CajaSesionResponseDto | null>> {
     const rolEjecutor = this.getRolNombre(req)
     const resultado = await this.citasService.obtenerCajaActual(rolEjecutor)
+    return this.success(resultado)
+  }
+
+  @ApiOperation({ summary: 'Lista cajas para bandeja/selector' })
+  @ApiBaseResponse(CajaListadoResponseDto)
+  @Get()
+  async listarCajas(
+    @Req() req: Request,
+    @Query() filtros: ListarCajasQueryDto
+  ): Promise<BaseResponseDto<CajaListadoResponseDto>> {
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.listarCajas(filtros, rolEjecutor)
+    return this.success(resultado)
+  }
+
+  @ApiOperation({ summary: 'Obtiene detalle de una caja' })
+  @ApiBaseResponse(CajaSesionResponseDto)
+  @Get(':id')
+  async obtenerCaja(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request
+  ): Promise<BaseResponseDto<CajaSesionResponseDto>> {
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.obtenerCajaPorId(id, rolEjecutor)
+    return this.success(resultado)
+  }
+
+  @ApiOperation({ summary: 'Lista movimientos paginados de una caja' })
+  @ApiBaseResponse(CajaMovimientosResponseDto)
+  @Get(':id/movimientos')
+  async listarMovimientosCaja(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Query() filtros: CajaMovimientosQueryDto
+  ): Promise<BaseResponseDto<CajaMovimientosResponseDto>> {
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.listarMovimientosCaja(
+      id,
+      filtros,
+      rolEjecutor
+    )
     return this.success(resultado)
   }
 
@@ -63,6 +118,27 @@ export class CajaCitasController extends BaseController {
     const idEjecutor = this.getUser(req)
     const rolEjecutor = this.getRolNombre(req)
     const resultado = await this.citasService.cerrarCaja(
+      dto,
+      usuarioAuditoria,
+      idEjecutor,
+      rolEjecutor
+    )
+    return this.successUpdate(resultado)
+  }
+
+  @ApiOperation({ summary: 'Cierra caja por identificador (solo jefe)' })
+  @ApiBaseResponse(CajaSesionResponseDto)
+  @Post(':id/cierre')
+  async cerrarCajaPorId(
+    @Param() { id }: ParamIdDto,
+    @Req() req: Request,
+    @Body() dto: CierreCajaDto
+  ): Promise<BaseResponseDto<CajaSesionResponseDto>> {
+    const usuarioAuditoria = this.getUser(req)
+    const idEjecutor = this.getUser(req)
+    const rolEjecutor = this.getRolNombre(req)
+    const resultado = await this.citasService.cerrarCajaPorId(
+      id,
       dto,
       usuarioAuditoria,
       idEjecutor,

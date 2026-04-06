@@ -202,7 +202,10 @@ const backendRoutes: CasbinValue = {
   '/api/pagos/pendientes': {
     [RolEnum.ADMINISTRADOR]: 'GET',
     [RolEnum.JEFE]: 'GET',
-    [RolEnum.COORDINADOR]: 'GET',
+  },
+  '/api/pagos/:id/corregir': {
+    [RolEnum.ADMINISTRADOR]: 'POST',
+    [RolEnum.JEFE]: 'POST',
   },
   '/api/pagos/:id/anular': {
     [RolEnum.ADMINISTRADOR]: 'POST',
@@ -215,12 +218,28 @@ const backendRoutes: CasbinValue = {
     [RolEnum.COORDINADOR]: 'GET',
   },
   '/api/caja/actual': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.JEFE]: 'GET',
+  },
+  '/api/caja': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.JEFE]: 'GET',
+  },
+  '/api/caja/:id': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
+    [RolEnum.JEFE]: 'GET',
+  },
+  '/api/caja/:id/movimientos': {
+    [RolEnum.ADMINISTRADOR]: 'GET',
     [RolEnum.JEFE]: 'GET',
   },
   '/api/caja/apertura': {
     [RolEnum.JEFE]: 'POST',
   },
   '/api/caja/cierre': {
+    [RolEnum.JEFE]: 'POST',
+  },
+  '/api/caja/:id/cierre': {
     [RolEnum.JEFE]: 'POST',
   },
   '/api/citas/:id/reprogramar': {
