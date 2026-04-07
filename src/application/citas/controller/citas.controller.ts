@@ -43,6 +43,7 @@ import {
   MisSolicitadasResponseDto,
   MisTimelineQueryDto,
   MisTimelineResponseDto,
+  PagoConCitaResumenDto,
   ProgramarControlCitaDto,
   RechazarCitaDto,
   ReprogramarCitaDto,
@@ -199,16 +200,23 @@ export class CitasController extends BaseController {
     return this.successCreate(resultado)
   }
 
-  @ApiOperation({ summary: 'Lista los pagos registrados de una cita' })
-  @ApiBaseResponseArray(CitaPagoResponseDto)
+  @ApiOperation({
+    summary: 'Lista los pagos registrados de una cita en formato unificado',
+  })
+  @ApiBaseResponseListRows(PagoConCitaResumenDto)
   @Get(':id/pagos')
   async listarPagosPorCita(
     @Param() { id }: ParamIdDto,
     @Req() req: Request
-  ): Promise<BaseResponseDto<CitaPagoResponseDto[]>> {
+  ): Promise<
+    BaseResponseDto<{ total: number; filas: PagoConCitaResumenDto[] }>
+  > {
     const rolEjecutor = this.getRolNombre(req)
-    const resultado = await this.citasService.listarPagosCita(id, rolEjecutor)
-    return this.successList(resultado)
+    const resultado = await this.citasService.listarPagosCitaResumen(
+      id,
+      rolEjecutor
+    )
+    return this.successListRows(resultado)
   }
 
   @ApiOperation({

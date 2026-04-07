@@ -1085,7 +1085,7 @@ export class CitasMedicasRepository {
       observacion?: string
       idCajaSesion?: string
       estadoPago: CitaPagoSituacion
-      idUsuarioRegistro: string
+      idUsuarioRegistro?: string
     },
     usuarioAuditoria: string,
     manager?: EntityManager
@@ -1099,7 +1099,7 @@ export class CitasMedicasRepository {
       estadoPago: data.estadoPago,
       tipoMovimiento: data.tipoMovimiento,
       observacion: data.observacion,
-      idUsuarioRegistro: data.idUsuarioRegistro,
+      idUsuarioRegistro: data.idUsuarioRegistro ?? null,
       usuarioCreacion: usuarioAuditoria,
       estado: CitaPagoEstado.REGISTRADO,
     })
@@ -1261,6 +1261,50 @@ export class CitasMedicasRepository {
     return await query.getManyAndCount()
   }
 
+  async listarMovimientosCajaResumen(
+    idCaja: string,
+    filtros: CajaMovimientosQueryDto
+  ): Promise<[CitaPago[], number]> {
+    const query = this.pagoRepository()
+      .createQueryBuilder('pago')
+      .leftJoinAndSelect('pago.cita', 'cita')
+      .leftJoinAndSelect('cita.personal', 'personal')
+      .leftJoinAndSelect('personal.persona', 'personaPersonal')
+      .leftJoinAndSelect('cita.paciente', 'paciente')
+      .leftJoinAndSelect('cita.servicio', 'servicio')
+      .leftJoinAndSelect('pago.usuarioRegistro', 'usuarioRegistro')
+      .leftJoinAndSelect('usuarioRegistro.persona', 'personaUsuarioRegistro')
+      .where('pago.idCajaSesion = :idCaja', { idCaja })
+      .andWhere('pago.estado = :estado', { estado: CitaPagoEstado.REGISTRADO })
+      .orderBy('pago.fechaCreacion', 'DESC')
+      .addOrderBy('pago.id', 'DESC')
+
+    if (filtros.estadoPago) {
+      query.andWhere('pago.estadoPago = :estadoPago', {
+        estadoPago: filtros.estadoPago,
+      })
+    }
+    if (filtros.metodoPago) {
+      query.andWhere('pago.metodoPago = :metodoPago', {
+        metodoPago: filtros.metodoPago,
+      })
+    }
+    if (filtros.fechaDesde) {
+      query.andWhere('pago.fechaPago >= :fechaDesde', {
+        fechaDesde: filtros.fechaDesde,
+      })
+    }
+    if (filtros.fechaHasta) {
+      query.andWhere('pago.fechaPago <= :fechaHasta', {
+        fechaHasta: filtros.fechaHasta,
+      })
+    }
+    if (filtros.limite !== undefined) query.take(filtros.limite)
+    if (filtros.saltar !== undefined) query.skip(filtros.saltar)
+
+    return await query.getManyAndCount()
+  }
+
   async contarPagosPendientes(params: {
     idPersonal?: string
     idLugar?: string
@@ -1343,6 +1387,59 @@ export class CitasMedicasRepository {
     }
 
     return await query.getMany()
+  }
+
+  async listarPagosPendientesResumen(params: {
+    idLugar?: string
+    idPersonal?: string
+    limite?: number
+    saltar?: number
+  }): Promise<[CitaPago[], number]> {
+    const query = this.pagoRepository()
+      .createQueryBuilder('pago')
+      .leftJoinAndSelect('pago.cita', 'cita')
+      .leftJoinAndSelect('cita.personal', 'personal')
+      .leftJoinAndSelect('personal.persona', 'personaPersonal')
+      .leftJoinAndSelect('cita.paciente', 'paciente')
+      .leftJoinAndSelect('cita.servicio', 'servicio')
+      .leftJoinAndSelect('pago.usuarioRegistro', 'usuarioRegistro')
+      .leftJoinAndSelect('usuarioRegistro.persona', 'personaUsuarioRegistro')
+      .where('pago.estado = :estado', { estado: CitaPagoEstado.REGISTRADO })
+      .andWhere('pago.estadoPago = :estadoPago', {
+        estadoPago: CitaPagoSituacion.PENDIENTE,
+      })
+      .orderBy('pago.fechaCreacion', 'ASC')
+      .addOrderBy('pago.id', 'ASC')
+
+    if (params.idLugar) {
+      query.andWhere('cita.idLugar = :idLugar', { idLugar: params.idLugar })
+    }
+    if (params.idPersonal) {
+      query.andWhere('cita.idPersonal = :idPersonal', {
+        idPersonal: params.idPersonal,
+      })
+    }
+    if (params.limite !== undefined) query.take(params.limite)
+    if (params.saltar !== undefined) query.skip(params.saltar)
+
+    return await query.getManyAndCount()
+  }
+
+  async listarPagosPorCitaResumen(idCita: string): Promise<CitaPago[]> {
+    return await this.pagoRepository()
+      .createQueryBuilder('pago')
+      .leftJoinAndSelect('pago.cita', 'cita')
+      .leftJoinAndSelect('cita.personal', 'personal')
+      .leftJoinAndSelect('personal.persona', 'personaPersonal')
+      .leftJoinAndSelect('cita.paciente', 'paciente')
+      .leftJoinAndSelect('cita.servicio', 'servicio')
+      .leftJoinAndSelect('pago.usuarioRegistro', 'usuarioRegistro')
+      .leftJoinAndSelect('usuarioRegistro.persona', 'personaUsuarioRegistro')
+      .where('pago.idCita = :idCita', { idCita })
+      .andWhere('pago.estado = :estado', { estado: CitaPagoEstado.REGISTRADO })
+      .orderBy('pago.fechaPago', 'ASC')
+      .addOrderBy('pago.id', 'ASC')
+      .getMany()
   }
 
   async obtenerReportePagos(filtros: ReportePagosQueryDto) {
