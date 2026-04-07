@@ -21,6 +21,8 @@ import {
   CancelarCitaDto,
   CantidadCitasPorDiaResponseDto,
   CitaPagoResponseDto,
+  CitaResumenPagoDto,
+  PagoConCitaResumenDto,
   CitaResponseDto,
   CierreCajaDto,
   CorregirCitaPagoDto,
@@ -56,7 +58,11 @@ import {
 } from '../dto/cita.dto'
 
 import { CitasMedicasRepository } from '../repository/citas-medicas.repository'
-import { formatearCita, formatearCitas } from '../utils/formatear-citas'
+import {
+  formatearCita,
+  formatearCitas,
+  formatearServicio,
+} from '../utils/formatear-citas'
 import { EntityManager } from 'typeorm'
 import { Cita } from '../entities/cita.entity'
 import {
@@ -79,6 +85,8 @@ import {
 import { CitasGateway } from '../gateways/citas.gateway'
 import { CitaPago } from '../entities/cita-pago.entity'
 import { CajaSesion } from '../entities/caja-sesion.entity'
+import { formatearPaciente } from '@/application/paciente/utils/formateo-paciente'
+import { formatearUsuarioComoPersonal } from '@/application/personal/utils/formateo-personal.utils'
 
 @Injectable()
 export class CitasMedicasService extends BaseService {
@@ -1091,6 +1099,28 @@ export class CitasMedicasService extends BaseService {
     return [formatearCitas(citas), total]
   }
 
+  async listarHomePagosPendientesResumen(
+    filtros: HomeListadoQueryDto,
+    idUsuario: string,
+    rol: string
+  ): Promise<[PagoConCitaResumenDto[], number]> {
+    if (!this.puedeVerPendientesPago(rol)) return [[], 0]
+    const { idPersonal } = this.resolverScope(
+      filtros.scope,
+      rol,
+      idUsuario,
+      filtros.idPersonal
+    )
+    const [pagos, total] =
+      await this.citasRepository.listarPagosPendientesResumen({
+        idPersonal,
+        idLugar: filtros.idLugar,
+        limite: filtros.limite,
+        saltar: filtros.saltar,
+      })
+    return [pagos.map((p) => this.formatearPagoConCitaResumen(p)), total]
+  }
+
   async obtenerMisResumen(
     filtros: MisResumenCitasDto,
     idUsuario: string,
@@ -1456,6 +1486,19 @@ export class CitasMedicasService extends BaseService {
     }
   }
 
+  async listarMovimientosCajaResumen(
+    idCaja: string,
+    filtros: CajaMovimientosQueryDto,
+    rolEjecutor?: string
+  ): Promise<[PagoConCitaResumenDto[], number]> {
+    this.validarPermisoCaja(rolEjecutor)
+    const caja = await this.citasRepository.obtenerCajaPorId(idCaja)
+    if (!caja) throw new NotFoundException('La caja solicitada no existe')
+    const [rows, total] =
+      await this.citasRepository.listarMovimientosCajaResumen(idCaja, filtros)
+    return [rows.map((p) => this.formatearPagoConCitaResumen(p)), total]
+  }
+
   async abrirCaja(
     dto: AperturaCajaDto,
     usuarioAuditoria = '0',
@@ -1630,6 +1673,17 @@ export class CitasMedicasService extends BaseService {
     return pagos.map((pago) => this.formatearPago(pago))
   }
 
+  async listarPagosCitaResumen(
+    idCita: string,
+    rolEjecutor?: string
+  ): Promise<[PagoConCitaResumenDto[], number]> {
+    this.validarPermisoPagos(rolEjecutor)
+    await this.obtenerCitaId(idCita)
+    const pagos = await this.citasRepository.listarPagosPorCitaResumen(idCita)
+    const filas = pagos.map((p) => this.formatearPagoConCitaResumen(p))
+    return [filas, filas.length]
+  }
+
   async anularPagoCita(
     idPago: string,
     dto: AnularCitaPagoDto,
@@ -1716,6 +1770,16 @@ export class CitasMedicasService extends BaseService {
     return pagos.map((pago) => this.formatearPago(pago))
   }
 
+  async listarPagosPendientesResumen(
+    rolEjecutor?: string,
+    idLugar?: string
+  ): Promise<[PagoConCitaResumenDto[], number]> {
+    this.validarPermisoPendientesPrivados(rolEjecutor)
+    const [pagos, total] =
+      await this.citasRepository.listarPagosPendientesResumen({ idLugar })
+    return [pagos.map((p) => this.formatearPagoConCitaResumen(p)), total]
+  }
+
   async obtenerReportePagos(
     filtros: ReportePagosQueryDto,
     rolEjecutor?: string
@@ -1742,7 +1806,7 @@ export class CitasMedicasService extends BaseService {
       estado: pago.estado,
       estadoPago: pago.estadoPago,
       observacion: pago.observacion ?? undefined,
-      idUsuarioRegistro: pago.idUsuarioRegistro,
+      idUsuarioRegistro: pago.idUsuarioRegistro ?? undefined,
       idPagoOrigen: pago.idPagoOrigen ?? undefined,
     }
   }
@@ -1770,6 +1834,43 @@ export class CitasMedicasService extends BaseService {
           : undefined,
       montoRecaudado,
       pagosPendientes,
+    }
+  }
+
+  private formatearCitaResumenPago(cita?: Cita | null): CitaResumenPagoDto {
+    if (!cita) {
+      throw new BadRequestException('El pago no tiene cita asociada')
+    }
+    return {
+      id: cita.id,
+      detalle: cita.detalle,
+      fechaInicio: dayjs(cita.fechaInicio).toISOString(),
+      fechaFin: dayjs(cita.fechaFin).toISOString(),
+      estado: cita.estado,
+      tipoCita: cita.tipoCita,
+      paciente: cita.paciente ? formatearPaciente(cita.paciente) : undefined,
+      personal: cita.personal
+        ? formatearUsuarioComoPersonal(cita.personal)
+        : undefined,
+      servicio: cita.servicio ? formatearServicio(cita.servicio) : undefined,
+    }
+  }
+
+  private formatearPagoConCitaResumen(pago: CitaPago): PagoConCitaResumenDto {
+    return {
+      id: pago.id,
+      monto: Number(pago.monto),
+      estadoPago: pago.estadoPago,
+      metodoPago: pago.metodoPago ?? undefined,
+      tipoMovimiento: pago.tipoMovimiento,
+      fechaPago: pago.fechaPago
+        ? dayjs(pago.fechaPago).toISOString()
+        : undefined,
+      observacion: pago.observacion ?? undefined,
+      usuarioRegistro: pago.usuarioRegistro
+        ? formatearUsuarioComoPersonal(pago.usuarioRegistro)
+        : undefined,
+      cita: this.formatearCitaResumenPago(pago.cita),
     }
   }
 
@@ -2282,9 +2383,8 @@ export class CitasMedicasService extends BaseService {
             idCajaSesion: cajaAbierta.id,
             monto: dto.monto,
             tipoMovimiento: CitaPagoTipo.PAGO,
-            observacion: dto.observacion,
+            observacion: dto.observacion ?? null,
             estadoPago: CitaPagoSituacion.PENDIENTE,
-            idUsuarioRegistro: idEjecutor,
           },
           usuarioAuditoria,
           transaccion
@@ -2309,7 +2409,8 @@ export class CitasMedicasService extends BaseService {
             {
               field: 'pago.metodoPago',
               before: undefined,
-              after: dto.metodoPago,
+              after:
+                !forzarPendiente && registrarPago ? dto.metodoPago : undefined,
             },
           ],
           usuarioCreacion: usuarioAuditoria,

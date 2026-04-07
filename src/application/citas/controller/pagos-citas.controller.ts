@@ -16,7 +16,7 @@ import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import {
   ApiBaseResponse,
-  ApiBaseResponseArray,
+  ApiBaseResponseListRows,
 } from '@/common/decorators/api-base-responde.decorator'
 import { CitasMedicasService } from '../services/citas-medicas.service'
 import {
@@ -24,6 +24,7 @@ import {
   CitaPagoResponseDto,
   CorregirCitaPagoDto,
   HomeListadoQueryDto,
+  PagoConCitaResumenDto,
 } from '../dto/cita.dto'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
 
@@ -36,21 +37,21 @@ export class PagosCitasController extends BaseController {
     super()
   }
 
-  @ApiOperation({
-    summary: 'Lista la bandeja de pagos pendientes por regularizar',
-  })
-  @ApiBaseResponseArray(CitaPagoResponseDto)
+  @ApiOperation({ summary: 'Lista la bandeja de pagos pendientes' })
+  @ApiBaseResponseListRows(PagoConCitaResumenDto)
   @Get('pendientes')
   async listarPendientes(
     @Req() req: Request,
     @Query() filtros: HomeListadoQueryDto
-  ): Promise<BaseResponseDto<CitaPagoResponseDto[]>> {
+  ): Promise<
+    BaseResponseDto<{ total: number; filas: PagoConCitaResumenDto[] }>
+  > {
     const rolEjecutor = this.getRolNombre(req)
-    const resultado = await this.citasService.listarPagosPendientes(
+    const resultado = await this.citasService.listarPagosPendientesResumen(
       rolEjecutor,
       filtros.idLugar
     )
-    return this.successList(resultado)
+    return this.successListRows(resultado)
   }
 
   @ApiOperation({ summary: 'Anula un pago de cita registrado previamente' })

@@ -11,7 +11,10 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request } from 'express'
 import { BaseController } from '@/common/base'
-import { ApiBaseResponse } from '@/common/decorators/api-base-responde.decorator'
+import {
+  ApiBaseResponse,
+  ApiBaseResponseListRows,
+} from '@/common/decorators/api-base-responde.decorator'
 import { BaseResponseDto } from '@/common/dto/swagger/base-response.dto'
 import { JwtAuthGuard } from '@/core/authentication/guards/jwt-auth.guard'
 import { CasbinGuard } from '@/core/authorization/guards/casbin.guard'
@@ -19,10 +22,10 @@ import {
   AperturaCajaDto,
   CajaListadoResponseDto,
   CajaMovimientosQueryDto,
-  CajaMovimientosResponseDto,
   CajaSesionResponseDto,
   CierreCajaDto,
   ListarCajasQueryDto,
+  PagoConCitaResumenDto,
 } from '../dto/cita.dto'
 import { CitasMedicasService } from '../services/citas-medicas.service'
 import { ParamIdDto } from '@/common/dto/params-id.dto'
@@ -71,21 +74,25 @@ export class CajaCitasController extends BaseController {
     return this.success(resultado)
   }
 
-  @ApiOperation({ summary: 'Lista movimientos paginados de una caja' })
-  @ApiBaseResponse(CajaMovimientosResponseDto)
+  @ApiOperation({
+    summary: 'Lista movimientos paginados de una caja con formato unificado',
+  })
+  @ApiBaseResponseListRows(PagoConCitaResumenDto)
   @Get(':id/movimientos')
   async listarMovimientosCaja(
     @Param() { id }: ParamIdDto,
     @Req() req: Request,
     @Query() filtros: CajaMovimientosQueryDto
-  ): Promise<BaseResponseDto<CajaMovimientosResponseDto>> {
+  ): Promise<
+    BaseResponseDto<{ total: number; filas: PagoConCitaResumenDto[] }>
+  > {
     const rolEjecutor = this.getRolNombre(req)
-    const resultado = await this.citasService.listarMovimientosCaja(
+    const resultado = await this.citasService.listarMovimientosCajaResumen(
       id,
       filtros,
       rolEjecutor
     )
-    return this.success(resultado)
+    return this.successListRows(resultado)
   }
 
   @ApiOperation({ summary: 'Abre una nueva caja manualmente (solo jefe)' })

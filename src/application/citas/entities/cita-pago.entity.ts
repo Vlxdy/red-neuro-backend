@@ -103,14 +103,14 @@ export class CitaPago extends AuditoriaEntity<CitaPagoEstado> {
   @Column({
     name: 'id_usuario_registro',
     type: 'bigint',
-    nullable: false,
+    nullable: true,
     comment: 'Usuario que registró el pago',
   })
-  idUsuarioRegistro: string
+  idUsuarioRegistro?: string | null
 
-  @ManyToOne(() => Usuario, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Usuario, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'id_usuario_registro', referencedColumnName: 'id' })
-  usuarioRegistro: Usuario
+  usuarioRegistro?: Usuario | null
 
   @Column({
     name: 'id_usuario_anulacion',

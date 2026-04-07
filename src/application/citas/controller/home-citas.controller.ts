@@ -17,6 +17,7 @@ import {
   HomeProgramadasListadoQueryDto,
   HomeGrupoDiaResponseDto,
   HomeListadoQueryDto,
+  PagoConCitaResumenDto,
 } from '../dto/cita.dto'
 
 @Controller('citas/home')
@@ -108,8 +109,8 @@ export class HomeCitasController extends BaseController {
     return this.successListRows(resultado)
   }
 
-  @ApiOperation({ summary: 'Lista incremental de citas con pago pendiente' })
-  @ApiBaseResponseListRows(CitaResponseDto)
+  @ApiOperation({ summary: 'Lista incremental de pagos pendientes' })
+  @ApiBaseResponseListRows(PagoConCitaResumenDto)
   @Get('pagos-pendientes')
   async homePagosPendientes(
     @Req() req: Request,
@@ -117,8 +118,7 @@ export class HomeCitasController extends BaseController {
   ) {
     const idUsuarioSolicitante = this.getUser(req)
     const rol = this.getRolNombre(req)
-
-    const resultado = await this.citasService.listarHomePagosPendientes(
+    const resultado = await this.citasService.listarHomePagosPendientesResumen(
       filtros,
       idUsuarioSolicitante,
       rol

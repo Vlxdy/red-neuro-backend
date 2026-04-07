@@ -897,11 +897,69 @@ export class CitaPagoResponseDto {
   @ApiPropertyOptional({ example: 'Primer pago' })
   observacion?: string
 
-  @ApiProperty({ example: '8' })
-  idUsuarioRegistro!: string
+  @ApiPropertyOptional({ example: '8' })
+  idUsuarioRegistro?: string
 
   @ApiPropertyOptional({ example: '123' })
   idPagoOrigen?: string
+}
+
+export class CitaResumenPagoDto {
+  @ApiProperty({ example: 'cita-456' })
+  id!: string
+
+  @ApiProperty({ example: 'Control nutricional' })
+  detalle!: string
+
+  @ApiProperty({ example: '2026-04-06T14:00:00.000Z' })
+  fechaInicio!: string
+
+  @ApiProperty({ example: '2026-04-06T14:30:00.000Z' })
+  fechaFin!: string
+
+  @ApiProperty({ enum: CitasEstado, example: CitasEstado.COMPLETADA })
+  estado!: CitasEstado
+
+  @ApiProperty({ enum: TipoCita, example: TipoCita.CONSULTA })
+  tipoCita!: TipoCita
+
+  @ApiPropertyOptional({ type: () => PacienteResponseDto })
+  paciente?: PacienteResponseDto
+
+  @ApiPropertyOptional({ type: () => PersonalResponseDto })
+  personal?: PersonalResponseDto
+
+  @ApiPropertyOptional({ type: () => ServicioCitaDto })
+  servicio?: ServicioCitaDto
+}
+
+export class PagoConCitaResumenDto {
+  @ApiProperty({ example: 'pago-123' })
+  id!: string
+
+  @ApiProperty({ example: 120.5 })
+  monto!: number
+
+  @ApiProperty({ enum: CitaPagoSituacion, example: CitaPagoSituacion.PAGADO })
+  estadoPago!: CitaPagoSituacion
+
+  @ApiPropertyOptional({ enum: CitaPagoMetodo, example: CitaPagoMetodo.QR })
+  metodoPago?: CitaPagoMetodo
+
+  @ApiProperty({ enum: CitaPagoTipo, example: CitaPagoTipo.PAGO })
+  tipoMovimiento!: CitaPagoTipo
+
+  @ApiPropertyOptional({ example: '2026-04-06T14:31:00.000Z' })
+  fechaPago?: string
+
+  @ApiPropertyOptional({ example: 'Pago en caja' })
+  observacion?: string
+
+  @ApiPropertyOptional({ type: () => PersonalResponseDto })
+  usuarioRegistro?: PersonalResponseDto
+
+  @ApiProperty({ type: () => CitaResumenPagoDto })
+  cita!: CitaResumenPagoDto
 }
 
 export class CorregirCitaPagoDto {
